@@ -20,6 +20,8 @@ type VisitState = {
   // One list per kind, so the walk skips the work for a kind no template writes.
   templates: Record<TemplateKind, Array<RegisteredTemplate>>
   schemas: Map<SchemaNode, Resolved<SchemaNode> | Error>
+  // Names the walk leaves out: schemas only an excluded schema references.
+  orphaned: ReadonlySet<string>
   operations: Array<OperationNode>
   printerFactory: PrinterFactory | undefined
   // Override merges are stable objects, so one printer per base options and per matching override.
@@ -63,6 +65,22 @@ function operationSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<
   return ast.graph.getUsedNames(operations, ctx.schemas)
 }
 
+// A schemaName exclude also drops the schemas only the excluded schemas reference.
+function orphanedSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<string> {
+  const options = pluginOptions(ctx)
+  const exclude = options.exclude?.filter(({ type }) => type === 'schemaName') ?? []
+  // The filter list is also the cache key, so these results stay apart from the plugin's own.
+  const excluded = new Set(ctx.schemas.filter((node) => exclude.length && resolver.default.options(node, { options: exclude, exclude }) === null))
+  if (!excluded.size) return new Set()
+
+  const kept = ctx.schemas.filter((node) => !excluded.has(node))
+  const candidates = ast.graph.getUsedNames([...excluded], kept)
+  const operations = ctx.operations.filter((operation) => resolveNode(ctx, resolver, [], operation) !== null)
+  const roots = kept.filter((node) => !node.name || !candidates.has(node.name))
+  const used = ast.graph.getUsedNames([...operations, ...roots], kept)
+  return new Set([...candidates].filter((name) => !used.has(name)))
+}
+
 // Keeps a schema the rules allow and reserves its name. Returns its node after macros, or null when the rules leave it out.
 function retainSchema(
   ctx: PluginVisitContext,
@@ -70,6 +88,7 @@ function retainSchema(
   node: SchemaNode,
   { skipInclude, allowed }: { skipInclude?: boolean; allowed?: Set<string> | null } = {},
 ): SchemaNode | null {
+  if (node.name && state.orphaned.has(node.name)) return null
   const { resolver } = state.context
   const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude })
   if (!resolved) return null
@@ -101,6 +120,27 @@ function keepReferenced(ctx: PluginVisitContext, state: VisitState): void {
         state.schemas.set(node, toError(caughtError))
         return
       }
+    }
+  }
+}
+
+// A schemaName override also applies to the schemas the matched schemas reference, unless they match an override themselves.
+function inheritOverrides(ctx: PluginVisitContext, state: VisitState): void {
+  const base = pluginOptions(ctx)
+  if (!base.override?.some(({ type }) => type === 'schemaName')) return
+  const byName = new Map<string, Resolved<SchemaNode>>()
+  for (const [node, resolved] of state.schemas) {
+    if (node.name && !(resolved instanceof Error)) byName.set(node.name, resolved)
+  }
+
+  // The queue grows while it is read, so an inherited override is passed on too.
+  const queue = [...byName.values()].filter((resolved) => resolved.options !== base)
+  for (const { transformedNode, options } of queue) {
+    for (const name of ast.graph.getRefNames(transformedNode)) {
+      const target = byName.get(name)
+      if (!target || target.options !== base) continue
+      target.options = options
+      queue.push(target)
     }
   }
 }
@@ -157,6 +197,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
         macros: (ctx.memo.get(slot.macros(name)) as Array<Macro> | undefined) ?? [],
         templates: { Schema: ofKind('Schema'), Operation: ofKind('Operation'), Operations: ofKind('Operations') },
         schemas: new Map(),
+        orphaned: new Set(),
         operations: [],
         printerFactory: ctx.memo.get(slot.printer(name)) as VisitState['printerFactory'],
         printers: new WeakMap(),
@@ -166,6 +207,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       if (!state.templates.Schema.length) return
 
       // Reserve names before generation, with the same macros and filters, so later collisions get suffixes.
+      state.orphaned = orphanedSchemaNames(ctx, resolver)
       const allowed = operationSchemaNames(ctx, resolver)
       for (const node of ctx.schemas) {
         try {
@@ -178,6 +220,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       }
 
       keepReferenced(ctx, state)
+      inheritOverrides(ctx, state)
     },
     async 'kubb:plugin:visit:schema'(node, ctx) {
       const state = getState(ctx)

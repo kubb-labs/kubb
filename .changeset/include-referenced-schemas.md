@@ -1,8 +1,13 @@
 ---
 '@kubb/kit': patch
+'@kubb/ast': patch
 ---
 
-Generate the schemas a `schemaName` entry in `include` references, so the generated imports resolve.
+Follow schema references for `schemaName` entries in `include`, `exclude`, and `override`.
+
+- `include` also generates the schemas the matched schemas reference.
+- `exclude` also drops the schemas only the excluded schemas reference.
+- `override` also applies to the schemas the matched schemas reference.
 
 ```diff
   include: [

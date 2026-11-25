@@ -219,6 +219,26 @@ describe('generatorVisitor', () => {
     expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts'])
   })
 
+  it('drops the schemas only an excluded schema references', async () => {
+    const filesFor = async (pattern: string) => {
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-orphans' },
+        setup(options) {
+          addGenerator({
+            name: 'orphans',
+            schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
+          })
+          return { ...options, exclude: [{ type: 'schemaName', pattern }] }
+        },
+      })()
+      return (await build([plugin])).files
+    }
+
+    expect(await filesFor('^Pet$')).toStrictEqual(['gen/Unused.ts'])
+    expect(await filesFor('^Store$')).toStrictEqual(['gen/Pet.ts', 'gen/Unused.ts'])
+  })
+
   it('keeps one template per generator handler and the resolver in memo', async () => {
     const { driver } = await build([examplePlugin([])])
 
@@ -400,7 +420,7 @@ describe('generatorVisitor', () => {
     expect(built).toStrictEqual([{ label: 'pet' }, { label: undefined }])
     expect(seen.map(([name, printer]) => [name, built.indexOf(printer)])).toStrictEqual([
       ['Pet', 0],
-      ['Store', 1],
+      ['Store', 0],
       ['Unused', 1],
     ])
   })
