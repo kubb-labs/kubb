@@ -178,6 +178,24 @@ describe('generatorVisitor', () => {
     expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
   })
 
+  it('keeps referenced schemas when a schemaName include meets an exclude and no macro', async () => {
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-referenced' },
+      setup(options) {
+        addGenerator({
+          name: 'referenced',
+          schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
+        })
+        return { ...options, include: [{ type: 'schemaName', pattern: '^Pet$' }], exclude: [{ type: 'schemaName', pattern: '^Unused$' }] }
+      },
+    })()
+
+    const { files } = await build([plugin])
+
+    expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts'])
+  })
+
   it('keeps one template per generator handler and the resolver in memo', async () => {
     const { driver } = await build([examplePlugin([])])
 
