@@ -69,36 +69,3 @@ See [Background connection](/docs/5.x/reference/commands/studio#background-conne
 
 > [!IMPORTANT]
 > Without a TTY, the CLI skips the permission prompts, so pass the flags the run needs. In CI it does not pair either: use [`kubb studio snapshot`](/docs/5.x/integrations/ci) with a CI API key.
-
-## Give your AI tools your API
-
-On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude Code, Cursor, and Codex. Its skills list the API's servers, authentication, operations, and schemas. Your organization gets one marketplace, with one plugin per published agent.
-
-1. Connect the agent with `--allow-read-ast` and generate. Studio reads the spec of the latest successful generation.
-2. In Studio, open **Settings › your organization › AI**, select **Publish an agent**, and choose the agent.
-3. Create a token of type **AI (read-only)** under **Settings › Developers › Tokens**. A registry key does not work. Git asks for this key as the password, with any username.
-4. Add the marketplace once, then install the plugin for each API:
-
-:::code-group{sync="ai-tool"}
-
-```shell [Claude Code]
-claude plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
-claude plugin install <plugin>@<marketplace>
-```
-
-```shell [Cursor]
-agent plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
-# Then start the Cursor CLI, run /plugin, and install the plugin from the Marketplace tab.
-```
-
-```shell [Codex]
-codex plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
-# Then start codex, run /plugins, and select Install plugin.
-```
-
-:::
-
-Studio shows the exact commands for each plugin. After the spec changes, republish the agent and update the marketplace in your tool.
-
-> [!WARNING]
-> An AI key in the URL, such as `https://kubb:<key>@kubb.studio/...`, works in CI but ends up in shell history and logs.

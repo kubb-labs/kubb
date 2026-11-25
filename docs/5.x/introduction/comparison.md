@@ -138,8 +138,7 @@ openapi-typescript ships no generated client, so this table and the next leave i
 
 [Kubb Studio](https://kubb.studio) is the web IDE for Kubb. An agent on your machine runs Kubb and never uploads your spec. The other three tools have no equivalent for:
 
-- [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api), built from your spec, so AI tools call your generated clients (Pro plan).
-- One AI plugin marketplace and shared agents for the team.
+- Shared agents for the team.
 - [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files) before you save them.
 - Edit `kubb.config.ts` from the browser.
 - [An installable snapshot for every pull request](/docs/5.x/integrations/github-actions).
