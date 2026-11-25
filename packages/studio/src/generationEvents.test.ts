@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { Hookable, type KubbHooks, runHook } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStream } from './generationEvents.ts'
+import { createGenerationStream, GenerationStream } from './generationEvents.ts'
 
 describe('Generation event stream', () => {
   it('serializes an error without its stack for a waiting reader and skips core hooks outside the public catalog', async () => {
@@ -23,7 +23,7 @@ describe('Generation event stream', () => {
 
   it('sends error stacks only in debug mode', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1', { debug: true })
+    const generation = new GenerationStream(hooks, 'job-1', { debug: true })
 
     await hooks.callHook('kubb:error', { error: new Error('broken') })
     await generation.close()

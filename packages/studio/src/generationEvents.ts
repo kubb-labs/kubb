@@ -10,51 +10,11 @@ const MAX_QUEUED_EVENTS = 1_024
 const RESERVED_EVENTS = 64
 const isDiscardable = (type: GenerationEventType) => type === 'kubb:files:processing:update' || type === 'kubb:info' || type === 'kubb:success'
 
-/** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
-export function createGenerationStream(
-  hooks: Hookable<KubbHooks>,
-  jobId: string,
-  { debug = false }: { debug?: boolean } = {},
-): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; fail: (error?: unknown) => void } {
-  const unhooks: Array<() => void> = []
-  let root = ''
-  let controller!: ReadableStreamDefaultController<GenerationEvent>
-  let closed = false
-  const stream = new ReadableStream<GenerationEvent>(
-    {
-      start: (value) => {
-        controller = value
-      },
-      cancel: () => {
-        closed = true
-        detach()
-      },
-    },
-    { highWaterMark: MAX_QUEUED_EVENTS },
-  )
-
-  /**
-   * Registers a listener and keeps its remover, so one generation's listeners come off the session
-   * emitter again when that generation ends.
-   */
-  function on<TName extends keyof KubbHooks & string>(name: TName, handler: (...args: KubbHooks[TName]) => unknown): void {
-    unhooks.push(hooks.hook(name, handler))
-  }
-
-  function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
-    if (closed) return
-    const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as unknown as GenerationEvent
-    if (controller.desiredSize! <= RESERVED_EVENTS && isDiscardable(type)) return
-    if (controller.desiredSize! <= 0) {
-      fail(new Error(`Generation event stream exceeded ${MAX_QUEUED_EVENTS} queued events`))
-      return
-    }
-    controller.enqueue(event)
-  }
-
+/** What each event sends to Studio. `root` is the root the build announced, for paths in file updates. */
+function createProjections({ debug, root }: { debug: boolean; root: () => string }): Projections {
   // Stacks hold local paths and source lines, which a shared agent must not hand to Studio.
   const stackOf = (error: Error | undefined) => (debug ? error?.stack : undefined)
-  const projections: Projections = {
+  return {
     'kubb:plugin:start': ({ plugin }) => [{ plugin: { name: plugin.name } }],
     'kubb:plugin:end': ({ plugin, duration, success }) => [{ plugin: { name: plugin.name }, duration, success }],
     'kubb:build:start': ({ config, adapter }) => [{ config: { name: config.name }, adapter: { name: adapter.name } }],
@@ -65,7 +25,7 @@ export function createGenerationStream(
     'kubb:files:processing:update': ({ files }) => [
       {
         files: files.map(({ file, processed, total, percentage }) => ({
-          file: relativeStoragePath({ root, filePath: file.path }),
+          file: relativeStoragePath({ root: root(), filePath: file.path }),
           processed,
           total,
           percentage,
@@ -105,47 +65,101 @@ export function createGenerationStream(
       { id, command, args: args ? [...args] : undefined, success, error: error ? { message: error.message, stack: stackOf(error) } : undefined },
     ],
   }
+}
 
-  function forward<Type extends GenerationEventType>(type: Type): void {
-    on(type, (...args: KubbHooks[Type]) => {
-      emitEvent(type, projections[type](...args))
+/**
+ * Forwards selected Kubb lifecycle events to a native Cap'n Web stream.
+ *
+ * @example
+ * ```ts
+ * const generation = createGenerationStream(hooks, jobId)
+ * await generation.close()
+ * ```
+ */
+export class GenerationStream {
+  readonly stream: ReadableStream<GenerationEvent>
+  readonly #hooks: Hookable<KubbHooks>
+  readonly #jobId: string
+  readonly #projections: Projections
+  readonly #unhooks: Array<() => void> = []
+  #controller!: ReadableStreamDefaultController<GenerationEvent>
+  #root = ''
+  #closed = false
+
+  constructor(hooks: Hookable<KubbHooks>, jobId: string, { debug = false }: { debug?: boolean } = {}) {
+    this.#hooks = hooks
+    this.#jobId = jobId
+    this.#projections = createProjections({ debug, root: () => this.#root })
+    this.stream = new ReadableStream<GenerationEvent>(
+      {
+        start: (value) => {
+          this.#controller = value
+        },
+        cancel: () => {
+          this.#closed = true
+          this.#detach()
+        },
+      },
+      { highWaterMark: MAX_QUEUED_EVENTS },
+    )
+
+    // Paths in `kubb:files:processing:update` are made relative to the root the build announced.
+    this.#on('kubb:build:start', ({ config }) => {
+      this.#root = config.root
+    })
+    for (const type of generationEventTypes) this.#forward(type)
+  }
+
+  /**
+   * Registers a listener and keeps its remover, so one generation's listeners come off the session
+   * emitter again when that generation ends.
+   */
+  #on<TName extends keyof KubbHooks & string>(name: TName, handler: (...args: KubbHooks[TName]) => unknown): void {
+    this.#unhooks.push(this.#hooks.hook(name, handler))
+  }
+
+  #emit<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
+    if (this.#closed) return
+    const controller = this.#controller
+    const event = { jobId: this.#jobId, type, data, version: 1 as const, timestamp: Date.now() } as unknown as GenerationEvent
+    if (controller.desiredSize! <= RESERVED_EVENTS && isDiscardable(type)) return
+    if (controller.desiredSize! <= 0) {
+      this.fail(new Error(`Generation event stream exceeded ${MAX_QUEUED_EVENTS} queued events`))
+      return
+    }
+    controller.enqueue(event)
+  }
+
+  #forward<Type extends GenerationEventType>(type: Type): void {
+    this.#on(type, (...args: KubbHooks[Type]) => {
+      this.#emit(type, this.#projections[type](...args))
       // Generators render in memory without awaiting I/O, so the socket only sends once the event loop gets a turn.
       if (!isDiscardable(type)) return new Promise<void>((resolve) => setImmediate(resolve))
     })
   }
 
-  // Paths in `kubb:files:processing:update` are made relative to the root the build announced.
-  on('kubb:build:start', ({ config }) => {
-    root = config.root
-  })
-
-  for (const type of generationEventTypes) forward(type)
-
-  /**
-   * Takes this generation's listeners off the session emitter. Safe to call twice.
-   */
-  function detach(): void {
-    for (const unhook of unhooks) unhook()
-    unhooks.length = 0
+  /** Takes this generation's listeners off the session emitter. Safe to call twice. */
+  #detach(): void {
+    for (const unhook of this.#unhooks) unhook()
+    this.#unhooks.length = 0
   }
 
-  async function close(): Promise<void> {
-    if (closed) {
-      return
-    }
-    closed = true
-    detach()
-    controller.close()
+  async close(): Promise<void> {
+    if (this.#closed) return
+    this.#closed = true
+    this.#detach()
+    this.#controller.close()
   }
 
-  function fail(error?: unknown): void {
-    detach()
-    if (closed) {
-      return
-    }
-    closed = true
-    controller.error(error)
+  fail(error?: unknown): void {
+    this.#detach()
+    if (this.#closed) return
+    this.#closed = true
+    this.#controller.error(error)
   }
+}
 
-  return { stream, close, fail }
+/** Starts forwarding the events of `jobId` from `hooks`. */
+export function createGenerationStream(hooks: Hookable<KubbHooks>, jobId: string, options?: { debug?: boolean }): GenerationStream {
+  return new GenerationStream(hooks, jobId, options)
 }
