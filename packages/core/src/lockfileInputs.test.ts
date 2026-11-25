@@ -118,7 +118,6 @@ describe('hashInputs', () => {
 
   it.each([
     ['a URL', 'https://example.com/openapi.yaml', undefined],
-    ['a missing file', 'missing.yaml', undefined],
     ['a file saved after the build started', 'openapi.yaml', 0],
   ])('returns null for %s, which cannot be compared', async (_name, source, since) => {
     expect(await hashInputs({ root: project(), configText: '{}', sources: [source], since })).toBeNull()

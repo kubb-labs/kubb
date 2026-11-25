@@ -4,7 +4,6 @@ import { type Config, createLockfile, Diagnostics, fsStorage, type GenerationRes
 import { formatPatch } from 'diff'
 import { diffFile, type FileChange, fingerprintFile, statusKeys } from './utils.ts'
 
-// The config the user wrote, kept on the copy a check generates from.
 type Origin = { config: Config; root: string }
 
 // Core copies a symbol key when it resolves the config, so the origin survives.

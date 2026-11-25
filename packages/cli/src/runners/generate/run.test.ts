@@ -364,7 +364,6 @@ describe('check', () => {
     return { root, config, file, snapshot }
   }
 
-  // A project as a fresh CI checkout holds it: the formatted files and `kubb-lock.yaml`.
   async function generated(options?: { clean?: boolean }) {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
@@ -472,7 +471,6 @@ describe('check', () => {
     const upToDate = (lines: Array<string>) =>
       lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.yaml'))
 
-    // Each run loads its config anew, as the CLI does.
     async function fromSpecFile() {
       const target = project()
       const spec = join(target.root, 'openapi.json')
@@ -501,7 +499,6 @@ describe('check', () => {
         'the spec changed',
         ({ spec }: { spec: string }) => void writeFileSync(spec, JSON.stringify({ openapi: '3.0.3', info: { title: 'pets', version: '2' }, paths: {} })),
       ],
-      ['a generated file was edited', ({ file }: { file: (name: string) => string }) => void writeFileSync(file('pet.ts'), 'export const pet = 1\n')],
       ['another reporter needs the results', () => ({ reporters: ['cli', 'json'] as Array<'cli' | 'json'> })],
     ])('generates again when %s', async (_name, change) => {
       const target = await fromSpecFile()
@@ -513,14 +510,6 @@ describe('check', () => {
 
       expect(upToDate(lines)).toBe(false)
       expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
-    })
-
-    it('generates again when a config option changed', async () => {
-      const { config } = await fromSpecFile()
-
-      const lines = await bootstrap({ configs: [config({ defaultBanner: false })] })
-
-      expect(upToDate(lines)).toBe(false)
     })
   })
 

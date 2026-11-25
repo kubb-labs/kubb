@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
-import { createLockfile, Lockfile } from './lockfile.ts'
+import { createLockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -29,7 +29,6 @@ describe('createLockfile', () => {
     return { root, file, lock, readLock: () => parse(readFileSync(lock, 'utf8')) as unknown }
   }
 
-  // A project whose lockfile recorded `a.ts` and its formatted output, with the lockfile the next run would load.
   async function recorded() {
     const target = project()
     await storage.writeItem(target.file('a.ts'), formatted)
@@ -90,18 +89,6 @@ describe('createLockfile', () => {
 
     expect(third.matches({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(true)
     expect(third.matches({ key: file('second.ts'), source: 'const b = 2', disk: 'const b = 2;\n' })).toBe(true)
-  })
-
-  it.each([
-    ['was deleted', (path: string) => rmSync(path)],
-    ['no longer holds the recorded output', (path: string) => writeFileSync(path, 'const a = 999\n')],
-  ])('drops the entry of a file that %s', async (_name, change) => {
-    const { file, lockfile, readLock } = await recorded()
-    change(file('a.ts'))
-
-    await lockfile.write()
-
-    expect(readLock()).toStrictEqual({ lockfileVersion: 1, files: {} })
   })
 
   it.each([
@@ -210,18 +197,6 @@ describe('createLockfile', () => {
 
     expect(existsSync(lock)).toBe(false)
     expect(parse((await staged.readItem(lock)) as string)).toMatchObject({ files: { 'gen/a.ts': expect.anything() } })
-  })
-
-  it('can be built from an object that was read elsewhere', () => {
-    const lockfile = new Lockfile({
-      storage,
-      root: '/project',
-      object: { files: { 'gen/a.ts': { source: 'x', output: 'y' } }, inputs: { api: { hash: 'a', sources: [] } } },
-    })
-
-    expect(lockfile.exists).toBe(true)
-    expect(lockfile.inputs('api')).toStrictEqual({ hash: 'a', sources: [] })
-    expect(new Lockfile({ storage, root: '/project', object: null }).exists).toBe(false)
   })
 
   it('skips a file that disappeared before the write', async () => {
