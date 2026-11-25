@@ -1,5 +1,46 @@
 # Changelog
 
+## v5.26.0 — Nov 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Upgrade `@readme/openapi-parser` to 11 in `@kubb/adapter-oas` and `capnweb` to 0.13 in `@kubb/studio`. ([#4783](https://github.com/kubb-labs/kubb/pull/4783), [`78ce02e`](https://github.com/kubb-labs/kubb/commit/78ce02e14d10dcbd433791f84f1a467aab3fe194))
+
+### @kubb/cli
+
+#### Features
+
+- Add `kubb generate --check`, which exits with 1 when the generated files on disk are out of date, and `--diff`, which also prints what would change.
+  
+  `--check` generates into a temporary folder, runs `output.format` and `output.lint` there, and compares the result with `output.path` without writing to it. It does not depend on the cache in `node_modules/.cache/kubb`, so it works on a fresh CI checkout. Under `--check`, a failed run exits with 2.
+  
+  The JSON reporter adds `check`, with `changed` and a `files` array of `{ path, status, linesAdded, linesRemoved }` per out-of-date file. `Kubb.generate()` in `@kubb/core` accepts `processOutput`. ([#4787](https://github.com/kubb-labs/kubb/pull/4787), [`ca33548`](https://github.com/kubb-labs/kubb/commit/ca33548bdc18d8d3a31bc942c81dccbab3ae78fa))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Follow schema references for `schemaName` entries in `include`, `exclude`, and `override`.
+  
+  - `include` also generates the schemas the matched schemas reference.
+  - `exclude` also drops the schemas only the excluded schemas reference.
+  - `override` also applies to the schemas the matched schemas reference.
+  
+  ```diff
+    include: [
+      { type: 'schemaName', pattern: '^Pet$' },
+  -   { type: 'schemaName', pattern: '^Store$' }, // Pet references Store
+    ],
+  ``` ([#4788](https://github.com/kubb-labs/kubb/pull/4788), [`0007dde`](https://github.com/kubb-labs/kubb/commit/0007ddefd2da5f78a600a74024609fa87151f85c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.25.1 — Nov 24, 2026
 
 ### @kubb/adapter-oas
