@@ -315,7 +315,7 @@ export async function diffOutput({
 
 export type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>
 
-export type KeyOptions = {
+export type ListenForKeysOptions = {
   rebuild: () => void
   /**
    * Ends the process with this exit code: `0` for `q`, `130` for ctrl+c, which raw mode turns into a key.
@@ -330,7 +330,7 @@ export type KeyOptions = {
  * mode back on: a spinner restores the terminal when it stops, so call it after each build. Raw mode
  * is restored on exit.
  */
-export function listenForKeys({ rebuild, quit, input = process.stdin }: KeyOptions): (() => void) | undefined {
+export function listenForKeys({ rebuild, quit, input = process.stdin }: ListenForKeysOptions): (() => void) | undefined {
   if (!input.isTTY) return undefined
 
   const arm = () => {

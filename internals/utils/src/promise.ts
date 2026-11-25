@@ -109,7 +109,7 @@ function createStore<TKey, TValue>({ weak, max }: { weak?: boolean; max?: number
 
 memo.create = createStore
 
-export type ParallelOptions<TItem> = {
+export type InParallelOptions<TItem> = {
   /**
    * Items to work through, handed out in order.
    */
@@ -134,7 +134,7 @@ export type ParallelOptions<TItem> = {
  * await inParallel({ items: files, limit: 50, run: (file) => storage.writeItem(file.path, file.source) })
  * ```
  */
-export async function inParallel<TItem>({ items, limit, run }: ParallelOptions<TItem>): Promise<void> {
+export async function inParallel<TItem>({ items, limit, run }: InParallelOptions<TItem>): Promise<void> {
   const queue = items.entries()
   let failed = false
 

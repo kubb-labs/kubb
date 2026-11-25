@@ -151,7 +151,7 @@ export async function startPairing({
   }
 }
 
-export type PollOptions = {
+export type PollForPairingTokenOptions = {
   studioUrl?: string
   session: PairingSession
   /**
@@ -190,7 +190,7 @@ function isPairingResult(response: PollResponse): response is PairingResult {
  * @throws {PairingDeniedError} when the pairing is denied in the browser.
  * @throws {PairingCanceledError} when `signal` aborts.
  */
-export async function pollForPairingToken({ studioUrl = defaultStudioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = defaultStudioUrl, session, signal, onRetry }: PollForPairingTokenOptions): Promise<PairingResult> {
   // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
   // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
   // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.

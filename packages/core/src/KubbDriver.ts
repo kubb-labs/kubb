@@ -19,7 +19,7 @@ import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { Hookable } from './Hookable.ts'
 
-export type Options = {
+export type KubbDriverOptions = {
   hooks: Hookable<KubbHooks>
   signal?: AbortSignal
   fileRefs?: Array<string>
@@ -113,7 +113,7 @@ function getCrashSite(node: SchemaNode | OperationNode): CrashSite {
 
 export class KubbDriver {
   readonly config: Config
-  readonly options: Options
+  readonly options: KubbDriverOptions
 
   /**
    * The `InputNode` produced by the adapter. Set after adapter setup.
@@ -143,7 +143,7 @@ export class KubbDriver {
    */
   readonly #unhooks: Array<() => void> = []
 
-  constructor(config: Config, options: Options) {
+  constructor(config: Config, options: KubbDriverOptions) {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null

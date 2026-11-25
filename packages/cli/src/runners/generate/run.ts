@@ -53,7 +53,7 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
   }
 }
 
-export type GenerateProps = {
+export type GenerateOptions = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
   force?: boolean
@@ -62,7 +62,7 @@ export type GenerateProps = {
 /**
  * Generates the configs and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks, force }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks, force }: GenerateOptions): Promise<boolean> {
   // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime(), diagnostics }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -140,7 +140,7 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 /**
  * Generates the configs, then again whenever a local `input` file changes. Returns whether the build succeeded when there is no file to watch.
  */
-async function watch({ configs, hooks, quiet }: GenerateProps & { quiet: boolean }): Promise<boolean> {
+async function watch({ configs, hooks, quiet }: GenerateOptions & { quiet: boolean }): Promise<boolean> {
   const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
   if (!watchPaths.length) {
     if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
@@ -293,7 +293,7 @@ async function generateOrSkip({
   force,
   watchMode,
   canSkip,
-}: GenerateProps & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
+}: GenerateOptions & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
   if (canSkip && (await isUpToDate(configs))) {
     if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     return true

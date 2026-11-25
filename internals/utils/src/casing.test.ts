@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { camelCase, capitalize, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
-import type { Options } from './casing.ts'
+import type { CasingOptions } from './casing.ts'
 
 describe('casing', () => {
   test.each([
@@ -39,7 +39,7 @@ describe('casing', () => {
     ['tag', { suffix: 'schema' }, 'tagSchema'],
     ['pet', { prefix: 'get', suffix: 'byId' }, 'getPetById'],
   ])('camelCase(%s, options) -> %s', (input, options, expected) => {
-    expect(camelCase(input, options as Options)).toBe(expected)
+    expect(camelCase(input, options as CasingOptions)).toBe(expected)
   })
 
   test('pascalCase', () => {

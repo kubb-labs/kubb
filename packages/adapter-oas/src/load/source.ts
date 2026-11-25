@@ -16,7 +16,7 @@ const FETCH_TIMEOUT_MS = 30_000
  * Options for reading a source. `signal` cancels the request. `publicOnly` makes a redirect fail,
  * so a public URL cannot forward the request to a private host.
  */
-export type ReadOptions = { signal?: AbortSignal; publicOnly?: boolean }
+export type ReadSourceOptions = { signal?: AbortSignal; publicOnly?: boolean }
 
 /**
  * Whether `url` names a host that is loopback, private, link-local, or another address that is not
@@ -75,7 +75,7 @@ function helpForStatus(status: number): string {
   return 'Open the URL in a browser or with `curl` to see what the server returns, then point `input` at a URL that serves the OpenAPI document.'
 }
 
-async function fetchSource(url: URL, { signal, publicOnly }: ReadOptions): Promise<{ response: Response; body: string }> {
+async function fetchSource(url: URL, { signal, publicOnly }: ReadSourceOptions): Promise<{ response: Response; body: string }> {
   const deadline = withTimeout(signal)
   try {
     const response = await fetch(url, { signal: deadline, redirect: publicOnly ? 'error' : 'follow' })
@@ -96,7 +96,7 @@ async function fetchSource(url: URL, { signal, publicOnly }: ReadOptions): Promi
   }
 }
 
-async function readSource(sourcePath: string, options: ReadOptions): Promise<string> {
+async function readSource(sourcePath: string, options: ReadSourceOptions): Promise<string> {
   if (urlRegExp.test(sourcePath)) {
     // api-ref-bundler joins relative refs with posix normalization, collapsing `https://` to
     // `https:/`. The WHATWG URL parser restores the double slash.
@@ -125,7 +125,7 @@ async function readSource(sourcePath: string, options: ReadOptions): Promise<str
  * Reads and parses one source file or URL referenced during bundling: YAML/JSON is parsed into an
  * object, Markdown is returned as-is (bundled inline rather than dereferenced).
  */
-export async function resolveSource(sourcePath: string, { remember, ...options }: { remember?: boolean } & ReadOptions = {}): Promise<object | string> {
+export async function resolveSource(sourcePath: string, { remember, ...options }: { remember?: boolean } & ReadSourceOptions = {}): Promise<object | string> {
   const data = await readSource(sourcePath, options)
 
   if (sourcePath.toLowerCase().endsWith('.md')) {
