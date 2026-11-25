@@ -118,7 +118,7 @@ Planned file changes
 | `modified` | Rewrite the file. Its content on disk differs. |
 | `deleted` | Remove the file. Only listed with [`output.clean`](/docs/5.x/reference/configuration#outputclean), which removes files Kubb no longer generates. |
 
-With `--reporter json`, each report holds `check.changed` and a `files` array. `--diff` then prints to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output).
+With `--reporter json`, each report holds `check.changed` and `check.files`. `--diff` then prints to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output).
 
 `--check` differs from `--dry-run`:
 
@@ -133,7 +133,7 @@ Limits:
 - `--check` cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
 - `output.postGenerate` does not run. Its commands name their own paths, so they would write to the real output.
 - `output.path` and `shared.path` must sit inside `root`, and the config must use the default `fs` storage.
-- A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<id>/src/gen`. Use a pattern such as `**/gen/**` when the check reports formatting differences.
+- A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. Use a pattern such as `**/gen/**` when the check reports formatting differences.
 
 ## Less common cases {#less-common-cases}
 

@@ -7,7 +7,7 @@ import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses,
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
-import type { Check } from '../runners/generate/check.ts'
+import type { OutputCheck } from '../runners/generate/check.ts'
 import {
   type ChangeTally,
   createChangeTally,
@@ -30,8 +30,8 @@ type GenerationRun = {
   outputPath: string
   filesUnchanged: number
   paths: Set<string>
-  // Check runs only: the files that differ from the output on disk.
-  files?: GenerationResult['files']
+  // Check runs only: how the generated files differ from the output on disk.
+  check?: GenerationResult['check']
   // Read-back runs only: the whole output as it was before generation.
   previous?: Map<string, string>
   reading?: Promise<Map<string, string>>
@@ -48,7 +48,7 @@ function setupReporters(
     writer = defaultWriter(),
     dryRun = false,
     fileChanges = false,
-    check,
+    outputCheck,
   }: {
     /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
     logLevel: number
@@ -66,7 +66,7 @@ function setupReporters(
     /**
      * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
      */
-    check?: Pick<Check, 'compare' | 'original'>
+    outputCheck?: Pick<OutputCheck, 'compare' | 'userConfig'>
   },
 ): void {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
@@ -95,7 +95,7 @@ function setupReporters(
     pluginFiles?.clear()
     seen.clear()
     const outputPath = resolve(config.root, config.output.path)
-    const tracked = !check && trackChanges && (dryRun || config.storage?.name === 'fs')
+    const tracked = !outputCheck && trackChanges && (dryRun || config.storage?.name === 'fs')
     const live = ((): LiveChanges | undefined => {
       // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
       if (!tracked || dryRun || hasOutputPasses(config)) return undefined
@@ -148,15 +148,15 @@ function setupReporters(
     current,
   }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<ChangeTally | undefined> {
     const { live, paths, previous } = current
-    if (check) {
-      const { files, unchanged } = await check.compare({ config, storage, paths })
-      current.files = files
+    if (outputCheck) {
+      const { unchanged, ...check } = await outputCheck.compare({ config, storage, paths })
+      current.check = check
       const tally = createChangeTally()
       tally.unchanged = unchanged
-      for (const file of files) {
+      for (const file of check.files) {
         tally[file.status]++
-        tally.linesAdded += file.added
-        tally.linesRemoved += file.removed
+        tally.linesAdded += file.linesAdded
+        tally.linesRemoved += file.linesRemoved
       }
       return tally
     }
@@ -184,13 +184,12 @@ function setupReporters(
     const current = run
     run = undefined
     // A check reports on the config the user wrote, not on the temporary folder it generated into.
-    const reported = check?.original(config) ?? config
     const result: GenerationResult = {
-      config: reported,
+      config: outputCheck?.userConfig(config) ?? config,
       diagnostics,
       filesCreated,
       filesUnchanged: current?.filesUnchanged ?? 0,
-      dryRun: dryRun || Boolean(check),
+      dryRun: dryRun || Boolean(outputCheck),
       status,
       hrStart,
     }
@@ -201,14 +200,11 @@ function setupReporters(
       cliResult.filesCreated = changes.added + changes.modified + unchanged
       cliResult.filesUnchanged = unchanged
       cliResult.fileChanges = changes
-      if (current?.files) {
-        cliResult.files = current.files
-        cliResult.check = { changed: current.files.length > 0 }
-      }
+      cliResult.check = current?.check
     }
     for (const reporter of selected) {
       const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
-      await reporter.report({ ...(reporter.name === 'cli' || fileChanges || check ? cliResult : result), pluginFiles: grouped }, ctx)
+      await reporter.report({ ...(reporter.name === 'cli' || fileChanges || outputCheck ? cliResult : result), pluginFiles: grouped }, ctx)
     }
   })
 

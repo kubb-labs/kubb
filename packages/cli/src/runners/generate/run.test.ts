@@ -424,11 +424,11 @@ describe('check', () => {
     expect((await bootstrap({ configs: [kept.config], check: true })).filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
-  it('prints a hunk for the edited file with --diff, which turns the check on', async () => {
+  it('prints a hunk for the edited file with --diff', async () => {
     const { config, file } = await generated()
     writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
 
-    const lines = await bootstrap({ configs: [config], diff: true })
+    const lines = await bootstrap({ configs: [config], check: true, diff: true })
     const patch = lines.find((line) => line.startsWith('--- a/src/gen/pet.ts'))
 
     expect(patch).toContain('@@ -1,1 +1,1 @@')
@@ -445,8 +445,21 @@ describe('check', () => {
     await bootstrap({ configs: [config], check: true, reporters: ['json'] })
 
     expect(JSON.parse(String(stdout.mock.calls.at(-1)?.[0]))).toMatchObject([
-      { check: { changed: true }, files: [{ path: 'src/gen/pet.ts', status: 'modified', added: 1, removed: 1 }] },
+      { check: { changed: true, files: [{ path: 'src/gen/pet.ts', status: 'modified', linesAdded: 1, linesRemoved: 1 }] } },
     ])
+  })
+
+  it.each([
+    ['an output.path outside the root', { output: { path: '../gen' } }, '--check cannot compare `output.path`'],
+    ['a storage other than fs', { storage: memoryStorage() }, '--check compares files on disk, but this config uses the "memory" storage.'],
+  ])('exits 2 and creates no temporary folder for %s', async (_name, override, message) => {
+    const { config, root } = project()
+
+    const lines = await bootstrap({ configs: [{ ...config, ...override } as Config], check: true })
+
+    expect(lines.some((line) => line.includes(message))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 2')
+    expect(readdirSync(root)).toStrictEqual([])
   })
 
   it('exits 2 when generation fails, and when --watch is passed too', async () => {

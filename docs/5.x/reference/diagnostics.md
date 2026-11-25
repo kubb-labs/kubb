@@ -357,7 +357,7 @@ npm has a newer Kubb than the one running. See [Update check](#update-check).
 | `timings` | Per-plugin durations, slowest first |
 | `fileChanges` | File and line changes, when collected |
 | `check.changed` | With [`--check`](/docs/5.x/reference/commands/generate#check-mode): `true` when the output on disk is out of date |
-| `files` | With `--check`: each out-of-date file as `{ path, status, added, removed }`. `path` is relative to `root`, `status` is `added`, `modified`, or `deleted`, and `added` and `removed` count lines. |
+| `check.files` | With `--check`: each out-of-date file as `{ path, status, linesAdded, linesRemoved }`. `path` is relative to `root`, and `status` is `added`, `modified`, or `deleted`. |
 | `diagnostics[].title`, `.cause` | The code's catalog entry |
 | `diagnostics[].help` | Its own fix, or the catalog fix |
 | `diagnostics[].plugin`, `.issues` | The reporting plugin, and a crashed extension's issue tracker |

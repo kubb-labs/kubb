@@ -31,7 +31,7 @@ import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import { getLatestVersion } from '../../utils/updateCheck.ts'
-import { type Check, createCheck } from './check.ts'
+import { createOutputCheck, type OutputCheck } from './check.ts'
 import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
 
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
@@ -56,7 +56,7 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
 export type GenerateProps = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
-  processOutput?: Check['processOutput']
+  processOutput?: OutputCheck['processOutput']
 }
 
 /**
@@ -99,7 +99,7 @@ export type GenerateCommandOptions = {
    */
   check?: boolean
   /**
-   * Prints a unified diff for each file `check` finds out of date. Turns `check` on.
+   * Prints a unified diff for each file `check` finds out of date. Needs `check`.
    */
   diff?: boolean
 }
@@ -203,15 +203,14 @@ export async function run({
   watch: watchMode,
   reporters: cliReporters,
   dryRun,
-  check: checkFlag,
+  check = false,
   diff = false,
 }: GenerateCommandOptions): Promise<void> {
-  const checkMode = checkFlag || diff
   // With `--check`, 1 means "out of date", so a failure moves to 2.
-  const errorCode = checkMode ? 2 : 1
-  if (checkMode && watchMode) {
+  const failureExitCode = check ? 2 : 1
+  if (check && watchMode) {
     logError('--check cannot run with --watch. Remove one of them.')
-    process.exit(errorCode)
+    process.exit(failureExitCode)
   }
 
   // Started first: the notice prints at the end only when the stored answer or the registry is there by then.
@@ -274,28 +273,28 @@ export async function run({
     await Diagnostics.emit(hooks, error)
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
-    process.exit(errorCode)
+    process.exit(failureExitCode)
   }
 
   // Without a reporter nothing is printed, not even an error, so a config written without
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  let check: Check | undefined
+  let outputCheck: OutputCheck | undefined
   try {
     // `--check` wins over `--dry-run`: it writes nothing to `output.path` either.
-    if (checkMode) check = createCheck({ configs: configs.map((config) => toRunConfig({ config, input, dryRun: false })), diff })
+    if (check) outputCheck = createOutputCheck({ configs: configs.map((config) => toRunConfig({ config, input, dryRun: false })), diff })
   } catch (error) {
     setupReporters(hooks, { logLevel, reporters })
     await Diagnostics.emit(hooks, error)
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
-    process.exit(errorCode)
+    process.exit(failureExitCode)
   }
-  setupReporters(hooks, { logLevel, reporters, dryRun, check })
+  setupReporters(hooks, { logLevel, reporters, dryRun, outputCheck })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
-  const runConfigs = check?.configs ?? configs.map((config) => toRunConfig({ config, input, dryRun: dryRun ?? false }))
+  const runConfigs = outputCheck?.configs ?? configs.map((config) => toRunConfig({ config, input, dryRun: dryRun ?? false }))
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -303,7 +302,7 @@ export async function run({
     // One config that fails does not stop the others.
     const succeeded = await (watchMode
       ? watch({ configs: runConfigs, hooks, quiet })
-      : generate({ configs: runConfigs, hooks, processOutput: check?.processOutput }))
+      : generate({ configs: runConfigs, hooks, processOutput: outputCheck?.processOutput }))
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
@@ -312,24 +311,24 @@ export async function run({
     await hooks.callHook('kubb:lifecycle:end')
 
     // stdout belongs to the `json` report, so the diffs go to stderr there.
-    for (const patch of check?.diffs ?? []) (json ? console.error : console.log)(patch)
+    for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!quiet && !watchMode && succeeded && !check?.changed) {
+    if (!quiet && !watchMode && succeeded && !outputCheck?.changed) {
       logTip()
     }
 
     // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
     if (!succeeded) {
-      process.exitCode = errorCode
-    } else if (check?.changed) {
+      process.exitCode = failureExitCode
+    } else if (outputCheck?.changed) {
       process.exitCode = 1
     }
   } catch (error) {
     await Diagnostics.emit(hooks, error)
-    process.exit(errorCode)
+    process.exit(failureExitCode)
   } finally {
-    check?.cleanup()
+    outputCheck?.cleanup()
   }
 }

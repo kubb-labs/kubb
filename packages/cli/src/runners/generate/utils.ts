@@ -248,7 +248,7 @@ export function diffFile({
  */
 export type ChangeTally = { added: number; modified: number; deleted: number; linesAdded: number; linesRemoved: number; unchanged: number }
 
-const statusKeys = { A: 'added', M: 'modified', D: 'deleted' } as const
+export const statusKeys = { A: 'added', M: 'modified', D: 'deleted' } as const
 
 /**
  * Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file.

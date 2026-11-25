@@ -1,30 +1,27 @@
-import { randomUUID } from 'node:crypto'
-import { rmSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { diffHunks, read, toPosixPath } from '@internals/utils'
 import { type Config, Diagnostics, fsStorage, type GenerateOptions, type GenerationResult, runOutputPasses, type Storage } from '@kubb/core'
-import { diffOutput, type FileChange, readOutputFiles } from './utils.ts'
+import { diffOutput, readOutputFiles, statusKeys } from './utils.ts'
 
-type CheckedFile = NonNullable<GenerationResult['files']>[number]
-
-const statusNames = { A: 'added', M: 'modified', D: 'deleted' } as const
+type CheckResult = NonNullable<GenerationResult['check']>
 
 /**
  * What `kubb generate --check` needs for one run: the configs redirected to a temporary folder, the
  * output passes for that folder, and the comparison with the files on disk.
  */
-export type Check = {
+export type OutputCheck = {
   configs: Array<Config>
   processOutput: NonNullable<GenerateOptions['processOutput']>
   /**
    * The config as the user wrote it, for a config from `configs`.
    */
-  original(config: Config): Config
+  userConfig(config: Config): Config
   /**
    * Compares what one config generated with its real output folder.
    */
-  compare(options: { config: Config; storage: Storage; paths: ReadonlySet<string> }): Promise<{ files: Array<CheckedFile>; unchanged: number }>
+  compare(options: { config: Config; storage: Storage; paths: ReadonlySet<string> }): Promise<CheckResult & { unchanged: number }>
   /**
    * `true` once any config's output differs from the files on disk.
    */
@@ -32,7 +29,7 @@ export type Check = {
   /**
    * One unified diff per changed file, filled only with `diff`.
    */
-  diffs: Array<string>
+  patches: Array<string>
   /**
    * Deletes the temporary folders.
    */
@@ -65,21 +62,21 @@ function formatPatch({ path, before, after }: { path: string; before: string; af
 }
 
 /**
- * Sets up a check run. Each config generates into `<root>/.kubb-check-<id>/<output.path>` with the fs
+ * Sets up a check run. Each config generates into `<root>/.kubb-check-<random>/<output.path>` with the fs
  * storage, so formatters and linters find the project's config files and `output.path` is never written.
  * The folder is not under `node_modules`, which prettier, oxfmt and eslint skip.
  *
  * `output.postGenerate` does not run: its commands name their own paths and would write to the real output.
  */
-export function createCheck({ configs, diff }: { configs: ReadonlyArray<Config>; diff: boolean }): Check {
-  const id = randomUUID().slice(0, 8)
+export function createOutputCheck({ configs, diff }: { configs: ReadonlyArray<Config>; diff: boolean }): OutputCheck {
   const targets = new Map<string, Target>()
-  const dirs = new Set<string>()
-  const diffs: Array<string> = []
+  // One temporary folder per project root.
+  const dirs = new Map<string, string>()
+  const patches: Array<string> = []
   let changed = false
 
   const cleanup = () => {
-    for (const dir of dirs) rmSync(dir, { recursive: true, force: true })
+    for (const dir of dirs.values()) rmSync(dir, { recursive: true, force: true })
   }
   // A backstop for `process.exit()`, which skips every `finally`.
   process.once('exit', cleanup)
@@ -94,13 +91,12 @@ export function createCheck({ configs, diff }: { configs: ReadonlyArray<Config>;
       })
     }
     const root = resolve(config.root)
-    const dir = join(root, `.kubb-check-${id}`)
-    const outputPath = join(dir, pathInRoot({ root, absolute: resolve(root, config.output.path), option: 'output.path' }))
-    const shared = config.shared && {
-      ...config.shared,
-      path: join(dir, pathInRoot({ root, absolute: resolve(root, config.shared.path), option: 'shared.path' })),
-    }
-    dirs.add(dir)
+    const output = pathInRoot({ root, absolute: resolve(root, config.output.path), option: 'output.path' })
+    const sharedPath = config.shared && pathInRoot({ root, absolute: resolve(root, config.shared.path), option: 'shared.path' })
+    const dir = dirs.get(root) ?? mkdtempSync(join(root, '.kubb-check-'))
+    dirs.set(root, dir)
+    const outputPath = join(dir, output)
+    const shared = config.shared && sharedPath ? { ...config.shared, path: join(dir, sharedPath) } : config.shared
     targets.set(outputPath, { config, dir })
 
     return {
@@ -116,9 +112,9 @@ export function createCheck({ configs, diff }: { configs: ReadonlyArray<Config>;
 
   return {
     configs: runConfigs,
-    diffs,
+    patches,
     cleanup,
-    original: (config) => targetOf(config).config,
+    userConfig: (config) => targetOf(config).config,
     get changed() {
       return changed
     },
@@ -131,13 +127,13 @@ export function createCheck({ configs, diff }: { configs: ReadonlyArray<Config>;
       return runOutputPasses({ ...options, config: { ...config, output: { ...config.output, format: output.format, lint: output.lint } } })
     },
     async compare({ config, storage, paths }) {
-      const { config: original, dir } = targetOf(config)
-      const root = resolve(original.root)
+      const { config: userConfig, dir } = targetOf(config)
+      const root = resolve(userConfig.root)
       const toReal = (filePath: string) => join(root, relative(dir, filePath))
 
       // Keyed by the temporary path, so each file lines up with what was generated for it.
       const previousFiles = new Map<string, string>()
-      for (const [filePath, source] of await readOutputFiles(resolve(root, original.output.path))) {
+      for (const [filePath, source] of await readOutputFiles(resolve(root, userConfig.output.path))) {
         previousFiles.set(join(dir, relative(root, filePath)), source)
       }
       // Generated files outside `output.path`, such as `shared.path`.
@@ -148,18 +144,18 @@ export function createCheck({ configs, diff }: { configs: ReadonlyArray<Config>;
       }
 
       // No manifest: both sides went through the same output passes, so the bytes compare directly.
-      const result = await diffOutput({ storage, paths, clean: Boolean(original.output.clean), previousFiles })
-      const files: Array<CheckedFile> = []
-      for (const change of result.files.toSorted((a: FileChange, b: FileChange) => a.path.localeCompare(b.path))) {
+      const result = await diffOutput({ storage, paths, clean: Boolean(userConfig.output.clean), previousFiles })
+      const files: CheckResult['files'] = []
+      for (const change of result.files.toSorted((a, b) => a.path.localeCompare(b.path))) {
         const path = toPosixPath(relative(root, toReal(change.path)))
-        files.push({ path, status: statusNames[change.status], added: change.added ?? 0, removed: change.removed ?? 0 })
+        files.push({ path, status: statusKeys[change.status], linesAdded: change.added ?? 0, linesRemoved: change.removed ?? 0 })
         if (!diff) continue
         const after = change.status === 'D' ? '' : ((await storage.readItem(change.path)) ?? '')
-        diffs.push(formatPatch({ path, before: previousFiles.get(change.path) ?? '', after }))
+        patches.push(formatPatch({ path, before: previousFiles.get(change.path) ?? '', after }))
       }
       changed ||= files.length > 0
 
-      return { files, unchanged: result.unchanged }
+      return { changed: files.length > 0, files, unchanged: result.unchanged }
     },
   }
 }

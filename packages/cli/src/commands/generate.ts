@@ -109,7 +109,8 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       watch: values.watch,
       reporters: values.reporter,
       dryRun: ctx.extensions[dryRunId].enabled,
-      check: values.check,
+      // `--diff` alone is a check that also prints the diffs.
+      check: values.check || values.diff,
       diff: values.diff,
     })
   },
