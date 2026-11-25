@@ -14,6 +14,7 @@ import {
   htmlReporter,
   jsonReporter,
   Kubb,
+  LOCKFILE_NAME,
   type KubbHooks,
   logLevel as logLevelMap,
   memoryStorage,
@@ -56,13 +57,12 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
 export type GenerateProps = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
-  processOutput?: OutputCheck['processOutput']
 }
 
 /**
  * Generates the configs and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks, processOutput }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
   // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime(), diagnostics }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -76,7 +76,7 @@ export async function generate({ configs, hooks, processOutput }: GenerateProps)
   })
   let succeeded = true
   try {
-    for await (const { success, error } of Kubb.generate(configs, { hooks, processOutput })) {
+    for await (const { success, error } of Kubb.generate(configs, { hooks })) {
       if (error) await Diagnostics.emit(hooks, error)
       succeeded &&= success
     }
@@ -94,7 +94,7 @@ export type GenerateCommandOptions = {
   reporters?: Array<ReporterName>
   dryRun?: boolean
   /**
-   * Generates into a temporary folder and compares it with `output.path`, which is left as it was.
+   * Generates in memory and compares the result with `output.path` through `kubb.lock`. Nothing is written.
    * The run exits with 1 when the output is out of date and with 2 when it fails.
    */
   check?: boolean
@@ -208,7 +208,7 @@ function startOutputCheck({ check = false, diff = false, watch }: Pick<GenerateC
   return { outputCheck: createOutputCheck({ diff }), failureExitCode: 2 }
 }
 
-/** `--check` wins over `--dry-run`: it leaves `output.path` as it was too. */
+/** `--check` wins over `--dry-run`: it writes nothing either. */
 function toRunConfigs({
   configs,
   input,
@@ -256,6 +256,9 @@ function reportOutcome({
   json: boolean
 }): void {
   for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
+  // Without the lock file every formatted file reads as out of date, so say why.
+  if (outputCheck?.missingLock)
+    logWarn(`No ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`)
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
     process.exitCode = failureExitCode
@@ -357,9 +360,7 @@ export async function run({
   try {
     const runConfigs = toRunConfigs({ configs, input, dryRun, outputCheck })
     // One config that fails does not stop the others.
-    const succeeded = await (watchMode
-      ? watch({ configs: runConfigs, hooks, quiet })
-      : generate({ configs: runConfigs, hooks, processOutput: outputCheck?.processOutput }))
+    const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks }))
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
@@ -376,7 +377,5 @@ export async function run({
   } catch (error) {
     await Diagnostics.emit(hooks, error)
     process.exit(failureExitCode)
-  } finally {
-    outputCheck?.cleanup()
   }
 }

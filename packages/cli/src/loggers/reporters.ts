@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { isPathInside, memo } from '@internals/utils'
 import type { Config, GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
-import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
+import { createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
@@ -176,7 +176,7 @@ function setupReporters(
       return tally
     }
     if (!previous) return undefined
-    const manifest = dryRun ? await createOutputManifest({ storage, cache: cacheStorage({ root: config.root }) }) : undefined
+    const manifest = dryRun ? await createOutputManifest({ storage, root: config.root }) : undefined
     const diff = await diffOutput({ storage, paths, clean: Boolean(config.output.clean), manifest, previousFiles: previous })
     const changes = createChangeTally()
     changes.unchanged = diff.unchanged
@@ -184,7 +184,7 @@ function setupReporters(
     return changes
   }
 
-  // A check reports on the config the user wrote, not on the temporary folder it generated into.
+  // A check reports on the config the user wrote, not on the one staged to write nothing.
   const reportedConfig = (config: Config): Config => outputCheck?.userConfig(config) ?? config
   // A check writes nothing to the output either, and every reporter gets its file changes.
   const writesNothing = dryRun || Boolean(outputCheck)

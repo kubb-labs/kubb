@@ -7,7 +7,6 @@ import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
-import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbGenerationEndContext, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
@@ -208,7 +207,7 @@ export class Kubb {
     // A second setup replaces the driver, so the old one's plugin listeners must go first.
     this.dispose()
     const config = this.config
-    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
+    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, root: config.root }) : undefined
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])

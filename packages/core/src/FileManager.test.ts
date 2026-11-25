@@ -33,6 +33,7 @@ function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { t
 
   return {
     tracked,
+    exists: true,
     isUpToDate() {
       return upToDate
     },

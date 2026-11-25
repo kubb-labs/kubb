@@ -565,7 +565,7 @@ describe('Kubb#generate', () => {
       generate,
       read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
       mtime: () => fs.statSync(filePath).mtimeMs,
-      hasManifest: () => fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json')),
+      hasManifest: () => fs.existsSync(path.join(root, 'kubb.lock')),
     }
   }
 

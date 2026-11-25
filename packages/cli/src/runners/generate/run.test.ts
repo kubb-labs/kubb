@@ -333,7 +333,7 @@ describe('check', () => {
         for (const [name, source] of [
           ['pet.ts', 'export const pet = {name:"cat",   tags:[1,2]}'],
           ['types/index.ts', 'export type Pet = {name:string}'],
-          // Not under `output.path`: a check must stage this one too, not write it.
+          // Not under `output.path`: a check must compare this one too, not write it.
           ['../client.ts', 'export const client = 1'],
           // Named by its real path, not through `output.path`, the way a plugin with a hard-coded folder does.
           [join(config.root, 'src/gen/fixed.ts'), 'export const fixed = 1'],
@@ -363,7 +363,7 @@ describe('check', () => {
       plugins: [writesFiles()],
     } satisfies UserConfig as unknown as Config
     const file = (name: string) => join(root, 'src/gen', name)
-    /** Every file under the root with its content, which also proves the temporary folder is gone. */
+    /** Every file under the root with its content, which also proves a check writes nothing. */
     const snapshot = () =>
       Object.fromEntries(
         readdirSync(root, { recursive: true, withFileTypes: true })
@@ -374,18 +374,20 @@ describe('check', () => {
     return { root, config, file, snapshot }
   }
 
-  /** A project whose output a real run wrote and formatted, with the cache a fresh CI checkout does not have removed. */
+  /** A project whose output a real run wrote and formatted, as a fresh CI checkout holds it: the files and `kubb.lock`, no cache. */
   async function generated(options?: { clean?: boolean }) {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
     rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
+    // Keyed from the root, so the lock file is the same on every machine.
+    expect(Object.keys(JSON.parse(readFileSync(join(target.root, 'kubb.lock'), 'utf8')).files)).toContain('src/gen/pet.ts')
     // The formatter ran: the stored bytes are not the ones the plugin produced.
     expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
 
     return target
   }
 
-  it('exits 0 for formatted output that is up to date, without the output manifest', async () => {
+  it('exits 0 for formatted output that is up to date, from kubb.lock alone', async () => {
     const { config, snapshot } = await generated()
     const before = snapshot()
 
@@ -432,11 +434,10 @@ describe('check', () => {
     expect((await bootstrap({ configs: [kept.config], check: true })).filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
-  it('runs the formatter and linter on output.path, so ignore rules that name it from the root still match', async () => {
+  it('runs no formatter or linter, so ignore rules that skip a temporary folder cannot fail the check', async () => {
     const target = project()
-    // Lints `src/` only, and skips the temporary folder the way a `.gitignore` entry for it does.
+    // Lints `src/` only: a pass over any folder outside it finds no files and fails.
     writeFileSync(join(target.root, '.oxlintrc.json'), JSON.stringify({ ignorePatterns: ['**/*', '!src/**/*'] }))
-    writeFileSync(join(target.root, '.gitignore'), '/.kubb-check-*/\n')
     const config = { ...target.config, output: { ...target.config.output, lint: 'oxlint' } } as Config
     await bootstrap({ configs: [config] })
     rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
@@ -449,29 +450,14 @@ describe('check', () => {
     expect(target.snapshot()).toStrictEqual(before)
   })
 
-  it('puts the output back as it was when the formatter fails', async () => {
-    const { config, root, file, snapshot } = await generated()
-    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
-    writeFileSync(file('extra.ts'), 'export {}\n')
-    writeFileSync(join(root, '.oxfmtrc.json'), '{ not json')
-    const before = snapshot()
+  it('exits 1 and names kubb.lock when formatted output has no lock file', async () => {
+    const { config, root } = await generated()
+    rmSync(join(root, 'kubb.lock'))
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.includes('formatter failed'))).toBe(true)
-    expect(lines.at(-1)).toBe('exit 2')
-    expect(snapshot()).toStrictEqual(before)
-  })
-
-  it('leaves the files in output.path unformatted when nothing is generated there', async () => {
-    const { config, file, snapshot } = project()
-    mkdirSync(join(config.root, 'src/gen'), { recursive: true })
-    writeFileSync(file('pet.ts'), 'export const pet = {name:"cat",   tags:[1,2]}')
-    const before = snapshot()
-
-    await bootstrap({ configs: [{ ...config, plugins: [] } as Config], check: true })
-
-    expect(snapshot()).toStrictEqual(before)
+    expect(lines.some((line) => line.includes('No kubb.lock found. Run `kubb generate` and commit kubb.lock'))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 1')
   })
 
   it('prints a hunk for the edited file with --diff', async () => {
@@ -483,11 +469,12 @@ describe('check', () => {
 
     expect(patch).toContain('@@ -1,1 +1,1 @@')
     expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')
-    expect(patch).toContain('+export const pet = { name: "cat", tags: [1, 2] };')
+    // No formatter runs in a check, so the new side is the code as Kubb generates it.
+    expect(patch).toContain('+export const pet = {name:"cat",   tags:[1,2]}')
     expect(lines.at(-1)).toBe('exit 1')
   })
 
-  it('stages a file a plugin writes outside output.path instead of writing it', async () => {
+  it('compares a file a plugin writes outside output.path instead of writing it', async () => {
     const { config, root, snapshot } = await generated()
     rmSync(join(root, 'src/client.ts'))
     const before = snapshot()
@@ -522,15 +509,12 @@ describe('check', () => {
     ])
   })
 
-  it.each([
-    ['an output.path outside the root', { output: { path: '../gen' } }, '--check cannot compare `output.path`'],
-    ['a storage other than fs', { storage: memoryStorage() }, '--check compares files on disk, but this config uses the "memory" storage.'],
-  ])('exits 2 and creates no temporary folder for %s', async (_name, override, message) => {
+  it('exits 2 and writes nothing for a storage other than fs', async () => {
     const { config, root } = project()
 
-    const lines = await bootstrap({ configs: [{ ...config, ...override } as Config], check: true })
+    const lines = await bootstrap({ configs: [{ ...config, storage: memoryStorage() } as Config], check: true })
 
-    expect(lines.some((line) => line.includes(message))).toBe(true)
+    expect(lines.some((line) => line.includes('--check compares files on disk, but this config uses the "memory" storage.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 2')
     expect(readdirSync(root)).toStrictEqual([])
   })

@@ -1,12 +1,19 @@
 import { hash } from 'node:crypto'
-import { inParallel } from '@internals/utils'
+import { relative, resolve } from 'node:path'
+import { inParallel, toPosixPath } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
+import { fsStorage } from './storages/fsStorage.ts'
 
 /**
- * Bumped when the stored shape changes, so an older cache is discarded instead of misread.
+ * Bumped when the stored shape changes, so an older lock file is discarded instead of misread.
  */
-const VERSION = 1
+const LOCKFILE_VERSION = 1
+
+/**
+ * Name of the lock file, written next to `kubb.config.ts` in the project root and meant to be committed.
+ */
+export const LOCKFILE_NAME = 'kubb.lock'
 
 /**
  * How one generated file looked on either side of the output passes.
@@ -22,18 +29,23 @@ type OutputManifestEntry = {
   output: string
 }
 
-type ManifestData = {
-  version: number
-  entries: Record<string, OutputManifestEntry>
+type Lockfile = {
+  lockfileVersion: number
+  files: Record<string, OutputManifestEntry>
 }
 
 /**
- * Remembers what the output passes did to each generated file, so the next run can tell "the
+ * Remembers what the output passes did to each generated file, so a later run can tell "the
  * formatter already turned this exact source into what is stored" apart from a real change.
  * Without it the storage compares Kubb's bytes against the formatter's, never matches, and
- * rewrites the whole output tree on every build.
+ * rewrites the whole output tree on every build. The record lives in `kubb.lock`, so a fresh
+ * checkout can answer the same question without running the formatter.
  */
 export type OutputManifest = {
+  /**
+   * `false` when no `kubb.lock` could be read, so nothing a formatter changed can be recognized.
+   */
+  readonly exists: boolean
   /**
    * `true` when `source` is known to come out of the output passes as exactly the content stored,
    * meaning the write can be skipped.
@@ -45,70 +57,102 @@ export type OutputManifest = {
    */
   track(options: { key: string; source: string }): void
   /**
-   * Re-reads the files written this run and persists their source/output pairs on top of what is
-   * stored. Nothing is pruned: a run generating a different set of files, or writing to a different
-   * storage in the same root, must not evict what another run recorded.
+   * Re-reads the files written this run and writes `kubb.lock`. An entry from an earlier run stays
+   * while its file still holds the recorded output, so a run that generates a different set of
+   * files keeps what another config recorded. A file the output passes left as written gets no entry.
    */
   commit(): Promise<void>
 }
 
-const MANIFEST_KEY = 'output-manifest.json'
+/** Line endings are normalized, so a checkout that converts them still matches the lock file. */
+const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
 
-async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
+const isEntry = (value: unknown): value is OutputManifestEntry =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as OutputManifestEntry).source === 'string' &&
+  typeof (value as OutputManifestEntry).output === 'string'
+
+async function loadEntries({ lock, lockPath }: { lock: Storage; lockPath: string }): Promise<Record<string, OutputManifestEntry> | null> {
   try {
-    const stored = await cache.readItem(MANIFEST_KEY)
-    if (stored === null) return {}
+    const stored = await lock.readItem(lockPath)
+    if (stored === null) return null
 
-    const data = JSON.parse(stored) as ManifestData
-    if (data.version !== VERSION) return {}
-    if (typeof data.entries !== 'object' || data.entries === null || Array.isArray(data.entries)) return {}
+    const data = JSON.parse(stored) as Lockfile
+    if (data.lockfileVersion !== LOCKFILE_VERSION) return null
+    if (typeof data.files !== 'object' || data.files === null || Array.isArray(data.files)) return null
 
-    return data.entries
+    return Object.fromEntries(Object.entries(data.files).filter(([, entry]) => isEntry(entry)))
   } catch {
-    return {}
+    return null
   }
 }
 
+/** One file per line, sorted by path, so a change to one file is a one-line diff. */
+function printLockfile(entries: Record<string, OutputManifestEntry>): string {
+  const lines = Object.keys(entries)
+    .sort()
+    .map((key) => `    ${JSON.stringify(key)}: { "source": "${entries[key]!.source}", "output": "${entries[key]!.output}" }`)
+
+  return `{\n  "lockfileVersion": ${LOCKFILE_VERSION},\n  "files": {${lines.length ? `\n${lines.join(',\n')}\n  ` : ''}}\n}\n`
+}
+
 /**
- * Loads the stored manifest, starting empty when it is missing, unreadable, or from an older
- * version. `storage` holds the generated files, `cache` holds the manifest itself.
+ * Loads `kubb.lock` from `root`, starting empty when it is missing, unreadable, or from an older
+ * version. `storage` holds the generated files, `lock` holds the lock file itself.
  *
  * @example
  * ```ts
- * const manifest = await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
+ * const manifest = await createOutputManifest({ storage: config.storage, root: config.root })
  * ```
  */
-export async function createOutputManifest({ storage, cache }: { storage: Storage; cache: Storage }): Promise<OutputManifest> {
-  const entries = await loadEntries({ cache })
-  const tracked = new Map<string, string>()
+export async function createOutputManifest({ storage, root, lock = fsStorage() }: { storage: Storage; root: string; lock?: Storage }): Promise<OutputManifest> {
+  const lockPath = resolve(root, LOCKFILE_NAME)
+  const loaded = await loadEntries({ lock, lockPath })
+  const entries = loaded ?? {}
+  // Keyed by the path from `root`, so the lock file reads the same on every machine.
+  const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
+  const tracked = new Map<string, { source: string; trimmed: string }>()
 
   return {
+    exists: loaded !== null,
     isUpToDate({ key, source, disk }) {
-      const entry = entries[key]
+      const entry = entries[toLockKey(key)]
       if (!entry) return false
 
-      return entry.source === hash('sha256', source) && entry.output === hash('sha256', disk)
+      return entry.source === digest(source) && entry.output === digest(disk)
     },
     track({ key, source }) {
-      tracked.set(key, hash('sha256', source))
+      tracked.set(key, { source: digest(source), trimmed: digest(source.trim()) })
     },
     async commit() {
       try {
-        const next = { ...entries }
+        const next: Record<string, OutputManifestEntry> = {}
+        const written = new Set([...tracked.keys()].map(toLockKey))
 
+        // An earlier entry holds only while its file still is the output it recorded.
+        await inParallel({
+          items: Object.entries(entries).filter(([key]) => !written.has(key)),
+          limit: FILE_CONCURRENCY,
+          run: async ([key, entry]) => {
+            const stored = await storage.readItem(resolve(root, key))
+            if (stored !== null && digest(stored) === entry.output) next[key] = entry
+          },
+        })
         // Reads the tree back through the same pool that wrote it, rather than one file at a time.
         await inParallel({
           items: [...tracked],
           limit: FILE_CONCURRENCY,
-          run: async ([key, source]) => {
+          run: async ([key, { source, trimmed }]) => {
             const stored = await storage.readItem(key)
-            if (stored === null) return
-
-            next[key] = { source, output: hash('sha256', stored) }
+            // The storage trims what it writes, so an untouched file equals the trimmed source.
+            if (stored === null || digest(stored.trim()) === trimmed) return
+            next[toLockKey(key)] = { source, output: digest(stored) }
           },
         })
 
-        await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData))
+        const content = printLockfile(next)
+        if (content !== (await lock.readItem(lockPath))) await lock.writeItem(lockPath, content)
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */
       }
