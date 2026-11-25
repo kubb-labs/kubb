@@ -146,7 +146,7 @@ function reachesItself(graph: ReadonlyMap<string, ReadonlySet<string>>, start: s
     if (node === start) return true
     if (visited.has(node)) continue
     visited.add(node)
-    stack.push(...(graph.get(node) ?? []))
+    for (const next of graph.get(node) ?? []) stack.push(next)
   }
 
   return false

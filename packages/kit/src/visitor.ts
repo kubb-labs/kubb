@@ -21,7 +21,7 @@ type VisitState = {
   // One list per kind, so the walk skips the work for a kind no template writes.
   templates: Record<TemplateKind, Array<RegisteredTemplate>>
   schemas: Map<SchemaNode, Resolved<SchemaNode> | Error>
-  // Names the walk leaves out before a rule runs.
+  // Names the walk leaves out whatever the rules say.
   skipped: ReadonlySet<string>
   // Set by the first schema that throws. Later schemas are skipped.
   failed: boolean
@@ -80,7 +80,8 @@ function unusedSchemaNames(ctx: PluginVisitContext, resolver: Resolver, operatio
   for (const node of ctx.schemas) {
     // The filter list is also the cache key, so these results stay apart from the plugin's own.
     const isExcluded = resolver.default.options(node, { options: exclude, exclude }) === null
-    ;(isExcluded ? excluded : kept).push(node)
+    const list = isExcluded ? excluded : kept
+    list.push(node)
   }
 
   const unused = ast.graph.getUsedNames(excluded, kept)
