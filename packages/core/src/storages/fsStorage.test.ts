@@ -3,6 +3,7 @@ import { readdir, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FileManager } from '../FileManager.ts'
 import { Hookable } from '../Hookable.ts'
@@ -19,7 +20,7 @@ function makeFile(path: string, text: string) {
   })
 }
 
-async function writeAll(files: Array<ReturnType<typeof makeFile>>): Promise<Array<string>> {
+async function writeAll(files: Array<FileNode>): Promise<Array<string>> {
   const hooks = new Hookable<KubbHooks>()
   let unchanged: Array<string> = []
   hooks.hook('kubb:files:processing:end', (ctx) => {

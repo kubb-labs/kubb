@@ -5,13 +5,11 @@ import { stripVTControlCharacters } from 'node:util'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { defineExtension, memoryStorage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
-import type { UnpluginBuildContext } from 'unplugin'
+import type { UnpluginBuildContext, UnpluginOptions } from 'unplugin'
 import { unpluginFactory } from './unpluginFactory.ts'
 
-type KubbUnpluginOptions = ReturnType<typeof unpluginFactory>
-
 /** The plugin that runs the Kubb build, the first of the two the factory returns. */
-function getPluginOptions(options: KubbUnpluginOptions) {
+function getPluginOptions(options: Array<UnpluginOptions>) {
   const [plugin] = Array.isArray(options) ? options : [options]
   if (!plugin) throw new Error('Expected an unplugin option')
 

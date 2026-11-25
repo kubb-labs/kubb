@@ -121,7 +121,7 @@ describe('PluginVisitContext diagnostics', () => {
     return driver.getContext(driver.plugins.get('pluginA')!)
   }
 
-  function collect(fn: (ctx: ReturnType<typeof context>) => void): Array<Diagnostic> {
+  function collect(fn: (ctx: PluginVisitContext) => void): Array<Diagnostic> {
     const diagnostics: Array<Diagnostic> = []
     Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),

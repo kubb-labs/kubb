@@ -17,7 +17,7 @@ afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
-function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parameters<typeof ast.factory.createFile>[0]>) {
+function makeFile(filePath: string, sourceValue?: string, extra?: Partial<ast.UserFileNode>) {
   return ast.factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,

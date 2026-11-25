@@ -1,4 +1,4 @@
-import { ast, createPrinter, type OperationNode, type PrinterFactoryOptions, type SchemaNode } from '@kubb/ast'
+import { ast, createPrinter, type OperationNode, type Printer, type PrinterFactoryOptions, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
@@ -11,6 +11,8 @@ import { file } from './file.ts'
 import { from } from './from.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PrinterContext } from './types.ts'
+
+type SubtreePrinterOptions = PrinterFactoryOptions<'subtree', { depth: number }, string>
 
 const ref = (name: string) => ast.factory.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
 
@@ -548,7 +550,7 @@ describe('generatorVisitor', () => {
 
   it('gives printer handlers from() and passes transform options to the whole subtree', async () => {
     const seen: Array<string> = []
-    const printer = createPrinter<PrinterFactoryOptions<'subtree', { depth: number }, string>>((options) => ({
+    const printer = createPrinter<SubtreePrinterOptions>((options) => ({
       name: 'subtree',
       options,
       nodes: {
@@ -572,7 +574,7 @@ describe('generatorVisitor', () => {
           defineTemplate({
             kind: 'Schema',
             render(node, ctx) {
-              if (node.name === 'Pet') (ctx.printer as ReturnType<typeof printer>).print(node)
+              if (node.name === 'Pet') (ctx.printer as Printer<SubtreePrinterOptions>).print(node)
               return null
             },
           }),

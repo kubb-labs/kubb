@@ -23,6 +23,7 @@ import {
   type GenerateInput,
   MAX_PAGE_LINES,
 } from './protocol.ts'
+import type { GenerationRun } from './protocol.ts'
 import { generateAgentKey, getAgentPublicKey, verifyAgentSignature } from './agentKey.ts'
 import { projectConfig, root } from './testing.ts'
 
@@ -801,7 +802,7 @@ describe('installExtension', () => {
 })
 
 describe('generation reports', () => {
-  async function events(run: ReturnType<AgentApi['startGeneration']>) {
+  async function events(run: GenerationRun) {
     const seen: Array<{ type: string; data: unknown }> = []
     const reader = (await run.events()).getReader()
     while (true) {
@@ -1067,9 +1068,7 @@ describe('current disk output', () => {
 describe('saveConfig', () => {
   it('refuses every edit when the host did not grant allowConfigEdit', async () => {
     const { agent } = await connectStudio()
-    const edits = [{ operation: ConfigEditOperation.REMOVE_OPTION, plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Parameters<
-      AgentApi['saveConfig']
-    >[0]['edits']
+    const edits = [{ operation: ConfigEditOperation.REMOVE_OPTION, plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Array<ConfigEdit>
 
     await expect(agent.saveConfig({ edits })).resolves.toStrictEqual({
       outcomes: [{ edit: edits[0], applied: false, reason: 'the agent was not granted permission to edit kubb.config.ts' }],

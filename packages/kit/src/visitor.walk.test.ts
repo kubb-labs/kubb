@@ -1,4 +1,5 @@
 import { ast, type FileNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import type { Macro } from '@kubb/ast'
 import { type Config, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, type PluginVisitContext, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
@@ -327,8 +328,8 @@ describe('KubbDriver generator dispatch', () => {
 
   it('runs added macros in order, isolated per plugin, before the generators see a node', async () => {
     rec = { schema: [], operation: [], operations: [], pairs: [] }
-    const rename = (suffix: string) => ({ name: suffix, schema: (node: SchemaNode) => ({ ...node, name: `${node.name}${suffix}` }) })
-    const macroPlugin = (name: string, macros: Array<ReturnType<typeof rename>>): Plugin => ({
+    const rename = (suffix: string): Macro => ({ name: suffix, schema: (node: SchemaNode) => ({ ...node, name: `${node.name}${suffix}` }) })
+    const macroPlugin = (name: string, macros: Array<Macro>): Plugin => ({
       name,
       hooks: {
         'kubb:plugin:setup'() {
