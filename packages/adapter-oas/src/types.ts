@@ -270,7 +270,6 @@ export type AdapterOasResolvedOptions = {
   pathParamsCasing: AdapterOasOptions['pathParamsCasing']
   dateType: NonNullable<AdapterOasOptions['dateType']>
   integerType: NonNullable<AdapterOasOptions['integerType']>
-  formattedEnumType: NonNullable<AdapterOasOptions['formattedEnumType']>
   unknownType: NonNullable<AdapterOasOptions['unknownType']>
   emptySchemaType: NonNullable<AdapterOasOptions['emptySchemaType']>
   enumSuffix: NonNullable<AdapterOasOptions['enumSuffix']>

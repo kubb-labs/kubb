@@ -1,9 +1,7 @@
 ---
-'@kubb/adapter-oas': minor
+'@kubb/adapter-oas': patch
 ---
 
-Add `formattedEnumType: 'enum'`, which turns an `enum` on a schema with a `format`, such as `int32`, into a named enum that uses `x-enumNames`. `@kubb/plugin-ts` then generates the runtime object with `enum: { type: 'asConst' }`. The default, `'union'`, keeps the literal union.
+An `enum` with a `format`, such as `int32`, becomes a named enum when the schema has `x-enumNames` or `x-enum-varnames`, the same as an enum without a `format`. `@kubb/plugin-ts` then generates the runtime object with `enum: { type: 'asConst' }`. Before, the names were dropped and the enum generated as a union of its values. A formatted enum without names is unchanged.
 
-```ts
-adapterOas({ formattedEnumType: 'enum' })
-```
+With the `@kubb/plugin-ts` defaults, the type of these enums is now named `StatusKey` instead of `Status`. Set `constCasing: 'pascalCase'` and `typeSuffix: ''` to keep `Status`.

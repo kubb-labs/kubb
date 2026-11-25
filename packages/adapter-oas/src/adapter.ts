@@ -64,24 +64,10 @@ export const adapterOas = defineExtension<AdapterOas>({
     pathParamsCasing,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
-    formattedEnumType = DEFAULT_PARSER_OPTIONS.formattedEnumType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
     enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
-  }) => ({
-    validate,
-    contentType,
-    server,
-    discriminator,
-    enums,
-    pathParamsCasing,
-    dateType,
-    integerType,
-    formattedEnumType,
-    unknownType,
-    emptySchemaType,
-    enumSuffix,
-  }),
+  }) => ({ validate, contentType, server, discriminator, enums, pathParamsCasing, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
   build({ validate, contentType, server, discriminator, enums, pathParamsCasing, ...parserOptions }) {
     let parsedDocument: Document | null = null
     let sources: Array<string> = []
