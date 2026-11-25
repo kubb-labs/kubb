@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createOutputManifest } from './outputManifest.ts'
+import { createLockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
 /**
@@ -10,7 +10,7 @@ import { fsStorage } from './storages/fsStorage.ts'
  */
 const formatted = 'const a = 1;\n'
 
-describe('createOutputManifest', () => {
+describe('createLockfile', () => {
   const roots: Array<string> = []
   const storage = fsStorage()
 
@@ -27,15 +27,15 @@ describe('createOutputManifest', () => {
     return { root, file, lock, readLock: () => JSON.parse(readFileSync(lock, 'utf8')) as unknown }
   }
 
-  /** A project whose lock file recorded `a.ts` and its formatted output, with the manifest the next run would load. */
+  /** A project whose lock file recorded `a.ts` and its formatted output, with the lockfile the next run would load. */
   async function recorded() {
     const target = project()
     await storage.writeItem(target.file('a.ts'), formatted)
-    const manifest = await createOutputManifest({ storage, root: target.root })
-    manifest.track({ key: target.file('a.ts'), source: 'const a = 1' })
-    await manifest.commit()
+    const lockfile = await createLockfile({ storage, root: target.root })
+    lockfile.track({ key: target.file('a.ts'), source: 'const a = 1' })
+    await lockfile.write()
 
-    return { ...target, manifest: await createOutputManifest({ storage, root: target.root }) }
+    return { ...target, lockfile: await createLockfile({ storage, root: target.root }) }
   }
 
   it.each([
@@ -44,20 +44,20 @@ describe('createOutputManifest', () => {
     ['an edited output with the same source', { name: 'a.ts', source: 'const a = 1', disk: 'const a = 999\n' }, false],
     ['a file it never recorded', { name: 'unknown.ts', source: 'const a = 1', disk: formatted }, false],
   ])('returns %s as up to date: %s', async (_name, { name, ...entry }, expected) => {
-    const { manifest, file } = await recorded()
+    const { lockfile, file } = await recorded()
 
-    expect(manifest.exists).toBe(true)
-    expect(manifest.isUpToDate({ key: file(name), ...entry })).toBe(expected)
+    expect(lockfile.exists).toBe(true)
+    expect(lockfile.isUpToDate({ key: file(name), ...entry })).toBe(expected)
   })
 
   it('writes the files sorted and keyed by the path from the root', async () => {
     const { root, file, lock } = project()
     await storage.writeItem(file('b.ts'), 'const b = 2;\n')
     await storage.writeItem(file('a.ts'), formatted)
-    const manifest = await createOutputManifest({ storage, root })
-    manifest.track({ key: file('b.ts'), source: 'const b = 2' })
-    manifest.track({ key: file('a.ts'), source: 'const a = 1' })
-    await manifest.commit()
+    const lockfile = await createLockfile({ storage, root })
+    lockfile.track({ key: file('b.ts'), source: 'const b = 2' })
+    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
+    await lockfile.write()
 
     const stored = JSON.parse(readFileSync(lock, 'utf8')) as { lockfileVersion: number; files: Record<string, { source: string; output: string }> }
 
@@ -69,9 +69,9 @@ describe('createOutputManifest', () => {
   it('records a file the output passes left as written', async () => {
     const { root, file, readLock } = project()
     await storage.writeItem(file('a.ts'), 'const a = 1')
-    const manifest = await createOutputManifest({ storage, root })
-    manifest.track({ key: file('a.ts'), source: 'const a = 1' })
-    await manifest.commit()
+    const lockfile = await createLockfile({ storage, root })
+    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
+    await lockfile.write()
 
     expect(readLock()).toMatchObject({ files: { 'gen/a.ts': { source: expect.any(String), output: expect.any(String) } } })
   })
@@ -80,11 +80,11 @@ describe('createOutputManifest', () => {
     const { root, file } = await recorded()
     await storage.writeItem(file('second.ts'), 'const b = 2;\n')
 
-    const second = await createOutputManifest({ storage, root })
+    const second = await createLockfile({ storage, root })
     second.track({ key: file('second.ts'), source: 'const b = 2' })
-    await second.commit()
+    await second.write()
 
-    const third = await createOutputManifest({ storage, root })
+    const third = await createLockfile({ storage, root })
 
     expect(third.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(true)
     expect(third.isUpToDate({ key: file('second.ts'), source: 'const b = 2', disk: 'const b = 2;\n' })).toBe(true)
@@ -94,11 +94,11 @@ describe('createOutputManifest', () => {
     ['was deleted', null],
     ['no longer holds the recorded output', 'const a = 999\n'],
   ])('drops the entry of a file that %s', async (_name, content) => {
-    const { file, manifest, readLock } = await recorded()
+    const { file, lockfile, readLock } = await recorded()
     if (content === null) rmSync(file('a.ts'))
     else writeFileSync(file('a.ts'), content)
 
-    await manifest.commit()
+    await lockfile.write()
 
     expect(readLock()).toStrictEqual({ lockfileVersion: 1, files: {} })
   })
@@ -111,23 +111,23 @@ describe('createOutputManifest', () => {
   ])('starts empty with %s', async (_name, stored) => {
     const { root, file, lock } = project()
     if (stored !== null) writeFileSync(lock, stored)
-    const manifest = await createOutputManifest({ storage, root })
+    const lockfile = await createLockfile({ storage, root })
 
-    expect(manifest.exists).toBe(false)
-    expect(manifest.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(false)
+    expect(lockfile.exists).toBe(false)
+    expect(lockfile.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
   it('keeps the inputs of each config, and drops a record that cannot be made', async () => {
     const { root, readLock } = project()
-    const first = await createOutputManifest({ storage, root })
-    await first.commit({ name: 'api', inputs: { hash: 'a', sources: ['openapi.yaml'] } })
-    const second = await createOutputManifest({ storage, root })
-    await second.commit({ name: 'admin', inputs: { hash: 'b', sources: [] } })
+    const first = await createLockfile({ storage, root })
+    await first.write({ name: 'api', inputs: { hash: 'a', sources: ['openapi.yaml'] } })
+    const second = await createLockfile({ storage, root })
+    await second.write({ name: 'admin', inputs: { hash: 'b', sources: [] } })
 
-    expect((await createOutputManifest({ storage, root })).inputs('api')).toStrictEqual({ hash: 'a', sources: ['openapi.yaml'] })
+    expect((await createLockfile({ storage, root })).inputs('api')).toStrictEqual({ hash: 'a', sources: ['openapi.yaml'] })
 
-    const third = await createOutputManifest({ storage, root })
-    await third.commit({ name: 'api', inputs: null })
+    const third = await createLockfile({ storage, root })
+    await third.write({ name: 'api', inputs: null })
 
     expect(readLock()).toStrictEqual({ lockfileVersion: 1, inputs: { admin: { hash: 'b', sources: [] } }, files: {} })
   })
@@ -144,26 +144,26 @@ describe('createOutputManifest', () => {
     const target = await recorded()
     change(target)
 
-    expect(await target.manifest.matchesDisk({ cleanDir: join(target.root, 'gen') })).toBe(expected)
+    expect(await target.lockfile.matchesOutput({ cleanDir: join(target.root, 'gen') })).toBe(expected)
   })
 
-  it('is settled only while every tracked file was up to date', async () => {
-    const { manifest, file } = await recorded()
-    manifest.track({ key: file('a.ts'), source: 'const a = 1' })
-    manifest.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })
+  it('is allFilesUpToDate only while every tracked file was up to date', async () => {
+    const { lockfile, file } = await recorded()
+    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
+    lockfile.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })
 
-    expect(manifest.settled).toBe(true)
+    expect(lockfile.allFilesUpToDate).toBe(true)
 
-    manifest.track({ key: file('b.ts'), source: 'const b = 2' })
+    lockfile.track({ key: file('b.ts'), source: 'const b = 2' })
 
-    expect(manifest.settled).toBe(false)
+    expect(lockfile.allFilesUpToDate).toBe(false)
   })
 
   it('skips a file that disappeared before the commit', async () => {
     const { root, file, readLock } = project()
-    const manifest = await createOutputManifest({ storage, root })
-    manifest.track({ key: file('gone.ts'), source: 'const a = 1' })
-    await manifest.commit()
+    const lockfile = await createLockfile({ storage, root })
+    lockfile.track({ key: file('gone.ts'), source: 'const a = 1' })
+    await lockfile.write()
 
     expect(readLock()).toStrictEqual({ lockfileVersion: 1, files: {} })
   })
@@ -173,9 +173,9 @@ describe('createOutputManifest', () => {
     // A folder in the lock file's place: it can be neither read nor replaced.
     mkdirSync(lock)
     await storage.writeItem(file('a.ts'), formatted)
-    const manifest = await createOutputManifest({ storage, root })
-    manifest.track({ key: file('a.ts'), source: 'const a = 1' })
+    const lockfile = await createLockfile({ storage, root })
+    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
 
-    await expect(manifest.commit()).resolves.toBeUndefined()
+    await expect(lockfile.write()).resolves.toBeUndefined()
   })
 })

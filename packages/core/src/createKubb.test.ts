@@ -531,7 +531,7 @@ describe('Kubb#generate', () => {
   })
 
   /**
-   * A throwaway project with one generated file, so the manifest tests can regenerate it with a
+   * A throwaway project with one generated file, so the lockfile tests can regenerate it with a
    * different source or a different output pass without repeating the setup.
    */
   const createProject = ({ format = 'oxfmt' as Config['output']['format'], postGenerate = [] as Array<string> } = {}) => {
@@ -563,7 +563,7 @@ describe('Kubb#generate', () => {
       generate,
       read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
       mtime: () => fs.statSync(filePath).mtimeMs,
-      hasManifest: () => fs.existsSync(path.join(root, 'kubb.lock')),
+      hasLockfile: () => fs.existsSync(path.join(root, 'kubb.lock')),
     }
   }
 
@@ -586,7 +586,7 @@ describe('Kubb#generate', () => {
     const writeItem = vi.spyOn(project.storage, 'writeItem')
     await project.generate({ processOutput })
 
-    // The manifest itself still goes through the storage, so scope this to the generated file.
+    // The lockfile itself still goes through the storage, so scope this to the generated file.
     expect(writeItem).not.toHaveBeenCalledWith(project.filePath, expect.anything())
     expect(project.mtime()).toBe(afterFirst)
     expect(project.read()).toBe(formatted)
@@ -619,11 +619,11 @@ describe('Kubb#generate', () => {
     await project.generate()
     change(project)
 
-    expect(await Kubb.isFresh(project.config())).toBe(expected)
+    expect(await Kubb.isUpToDate(project.config())).toBe(expected)
   })
 
   it('reports a project that was never generated as not fresh', async () => {
-    expect(await Kubb.isFresh(createProject({ format: false }).config())).toBe(false)
+    expect(await Kubb.isUpToDate(createProject({ format: false }).config())).toBe(false)
   })
 
   it('rewrites the output when the generated source actually changed', async () => {
@@ -642,7 +642,7 @@ describe('Kubb#generate', () => {
       processOutput: async () => [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }],
     })
 
-    expect(project.hasManifest()).toBe(false)
+    expect(project.hasLockfile()).toBe(false)
   })
 
   it('writes the lock file when nothing runs over the output', async () => {
@@ -650,7 +650,7 @@ describe('Kubb#generate', () => {
 
     await project.generate()
 
-    expect(project.hasManifest()).toBe(true)
+    expect(project.hasLockfile()).toBe(true)
   })
 })
 

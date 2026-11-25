@@ -261,7 +261,7 @@ function reportOutcome({
 }): void {
   for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
   // Without the lock file every formatted file reads as out of date, so say why.
-  if (outputCheck?.missingLock)
+  if (outputCheck?.missingLockfile)
     logWarn(`No ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`)
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
@@ -283,7 +283,7 @@ async function generateOrReuse({
   watchMode,
   mayReuse,
 }: GenerateProps & { quiet: boolean; watchMode: boolean; mayReuse: boolean }): Promise<boolean> {
-  if (mayReuse && (await Promise.all(configs.map((config) => Kubb.isFresh(config)))).every(Boolean)) {
+  if (mayReuse && (await Promise.all(configs.map((config) => Kubb.isUpToDate(config)))).every(Boolean)) {
     if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     return true
   }

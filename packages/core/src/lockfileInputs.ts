@@ -6,7 +6,7 @@ import { readInstalledPackages } from './installedPackages.ts'
 import type { Config } from './types.ts'
 
 /** What a build read, as `kubb.lock` records it: one hash, plus the source files to hash again on the next run. */
-export type InputFingerprint = { hash: string; sources: Array<string> }
+export type LockfileInputs = { hash: string; sources: Array<string> }
 
 /** Per-run and per-machine members of a config, which say nothing about what it generates. */
 const SKIPPED_KEYS = new Set(['root', 'storage', 'reporters'])
@@ -22,7 +22,7 @@ function toSerializable(value: unknown): unknown {
  * The config as stable text, with every function as its source. `null` when it cannot be written
  * out, such as a getter that throws. Read before the build: an adapter holds more after it parsed.
  */
-export function describeConfig(config: Config): string | null {
+export function serializeConfig(config: Config): string | null {
   const seen = new WeakSet<object>()
   try {
     const text = JSON.stringify(config, (key, raw: unknown) => {
@@ -45,15 +45,7 @@ export function describeConfig(config: Config): string | null {
  * Hashes everything a build reads: `configText`, the versions of Kubb and of the project's
  * dependencies, and each source file. `null` when a source is not a readable local file, such as a URL.
  */
-export async function fingerprintInputs({
-  root,
-  configText,
-  sources,
-}: {
-  root: string
-  configText: string
-  sources: Array<string>
-}): Promise<InputFingerprint | null> {
+export async function hashInputs({ root, configText, sources }: { root: string; configText: string; sources: Array<string> }): Promise<LockfileInputs | null> {
   const files = [...new Set(sources.map((source) => resolve(root, source)))].sort()
   const contents = await Promise.all(files.map((file) => readIfExists(file).catch(() => null)))
   if (contents.includes(null)) return null

@@ -7,11 +7,11 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
 import { Diagnostics } from './Diagnostics.ts'
-import type { OutputManifest } from './outputManifest.ts'
+import type { Lockfile } from './lockfile.ts'
 import type { Hookable } from './Hookable.ts'
 import type { Config, KubbFileProcessingUpdate, KubbHooks } from './types.ts'
 
-/** Files kept in flight at once, writing the output and reading it back for the manifest. */
+/** Files kept in flight at once, writing the output and reading it back for the lockfile. */
 export const FILE_CONCURRENCY = 50
 
 export type ParseOptions = {
@@ -25,7 +25,7 @@ export type WriteOptions = ParseOptions & {
    * Consulted before each write so a file the output passes already normalized is recognized as
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
    */
-  manifest?: OutputManifest
+  lockfile?: Lockfile
   /**
    * Directories the storage emptied right before this write. Files under them cannot exist yet, so they
    * are written without reading the previous value back.
@@ -110,27 +110,27 @@ function compareFiles(a: FileNode, b: FileNode): number {
 
 /**
  * Writes `source` to `file.path` unless the storage already holds it, either verbatim or, per the
- * manifest, as what the output passes make of it. Checking here rather than in a driver gives a
+ * lockfile, as what the output passes make of it. Checking here rather than in a driver gives a
  * storage writing to S3 or a database the same guarantee `fsStorage` has. `written` is `false` when
  * skipped, and `stored` is what the storage held before the write.
  */
 async function writeChanged({
   storage,
-  manifest,
+  lockfile,
   file,
   source,
   signal,
   cleaned,
-}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<{
+}: Pick<WriteOptions, 'storage' | 'lockfile' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<{
   written: boolean
   stored: string | null
 }> {
   signal?.throwIfAborted()
   const stored = cleaned?.some((dir) => isPathInside(file.path, dir)) ? null : await storage.readItem(file.path)
   // Every generated file goes into the lock file, also one this run leaves as it is.
-  manifest?.track({ key: file.path, source })
-  // Asked for every stored file, so the manifest knows when the whole output is already settled.
-  const upToDate = stored !== null && manifest?.isUpToDate({ key: file.path, source, disk: stored })
+  lockfile?.track({ key: file.path, source })
+  // Asked for every stored file, so the lockfile knows when the whole output is already allFilesUpToDate.
+  const upToDate = stored !== null && lockfile?.isUpToDate({ key: file.path, source, disk: stored })
   if (stored !== null && (upToDate || matchesStored({ stored, source }))) {
     return { written: false, stored }
   }
@@ -340,7 +340,7 @@ export class FileManager {
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
    * skipped paths as `unchanged`.
    */
-  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config, cleaned, shared }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, lockfile, signal, hooks, config, cleaned, shared }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await hooks?.callHook('kubb:files:processing:start', { files })
@@ -366,7 +366,7 @@ export class FileManager {
             if (first !== undefined && first !== digest) mismatched.push(file.path)
           }
           if (roots.length > 0 && !roots.some((root) => isPathInside(file.path, root))) outside.push(file.path)
-          const { written, stored } = await writeChanged({ storage, manifest, file, source, signal, cleaned })
+          const { written, stored } = await writeChanged({ storage, lockfile, file, source, signal, cleaned })
           if (!written) unchanged.push(file.path)
           await hooks?.callHook('kubb:file:processed', { file, source, stored })
         }

@@ -5,7 +5,7 @@ import { join, relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { inParallel, matchesStored, read } from '@internals/utils'
-import type { Hookable, KubbHooks, OutputManifest, Storage } from '@kubb/core'
+import type { Hookable, KubbHooks, Lockfile, Storage } from '@kubb/core'
 
 /** Glob pattern for paths the file watcher ignores. */
 const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
@@ -219,19 +219,19 @@ export async function readOutputFingerprints(outputPath: string): Promise<Map<st
 /**
  * How one generated file differs from its copy before generation: `undefined` when both hold the
  * same output, otherwise the change with its line counts. `previous` is the stored text, the
- * {@link FileFingerprint} of a file `output.clean` deleted, or `null` for a new file. The manifest
+ * {@link FileFingerprint} of a file `output.clean` deleted, or `null` for a new file. The lockfile
  * recognizes output a formatter rewrote.
  */
 export function diffFile({
   path,
   next,
   previous,
-  manifest,
+  lockfile,
 }: {
   path: string
   next: string
   previous: string | FileFingerprint | null
-  manifest?: Pick<OutputManifest, 'isUpToDate'>
+  lockfile?: Pick<Lockfile, 'isUpToDate'>
 }): FileChange | undefined {
   if (previous === null) return { status: 'A', path, added: splitLines(next.trimEnd()).length, removed: 0 }
   if (typeof previous !== 'string') {
@@ -239,7 +239,7 @@ export function diffFile({
     if (trimmed.length === previous.length && hash('sha1', trimmed) === previous.digest) return undefined
     return { status: 'M', path, ...countLineChanges({ before: previous.lines, after: hashLines(trimmed) }) }
   }
-  if (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: path, source: next, disk: previous })) return undefined
+  if (matchesStored({ stored: previous, source: next }) || lockfile?.isUpToDate({ key: path, source: next, disk: previous })) return undefined
   return { status: 'M', path, ...countLineChanges({ before: splitLines(previous.trim()), after: splitLines(next.trim()) }) }
 }
 
@@ -268,20 +268,20 @@ export function createChangeTally(): ChangeTally {
 }
 
 /**
- * Compares generated output with the files captured before generation. The manifest recognizes
+ * Compares generated output with the files captured before generation. The lockfile recognizes
  * output rewritten by a formatter, and `clean` includes files the run would delete.
  */
 export async function diffOutput({
   storage,
   paths,
   clean,
-  manifest,
+  lockfile,
   previousFiles,
 }: {
   storage: Storage
   paths: ReadonlySet<string>
   clean: boolean
-  manifest?: Pick<OutputManifest, 'isUpToDate'>
+  lockfile?: Pick<Lockfile, 'isUpToDate'>
   /**
    * The output captured before a real run, including files removed by cleaning.
    */
@@ -295,7 +295,7 @@ export async function diffOutput({
     run: async (filePath, index) => {
       const next = await storage.readItem(filePath)
       if (next === null) return
-      results[index] = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest }) ?? null
+      results[index] = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, lockfile }) ?? null
     },
   })
   const files = results.filter((result) => result !== null)

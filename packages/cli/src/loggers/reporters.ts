@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { isPathInside, memo } from '@internals/utils'
 import type { Config, GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
-import { createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
+import { createCliReporter, createLockfile, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
@@ -107,7 +107,7 @@ function setupReporters(
     const outputPath = resolve(config.root, config.output.path)
     const tracked = !outputCheck && trackChanges && (dryRun || config.storage?.name === 'fs')
     const live = ((): LiveChanges | undefined => {
-      // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
+      // Output passes rewrite stored files and a dry run compares through the lockfile, so both read the output back.
       if (!tracked || dryRun || hasOutputPasses(config)) return undefined
       return { tally: createChangeTally(), fingerprints: new Map(), processed: new Set() }
     })()
@@ -176,8 +176,8 @@ function setupReporters(
       return tally
     }
     if (!previous) return undefined
-    const manifest = dryRun ? await createOutputManifest({ storage, root: config.root }) : undefined
-    const diff = await diffOutput({ storage, paths, clean: Boolean(config.output.clean), manifest, previousFiles: previous })
+    const lockfile = dryRun ? await createLockfile({ storage, root: config.root }) : undefined
+    const diff = await diffOutput({ storage, paths, clean: Boolean(config.output.clean), lockfile, previousFiles: previous })
     const changes = createChangeTally()
     changes.unchanged = diff.unchanged
     for (const file of diff.files) tallyChange({ tally: changes, change: file })

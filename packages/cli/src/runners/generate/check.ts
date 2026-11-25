@@ -1,6 +1,6 @@
 import { join, relative, resolve } from 'node:path'
 import { diffHunks, inParallel, listFiles, read, toPosixPath } from '@internals/utils'
-import { type Config, createOutputManifest, Diagnostics, fsStorage, type GenerationResult, hasOutputPasses, memoryStorage, type Storage } from '@kubb/core'
+import { type Config, createLockfile, Diagnostics, fsStorage, type GenerationResult, hasOutputPasses, memoryStorage, type Storage } from '@kubb/core'
 import { formatPatch } from 'diff'
 import { diffFile, type FileChange, fingerprintFile, statusKeys } from './utils.ts'
 
@@ -25,7 +25,7 @@ export type OutputCheck = {
   /**
    * `true` once a config that formats or lints its output has no `kubb.lock` to compare with.
    */
-  readonly missingLock: boolean
+  readonly missingLockfile: boolean
   /**
    * One unified diff per changed file, filled only with `diff`.
    */
@@ -90,7 +90,7 @@ async function addDeletedFiles({
 export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
   const patches: Array<string> = []
   let changed = false
-  let missingLock = false
+  let missingLockfile = false
 
   const stageConfig = (config: Config): StagedConfig => {
     // A config without `storage` gets the fs storage from core.
@@ -119,15 +119,15 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
     get changed() {
       return changed
     },
-    get missingLock() {
-      return missingLock
+    get missingLockfile() {
+      return missingLockfile
     },
     async compare({ config, storage, paths }) {
       const stage = stageOf(config)
       const { userConfig, root } = stage
       const disk = fsStorage()
-      const manifest = await createOutputManifest({ storage: disk, root })
-      missingLock ||= !manifest.exists && hasOutputPasses({ output: userConfig.output, storage: disk })
+      const lockfile = await createLockfile({ storage: disk, root })
+      missingLockfile ||= !lockfile.exists && hasOutputPasses({ output: userConfig.output, storage: disk })
       const stale: Array<StaleFile> = []
       let unchanged = 0
 
@@ -138,7 +138,7 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
         run: async (filePath) => {
           const [after, before] = await Promise.all([storage.readItem(filePath), read(filePath).catch(() => null)])
           if (after === null) return
-          const change = diffFile({ path: filePath, next: after, previous: before, manifest })
+          const change = diffFile({ path: filePath, next: after, previous: before, lockfile })
           if (!change) {
             unchanged++
             return

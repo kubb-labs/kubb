@@ -3,7 +3,7 @@ import { relative, resolve } from 'node:path'
 import { inParallel, readIfExists, toPosixPath, writeRaw } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
-import type { InputFingerprint } from './inputFingerprint.ts'
+import type { LockfileInputs } from './lockfileInputs.ts'
 
 /** Bumped when the stored shape changes, so an older lock file is discarded instead of misread. */
 const LOCKFILE_VERSION = 1
@@ -14,7 +14,7 @@ export const LOCKFILE_NAME = 'kubb.lock'
 /**
  * How one generated file looked on either side of the output passes.
  */
-type OutputManifestEntry = {
+type LockfileEntry = {
   /**
    * Hash of the content Kubb handed to the storage.
    */
@@ -25,11 +25,11 @@ type OutputManifestEntry = {
   output: string
 }
 
-type Lockfile = {
+type LockfileObject = {
   lockfileVersion: number
   /** What each config last generated from, keyed by the config's name. */
-  inputs?: Record<string, InputFingerprint>
-  files: Record<string, OutputManifestEntry>
+  inputs?: Record<string, LockfileInputs>
+  files: Record<string, LockfileEntry>
 }
 
 /**
@@ -39,7 +39,7 @@ type Lockfile = {
  * rewrites the whole output tree on every build. The record lives in `kubb.lock`, so a fresh
  * checkout can answer the same question without running the formatter.
  */
-export type OutputManifest = {
+export type Lockfile = {
   /** `false` when no `kubb.lock` could be read, so nothing a formatter changed can be recognized. */
   readonly exists: boolean
   /**
@@ -52,38 +52,35 @@ export type OutputManifest = {
    */
   track(options: { key: string; source: string }): void
   /** `true` when every tracked file was up to date, so the output passes have nothing new to run over. */
-  readonly settled: boolean
+  readonly allFilesUpToDate: boolean
   /** What the config called `name` last generated from, when the lock file recorded it. */
-  inputs(name: string): InputFingerprint | undefined
+  inputs(name: string): LockfileInputs | undefined
   /**
    * Whether every file in the lock file still holds its recorded output. With `cleanDir`, that
    * folder must also hold no file the lock file does not list.
    */
-  matchesDisk(options?: { cleanDir?: string }): Promise<boolean>
+  matchesOutput(options?: { cleanDir?: string }): Promise<boolean>
   /**
    * Re-reads the files generated this run and writes `kubb.lock` with one entry for each. An entry
    * from an earlier run stays while its file still holds the recorded output, so a run that
    * generates a different set of files keeps what another config recorded. `inputs` records what
    * the config called `name` generated from, and drops that record when it is `null`.
    */
-  commit(options?: { name: string; inputs: InputFingerprint | null }): Promise<void>
+  write(options?: { name: string; inputs: LockfileInputs | null }): Promise<void>
 }
 
 /** Line endings are normalized, so a checkout that converts them still matches the lock file. */
 const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
 
-const isEntry = (value: unknown): value is OutputManifestEntry =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as OutputManifestEntry).source === 'string' &&
-  typeof (value as OutputManifestEntry).output === 'string'
+const isEntry = (value: unknown): value is LockfileEntry =>
+  typeof value === 'object' && value !== null && typeof (value as LockfileEntry).source === 'string' && typeof (value as LockfileEntry).output === 'string'
 
-async function loadLockfile(lockPath: string): Promise<Pick<Lockfile, 'files' | 'inputs'> | null> {
+async function readLockfileObject(lockPath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
   try {
     const stored = await readIfExists(lockPath)
     if (stored === null) return null
 
-    const data = JSON.parse(stored) as Lockfile
+    const data = JSON.parse(stored) as LockfileObject
     if (data.lockfileVersion !== LOCKFILE_VERSION) return null
     if (typeof data.files !== 'object' || data.files === null || Array.isArray(data.files)) return null
 
@@ -101,14 +98,14 @@ async function loadLockfile(lockPath: string): Promise<Pick<Lockfile, 'files' | 
  *
  * @example
  * ```ts
- * const manifest = await createOutputManifest({ storage: config.storage, root: config.root })
+ * const lockfile = await createLockfile({ storage: config.storage, root: config.root })
  * ```
  */
-export async function createOutputManifest({ storage, root }: { storage: Storage; root: string }): Promise<OutputManifest> {
+export async function createLockfile({ storage, root }: { storage: Storage; root: string }): Promise<Lockfile> {
   const lockPath = resolve(root, LOCKFILE_NAME)
-  const loaded = await loadLockfile(lockPath)
+  const loaded = await readLockfileObject(lockPath)
   const entries = loaded?.files ?? {}
-  const settledKeys = new Set<string>()
+  const upToDateKeys = new Set<string>()
   const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
   const tracked = new Map<string, string>()
 
@@ -117,15 +114,15 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
     isUpToDate({ key, source, disk }) {
       const entry = entries[toLockKey(key)]
       if (!entry || entry.source !== digest(source) || entry.output !== digest(disk)) return false
-      settledKeys.add(key)
+      upToDateKeys.add(key)
 
       return true
     },
-    get settled() {
-      return [...tracked.keys()].every((key) => settledKeys.has(key))
+    get allFilesUpToDate() {
+      return [...tracked.keys()].every((key) => upToDateKeys.has(key))
     },
     inputs: (name) => loaded?.inputs?.[name],
-    async matchesDisk({ cleanDir } = {}) {
+    async matchesOutput({ cleanDir } = {}) {
       const stale = new Set<string>()
       await inParallel({
         items: Object.entries(entries),
@@ -143,9 +140,9 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
     track({ key, source }) {
       tracked.set(key, digest(source))
     },
-    async commit(options) {
+    async write(options) {
       try {
-        const next: Record<string, OutputManifestEntry> = {}
+        const next: Record<string, LockfileEntry> = {}
         const written = new Set([...tracked.keys()].map(toLockKey))
 
         await inParallel({
@@ -175,8 +172,8 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
         const inputs = { ...loaded?.inputs }
         if (options?.inputs) inputs[options.name] = options.inputs
         else if (options) delete inputs[options.name]
-        const lockfile: Lockfile = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
-        const content = `${JSON.stringify(lockfile, null, 2)}\n`
+        const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
+        const content = `${JSON.stringify(object, null, 2)}\n`
         if (content !== (await readIfExists(lockPath))) await writeRaw(lockPath, content)
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */

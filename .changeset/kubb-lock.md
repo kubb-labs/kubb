@@ -11,4 +11,4 @@ Add `kubb.lock`, and make `kubb generate --check` compare against it.
 
 `kubb generate` skips the build when the config, the spec, the installed package versions, and the generated files all match `kubb.lock`. Pass the new `--force` flag to generate, format, and lint anyway.
 
-In `@kubb/core`, `Kubb.isFresh(config)` exposes the same check, `generate()` accepts `force`, and `createOutputManifest` now takes `{ storage, root }`.
+In `@kubb/core`, `Kubb.isUpToDate(config)` exposes the same check, `generate()` accepts `force`, and `createLockfile` now takes `{ storage, root }`.
