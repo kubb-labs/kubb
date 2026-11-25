@@ -7,7 +7,7 @@ import type { LoggerContext } from './context.ts'
 import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 
-export type Walk = ReturnType<typeof createWalk>
+type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress }
 
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80
@@ -27,15 +27,63 @@ function createState() {
   }
 }
 
-/** The node walk the plugins share: the live generation block, and the plugin results printed once the walk ends. */
-export function createWalk({ writer, silent, human, text, onRun }: LoggerContext, spinner: Spinner, progress: Progress) {
-  const state = createState()
+/**
+ * The node walk the plugins share: the live generation block, and the plugin results printed once the walk ends.
+ */
+export class Walk {
+  readonly state = createState()
+  readonly #ctx: LoggerContext
+  readonly #spinner: Spinner
+  readonly #progress: Progress
 
-  /** The progress summary line the clack logger shows, `null` when there is nothing to display. */
-  function buildProgressLine(): string | null {
+  constructor({ ctx, spinner, progress }: WalkOptions) {
+    this.#ctx = ctx
+    this.#spinner = spinner
+    this.#progress = progress
+    const { writer, silent, human, text, onRun } = ctx
+    const { state } = this
+    if (silent) {
+      return
+    }
+
+    onRun('kubb:build:start', ({ nodeCounts: { schemas, operations } }) => {
+      state.walk.total = schemas + operations
+      const details = `${pluralize(schemas, 'schema')} · ${pluralize(operations, 'operation')} · ${formatMs(getElapsedMs(state.hrStart))}`
+      spinner.stop(`Parsed spec  ${styleText('dim', details)}`)
+      spinner.start('Generating')
+    })
+
+    // Plugins all end after one shared node walk, so per-node hooks keep the step live; plain output would get a line per node.
+    if (human) {
+      onRun('kubb:generate:schema', (node, { plugin }) => this.#onNode({ key: `schema:${node.name}`, name: node.name ?? 'schema', plugin: plugin.name }))
+      onRun('kubb:generate:operation', (node, { plugin }) =>
+        this.#onNode({ key: `operation:${node.operationId}`, name: node.operationId, plugin: plugin.name }),
+      )
+    }
+
+    // Buffered, not printed: a step redraws over anything written while it runs.
+    onRun('kubb:plugin:end', ({ plugin, duration, success }) => {
+      state[success ? 'completedPlugins' : 'failedPlugins']++
+      state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
+    })
+
+    onRun('kubb:plugins:end', () => {
+      const failed = state.failedPlugins > 0
+      spinner.stop(this.#buildProgressLine() ?? undefined, failed ? 'failed' : 'success')
+
+      if (state.pluginLines.length) {
+        writer.block(state.pluginLines)
+        state.pluginLines = []
+      }
+    })
+  }
+
+  // The progress summary line the clack logger shows, `null` when there is nothing to display.
+  #buildProgressLine(): string | null {
+    const { state } = this
     const parts: Array<string> = []
     const duration = formatMs(getElapsedMs(state.hrStart))
-    const { totalFiles, processedFiles } = progress.state
+    const { totalFiles, processedFiles } = this.#progress.state
 
     if (state.totalPlugins > 0) {
       const failed = state.failedPlugins > 0 ? ` ${styleText('red', `(${state.failedPlugins} failed)`)}` : ''
@@ -54,63 +102,34 @@ export function createWalk({ writer, silent, human, text, onRun }: LoggerContext
     return parts.join(styleText('dim', ' | '))
   }
 
-  if (!silent) {
-    onRun('kubb:build:start', ({ nodeCounts: { schemas, operations } }) => {
-      state.walk.total = schemas + operations
-      const details = `${pluralize(schemas, 'schema')} · ${pluralize(operations, 'operation')} · ${formatMs(getElapsedMs(state.hrStart))}`
-      spinner.stop(`Parsed spec  ${styleText('dim', details)}`)
-      spinner.start('Generating')
-    })
+  #onNode({ key, name, plugin }: { key: string; name: string; plugin: string }): void {
+    const { state } = this
+    const { total, visited, plugins } = state.walk
+    visited.add(key)
+    plugins.set(plugin, { count: (plugins.get(plugin)?.count ?? 0) + 1, current: name })
 
-    // Plugins all end after one shared node walk, so per-node hooks keep the step live; plain output would get a line per node.
-    if (human) {
-      const onNode = (key: string, name: string, plugin: string) => {
-        const { total, visited, plugins } = state.walk
-        visited.add(key)
-        plugins.set(plugin, { count: (plugins.get(plugin)?.count ?? 0) + 1, current: name })
+    // Counting stays per node; the redraw waits for the spinner's next frame.
+    const now = Date.now()
+    if (now - state.lastWalkDraw < WALK_REDRAW_MS) return
+    state.lastWalkDraw = now
 
-        // Counting stays per node; the redraw waits for the spinner's next frame.
-        const now = Date.now()
-        if (now - state.lastWalkDraw < WALK_REDRAW_MS) return
-        state.lastWalkDraw = now
-
-        const elapsed = styleText('dim', formatMs(getElapsedMs(state.hrStart)))
-        const head = total
-          ? `Generating  ${formatBar(visited.size, total)}  ${visited.size}/${total} nodes  ${elapsed}`
-          : `Generating  ${pluralize(visited.size, 'node')}  ${elapsed}`
-        const width = Math.max(...[...plugins.keys()].map((pluginName) => pluginName.length))
-        const rows = [...plugins].map(
-          ([pluginName, row]) =>
-            `${styleText('dim', '│')}   ${pluginName.padEnd(width)}  ${styleText('dim', String(row.count).padStart(4))}  ${styleText('cyan', row.current)}`,
-        )
-        spinner.message(text([head, ...rows].join('\n')))
-      }
-
-      onRun('kubb:generate:schema', (node, { plugin }) => onNode(`schema:${node.name}`, node.name ?? 'schema', plugin.name))
-      onRun('kubb:generate:operation', (node, { plugin }) => onNode(`operation:${node.operationId}`, node.operationId, plugin.name))
-    }
-
-    // Buffered, not printed: a step redraws over anything written while it runs.
-    onRun('kubb:plugin:end', ({ plugin, duration, success }) => {
-      state[success ? 'completedPlugins' : 'failedPlugins']++
-      state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
-    })
-
-    onRun('kubb:plugins:end', () => {
-      const failed = state.failedPlugins > 0
-      spinner.stop(buildProgressLine() ?? undefined, failed ? 'failed' : 'success')
-
-      if (state.pluginLines.length) {
-        writer.block(state.pluginLines)
-        state.pluginLines = []
-      }
-    })
+    const elapsed = styleText('dim', formatMs(getElapsedMs(state.hrStart)))
+    const head = total
+      ? `Generating  ${formatBar(visited.size, total)}  ${visited.size}/${total} nodes  ${elapsed}`
+      : `Generating  ${pluralize(visited.size, 'node')}  ${elapsed}`
+    const width = Math.max(...[...plugins.keys()].map((pluginName) => pluginName.length))
+    const rows = [...plugins].map(
+      ([pluginName, row]) =>
+        `${styleText('dim', '│')}   ${pluginName.padEnd(width)}  ${styleText('dim', String(row.count).padStart(4))}  ${styleText('cyan', row.current)}`,
+    )
+    this.#spinner.message(this.#ctx.text([head, ...rows].join('\n')))
   }
 
-  return {
-    state,
-    reset() {
-      Object.assign(state, createState())
-    },
+  reset(): void {
+    Object.assign(this.state, createState())
   }
+}
+
+export function createWalk(options: WalkOptions): Walk {
+  return new Walk(options)
 }

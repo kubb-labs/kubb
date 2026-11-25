@@ -1,12 +1,10 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getElapsedMs } from '@internals/utils'
-import { logLevel as logLevelMap } from '@kubb/core'
+import { type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { formatMsWithColor } from '../banner.ts'
 import type { LoggerContext } from './context.ts'
 import type { Spinner } from './spinner.ts'
-
-export type Phases = ReturnType<typeof createPhases>
 
 /**
  * One output phase while its step owns the line. A phase buffers what it is told, because a spinner
@@ -68,103 +66,42 @@ function trimBlankEdges(lines: ReadonlyArray<string>): Array<string> {
   return lines.slice(start, lines.findLastIndex((line) => line.trim()) + 1)
 }
 
-/** The format, lint and post-generate phases, and the hooks and messages they buffer while their step owns the line. */
-export function createPhases({ writer, silent, logLevel, text, line, onRun }: LoggerContext, spinner: Spinner) {
-  const state = {
-    phase: null as Phase | null,
-    hooks: new Map<string, { hrStart: [number, number]; lines: Array<string> }>(),
-  }
+type PhasesOptions = { ctx: LoggerContext; spinner: Spinner }
 
-  function startPhase(options: StartPhaseOptions) {
-    state.phase = { ...options, failed: false, hrStart: process.hrtime(), lines: [], output: [] }
-    spinner.start(options.running)
-  }
+/**
+ * The format, lint and post-generate phases, and the hooks and messages they buffer while their step owns the line.
+ */
+export class Phases {
+  readonly #ctx: LoggerContext
+  readonly #spinner: Spinner
+  #phase: Phase | null = null
+  #hooks = new Map<string, { hrStart: [number, number]; lines: Array<string> }>()
 
-  function endPhase() {
-    const phase = state.phase
-    state.phase = null
+  constructor({ ctx, spinner }: PhasesOptions) {
+    this.#ctx = ctx
+    this.#spinner = spinner
+    const { writer, silent, logLevel, text, line, onRun } = ctx
 
-    if (!phase || silent) {
-      return
-    }
+    onRun('kubb:format:start', () => this.#startPhase(PHASES.format))
+    onRun('kubb:format:end', () => this.#endPhase())
+    onRun('kubb:lint:start', () => this.#startPhase(PHASES.lint))
+    onRun('kubb:lint:end', () => this.#endPhase())
+    onRun('kubb:hooks:start', () => this.#startPhase(PHASES.hooks))
+    onRun('kubb:hooks:end', () => this.#endPhase())
 
-    const duration = formatMsWithColor(getElapsedMs(phase.hrStart))
+    onRun('kubb:hook:end', (result) => this.#endHook(result))
 
-    spinner.stop(phase.failed ? `${phase.failure} after ${duration}` : `${phase.success} in ${duration}`, phase.failed ? 'failed' : 'success')
-
-    if (phase.lines.length) {
-      writer.block(phase.lines)
-    }
-    writeOutput(phase.output)
-  }
-
-  function writeOutput(lines: ReadonlyArray<string>) {
-    const output = trimBlankEdges(lines)
-    if (output.length) {
-      writer.raw(output)
-    }
-  }
-
-  onRun('kubb:format:start', () => startPhase(PHASES.format))
-  onRun('kubb:format:end', endPhase)
-  onRun('kubb:lint:start', () => startPhase(PHASES.lint))
-  onRun('kubb:lint:end', endPhase)
-  onRun('kubb:hooks:start', () => startPhase(PHASES.hooks))
-  onRun('kubb:hooks:end', endPhase)
-
-  onRun('kubb:hook:end', (ctx) => {
-    const { id, command, name, args, success, error } = ctx
-    if (!id) {
-      return
-    }
-
-    if (!success && state.phase) {
-      state.phase.failed = true
-    }
-
+    // Not registered at silent: the missing `kubb:hook:line` listener is also what tells the runner not to stream.
     if (silent) {
-      // Even when silent, surface a failed hook's captured output. `stdout` and `stderr` only exist on a failed result.
-      if (!ctx.success) {
-        if (ctx.stdout) console.log(ctx.stdout)
-        if (ctx.stderr) console.error(ctx.stderr)
-      }
       return
     }
 
-    const active = state.hooks.get(id)
-    if (!active) {
-      return
-    }
-    state.hooks.delete(id)
-
-    const label = styleText('dim', formatHookLabel({ command, name, args }))
-    const reason = error?.message ? ` (${error.message})` : ''
-    const result = success
-      ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`
-      : `${styleText('red', '✗')} ${label} failed${reason}`
-
-    const phase = state.phase
-    if (phase) {
-      if (phase.showHookResults || !success) {
-        phase.lines.push(result)
-      }
-      phase.output.push(...active.lines)
-      return
-    }
-
-    spinner.stop()
-    writer.step(text(result))
-    writeOutput(active.lines)
-  })
-
-  // Not registered at silent: the missing `kubb:hook:line` listener is also what tells the runner not to stream.
-  if (!silent) {
     onRun('kubb:info', ({ message, info }) => {
       const formatted = line(styleText('blue', 'ℹ'), message, info)
 
       // Info carries something new (the auto-detected tool), so inside a phase it waits for the phase to print.
-      if (state.phase) {
-        state.phase.lines.push(formatted)
+      if (this.#phase) {
+        this.#phase.lines.push(formatted)
         return
       }
       if (spinner.message(formatted)) {
@@ -187,33 +124,113 @@ export function createPhases({ writer, silent, logLevel, text, line, onRun }: Lo
       if (!id) {
         return
       }
-      state.hooks.set(id, { hrStart: process.hrtime(), lines: [] })
+      this.#hooks.set(id, { hrStart: process.hrtime(), lines: [] })
       spinner.message(text(`Running ${styleText('dim', formatHookLabel({ command, name, args }))}`))
     })
 
-    onRun('kubb:hook:line', ({ id, line }) => {
-      const active = state.hooks.get(id)
+    onRun('kubb:hook:line', ({ id, line: hookLine }) => {
+      const active = this.#hooks.get(id)
       if (!active) {
         return
       }
 
       // A phase step redraws its own line, so its output waits until the phase ends.
-      if (state.phase) {
-        active.lines.push(line)
+      if (this.#phase) {
+        active.lines.push(hookLine)
         return
       }
-      writer.raw([line])
+      writer.raw([hookLine])
     })
   }
 
-  return {
-    /** The phase whose step owns the line, so a failure or an info line can wait for it. */
-    get phase(): Phase | null {
-      return state.phase
-    },
-    reset() {
-      state.phase = null
-      state.hooks = new Map()
-    },
+  /**
+   * The phase whose step owns the line, so a failure or an info line can wait for it.
+   */
+  get phase(): Phase | null {
+    return this.#phase
   }
+
+  #startPhase(options: StartPhaseOptions): void {
+    this.#phase = { ...options, failed: false, hrStart: process.hrtime(), lines: [], output: [] }
+    this.#spinner.start(options.running)
+  }
+
+  #endPhase(): void {
+    const phase = this.#phase
+    this.#phase = null
+
+    if (!phase || this.#ctx.silent) {
+      return
+    }
+
+    const duration = formatMsWithColor(getElapsedMs(phase.hrStart))
+
+    this.#spinner.stop(phase.failed ? `${phase.failure} after ${duration}` : `${phase.success} in ${duration}`, phase.failed ? 'failed' : 'success')
+
+    if (phase.lines.length) {
+      this.#ctx.writer.block(phase.lines)
+    }
+    this.#writeOutput(phase.output)
+  }
+
+  #writeOutput(lines: ReadonlyArray<string>): void {
+    const output = trimBlankEdges(lines)
+    if (output.length) {
+      this.#ctx.writer.raw(output)
+    }
+  }
+
+  #endHook(result: KubbHooks['kubb:hook:end'][0]): void {
+    const { id, command, name, args, success, error } = result
+    if (!id) {
+      return
+    }
+
+    if (!success && this.#phase) {
+      this.#phase.failed = true
+    }
+
+    if (this.#ctx.silent) {
+      // Even when silent, surface a failed hook's captured output. `stdout` and `stderr` only exist on a failed result.
+      if (!result.success) {
+        if (result.stdout) console.log(result.stdout)
+        if (result.stderr) console.error(result.stderr)
+      }
+      return
+    }
+
+    const active = this.#hooks.get(id)
+    if (!active) {
+      return
+    }
+    this.#hooks.delete(id)
+
+    const label = styleText('dim', formatHookLabel({ command, name, args }))
+    const reason = error?.message ? ` (${error.message})` : ''
+    const outcome = success
+      ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`
+      : `${styleText('red', '✗')} ${label} failed${reason}`
+
+    const phase = this.#phase
+    if (phase) {
+      if (phase.showHookResults || !success) {
+        phase.lines.push(outcome)
+      }
+      phase.output.push(...active.lines)
+      return
+    }
+
+    this.#spinner.stop()
+    this.#ctx.writer.step(this.#ctx.text(outcome))
+    this.#writeOutput(active.lines)
+  }
+
+  reset(): void {
+    this.#phase = null
+    this.#hooks = new Map()
+  }
+}
+
+export function createPhases(options: PhasesOptions): Phases {
+  return new Phases(options)
 }
