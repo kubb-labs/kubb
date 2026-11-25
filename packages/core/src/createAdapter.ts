@@ -14,19 +14,10 @@ import type { DiagnosticLocation } from './diagnostics.ts'
  */
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown; root?: string }
 
-/**
- * Options for an adapter's `parse` call.
- */
 export type AdapterParseOptions = { signal?: AbortSignal; fileRefs?: Array<string> }
 
-/**
- * Options for an adapter's `validate` call.
- */
 export type AdapterValidateOptions = { throwOnError?: boolean; fileRefs?: Array<string> }
 
-/**
- * Zero-based UTF-16 offsets of a span in a source string, `end` exclusive.
- */
 export type SourceRange = { start: number; end: number }
 
 /**
