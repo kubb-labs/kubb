@@ -225,11 +225,6 @@ function toRunConfigs({
   return configs.map((config) => toRunConfig({ config, input, dryRun }))
 }
 
-/** Prints the diffs of a check. stdout belongs to the `json` report, so they go to stderr there. */
-function printPatches({ outputCheck, json }: { outputCheck?: OutputCheck; json: boolean }): void {
-  for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
-}
-
 /** A run that failed, or a check that found stale files, ends on what to fix, not on a tip. */
 function showsTip({
   quiet,
@@ -245,8 +240,23 @@ function showsTip({
   return !quiet && !watchMode && succeeded && !outputCheck?.changed
 }
 
-/** Sets the exit code of a finished run. A check that succeeded exits with 1 when the output is out of date. */
-function setExitCode({ succeeded, failureExitCode, outputCheck }: { succeeded: boolean; failureExitCode: number; outputCheck?: OutputCheck }): void {
+/**
+ * Ends a run: prints the diffs of a check and sets the exit code. A check that succeeded exits with 1
+ * when the output is out of date. stdout belongs to the `json` report, so the diffs go to stderr there.
+ */
+function reportOutcome({
+  succeeded,
+  failureExitCode,
+  outputCheck,
+  json,
+}: {
+  succeeded: boolean
+  failureExitCode: number
+  outputCheck?: OutputCheck
+  json: boolean
+}): void {
+  for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
+  // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
     process.exitCode = failureExitCode
     return
@@ -356,16 +366,13 @@ export async function run({
     await checkForUpdate({ hooks, latestVersion: await withTimeout({ promise: latestVersion, ms: UPDATE_WAIT_MS }) })
 
     await hooks.callHook('kubb:lifecycle:end')
-    printPatches({ outputCheck, json })
+    reportOutcome({ succeeded, failureExitCode, outputCheck, json })
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
     if (showsTip({ quiet, watchMode, succeeded, outputCheck })) {
       logTip()
     }
-
-    // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
-    setExitCode({ succeeded, failureExitCode, outputCheck })
   } catch (error) {
     await Diagnostics.emit(hooks, error)
     process.exit(failureExitCode)

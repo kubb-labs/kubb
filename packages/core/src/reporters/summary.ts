@@ -36,7 +36,7 @@ function countChangedFiles({ check, dryRun, filesCreated, filesUnchanged }: Repo
 function filesLine(report: Report): string {
   const { count, verb } = countChangedFiles(report)
   const label = styleText(count ? 'bold' : 'dim', `${count} ${count === 1 ? 'file' : 'files'} ${verb}`)
-  if (!report.filesUnchanged || verb === 'checked') return `  ${label}`
+  if (!report.filesUnchanged || report.check?.changed === false) return `  ${label}`
 
   return `  ${label}${separator}${styleText('dim', `${report.filesUnchanged} unchanged`)}`
 }
@@ -59,7 +59,7 @@ const statusTones = { added: 'green', modified: 'yellow', deleted: 'red' } as co
 
 /**
  * The files a check found out of date as a table of status, path and line counts, then the totals
- * and how to fix it. A clean check prints nothing here, as ruff and prettier do.
+ * and how to fix it. A clean check prints nothing here.
  */
 function outOfDateLines({ check, fileChanges }: Report): Array<string> {
   if (!check?.changed || !fileChanges) return []

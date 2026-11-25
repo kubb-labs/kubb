@@ -20,9 +20,6 @@ export type OutputCheck = {
    * The config as the user wrote it, for a config from `stage`.
    */
   userConfig(config: Config): Config
-  /**
-   * Compares what one config generated with its real output folder.
-   */
   compare(options: { config: Config; storage: Storage; paths: ReadonlySet<string> }): Promise<NonNullable<GenerationResult['check']> & { unchanged: number }>
   /**
    * `true` once any config's output differs from the files on disk.
@@ -32,9 +29,6 @@ export type OutputCheck = {
    * One unified diff per changed file, filled only with `diff`.
    */
   patches: Array<string>
-  /**
-   * Deletes the temporary folders.
-   */
   cleanup(): void
 }
 
@@ -108,22 +102,29 @@ function toStaleFile({ change, root, texts }: { change: FileChange; root: string
 }
 
 /**
- * The files `output.clean` would delete: on disk under `output.path`, but not generated. Only these
- * are read, one at a time, for their line count.
+ * Adds the files `output.clean` would delete to `stale`: on disk under `output.path`, but not generated.
+ * Only these are read, one at a time, for their line count.
  */
-async function findDeletedFiles({ stage, generated, diff }: { stage: Stage; generated: ReadonlySet<string>; diff: boolean }): Promise<Array<StaleFile>> {
+async function addDeletedFiles({
+  stage,
+  generated,
+  diff,
+  stale,
+}: {
+  stage: Stage
+  generated: ReadonlySet<string>
+  diff: boolean
+  stale: Array<StaleFile>
+}): Promise<void> {
   const outputPath = resolve(stage.root, stage.userConfig.output.path)
-  const deleted: Array<StaleFile> = []
   for await (const name of listFiles(outputPath)) {
     const filePath = join(outputPath, name)
     if (generated.has(filePath)) continue
     const source = await read(filePath).catch(() => null)
     if (source === null) continue
     const change = { status: 'D', path: filePath, added: 0, removed: fingerprintFile(source).deletedLines } as const
-    deleted.push(toStaleFile({ change, root: stage.root, texts: diff ? { before: source, after: '' } : undefined }))
+    stale.push(toStaleFile({ change, root: stage.root, texts: diff ? { before: source, after: '' } : undefined }))
   }
-
-  return deleted
 }
 
 /**
@@ -213,7 +214,7 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
           stale.push(toStaleFile({ change, root, texts: diff ? { before: before ?? '', after } : undefined }))
         },
       })
-      if (userConfig.output.clean) stale.push(...(await findDeletedFiles({ stage, generated, diff })))
+      if (userConfig.output.clean) await addDeletedFiles({ stage, generated, diff, stale })
 
       stale.sort((a, b) => a.file.path.localeCompare(b.file.path))
       const files: Array<CheckedFile> = []
