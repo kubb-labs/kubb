@@ -7,7 +7,7 @@ import type { LoggerContext } from './context.ts'
 import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 
-type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress }
+export type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress }
 
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80

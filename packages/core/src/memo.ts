@@ -30,29 +30,12 @@ export type Memo = (<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: 
   has(key: MemoKey): boolean
 }
 
-/**
- * Backs the build memo with one store. Members are arrow properties because `createMemo` detaches them.
- */
-export class MemoStore {
-  readonly #store: Map<string, unknown>
-
-  constructor(store: Map<string, unknown>) {
-    this.#store = store
-  }
-
-  compute = (key: string, compute: () => unknown): unknown => storeMemo(this.#store, key, compute)
-
-  get = (key: string): unknown => this.#store.get(key)
-
-  set = (key: string, value: unknown): void => {
-    this.#store.set(key, value)
-  }
-
-  has = (key: string): boolean => this.#store.has(key)
-}
-
 export function createMemo(store: Map<string, unknown>): Memo {
-  const { compute, get, set, has } = new MemoStore(store)
-
-  return Object.assign(compute, { get, set, has }) as Memo
+  return Object.assign((key: string, compute: () => unknown) => storeMemo(store, key, compute), {
+    get: (key: string) => store.get(key),
+    set: (key: string, value: unknown) => {
+      store.set(key, value)
+    },
+    has: (key: string) => store.has(key),
+  }) as Memo
 }

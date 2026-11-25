@@ -12,7 +12,7 @@ function formatJobLine({ command, result, requestedBy }: { command: string; resu
   return `${styleText('dim', clock())}  ${command.padEnd(10)} ${by}${result}`
 }
 
-type SessionOptions = { ctx: LoggerContext; spinner: Spinner }
+export type SessionOptions = { ctx: LoggerContext; spinner: Spinner }
 
 /**
  * A `kubb studio` session. It emits these on the same emitter as its generations, so one logger

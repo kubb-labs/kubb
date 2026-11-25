@@ -74,6 +74,11 @@ export class SchemaParser {
       return this.parse({ schema: open, name })
     }
 
+    return this.#convert({ schema, name })
+  }
+
+  #convert({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
+    const options = this.#options
     const nullable = isNullable(schema, this.#document) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
     const type = Array.isArray(schema.type) ? (schema.type.find((t) => t !== 'null') ?? schema.type[0]) : schema.type
@@ -127,15 +132,16 @@ export class SchemaParser {
     return keys.includes(undefined) ? undefined : keys.join('\n')
   }
 
+  #toBranch(value: unknown): ast.SchemaNode | undefined {
+    if (!value || typeof value !== 'object') return undefined
+    const { required, type, ...rest } = value as SchemaObject
+    // A subschema with only `required`, such as `{ required: ['postalCode'] }`, would otherwise parse as `unknown`.
+    if (Array.isArray(required) && required.length && (type === undefined || type === 'object') && !Object.keys(rest).length) return this.#requireKeys(required)
+    return this.parse({ schema: value as SchemaObject })
+  }
+
   #toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {
-    const branch = (value: unknown) => {
-      if (!value || typeof value !== 'object') return undefined
-      const { required, type, ...rest } = value as SchemaObject
-      // A subschema with only `required`, such as `{ required: ['postalCode'] }`, would otherwise parse as `unknown`.
-      if (Array.isArray(required) && required.length && (type === undefined || type === 'object') && !Object.keys(rest).length)
-        return this.#requireKeys(required)
-      return this.parse({ schema: value as SchemaObject })
-    }
+    const branch = (value: unknown) => this.#toBranch(value)
     const entries = (value: unknown) => (value && typeof value === 'object' ? Object.entries(value) : [])
     const conditionals: NonNullable<ast.SchemaNode['conditionals']> = []
 

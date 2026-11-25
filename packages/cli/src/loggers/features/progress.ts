@@ -6,19 +6,15 @@ import type { WriterProgress } from '../types.ts'
 import type { LoggerContext } from './context.ts'
 import type { Spinner } from './spinner.ts'
 
-type ProgressState = {
+export type ProgressState = {
   progress: WriterProgress | null
   totalFiles: number
   processedFiles: number
-  /**
-   * Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does.
-   */
+  /** Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does. */
   inMemory: boolean
 }
 
-/**
- * The progress bar over the file writes, and the counts the summary line shows.
- */
+/** The progress bar over the file writes, and the counts the summary line shows. */
 export class Progress {
   readonly state: ProgressState = { progress: null, totalFiles: 0, processedFiles: 0, inMemory: false }
   readonly #ctx: LoggerContext

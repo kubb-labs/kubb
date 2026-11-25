@@ -8,7 +8,7 @@ import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 import type { Walk } from './walk.ts'
 
-type GenerationOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; walk: Walk; phases: Phases; problems: Problems }
+export type GenerationOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; walk: Walk; phases: Phases; problems: Problems }
 
 /**
  * One config's run: the group it opens, the state every feature resets at its start, and the

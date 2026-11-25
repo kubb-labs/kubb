@@ -66,11 +66,18 @@ function trimBlankEdges(lines: ReadonlyArray<string>): Array<string> {
   return lines.slice(start, lines.findLastIndex((line) => line.trim()) + 1)
 }
 
-type PhasesOptions = { ctx: LoggerContext; spinner: Spinner }
+// Even when silent, surface a failed hook's captured output. `stdout` and `stderr` only exist on a failed result.
+function printFailedOutput(result: KubbHooks['kubb:hook:end'][0]): void {
+  if (result.success) {
+    return
+  }
+  if (result.stdout) console.log(result.stdout)
+  if (result.stderr) console.error(result.stderr)
+}
 
-/**
- * The format, lint and post-generate phases, and the hooks and messages they buffer while their step owns the line.
- */
+export type PhasesOptions = { ctx: LoggerContext; spinner: Spinner }
+
+/** The format, lint and post-generate phases, and the hooks and messages they buffer while their step owns the line. */
 export class Phases {
   readonly #ctx: LoggerContext
   readonly #spinner: Spinner
@@ -143,9 +150,7 @@ export class Phases {
     })
   }
 
-  /**
-   * The phase whose step owns the line, so a failure or an info line can wait for it.
-   */
+  /** The phase whose step owns the line, so a failure or an info line can wait for it. */
   get phase(): Phase | null {
     return this.#phase
   }
@@ -191,11 +196,7 @@ export class Phases {
     }
 
     if (this.#ctx.silent) {
-      // Even when silent, surface a failed hook's captured output. `stdout` and `stderr` only exist on a failed result.
-      if (!result.success) {
-        if (result.stdout) console.log(result.stdout)
-        if (result.stderr) console.error(result.stderr)
-      }
+      printFailedOutput(result)
       return
     }
 
@@ -206,10 +207,9 @@ export class Phases {
     this.#hooks.delete(id)
 
     const label = styleText('dim', formatHookLabel({ command, name, args }))
-    const reason = error?.message ? ` (${error.message})` : ''
     const outcome = success
       ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`
-      : `${styleText('red', '✗')} ${label} failed${reason}`
+      : `${styleText('red', '✗')} ${label} failed${error?.message ? ` (${error.message})` : ''}`
 
     const phase = this.#phase
     if (phase) {

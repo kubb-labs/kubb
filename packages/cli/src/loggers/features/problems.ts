@@ -11,26 +11,18 @@ import type { Phases } from './phases.ts'
 import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 
-type ProblemsOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; phases: Phases }
+export type ProblemsOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; phases: Phases }
 
-type ProblemsState = {
-  /**
-   * Problems held back so the human view can print them grouped by plugin once the build ends.
-   */
+export type ProblemsState = {
+  /** Problems held back so the human view can print them grouped by plugin once the build ends. */
   problems: Array<ProblemDiagnostic>
-  /**
-   * The finished config's diagnostics, for the closing verdict.
-   */
+  /** The finished config's diagnostics, for the closing verdict. */
   diagnostics: Array<Diagnostic>
-  /**
-   * A local-file input, which a located diagnostic points into; `load` parses it once, on the first such diagnostic.
-   */
+  /** A local-file input, which a located diagnostic points into; `load` parses it once, on the first such diagnostic. */
   spec: { path: string; adapter: Adapter; source: Promise<string | undefined> } | undefined
 }
 
-/**
- * Warnings, errors and diagnostics: printed as they come, or held back and grouped by plugin once a human's build ends.
- */
+/** Warnings, errors and diagnostics: printed as they come, or held back and grouped by plugin once a human's build ends. */
 export class Problems {
   readonly state: ProblemsState = { problems: [], diagnostics: [], spec: undefined }
   readonly #ctx: LoggerContext
@@ -157,9 +149,7 @@ export class Problems {
     writer.diagnostic(lines.slice(0, -1))
   }
 
-  /**
-   * Points located diagnostics into the config's input when it is a local file.
-   */
+  /** Points located diagnostics into the config's input when it is a local file. */
   setSpec(config: Config): void {
     const input = getInputPath(config)
     if (input && config.adapter?.locate && getInputKind(input) === 'file') {
@@ -176,16 +166,12 @@ export class Problems {
     }
   }
 
-  /**
-   * Prints the problems held back so far.
-   */
+  /** Prints the problems held back so far. */
   flush(): Promise<void> {
     return this.#writeProblems(this.state.problems.splice(0))
   }
 
-  /**
-   * `✖ Failed  1 error · 1 warning  in plugin-ts` once the build ended, or `✗ Generation failed` for a run that stopped early.
-   */
+  /** `✖ Failed  1 error · 1 warning  in plugin-ts` once the build ended, or `✗ Generation failed` for a run that stopped early. */
   failedTitle(): string {
     const { errors, warnings } = Diagnostics.count(this.state.diagnostics)
     const counts = [errors && pluralize(errors, 'error'), warnings && pluralize(warnings, 'warning')].filter(Boolean).join(' · ')
