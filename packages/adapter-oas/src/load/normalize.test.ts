@@ -285,6 +285,24 @@ describe('validateDocumentInWorker', () => {
     expect(inWorker).toStrictEqual(inPlace)
   })
 
+  it('validates a large document in the worker, within its memory limits', async () => {
+    const schemas = Object.fromEntries(
+      Array.from({ length: 4000 }, (_, index) => [
+        `Schema${index}`,
+        {
+          type: 'object',
+          properties: { id: { type: 'string' }, tags: { type: 'array', items: { type: 'string' } }, root: { $ref: '#/components/schemas/Schema0' } },
+        },
+      ]),
+    )
+    const largeSchema = { openapi: '3.0.3', info: { title: 'Large API', version: '1.0.0' }, paths: {}, components: { schemas } } as unknown as Document
+    workerSpy.mockClear()
+
+    await validateDocumentInWorker(largeSchema)
+
+    expect(workerSpy).toHaveBeenCalledWith({ valid: true })
+  })
+
   it('reports nothing for a valid document', async () => {
     const diagnostics: Array<Diagnostic> = []
     const validSchema = { openapi: '3.0.3', info: { title: 'Valid API', version: '1.0.0' }, paths: {} } as unknown as Document

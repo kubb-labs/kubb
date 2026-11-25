@@ -388,6 +388,10 @@ function reportValidationErrors({ errors, additionalErrors }: ValidationErrors):
   }
 }
 
+// A worker gets its own heap, whose young generation V8 lets grow to tens of megabytes before it
+// collects. Validation makes mostly short-lived objects, so a small one frees them sooner at no cost in time.
+const VALIDATION_WORKER_LIMITS = { maxYoungGenerationSizeMb: 4 }
+
 /**
  * Validates like {@link validateDocument} without `throwOnError`, but in a worker thread, so the
  * build keeps generating while `@readme/openapi-parser` dereferences and checks the spec. Await the
@@ -404,7 +408,7 @@ export async function validateDocumentInWorker(document: Document): Promise<void
     // Tests run the `.ts` source; the build emits `validateWorker.js` next to the bundle.
     const workerFile = import.meta.url.endsWith('.ts') ? './validateWorker.ts' : './validateWorker.js'
     // `workerData` is a structured clone, so the worker can dereference it without touching the cached document.
-    const worker = new Worker(new URL(workerFile, import.meta.url), { workerData: document })
+    const worker = new Worker(new URL(workerFile, import.meta.url), { workerData: document, resourceLimits: VALIDATION_WORKER_LIMITS })
     message = await new Promise<WorkerResult>((resolve, reject) => {
       worker.once('message', resolve)
       worker.once('error', reject)
