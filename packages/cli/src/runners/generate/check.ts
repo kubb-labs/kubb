@@ -99,6 +99,8 @@ function swapIn(swap: Swap): void {
     renameSync(swap.real, swap.original)
     swap.movedOriginal = true
   }
+  // Nothing generated there: the real path stays empty, so no tool rewrites the user's files.
+  if (!existsSync(swap.staged)) return
   swap.createdParent = mkdirSync(dirname(swap.real), { recursive: true })
   renameSync(swap.staged, swap.real)
   swap.movedStaged = true
@@ -192,7 +194,7 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
   const withRealPaths = async <T>({ stage, folders, run }: { stage: Stage; folders: Array<string>; run: () => Promise<T> }): Promise<T> => {
     const active: Array<Swap> = []
     try {
-      for (const staged of folders.filter((folder) => existsSync(folder))) {
+      for (const staged of folders) {
         const swap: Swap = {
           real: toDiskPath(stage, staged),
           staged,

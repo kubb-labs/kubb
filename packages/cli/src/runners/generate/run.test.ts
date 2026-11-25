@@ -463,6 +463,17 @@ describe('check', () => {
     expect(snapshot()).toStrictEqual(before)
   })
 
+  it('leaves the files in output.path unformatted when nothing is generated there', async () => {
+    const { config, file, snapshot } = project()
+    mkdirSync(join(config.root, 'src/gen'), { recursive: true })
+    writeFileSync(file('pet.ts'), 'export const pet = {name:"cat",   tags:[1,2]}')
+    const before = snapshot()
+
+    await bootstrap({ configs: [{ ...config, plugins: [] } as Config], check: true })
+
+    expect(snapshot()).toStrictEqual(before)
+  })
+
   it('prints a hunk for the edited file with --diff', async () => {
     const { config, file } = await generated()
     writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
