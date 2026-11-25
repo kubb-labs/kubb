@@ -85,27 +85,40 @@ class SourceLocator {
   }
 
   findRef(ref: string): Range {
-    const index = this.#index
+    this.#index.refs ??= this.#indexRefs()
+    return this.#index.refs.get(ref)
+  }
+
+  // Every `$ref` value in the document, mapped to the range of its first occurrence.
+  #indexRefs(): Map<string, NonNullable<Range>> {
     const types = this.#types
-    if (!index.refs) {
-      index.refs = new Map()
-      // -1 in a sequence. In a mapping, 0 before a key and 1 before its value.
-      const frames: Array<number> = []
-      for (let at = 1; at + 1 < types.length; at++) {
-        if (types[at] === EVENT_ID.POP) {
-          frames.pop()
-          continue
-        }
-        const top = frames.length - 1
-        const isKey = frames[top] === 0
-        if (frames[top]! >= 0) frames[top] = 1 - frames[top]!
-        if (this.#isCollection(at)) frames.push(types[at] === EVENT_ID.MAPPING ? 0 : -1)
-        if (!isKey || types[at] !== EVENT_ID.SCALAR || types[at + 1] !== EVENT_ID.SCALAR || this.#readText(at) !== '$ref') continue
-        const text = this.#readText(at + 1)
-        if (!index.refs.has(text)) index.refs.set(text, { start: this.#starts[at + 1]!, end: this.#ends[at + 1]! })
-      }
+    const refs = new Map<string, NonNullable<Range>>()
+    // -1 in a sequence. In a mapping, 0 before a key and 1 before its value.
+    const frames: Array<number> = []
+    for (let at = 1; at + 1 < types.length; at++) {
+      if (!this.#stepFrames({ frames, at }) || !this.#isRefKey(at)) continue
+      const text = this.#readText(at + 1)
+      if (!refs.has(text)) refs.set(text, { start: this.#starts[at + 1]!, end: this.#ends[at + 1]! })
     }
-    return index.refs.get(ref)
+    return refs
+  }
+
+  // Moves `frames` past the event at `at`, and tells whether that event is a mapping key.
+  #stepFrames({ frames, at }: { frames: Array<number>; at: number }): boolean {
+    if (this.#types[at] === EVENT_ID.POP) {
+      frames.pop()
+      return false
+    }
+    const top = frames.length - 1
+    const isKey = frames[top] === 0
+    if (frames[top]! >= 0) frames[top] = 1 - frames[top]!
+    if (this.#isCollection(at)) frames.push(this.#types[at] === EVENT_ID.MAPPING ? 0 : -1)
+    return isKey
+  }
+
+  // A `$ref` key followed by its scalar value.
+  #isRefKey(at: number): boolean {
+    return this.#types[at] === EVENT_ID.SCALAR && this.#types[at + 1] === EVENT_ID.SCALAR && this.#readText(at) === '$ref'
   }
 
   #isCollection(at: number): boolean {

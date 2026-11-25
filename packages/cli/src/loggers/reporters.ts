@@ -85,7 +85,20 @@ export type ReportersOptions = {
   outputCheck?: Pick<OutputCheck, 'compare' | 'original'>
 }
 
-class Session {
+// The `cli` result shows the counted changes, including files the run left as they were.
+function withChanges({
+  result,
+  counted,
+}: {
+  result: GenerationResult
+  counted: (ChangeTally & { check?: GenerationResult['check'] }) | undefined
+}): GenerationResult {
+  if (!counted) return { ...result }
+  const { unchanged, check, ...changes } = counted
+  return { ...result, filesCreated: changes.added + changes.modified + unchanged, filesUnchanged: unchanged, fileChanges: changes, check }
+}
+
+class Reporters {
   readonly #selected: Array<Reporter>
   readonly #ctx: ReporterContext
   readonly #pluginFiles: Map<string, Array<string>> | undefined
@@ -198,25 +211,21 @@ class Session {
         status,
         hrStart,
       }
-      const cliResult = { ...result }
       const counted = current && status !== 'failed' ? await this.#countChanges({ config, storage, current }) : undefined
-      if (counted) {
-        const { unchanged, check, ...changes } = counted
-        cliResult.filesCreated = changes.added + changes.modified + unchanged
-        cliResult.filesUnchanged = unchanged
-        cliResult.fileChanges = changes
-        cliResult.check = check
-      }
-      const pluginFiles = this.#pluginFiles
-      for (const reporter of this.#selected) {
-        const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
-        await reporter.report({ ...(reporter.name === 'cli' || changesForAll ? cliResult : result), pluginFiles: grouped }, this.#ctx)
-      }
+      await this.#report({ result, cliResult: withChanges({ result, counted }), changesForAll })
     })
 
     context.hook('kubb:lifecycle:end', async () => {
       for (const reporter of this.#selected) await reporter.drain?.(this.#ctx)
     })
+  }
+
+  async #report({ result, cliResult, changesForAll }: { result: GenerationResult; cliResult: GenerationResult; changesForAll: boolean }): Promise<void> {
+    const pluginFiles = this.#pluginFiles
+    for (const reporter of this.#selected) {
+      const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
+      await reporter.report({ ...(reporter.name === 'cli' || changesForAll ? cliResult : result), pluginFiles: grouped }, this.#ctx)
+    }
   }
 
   /** The run's totals: counted while writing, or worked out by reading the output back. */
@@ -246,7 +255,7 @@ class Session {
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function installReporters(context: Hookable<KubbHooks>, options: ReportersOptions): void {
-  new Session({ ...options, context })
+  new Reporters({ ...options, context })
 }
 
 export default installReporters
