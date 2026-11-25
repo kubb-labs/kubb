@@ -139,6 +139,15 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
   return { storage, root, paths: new Set(paths) }
 }
 
+function serializeInput(input: InputNode): string | null {
+  try {
+    return JSON.stringify(ast.node.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
+  } catch {
+    // An adapter can return what JSON cannot hold, which must not fail a finished generation.
+    return null
+  }
+}
+
 export type GenerationStoreOptions = {
   storage: Storage
   maxCount: number
@@ -272,13 +281,8 @@ export class GenerationStore {
    */
   async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
     if (!input) return 0
-    let json: string
-    try {
-      json = JSON.stringify(ast.node.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
-    } catch {
-      // An adapter can return what JSON cannot hold, which must not fail a finished generation.
-      return 0
-    }
+    const json = serializeInput(input)
+    if (json === null) return 0
     const bytes = Buffer.byteLength(json)
     if (bytes > maxSetMb * MB) return 0
     await this.#storage.writeItem(`${dirOf(jobId)}input.json`, json)
@@ -335,7 +339,6 @@ export class GenerationStore {
   }
 }
 
-/** Opens the generation store kept in `storage`. */
 export function createGenerationStore(options: GenerationStoreOptions): GenerationStore {
   return new GenerationStore(options)
 }

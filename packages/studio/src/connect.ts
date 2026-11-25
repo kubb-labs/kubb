@@ -461,7 +461,7 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   startGeneration(input: GenerateInput): GenerationRun {
-    const stream = createGenerationStream(this.#options.hooks, input.jobId, { debug: this.#options.debug })
+    const stream = createGenerationStream({ hooks: this.#options.hooks, jobId: input.jobId, debug: this.#options.debug })
     const controller = new AbortController()
     const result = this.#runGeneration(input, controller).then(
       (value) => stream.close().then(() => value),
