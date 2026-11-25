@@ -38,6 +38,7 @@ Use Node.js 22.22 or later, also in CI and Docker. Update `kubb` and your plugin
 | React and Vue Query hooks | Generated | `hooks: false`, which still writes query keys and option factories | `hooks: true` |
 | Client errors | Returned | Thrown, `throwOnErrorDefault: true` | `throwOnErrorDefault: false` |
 | OpenAPI `int64` | `number` | `bigint` | `integerType: 'number'` on the adapter |
+| Enum with a `format`, such as `int32` | Named enum that uses `x-enumNames` | Union of the values | `formattedEnumType: 'enum'` on the adapter |
 | SWR mutation arguments | Trigger shape opt-in | Always passed through `trigger()` | No option |
 
 ## Migrate the config {#migrate-the-config}

@@ -99,9 +99,10 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
   { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
   {
-    // A formatted enum keeps its values as a union of literals, not a named enum, so its type keeps its name.
+    // A formatted enum keeps its values as a union of literals by default, so its type keeps its name.
+    // `formattedEnumType: 'enum'` opts in to the named enum that an enum without a `format` gets.
     match: (ctx) => ctx.type !== 'array' && !!ctx.schema.enum?.some((value) => value !== null) && matchesFormat(ctx) && formatPrintsPlainType(ctx),
-    convert: convertFormattedEnum,
+    convert: (ctx) => (ctx.options.formattedEnumType === 'enum' ? convertEnum(ctx) : convertFormattedEnum(ctx)),
   },
   { match: matchesFormat, convert: convertFormat },
   { match: ({ schema }) => isBinary(schema), convert: convertBlob },

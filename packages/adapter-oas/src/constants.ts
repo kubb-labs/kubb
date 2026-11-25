@@ -7,6 +7,7 @@ import type { ParserOptions } from './parserOptions.ts'
 export const DEFAULT_PARSER_OPTIONS = {
   dateType: 'string',
   integerType: 'bigint',
+  formattedEnumType: 'union',
   unknownType: 'unknown',
   emptySchemaType: 'unknown',
   enumSuffix: 'enum',

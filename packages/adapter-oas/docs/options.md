@@ -4,22 +4,23 @@ Pass these options to `adapterOas()`. All of them are optional.
 
 ## Options overview
 
-| Option                                  | Purpose                              | Default               |
-| --------------------------------------- | ------------------------------------ | --------------------- |
-| **Reading the spec**                    |                                      |                       |
-| [`validate`](#validate)                 | Validate the spec.                   | `true`                |
-| [`contentType`](#contenttype)           | Media type to keep.                  | Every media type      |
-| [`server`](#server)                     | Server that sets `baseURL`.          | None                  |
-| **Schema shape**                        |                                      |                       |
-| [`discriminator`](#discriminator)       | How discriminators apply.            | `'preserve'`          |
-| [`enums`](#enums)                       | Where inline enums live.             | `'inline'`            |
-| [`enumSuffix`](#enumsuffix)             | Suffix of enum names.                | `'enum'`              |
-| [`pathParamsCasing`](#pathparamscasing) | Rename path parameters to camelCase. | None                  |
-| **Type mapping**                        |                                      |                       |
-| [`dateType`](#datetype)                 | Type of date and time fields.        | `'string'`            |
-| [`integerType`](#integertype)           | Type of `int64` and `uint64` fields. | `'bigint'`            |
-| [`unknownType`](#unknowntype)           | Type of open values.                 | `'unknown'`           |
-| [`emptySchemaType`](#emptyschematype)   | Type of empty schemas.               | Same as `unknownType` |
+| Option                                    | Purpose                              | Default               |
+| ----------------------------------------- | ------------------------------------ | --------------------- |
+| **Reading the spec**                      |                                      |                       |
+| [`validate`](#validate)                   | Validate the spec.                   | `true`                |
+| [`contentType`](#contenttype)             | Media type to keep.                  | Every media type      |
+| [`server`](#server)                       | Server that sets `baseURL`.          | None                  |
+| **Schema shape**                          |                                      |                       |
+| [`discriminator`](#discriminator)         | How discriminators apply.            | `'preserve'`          |
+| [`enums`](#enums)                         | Where inline enums live.             | `'inline'`            |
+| [`enumSuffix`](#enumsuffix)               | Suffix of enum names.                | `'enum'`              |
+| [`pathParamsCasing`](#pathparamscasing)   | Rename path parameters to camelCase. | None                  |
+| **Type mapping**                          |                                      |                       |
+| [`dateType`](#datetype)                   | Type of date and time fields.        | `'string'`            |
+| [`integerType`](#integertype)             | Type of `int64` and `uint64` fields. | `'bigint'`            |
+| [`formattedEnumType`](#formattedenumtype) | Type of enums with a `format`.       | `'union'`             |
+| [`unknownType`](#unknowntype)             | Type of open values.                 | `'unknown'`           |
+| [`emptySchemaType`](#emptyschematype)     | Type of empty schemas.               | Same as `unknownType` |
 
 ## Option details
 
@@ -246,6 +247,47 @@ Keeps 64-bit IDs exact. `JSON.stringify` and `JSON.parse` cannot round-trip a bi
 :::field{name="'number'"}
 Fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
 :::
+
+::
+
+#### formattedEnumType
+
+How an `enum` on a schema with a `format`, such as `int32` or `date-time`, is represented. A format that prints as `bigint`, `Date`, or `Blob` keeps its format type.
+
+|          |                     |
+| -------- | ------------------- |
+| Type     | `'union' \| 'enum'` |
+| Required | `false`             |
+| Default  | `'union'`           |
+
+::field-group
+
+:::field{name="'union'"}
+A union of the literal values. The type keeps its name, and `x-enumNames` is ignored.
+:::
+
+:::field{name="'enum'"}
+A named enum, the same as an enum without a `format`. Plugins use `x-enumNames` for the member names, so `@kubb/plugin-ts` generates a runtime object with `enum: { type: 'asConst' }`.
+:::
+
+::
+
+For `Status` with `type: integer`, `format: int32`, `enum: [0, 1]`, and `x-enumNames: ['Pending', 'Ready']`, `@kubb/plugin-ts` generates:
+
+::code-group
+
+```typescript ['union' (default)]
+export type Status = 0 | 1
+```
+
+```typescript ['enum']
+export const status = {
+  Pending: 0,
+  Ready: 1,
+} as const
+
+export type StatusKey = (typeof status)[keyof typeof status]
+```
 
 ::
 

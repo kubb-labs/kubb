@@ -121,6 +121,24 @@
       ]
     },
     {
+      "key": "formattedEnumType",
+      "path": ["formattedEnumType"],
+      "label": "Formatted Enum Type",
+      "description": "How an enum on a schema with a format, such as int32, is represented.",
+      "type": "select",
+      "default": "union",
+      "choices": [
+        {
+          "label": "union (the type keeps its name)",
+          "value": "union"
+        },
+        {
+          "label": "enum (named enum that uses x-enumNames)",
+          "value": "enum"
+        }
+      ]
+    },
+    {
       "key": "enumSuffix",
       "path": ["enumSuffix"],
       "label": "Enum Suffix",

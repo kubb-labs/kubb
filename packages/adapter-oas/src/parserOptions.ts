@@ -53,6 +53,16 @@ export type ParserOptions = {
    */
   integerType?: 'number' | 'bigint'
   /**
+   * How an `enum` on a schema with a handled `format`, such as `int32` or `date-time`, is represented.
+   * A format that prints as `bigint`, `Date` or `Blob` always keeps its format type.
+   * - `'union'` emits a union of the literal values, so the type keeps its name. `x-enumNames` is ignored.
+   * - `'enum'` emits a named enum, the same as an enum without a `format`, so plugins can generate
+   *   a runtime object from `x-enumNames`.
+   *
+   * @default 'union'
+   */
+  formattedEnumType?: 'union' | 'enum'
+  /**
    * AST type used when a schema's type cannot be inferred from the spec
    * (`additionalProperties: true`, missing `type`, ...).
    */

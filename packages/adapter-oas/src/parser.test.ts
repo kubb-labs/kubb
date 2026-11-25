@@ -636,6 +636,31 @@ describe('parseSchema format', () => {
       options: { integerType: 'number' },
       expected: { type: 'union', format: 'int64' },
     },
+    {
+      title: "int64 enum with x-enumNames when formattedEnumType is 'enum'",
+      schema: { type: 'integer', format: 'int64', enum: [0, 1], 'x-enumNames': ['Pending', 'Ready'] },
+      options: { integerType: 'number', formattedEnumType: 'enum' },
+      expected: {
+        type: 'enum',
+        format: 'int64',
+        namedEnumValues: [
+          { name: 'Pending', value: 0 },
+          { name: 'Ready', value: 1 },
+        ],
+      },
+    },
+    {
+      title: "int64 enum when formattedEnumType is 'enum' and integerType is bigint",
+      schema: { type: 'integer', format: 'int64', enum: [0, 1] },
+      options: { formattedEnumType: 'enum' },
+      expected: { type: 'bigint', format: 'int64' },
+    },
+    {
+      title: "nullable int32 enum when formattedEnumType is 'enum'",
+      schema: { type: 'integer', format: 'int32', nullable: true, enum: [null, 0] },
+      options: { formattedEnumType: 'enum' },
+      expected: { type: 'enum', format: 'int32', nullable: true, namedEnumValues: [{ name: '0', value: 0 }] },
+    },
     { title: 'binary enum', schema: { type: 'string', format: 'binary', enum: ['a'] }, expected: { type: 'blob', format: 'binary' } },
     {
       title: 'nullable int32 enum',
