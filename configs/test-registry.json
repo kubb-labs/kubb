@@ -112,7 +112,7 @@
   "packages/kit/src/from.test.ts": "Pins which file from() imports a resolver name from, for an operation and a schema name, with the Operation suffix, the target filters, the target resolver's file.name, the suffix inferred from its generators, and provide().",
   "packages/kit/src/macros/macroDedupeUnion.test.ts": "Union hashing with pointer, Date, default and resolved-schema branches; several cases read as regressions.",
   "packages/kit/src/macros/macroDiscriminatorEnum.test.ts": "enumName and number-primitive branches are not asserted by adapter-oas schemaParser.test.ts, which only covers readOnly.",
-  "packages/kit/src/resolver/Resolver.memo.test.ts": "Only test that Resolver.memo, a separate map from KubbDriver.memo, keeps different keys apart.",
+  "packages/kit/src/resolver/Resolver.memo.test.ts": "Only test that Resolver.memo, a separate map from Driver.memo, keeps different keys apart.",
   "packages/kit/src/resolver/Resolver.names.test.ts": "Name allocation has many key-serialization and suffix branches a golden path would not reach.",
   "packages/kit/src/resolver/createResolver.test.ts": "Resolver merge, this binding, grouping paths and traversal guards are branchy and security relevant.",
   "packages/kit/src/resolver/resolveOptions.test.ts": "Branchy include, exclude and override matching for every plugin: method case, global RegExp, extensions, schema-only filters.",

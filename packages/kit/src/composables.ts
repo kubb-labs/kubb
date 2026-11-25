@@ -4,7 +4,7 @@ import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
 import type {
   Generator,
-  GeneratorContext,
+  TemplateContext,
   PluginType,
   PrinterFactory,
   ProvideName,
@@ -84,7 +84,7 @@ function kitContext(caller: string): KubbPluginSetupContext {
 export type RegisteredTemplate = {
   name: string
   kind: TemplateKind
-  render: (node: TemplateNode[TemplateKind], ctx: GeneratorContext) => TemplateResult
+  render: (node: TemplateNode[TemplateKind], ctx: TemplateContext) => TemplateResult
   renderer?: RendererFactory | null
 }
 
@@ -113,8 +113,8 @@ export function addTemplate<TFactory extends PluginType = PluginType, TElement =
 function fromGenerator(generator: Generator): Array<RegisteredTemplate> {
   const { name, renderer, match, schema, operation, operations } = generator
   const matched =
-    (handler: (node: never, ctx: GeneratorContext) => TemplateResult) =>
-    async (node: SchemaNode | OperationNode, ctx: GeneratorContext): Promise<unknown> =>
+    (handler: (node: never, ctx: TemplateContext) => TemplateResult) =>
+    async (node: SchemaNode | OperationNode, ctx: TemplateContext): Promise<unknown> =>
       !match || (await match.call(ctx, node, ctx)) ? handler.call(ctx, node as never, ctx) : null
   const templates: Array<RegisteredTemplate> = []
   if (schema) templates.push({ name, renderer, kind: 'Schema', render: matched(schema) as RegisteredTemplate['render'] })

@@ -19,7 +19,7 @@ import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { Hookable } from './Hookable.ts'
 
-export type KubbDriverOptions = {
+export type DriverOptions = {
   hooks: Hookable<KubbHooks>
   signal?: AbortSignal
   fileRefs?: Array<string>
@@ -111,9 +111,9 @@ function getCrashSite(node: SchemaNode | OperationNode): CrashSite {
   return { label, location: node.pointer ? { kind: 'operation', pointer: node.pointer } : undefined }
 }
 
-export class KubbDriver {
+export class Driver {
   readonly config: Config
-  readonly options: KubbDriverOptions
+  readonly options: DriverOptions
 
   /**
    * The `InputNode` produced by the adapter. Set after adapter setup.
@@ -143,7 +143,7 @@ export class KubbDriver {
    */
   readonly #unhooks: Array<() => void> = []
 
-  constructor(config: Config, options: KubbDriverOptions) {
+  constructor(config: Config, options: DriverOptions) {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
@@ -750,6 +750,15 @@ export class KubbDriver {
     })
   }
 }
+
+/**
+ * @deprecated Use `Driver` instead.
+ */
+export const KubbDriver = Driver
+/**
+ * @deprecated Use `Driver` instead.
+ */
+export type KubbDriver = Driver
 
 /** The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it. */
 export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): DiagnosticError {

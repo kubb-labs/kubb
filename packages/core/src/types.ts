@@ -14,7 +14,7 @@ import type {
   PluginName,
   ResolvePluginOptions,
 } from './definePlugin.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import type { Driver } from './KubbDriver.ts'
 import type { HookResult } from './output/runHook.ts'
 
 /**
@@ -763,7 +763,7 @@ export type BuildOutput = {
   /**
    * The plugin driver that orchestrated this build.
    */
-  driver: KubbDriver
+  driver: Driver
   /**
    * The parsed spec the build generated from, `null` when there was none to parse.
    */

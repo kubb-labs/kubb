@@ -1,6 +1,6 @@
 import { ast } from '@kubb/ast'
 import { type Config, memoryStorage, type Plugin } from '@kubb/core'
-import { addGenerator, defineExtension, type GeneratorContext } from '@kubb/kit'
+import { addGenerator, defineExtension, type TemplateContext } from '@kubb/kit'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -124,7 +124,7 @@ describe('generate', () => {
       setup(options) {
         addGenerator({
           name: 'types',
-          schema(node: ast.SchemaNode, gctx: GeneratorContext) {
+          schema(node: ast.SchemaNode, gctx: TemplateContext) {
             placed.push(
               gctx.getResolver('types').file({ name: node.name!, extname: '.ts', root: gctx.root, output: { path: 'types', mode: 'directory' } }).path,
             )

@@ -5,7 +5,7 @@ import type { Adapter } from './createAdapter.ts'
 import type { ProblemDiagnostic } from './Diagnostics.ts'
 import type { FileManager } from './FileManager.ts'
 import type { Hookable } from './Hookable.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import type { Driver } from './KubbDriver.ts'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import { Diagnostics } from './Diagnostics.ts'
@@ -133,7 +133,7 @@ export type Group = {
  * @example
  * ```ts
  * export type Options = OutputOptions & {
- *   exclude?: Array<Exclude>
+ *   exclude?: Array<Filter>
  * }
  * ```
  */
@@ -269,32 +269,12 @@ export type ByExtension = {
 export type Filter = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName | ByExtension
 
 /**
- * Filter that skips matching operations or schemas during generation, for example
- * deprecated endpoints or internal-only schemas.
- *
- * @example
- * ```ts
- * exclude: [
- *   { type: 'tag', pattern: 'internal' },
- *   { type: 'path', pattern: /^\/admin/ },
- *   { type: 'operationId', pattern: /^deprecated_/ },
- *   { type: 'extension', key: 'x-internal', value: true },
- * ]
- * ```
+ * @deprecated Use `Filter` instead.
  */
 export type Exclude = Filter
 
 /**
- * Filter that restricts generation to operations or schemas matching at least
- * one entry. Useful for partial builds (one tag, one API version).
- *
- * @example
- * ```ts
- * include: [
- *   { type: 'tag', pattern: 'public' },
- *   { type: 'path', pattern: /^\/api\/v1/ },
- * ]
- * ```
+ * @deprecated Use `Filter` instead.
  */
 export type Include = Filter
 
@@ -328,9 +308,9 @@ export type Override<TOptions> = Filter & {
 /** Options every generator plugin accepts. `TResolvedOptions` is the options object an `override` entry can set. */
 export type PluginOptions<TResolvedOptions> = OutputOptions & {
   /** Skip operations matching at least one entry in the list. */
-  exclude?: Array<Exclude>
+  exclude?: Array<Filter>
   /** Restrict generation to operations matching at least one entry in the list. */
-  include?: Array<Include>
+  include?: Array<Filter>
   /** Apply a different options object to operations matching a pattern. */
   override?: Array<Override<TResolvedOptions>>
 }
@@ -338,8 +318,8 @@ export type PluginOptions<TResolvedOptions> = OutputOptions & {
 /** The `PluginOptions` keys after a plugin applies its defaults. An interface, so a plugin's `ResolvedOptions` can pass itself as `TResolvedOptions`. */
 export interface ResolvedPluginOptions<TResolvedOptions> {
   output: Output
-  exclude: Array<Exclude>
-  include: Array<Include> | undefined
+  exclude: Array<Filter>
+  include: Array<Filter> | undefined
   override: Array<Override<TResolvedOptions>>
   group: Group | null
 }
@@ -418,7 +398,7 @@ export type PluginVisitContext<TOptions extends PluginType = PluginType> = {
   /**
    * @deprecated Use `schemas`, `getPlugin` and `memo` instead. Removed in Kubb v6.
    */
-  driver: KubbDriver
+  driver: Driver
   /** Get a plugin by name, typed via `Kubb.PluginRegistry` when registered. */
   getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
   /** Get a plugin by name, throws an error if not found. */
@@ -560,8 +540,8 @@ export type NormalizedPlugin<TOptions extends PluginType = PluginType> = Plugin<
   dependencies?: Array<PluginName> | ExtensionDependencyRecord
   options: TOptions['resolvedOptions'] & {
     output: Output
-    include?: Array<Include>
-    exclude: Array<Exclude>
+    include?: Array<Filter>
+    exclude: Array<Filter>
     override: Array<Override<TOptions['resolvedOptions']>>
   }
 }

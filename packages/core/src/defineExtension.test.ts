@@ -12,7 +12,7 @@ import { definePlugin } from './definePlugin.ts'
 import type { KubbPluginSetupContext, PluginType } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
-import { KubbDriver } from './KubbDriver.ts'
+import { Driver } from './KubbDriver.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config, KubbHooks } from './types.ts'
 
@@ -34,8 +34,8 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
  * A driver with its setup hooks already run, so `kubb:plugin:setup` side effects can be observed
  * without a full build.
  */
-async function setupDriver(plugins: Config['plugins'], hooks = new Hookable<KubbHooks>()): Promise<KubbDriver> {
-  const driver = new KubbDriver(makeConfig({ plugins }), { hooks })
+async function setupDriver(plugins: Config['plugins'], hooks = new Hookable<KubbHooks>()): Promise<Driver> {
+  const driver = new Driver(makeConfig({ plugins }), { hooks })
   await driver.setup()
   await driver.setupHooks()
   return driver
@@ -202,7 +202,7 @@ describe('defineExtension plugin', () => {
     await expect(setupDriver([required])).rejects.toMatchObject({
       diagnostic: { code: Diagnostics.code.missingDependency, plugin: 'plugin-dependent' },
     })
-    await expect(setupDriver([optional])).resolves.toBeInstanceOf(KubbDriver)
+    await expect(setupDriver([optional])).resolves.toBeInstanceOf(Driver)
   })
 })
 
@@ -231,13 +231,13 @@ describe('defineExtension parser', () => {
     expectTypeOf(parser).toEqualTypeOf<Parser<object, string, { pretty?: boolean }>>()
   })
 
-  it('throws KUBB_INCOMPATIBLE_EXTENSION from KubbDriver.setup when a parser requires a newer Kubb', async () => {
+  it('throws KUBB_INCOMPATIBLE_EXTENSION from Driver.setup when a parser requires a newer Kubb', async () => {
     const future = defineExtension({
       kind: 'parser',
       meta: { name: 'future', compatibility: { kubb: '>=99' } },
       build: () => ({ extNames: undefined, parse: () => '', print: () => '' }),
     })
-    const driver = new KubbDriver(makeConfig({ parsers: [future()] }), { hooks: new Hookable<KubbHooks>() })
+    const driver = new Driver(makeConfig({ parsers: [future()] }), { hooks: new Hookable<KubbHooks>() })
 
     await expect(driver.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.incompatibleExtension, plugin: 'future' } })
   })

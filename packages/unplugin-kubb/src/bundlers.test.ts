@@ -18,12 +18,12 @@ import rolldownPlugin from './rolldown.ts'
 import rollupPlugin from './rollup.ts'
 import rspackPlugin from './rspack.ts'
 import { createSchemaPlugin, schemaAdapter } from './__mocks__/schemaPlugin.ts'
-import type { Options } from './unpluginFactory.ts'
+import type { UnpluginKubbOptions } from './unpluginFactory.ts'
 import vitePlugin from './vite.ts'
 import webpackPlugin from './webpack.ts'
 
 type BuildParams = {
-  options: Options
+  options: UnpluginKubbOptions
   root: string
   entry: string
 }

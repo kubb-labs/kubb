@@ -1,7 +1,7 @@
-import type { Options } from './unpluginFactory.ts'
+import type { UnpluginKubbOptions } from './unpluginFactory.ts'
 import vitePlugin from './vite.ts'
 
-export default (options: Options) => ({
+export default (options: UnpluginKubbOptions) => ({
   name: 'unplugin-kubb',
   hooks: {
     // Only the slice of Astro's `astro:config:setup` params the integration touches, so `astro` is not a dependency.

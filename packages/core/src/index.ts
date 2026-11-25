@@ -14,7 +14,7 @@ export { createRenderer } from './createRenderer.ts'
 export { createStorage } from './createStorage.ts'
 export { defineParser } from './defineParser.ts'
 export { assertPluginOption, definePlugin } from './definePlugin.ts'
-export { KubbDriver } from './KubbDriver.ts'
+export { Driver, KubbDriver } from './KubbDriver.ts'
 export { checkoutGitInput } from './gitInput.ts'
 export { isPublicAddress } from './publicAddress.ts'
 export { getInputKind } from './input.ts'
@@ -51,7 +51,7 @@ export type {
   ProblemDiagnostic,
   UpdateDiagnostic,
 } from './Diagnostics.ts'
-export type { CreateKubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './kubb.ts'
+export type { CreateKubbOptions, KubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './kubb.ts'
 export type { FileChanges, GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'

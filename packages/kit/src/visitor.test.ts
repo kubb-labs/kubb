@@ -1,5 +1,5 @@
 import { ast, createPrinter, type OperationNode, type Printer, type PrinterFactoryOptions, type SchemaNode } from '@kubb/ast'
-import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
+import { type Config, defineExtension as coreDefineExtension, Hookable, Driver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { Code, File } from '@kubb/renderer-jsx'
@@ -10,7 +10,7 @@ import { defineExtension, definePlugin, type KitSetupContext } from './defineExt
 import { file } from './file.ts'
 import { from } from './from.ts'
 import { Resolver } from './resolver/Resolver.ts'
-import type { GeneratorContext, PrinterContext } from './types.ts'
+import type { TemplateContext, PrinterContext } from './types.ts'
 
 type SubtreePrinterOptions = PrinterFactoryOptions<'subtree', { depth: number }, string>
 
@@ -51,7 +51,7 @@ async function build(plugins: Array<Plugin>, meta?: Parameters<typeof adapter>[0
     plugins,
     storage: memoryStorage(),
   }
-  const driver = new KubbDriver(config, { hooks: new Hookable<KubbHooks>() })
+  const driver = new Driver(config, { hooks: new Hookable<KubbHooks>() })
   await driver.setup()
   const { diagnostics } = await driver.run()
   return { driver, diagnostics, files: driver.fileManager.files.map((file) => file.path).sort() }
@@ -67,7 +67,7 @@ function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag' | 'sche
       addGenerator({
         name: 'example',
         match: (node: SchemaNode | OperationNode) => !('operationId' in node) || node.operationId !== 'getStore',
-        schema(node: SchemaNode, ctx: GeneratorContext) {
+        schema(node: SchemaNode, ctx: TemplateContext) {
           log.push(`schema:${ctx.resolver.name(node.name ?? '')}:${node.description}`)
           return [ast.factory.createFile({ path: `gen/${ctx.resolver.name(node.name ?? '')}.ts`, baseName: 'x.ts', sources: [] })]
         },

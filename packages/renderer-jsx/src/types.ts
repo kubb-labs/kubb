@@ -35,12 +35,6 @@ export type JsxRenderer = {
 }
 
 /**
- * JSDoc comment block to attach to a generated declaration.
- * Each string in `comments` becomes one line inside the `/** … *\/` block.
- *
- * @example
- * ```ts
- * { comments: ['@description A pet object.', '@deprecated Use PetV2 instead.'] }
- * ```
+ * @deprecated Use `JSDocNode` from `@kubb/ast` instead.
  */
 export type JSDoc = ast.JSDocNode

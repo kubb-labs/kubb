@@ -72,7 +72,9 @@ export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
 /** The node a template's `render` gets for each {@link TemplateKind}. */
 export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: OperationsNode }
 
-/** @deprecated Use {@link TemplateContext}. Removed in Kubb v6. */
+/**
+ * @deprecated Use `TemplateContext` instead.
+ */
 export type GeneratorContext<TOptions extends PluginType = PluginType> = TemplateContext<TOptions>
 
 /** Renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. */
@@ -122,15 +124,15 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
   /** Renderer factory for the elements the generator returns. Leave it unset to render JSX with `jsxRenderer`, or set `null` for a generator that only returns files. */
   renderer?: RendererFactory<TElement> | null
   /** Checked before `schema` or `operation` runs for a node. Returning `false` skips that node. It does not gate `operations`. */
-  match?: (node: SchemaNode | OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<boolean>
+  match?: (node: SchemaNode | OperationNode, ctx: TemplateContext<TOptions>) => PossiblePromise<boolean>
   /** Called for each schema node in the AST walk, with the per-node options in `ctx.options`. */
-  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
+  schema?: (node: SchemaNode, ctx: TemplateContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
   /** Called for each operation node in the AST walk, with the per-node options in `ctx.options`. */
-  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
+  operation?: (node: OperationNode, ctx: TemplateContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
   /** Called once after all operations have been walked, with the plugin-level options in `ctx.options`. */
-  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
+  operations?: (nodes: Array<OperationNode>, ctx: TemplateContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
   // ThisType instead of a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
-} & ThisType<GeneratorContext<TOptions>>
+} & ThisType<TemplateContext<TOptions>>
 
 /**
 
@@ -151,11 +153,11 @@ declare global {
      */
     interface KubbHooksRegistry {
       /** Fires for each schema node the plugin keeps, after its `schema` generators ran. */
-      'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
+      'kubb:generate:schema': [node: SchemaNode, ctx: TemplateContext]
       /** Fires for each operation node the plugin keeps, after its `operation` generators ran. */
-      'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
+      'kubb:generate:operation': [node: OperationNode, ctx: TemplateContext]
       /** Fires once after the walk, after the `operations` generators ran with every kept operation. */
-      'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
+      'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: TemplateContext]
     }
   }
 }

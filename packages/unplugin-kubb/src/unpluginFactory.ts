@@ -23,13 +23,18 @@ import type { UnpluginFactory } from 'unplugin'
 import { generateModule, resolveInput, selectConfig } from './generateModule.ts'
 import { stripTypes } from './stripTypes.ts'
 
-export type Options = {
+export type UnpluginKubbOptions = {
   /**
    * Kubb config passed to the unplugin entry point. When not set, the plugin loads
    * `kubb.config.*` the way the Kubb CLI finds it, from the current working directory up.
    */
   config?: UserConfig
 }
+
+/**
+ * @deprecated Use `UnpluginKubbOptions` instead.
+ */
+export type Options = UnpluginKubbOptions
 
 /**
  * Applies the defaults `defineConfig` and the unplugin share to a single user config when not set.
@@ -68,7 +73,7 @@ const toSpecFile = (id: string) => (id.startsWith('\0') && id.endsWith(jsonModul
  * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
  * imported config `input` file, or a {@link specFilePattern} file, as one module. Without `config`, it loads `kubb.config.*`.
  */
-export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
+export const unpluginFactory: UnpluginFactory<UnpluginKubbOptions | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
   const hooks = new Hookable<KubbHooks>()
   const reporter = createCliReporter()

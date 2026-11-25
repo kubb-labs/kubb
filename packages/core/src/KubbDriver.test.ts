@@ -2,7 +2,7 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
-import { KubbDriver } from './KubbDriver.ts'
+import { Driver } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { Plugin, PluginVisitContext } from './definePlugin.ts'
 import { memo, useKubb } from './composables.ts'
@@ -26,11 +26,11 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
   }
 }
 
-function makeDriver(config: Config, hooks = new Hookable<KubbHooks>()): KubbDriver {
-  return new KubbDriver(config, { hooks })
+function makeDriver(config: Config, hooks = new Hookable<KubbHooks>()): Driver {
+  return new Driver(config, { hooks })
 }
 
-describe('KubbDriver#setup', () => {
+describe('Driver#setup', () => {
   test('enforce: pre plugins run before normal and post plugins', async () => {
     const prePlugin = { name: 'pre', enforce: 'pre' as const, hooks: {} }
     const normalPlugin = { name: 'normal', hooks: {} }
@@ -106,7 +106,7 @@ describe('KubbDriver#setup', () => {
 })
 
 describe('PluginVisitContext diagnostics', () => {
-  let driver: KubbDriver
+  let driver: Driver
 
   beforeEach(async () => {
     driver = makeDriver(makeConfig({ plugins: [{ name: 'pluginA', hooks: {} }] }))
@@ -203,7 +203,7 @@ function inputAdapter() {
   return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
 }
 
-describe('KubbDriver fileRefs', () => {
+describe('Driver fileRefs', () => {
   const gitInput = 'git+https://example.com/api.git#main:specs/openapi.yaml'
 
   it.each([
@@ -212,7 +212,7 @@ describe('KubbDriver fileRefs', () => {
   ])('%s', async (_label, fileRefs, expected) => {
     vi.mocked(checkoutGitInput).mockResolvedValueOnce({ path: '/checkout/specs/openapi.yaml', dir: '/checkout', dispose: async () => {} })
     const parse = vi.fn(async () => ast.factory.createInput({ operations: [], meta: { title: 'Pets' } }))
-    const driver = new KubbDriver(makeConfig({ input: gitInput, adapter: createMockedAdapter({ parse }) }), { hooks: new Hookable<KubbHooks>(), fileRefs })
+    const driver = new Driver(makeConfig({ input: gitInput, adapter: createMockedAdapter({ parse }) }), { hooks: new Hookable<KubbHooks>(), fileRefs })
 
     await driver.setup()
     await driver.run()
@@ -220,7 +220,7 @@ describe('KubbDriver fileRefs', () => {
   })
 })
 
-describe('KubbDriver visit hooks', () => {
+describe('Driver visit hooks', () => {
   function visitPlugin(name: string, log: Array<string>, fail?: string): Plugin {
     return {
       name,
@@ -308,7 +308,7 @@ describe('KubbDriver visit hooks', () => {
   })
 })
 
-describe('KubbDriver bus hooks', () => {
+describe('Driver bus hooks', () => {
   it('gives each listener of a driver-fired event its own plugin context as this and useKubb()', async () => {
     const seen: Array<{ name: string; same: boolean }> = []
     const listener = (name: string): Plugin => ({
@@ -429,7 +429,7 @@ describe('KubbDriver bus hooks', () => {
   })
 })
 
-describe('KubbDriver#getResolver', () => {
+describe('Driver#getResolver', () => {
   it('returns the resolver stored in memo, which published plugins read through ctx.driver', () => {
     const driver = makeDriver(makeConfig())
     const resolver = { pluginName: 'plugin-ts' }

@@ -6,7 +6,7 @@ import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
 import { serializeConfig, hashInputs, type LockfileInputs } from './lockfileInputs.ts'
-import { KubbDriver } from './KubbDriver.ts'
+import { Driver } from './KubbDriver.ts'
 import { createLockfile, type Lockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbGenerationEndContext, KubbHooks, UserConfig } from './types.ts'
@@ -88,7 +88,7 @@ async function reportSkippedPasses({ config, hooks }: { config: Config; hooks: H
   return [diagnostic]
 }
 
-export type CreateKubbOptions = {
+export type KubbOptions = {
   /**
    * Receives Kubb lifecycle hooks for the run.
    */
@@ -103,7 +103,12 @@ export type CreateKubbOptions = {
   fileRefs?: Array<string>
 }
 
-export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal' | 'fileRefs'> &
+/**
+ * @deprecated Use `KubbOptions` instead.
+ */
+export type CreateKubbOptions = KubbOptions
+
+export type GenerateConfigsOptions = Pick<KubbOptions, 'hooks' | 'signal' | 'fileRefs'> &
   GenerateOptions & {
     /**
      * Index of the one config to build. It is still compared with the others, but never empties the directory they share.
@@ -178,14 +183,14 @@ export type GenerateResult = {
 export class Kubb {
   readonly hooks: Hookable<KubbHooks>
   readonly config: Config
-  #driver: KubbDriver | null = null
+  #driver: Driver | null = null
   #lockfile: Lockfile | null = null
   #cleanPaths: Array<string> = []
   readonly #signal: AbortSignal | undefined
   #sharedSchemas: SharedSchemas | undefined
   readonly #fileRefs: Array<string> | undefined
 
-  constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
+  constructor(userConfig: UserConfig, options: KubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
@@ -240,7 +245,7 @@ export class Kubb {
     return this.config.storage
   }
 
-  get driver(): KubbDriver {
+  get driver(): Driver {
     if (!this.#driver)
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: '[kubb] setup() must be called before accessing driver' })
     return this.#driver
@@ -276,7 +281,7 @@ export class Kubb {
 
     // The driver empties `cleanPaths` after the plugins run, right before it writes. A parse or plugin setup
     // failure leaves the previous output in place; a plugin error while generating still empties and writes.
-    const driver = new KubbDriver(config, {
+    const driver = new Driver(config, {
       hooks: this.hooks,
       lockfile,
       signal,
@@ -461,6 +466,6 @@ export class Kubb {
  * await kubb.build()
  * ```
  */
-export function createKubb(userConfig: UserConfig, options: CreateKubbOptions = {}): Kubb {
+export function createKubb(userConfig: UserConfig, options: KubbOptions = {}): Kubb {
   return new Kubb(userConfig, options)
 }

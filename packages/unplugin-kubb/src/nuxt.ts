@@ -2,11 +2,11 @@ import { addRspackPlugin, addVitePlugin, addWebpackPlugin, defineNuxtModule } fr
 import '@nuxt/schema'
 
 import rspack from './rspack.ts'
-import type { Options } from './unpluginFactory.ts'
+import type { UnpluginKubbOptions } from './unpluginFactory.ts'
 import vite from './vite.ts'
 import webpack from './webpack.ts'
 
-export type ModuleOptions = Options
+export type ModuleOptions = UnpluginKubbOptions
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {

@@ -85,6 +85,7 @@ export type {
   ExtensionManifest,
   ExtensionManifestOption,
   ExtensionMeta,
+  Filter,
   Group,
   Include,
   KubbHooks,
