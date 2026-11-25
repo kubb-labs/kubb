@@ -46,7 +46,7 @@ Types, `openapi-fetch`, and `openapi-react-query`.
 | One config generates types, clients, query hooks, Zod or Valibot schemas, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. | [Plugin and feature coverage](#plugin-and-feature-coverage) |
 | Clients return a result you narrow by status code, and each call picks whether errors throw. | [Type safety and response handling](#type-safety-and-response-handling) |
 | The runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. | [Client runtime](#client-runtime) |
-| File review, pull request snapshots, and API skills for AI tools. | [Kubb Studio](#kubb-studio) |
+| File review and pull request snapshots. | [Kubb Studio](#kubb-studio) |
 
 We checked each cell in the tables below against each project's docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
 
@@ -138,8 +138,7 @@ openapi-typescript ships no generated client, so this table and the next leave i
 
 [Kubb Studio](https://kubb.studio) is the web IDE for Kubb. An agent on your machine runs Kubb and never uploads your spec. The other three tools have no equivalent for:
 
-- [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api), built from your spec, so AI tools call your generated clients (Pro plan).
-- One AI plugin marketplace and shared agents for the team.
+- Shared agents for the team.
 - [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files) before you save them.
 - Edit `kubb.config.ts` from the browser.
 - [An installable snapshot for every pull request](/docs/5.x/integrations/github-actions).
