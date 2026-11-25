@@ -27,7 +27,8 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
     return '✓ Generation complete'
   })()
   const separator = styleText('dim', ' · ')
-  const generated = Math.max(0, filesCreated - filesUnchanged)
+  // A check counts every file a run would change, deletions included.
+  const generated = check ? check.files.length : Math.max(0, filesCreated - filesUnchanged)
   const fileVerb = (() => {
     if (check) return 'out of date'
     if (dryRun) return 'planned'

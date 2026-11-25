@@ -357,7 +357,6 @@ describe('check', () => {
       output: { path: './src/gen', clean, format: 'oxfmt', lint: false },
       adapter: adapterOas(),
       plugins: [writesFiles()],
-      storage: fsStorage(),
     } satisfies UserConfig as unknown as Config
     const file = (name: string) => join(root, 'src/gen', name)
     /** Every file under the root with its content, which also proves the temporary folder is gone. */
@@ -415,6 +414,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [cleaned.config], check: true })
 
+    expect(lines.some((line) => line.includes('1 file out of date'))).toBe(true)
     expect(lines.some((line) => line.includes('deleted: src/gen/extra.ts'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
 
@@ -429,7 +429,7 @@ describe('check', () => {
     writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
 
     const lines = await bootstrap({ configs: [config], check: true, diff: true })
-    const patch = lines.find((line) => line.startsWith('--- a/src/gen/pet.ts'))
+    const patch = lines.find((line) => line.includes('--- a/src/gen/pet.ts'))
 
     expect(patch).toContain('@@ -1,1 +1,1 @@')
     expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')

@@ -1,27 +1,29 @@
 import { mkdtempSync, rmSync } from 'node:fs'
-import { isAbsolute, join, relative, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
-import { diffHunks, read, toPosixPath } from '@internals/utils'
+import { diffHunks, isPathInside, read, toPosixPath } from '@internals/utils'
 import { type Config, Diagnostics, fsStorage, type GenerateOptions, type GenerationResult, runOutputPasses, type Storage } from '@kubb/core'
+import { formatPatch } from 'diff'
 import { diffOutput, readOutputFiles, statusKeys } from './utils.ts'
-
-type CheckResult = NonNullable<GenerationResult['check']>
 
 /**
  * What `kubb generate --check` needs for one run: the configs redirected to a temporary folder, the
  * output passes for that folder, and the comparison with the files on disk.
  */
 export type OutputCheck = {
-  configs: Array<Config>
+  /**
+   * The configs to generate instead: each writes to a temporary folder. Throws for a config a check cannot compare.
+   */
+  redirect(configs: ReadonlyArray<Config>): Array<Config>
   processOutput: NonNullable<GenerateOptions['processOutput']>
   /**
-   * The config as the user wrote it, for a config from `configs`.
+   * The config as the user wrote it, for a config from `redirect`.
    */
   userConfig(config: Config): Config
   /**
    * Compares what one config generated with its real output folder.
    */
-  compare(options: { config: Config; storage: Storage; paths: ReadonlySet<string> }): Promise<CheckResult & { unchanged: number }>
+  compare(options: { config: Config; storage: Storage; paths: ReadonlySet<string> }): Promise<NonNullable<GenerationResult['check']> & { unchanged: number }>
   /**
    * `true` once any config's output differs from the files on disk.
    */
@@ -41,7 +43,7 @@ type Target = { config: Config; dir: string }
 /** The path of `absolute` below `root`. Throws when it sits outside, since the temporary folder mirrors the project root. */
 function pathInRoot({ root, absolute, option }: { root: string; absolute: string; option: string }): string {
   const path = relative(root, absolute)
-  if (path && !path.startsWith('..') && !isAbsolute(path)) return path
+  if (path && isPathInside(absolute, root)) return path
 
   throw new Diagnostics.Error({
     code: Diagnostics.code.unknown,
@@ -51,14 +53,23 @@ function pathInRoot({ root, absolute, option }: { root: string; absolute: string
   })
 }
 
-function formatPatch({ path, before, after }: { path: string; before: string; after: string }): string {
-  const { hunks } = diffHunks(before, after)
+/**
+ * The files on disk a check compares with, keyed by the temporary path of the file generated for each.
+ */
+async function readDiskFiles({ target: { config, dir }, paths }: { target: Target; paths: ReadonlySet<string> }): Promise<Map<string, string>> {
+  const root = resolve(config.root)
+  const files = new Map<string, string>()
+  for (const [filePath, source] of await readOutputFiles(resolve(root, config.output.path))) {
+    files.set(join(dir, relative(root, filePath)), source)
+  }
+  // Generated files outside `output.path`, such as `shared.path`.
+  for (const filePath of paths) {
+    if (files.has(filePath)) continue
+    const source = await read(join(root, relative(dir, filePath))).catch(() => null)
+    if (source !== null) files.set(filePath, source)
+  }
 
-  return [
-    `--- a/${path}`,
-    `+++ b/${path}`,
-    ...hunks.flatMap((hunk) => [`@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@`, ...hunk.lines]),
-  ].join('\n')
+  return files
 }
 
 /**
@@ -68,7 +79,7 @@ function formatPatch({ path, before, after }: { path: string; before: string; af
  *
  * `output.postGenerate` does not run: its commands name their own paths and would write to the real output.
  */
-export function createOutputCheck({ configs, diff }: { configs: ReadonlyArray<Config>; diff: boolean }): OutputCheck {
+export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
   const targets = new Map<string, Target>()
   // One temporary folder per project root.
   const dirs = new Map<string, string>()
@@ -81,12 +92,13 @@ export function createOutputCheck({ configs, diff }: { configs: ReadonlyArray<Co
   // A backstop for `process.exit()`, which skips every `finally`.
   process.once('exit', cleanup)
 
-  const runConfigs = configs.map((config) => {
-    if (config.storage?.name !== 'fs') {
+  const redirectConfig = (config: Config): Config => {
+    // A config without `storage` gets the fs storage from core.
+    if (config.storage && config.storage.name !== 'fs') {
       throw new Diagnostics.Error({
         code: Diagnostics.code.unknown,
         severity: 'error',
-        message: `--check compares files on disk, but this config uses the "${config.storage?.name}" storage.`,
+        message: `--check compares files on disk, but this config uses the "${config.storage.name}" storage.`,
         help: 'Run --check on a config that uses the default fs storage.',
       })
     }
@@ -105,13 +117,13 @@ export function createOutputCheck({ configs, diff }: { configs: ReadonlyArray<Co
       shared,
       // The passes run through `processOutput`, so core keeps no output manifest for the temporary folder.
       output: { ...config.output, path: outputPath, clean: false, format: false, lint: false, postGenerate: [] },
-    } satisfies Config
-  })
+    }
+  }
 
   const targetOf = (config: Config): Target => targets.get(resolve(config.root, config.output.path))!
 
   return {
-    configs: runConfigs,
+    redirect: (configs) => configs.map(redirectConfig),
     patches,
     cleanup,
     userConfig: (config) => targetOf(config).config,
@@ -127,31 +139,20 @@ export function createOutputCheck({ configs, diff }: { configs: ReadonlyArray<Co
       return runOutputPasses({ ...options, config: { ...config, output: { ...config.output, format: output.format, lint: output.lint } } })
     },
     async compare({ config, storage, paths }) {
-      const { config: userConfig, dir } = targetOf(config)
-      const root = resolve(userConfig.root)
-      const toReal = (filePath: string) => join(root, relative(dir, filePath))
-
-      // Keyed by the temporary path, so each file lines up with what was generated for it.
-      const previousFiles = new Map<string, string>()
-      for (const [filePath, source] of await readOutputFiles(resolve(root, userConfig.output.path))) {
-        previousFiles.set(join(dir, relative(root, filePath)), source)
-      }
-      // Generated files outside `output.path`, such as `shared.path`.
-      for (const filePath of paths) {
-        if (previousFiles.has(filePath)) continue
-        const source = await read(toReal(filePath)).catch(() => null)
-        if (source !== null) previousFiles.set(filePath, source)
-      }
+      const target = targetOf(config)
+      const { config: userConfig, dir } = target
+      const previousFiles = await readDiskFiles({ target, paths })
 
       // No manifest: both sides went through the same output passes, so the bytes compare directly.
       const result = await diffOutput({ storage, paths, clean: Boolean(userConfig.output.clean), previousFiles })
-      const files: CheckResult['files'] = []
+      const files: NonNullable<GenerationResult['check']>['files'] = []
       for (const change of result.files.toSorted((a, b) => a.path.localeCompare(b.path))) {
-        const path = toPosixPath(relative(root, toReal(change.path)))
+        const path = toPosixPath(relative(dir, change.path))
         files.push({ path, status: statusKeys[change.status], linesAdded: change.added ?? 0, linesRemoved: change.removed ?? 0 })
         if (!diff) continue
         const after = change.status === 'D' ? '' : ((await storage.readItem(change.path)) ?? '')
-        patches.push(formatPatch({ path, before: previousFiles.get(change.path) ?? '', after }))
+        const { hunks } = diffHunks(previousFiles.get(change.path) ?? '', after)
+        patches.push(formatPatch({ oldFileName: `a/${path}`, newFileName: `b/${path}`, oldHeader: undefined, newHeader: undefined, hunks }).trimEnd())
       }
       changed ||= files.length > 0
 

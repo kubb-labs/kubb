@@ -39,6 +39,18 @@ type GenerationRun = {
   live?: LiveChanges
 }
 
+/** The totals of a check, from the files it found out of date. */
+function tallyCheck({ files, unchanged }: { files: NonNullable<GenerationResult['check']>['files']; unchanged: number }): ChangeTally {
+  const tally = createChangeTally()
+  tally.unchanged = unchanged
+  for (const file of files) {
+    tally[file.status]++
+    tally.linesAdded += file.linesAdded
+    tally.linesRemoved += file.linesRemoved
+  }
+  return tally
+}
+
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function setupReporters(
   context: Hookable<KubbHooks>,
@@ -151,14 +163,7 @@ function setupReporters(
     if (outputCheck) {
       const { unchanged, ...check } = await outputCheck.compare({ config, storage, paths })
       current.check = check
-      const tally = createChangeTally()
-      tally.unchanged = unchanged
-      for (const file of check.files) {
-        tally[file.status]++
-        tally.linesAdded += file.linesAdded
-        tally.linesRemoved += file.linesRemoved
-      }
-      return tally
+      return tallyCheck({ files: check.files, unchanged })
     }
     if (live) {
       const { tally, fingerprints, processed } = live
