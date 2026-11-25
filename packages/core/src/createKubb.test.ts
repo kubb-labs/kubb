@@ -5,6 +5,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
+import { parse } from '@visulima/yaml'
 import { createKubb, Kubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { defineExtension } from './defineExtension.ts'
@@ -566,7 +567,7 @@ describe('Kubb#generate', () => {
       generate,
       read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
       mtime: () => fs.statSync(filePath).mtimeMs,
-      hasLockfile: () => fs.existsSync(path.join(root, 'kubb-lock.json')),
+      hasLockfile: () => fs.existsSync(path.join(root, 'kubb-lock.yml')),
     }
   }
 
@@ -629,9 +630,9 @@ describe('Kubb#generate', () => {
     const project = createProject({ format: false })
     await project.generate()
 
-    expect(Object.keys(JSON.parse(fs.readFileSync(path.join(path.dirname(path.dirname(project.filePath)), 'kubb-lock.json'), 'utf8')).inputs)).toStrictEqual([
-      'gen',
-    ])
+    const lockfile = parse(fs.readFileSync(path.join(path.dirname(path.dirname(project.filePath)), 'kubb-lock.yml'), 'utf8'))
+
+    expect(lockfile).toMatchObject({ inputs: { gen: expect.anything() } })
   })
 
   it('records no inputs for an adapter that does not list the files it read', async () => {
@@ -641,7 +642,7 @@ describe('Kubb#generate', () => {
 
     await createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate()
 
-    expect(JSON.parse(fs.readFileSync(path.join(root, 'kubb-lock.json'), 'utf8'))).toStrictEqual({ lockfileVersion: 1, files: {} })
+    expect(parse(fs.readFileSync(path.join(root, 'kubb-lock.yml'), 'utf8'))).toStrictEqual({ lockfileVersion: 1, files: {} })
     expect(await Kubb.isUpToDate(config)).toBe(false)
   })
 

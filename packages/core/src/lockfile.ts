@@ -1,5 +1,6 @@
 import { relative, resolve } from 'node:path'
 import { inParallel, isPathInside, readIfExists, toPosixPath } from '@internals/utils'
+import { parse, stringify } from '@visulima/yaml'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
 import { digest, type LockfileInputs } from './lockfileInputs.ts'
@@ -7,7 +8,7 @@ import { digest, type LockfileInputs } from './lockfileInputs.ts'
 // Bumped when the stored shape changes, so an older lockfile is discarded instead of misread.
 const LOCKFILE_VERSION = 1
 
-export const LOCKFILE_NAME = 'kubb-lock.json'
+export const LOCKFILE_NAME = 'kubb-lock.yml'
 
 /**
  * How one generated file looked on either side of the output passes: `source` is the hash of the
@@ -46,11 +47,25 @@ function toLockfile(data: unknown): Pick<LockfileObject, 'files' | 'inputs'> | n
   return { files: pick({ record: data.files, isValid: isEntry }), inputs: pick({ record: data.inputs, isValid: isInputs }) }
 }
 
+// The text last parsed or written per path. Parsing YAML costs far more than reading the file, and one run loads the lockfile for the up-to-date check and again for each config.
+const parsedLockfiles = new Map<string, { text: string; object: Pick<LockfileObject, 'files' | 'inputs'> | null }>()
+
+function parseLockfile({ path, text }: { path: string; text: string }): Pick<LockfileObject, 'files' | 'inputs'> | null {
+  const cached = parsedLockfiles.get(path)
+  if (cached?.text === text) return cached.object
+
+  // Kubb writes the file itself, so the checks for duplicate keys and for the YAML spec are left out for speed.
+  const object = toLockfile(parse(text, { duplicateKeys: 'overwrite', strict: false }))
+  parsedLockfiles.set(path, { text, object })
+
+  return object
+}
+
 async function readLockfile(path: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
   try {
     const text = await readIfExists(path)
 
-    return text === null ? null : toLockfile(JSON.parse(text))
+    return text === null ? null : parseLockfile({ path, text })
   } catch {
     return null
   }
@@ -59,11 +74,11 @@ async function readLockfile(path: string): Promise<Pick<LockfileObject, 'files' 
 /**
  * Remembers what the output passes did to each generated file, so a later run can tell "the
  * formatter already turned this exact source into what is stored" apart from a real change.
- * The record lives in `kubb-lock.json`, so a fresh checkout can tell without running the formatter.
+ * The record lives in `kubb-lock.yml`, so a fresh checkout can tell without running the formatter.
  */
 export class Lockfile {
   /**
-   * `false` when no `kubb-lock.json` could be read, so nothing a formatter changed can be recognized.
+   * `false` when no `kubb-lock.yml` could be read, so nothing a formatter changed can be recognized.
    */
   readonly exists: boolean
   readonly #storage: Storage
@@ -137,7 +152,7 @@ export class Lockfile {
   }
 
   /**
-   * Writes `kubb-lock.json` with one entry for each file generated this run. An entry from an earlier run
+   * Writes `kubb-lock.yml` with one entry for each file generated this run. An entry from an earlier run
    * stays while its file still holds the recorded output. `inputs` records what the config called
    * `name` generated from, and drops that record when it is `null`. `cleaned` lists the folders
    * `output.clean` emptied this run.
@@ -185,7 +200,11 @@ export class Lockfile {
       if (options?.inputs) inputs[options.name] = options.inputs
       const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
       // Through the storage, so a run that stages its files stages the lockfile with them.
-      await this.#storage.writeItem(resolve(this.#root, LOCKFILE_NAME), `${JSON.stringify(object, null, 2)}\n`)
+      // `lineWidth: 0` keeps each value on one line, whatever the length of a path.
+      const path = resolve(this.#root, LOCKFILE_NAME)
+      const text = stringify(object, { lineWidth: 0 })
+      await this.#storage.writeItem(path, text)
+      parsedLockfiles.set(path, { text, object: { files, inputs } })
     } catch {
       /* the record is an optimization, so a storage failure here must not fail a finished build */
     }
@@ -193,7 +212,7 @@ export class Lockfile {
 }
 
 /**
- * Reads `kubb-lock.json` from `root` into a {@link Lockfile}, which starts empty when the file is
+ * Reads `kubb-lock.yml` from `root` into a {@link Lockfile}, which starts empty when the file is
  * missing, unreadable, or from another version. `storage` holds the generated files.
  *
  * @example
