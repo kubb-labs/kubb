@@ -13,9 +13,10 @@ import { resolveBaseUrl, toInputServers } from './model/server.ts'
 import { toInputTags } from './model/tag.ts'
 import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
 import { camelCasePathParams, getOperations, parseOperation } from './operation.ts'
+import type { ParseFn } from './emit/parseSchema.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
-import { createRefs } from './refs.ts'
+import { createRefs, type Refs } from './refs.ts'
 import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
@@ -90,10 +91,10 @@ export const adapterOas = defineExtension<AdapterOas>({
       parseSchema,
     }: {
       document: Document
-      refs: ReturnType<typeof createRefs>
+      refs: Refs
       schemas: Record<string, SchemaObject>
       pointers: Map<string, string>
-      parseSchema: ReturnType<typeof createSchemaParser>
+      parseSchema: ParseFn
     }): ast.InputNode {
       const parsedByName = new Map<string, ast.SchemaNode>()
       const refAliasMap = new Map<string, ast.RefSchemaNode>()

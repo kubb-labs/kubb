@@ -8,11 +8,6 @@ import type { Document, SchemaObject } from './types.ts'
 /**
  * The `$ref` service bound to one document: pointer resolution and resolved-node parsing, each
  * with its own instance-scoped memoization.
- */
-export type Refs = ReturnType<typeof createRefs>
-
-/**
- * Creates the `$ref` resolution service for one document. One pointer walk backs every method.
  *
  * @example
  * ```ts
@@ -24,20 +19,25 @@ export type Refs = ReturnType<typeof createRefs>
  * refs.derefKeepingRef(parameter)
  * ```
  */
-export function createRefs(document: Document) {
-  const pointerCache = new Map<string, unknown>()
-  const resolvedNodeCache = memo.create<string, ast.SchemaNode | null>()
-  const resolvingRefs = new Set<string>()
+export class Refs {
+  readonly #document: Document
+  readonly #pointerCache = new Map<string, unknown>()
+  readonly #resolvedNodeCache = memo.create<string, ast.SchemaNode | null>()
+  readonly #resolvingRefs = new Set<string>()
 
-  function walkPointer<T>($ref: string): { applicable: boolean; value: T | null } {
+  constructor(document: Document) {
+    this.#document = document
+  }
+
+  #walkPointer<T>($ref: string): { applicable: boolean; value: T | null } {
     const trimmed = $ref.trim()
     if (trimmed === '' || !trimmed.startsWith('#')) {
       return { applicable: false, value: null }
     }
     const pointer = trimmed.substring(1)
 
-    if (pointerCache.has(pointer)) {
-      return { applicable: true, value: pointerCache.get(pointer) as T }
+    if (this.#pointerCache.has(pointer)) {
+      return { applicable: true, value: this.#pointerCache.get(pointer) as T }
     }
 
     // Split before decoding so an encoded `%2F` stays inside its token, then unescape `~1` and `~0` (RFC 6901).
@@ -49,7 +49,7 @@ export function createRefs(document: Document) {
         .map((token) => unescapePointerToken(globalThis.decodeURIComponent(token)))
         .reduce(
           (obj: unknown, key: string) => (obj != null && Object.hasOwn(obj, key) ? (obj as Record<string, unknown>)[key] : undefined),
-          document as unknown,
+          this.#document as unknown,
         )
     } catch {
       // A malformed `%` escape cannot name a node, so it reports as an unresolved ref.
@@ -57,7 +57,7 @@ export function createRefs(document: Document) {
     }
 
     if (current) {
-      pointerCache.set(pointer, current)
+      this.#pointerCache.set(pointer, current)
     }
 
     return { applicable: true, value: (current as T) ?? null }
@@ -69,8 +69,8 @@ export function createRefs(document: Document) {
    * outside one) when the pointer cannot be resolved. `report: false` resolves to `null` silently,
    * for a speculative lookup where a missing ref is not an error.
    */
-  function resolve<T = unknown>(refPath: string, options?: { report?: boolean }): T | null {
-    const { applicable, value } = walkPointer<T>(refPath)
+  resolve<T = unknown>(refPath: string, options?: { report?: boolean }): T | null {
+    const { applicable, value } = this.#walkPointer<T>(refPath)
     if (!applicable || value || options?.report === false) return value
 
     const diagnostic: Diagnostic = {
@@ -92,24 +92,24 @@ export function createRefs(document: Document) {
    * resolved (e.g. a minimal document in a unit test). An error from `parse` is thrown, so a bug
    * in a converter is not mistaken for a missing ref.
    */
-  function resolveNode(refPath: string, parse: ParseFn): ast.SchemaNode | null {
-    if (resolvingRefs.has(refPath)) return null
+  resolveNode(refPath: string, parse: ParseFn): ast.SchemaNode | null {
+    if (this.#resolvingRefs.has(refPath)) return null
 
-    return memo(resolvedNodeCache, refPath, () => {
+    return memo(this.#resolvedNodeCache, refPath, () => {
       let referenced: SchemaObject | null
       try {
-        referenced = resolve<SchemaObject>(refPath)
+        referenced = this.resolve<SchemaObject>(refPath)
       } catch (error) {
         // A missing ref outside a build is `null`; any other error is a real failure.
         if (Diagnostics.isError(error) && error.diagnostic.code === Diagnostics.code.refNotFound) return null
         throw error
       }
       if (!referenced) return null
-      resolvingRefs.add(refPath)
+      this.#resolvingRefs.add(refPath)
       try {
         return parse({ schema: referenced })
       } finally {
-        resolvingRefs.delete(refPath)
+        this.#resolvingRefs.delete(refPath)
       }
     })
   }
@@ -120,23 +120,30 @@ export function createRefs(document: Document) {
    * `$ref` after resolving (e.g. a document with no component registry). A non-`$ref` value is
    * returned as-is.
    */
-  function deref<T = unknown>(value: unknown): T | null {
+  deref<T = unknown>(value: unknown): T | null {
     if (!isReference(value)) {
       return value ? (value as T) : null
     }
 
-    const resolved = resolve<T>(value.$ref)
+    const resolved = this.resolve<T>(value.$ref)
     return resolved && !isReference(resolved) ? resolved : null
   }
 
-  /** Resolves a `$ref` object but keeps the `$ref` field on the result; other values pass through. */
-  function derefKeepingRef<T = unknown>(value?: T): T {
+  /**
+   * Resolves a `$ref` object but keeps the `$ref` field on the result; other values pass through.
+   */
+  derefKeepingRef<T = unknown>(value?: T): T {
     if (isReference(value)) {
-      return { ...value, ...resolve(value.$ref), $ref: value.$ref }
+      return { ...value, ...this.resolve(value.$ref), $ref: value.$ref }
     }
 
     return value as T
   }
+}
 
-  return { resolve, resolveNode, deref, derefKeepingRef }
+/**
+ * Creates the `$ref` resolution service for one document. One pointer walk backs every method.
+ */
+export function createRefs(document: Document): Refs {
+  return new Refs(document)
 }

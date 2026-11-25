@@ -6,30 +6,32 @@ import type { WriterProgress } from '../types.ts'
 import type { LoggerContext } from './context.ts'
 import type { Spinner } from './spinner.ts'
 
-export type Progress = ReturnType<typeof createProgress>
+export type ProgressOptions = { ctx: LoggerContext; spinner: Spinner }
+
+export type ProgressState = {
+  progress: WriterProgress | null
+  totalFiles: number
+  processedFiles: number
+  /** Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does. */
+  inMemory: boolean
+}
 
 /** The progress bar over the file writes, and the counts the summary line shows. */
-export function createProgress({ writer, silent, human, logLevel, text, onRun }: LoggerContext, spinner: Spinner) {
-  // Plain output prints every advance as its own line, so it names each file only at the verbose level.
-  const nameFiles = human || logLevel >= logLevelMap.verbose
-  const state = {
-    progress: null as WriterProgress | null,
-    totalFiles: 0,
-    processedFiles: 0,
-    /** Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does. */
-    inMemory: false,
-  }
+export class Progress {
+  readonly state: ProgressState = { progress: null, totalFiles: 0, processedFiles: 0, inMemory: false }
+  readonly #ctx: LoggerContext
 
-  function stop(message?: string) {
-    const progress = state.progress
-    if (!progress) {
+  constructor({ ctx, spinner }: ProgressOptions) {
+    this.#ctx = ctx
+    const { writer, silent, human, logLevel, text, onRun } = ctx
+    const { state } = this
+    if (silent) {
       return
     }
-    state.progress = null
-    progress.stop(message === undefined ? '' : text(message))
-  }
 
-  if (!silent) {
+    // Plain output prints every advance as its own line, so it names each file only at the verbose level.
+    const nameFiles = human || logLevel >= logLevelMap.verbose
+
     onRun('kubb:files:processing:start', ({ files }) => {
       spinner.stop()
       state.totalFiles = files.length
@@ -48,7 +50,7 @@ export function createProgress({ writer, silent, human, logLevel, text, onRun }:
 
     onRun('kubb:files:processing:end', ({ files, unchanged }) => {
       const skipped = unchanged.length ? styleText('dim', ` · ${unchanged.length} unchanged`) : ''
-      stop(
+      this.stop(
         state.inMemory
           ? `Generated ${pluralize(state.processedFiles, 'file')} in memory`
           : `Wrote ${pluralize(files.length - unchanged.length, 'file')}${skipped}`,
@@ -56,12 +58,21 @@ export function createProgress({ writer, silent, human, logLevel, text, onRun }:
     })
   }
 
-  return {
-    state,
-    stop,
-    reset() {
-      stop()
-      Object.assign(state, { totalFiles: 0, processedFiles: 0, inMemory: false })
-    },
+  stop(message?: string): void {
+    const { progress } = this.state
+    if (!progress) {
+      return
+    }
+    this.state.progress = null
+    progress.stop(message === undefined ? '' : this.#ctx.text(message))
   }
+
+  reset(): void {
+    this.stop()
+    Object.assign(this.state, { totalFiles: 0, processedFiles: 0, inMemory: false })
+  }
+}
+
+export function createProgress(options: ProgressOptions): Progress {
+  return new Progress(options)
 }
