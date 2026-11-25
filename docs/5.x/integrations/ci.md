@@ -17,6 +17,8 @@ A snapshot is an installable npm package of your generated code. `kubb studio sn
 
 Run it on pull or merge requests and on their base branch, so each request has a snapshot to compare with.
 
+A snapshot shows what a request changes in the generated code. To fail a pipeline when the committed code is out of date, use [`kubb generate --check`](/docs/5.x/how-to/recipes#check-generated-code-in-ci).
+
 ```mermaid
 flowchart LR
   pr[Pull request] --> job[CI job]

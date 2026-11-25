@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Configure generation - Common Kubb recipes
-description: Configure common Kubb stacks, formatting, linting, post-generate commands, barrel files, git inputs, watch mode, and several specs in one run.
+description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check for out-of-date output, barrel files, git inputs, watch mode, and several specs in one run.
 outline:
   - 2
   - 3
@@ -154,6 +154,53 @@ export default defineConfig({
   plugins: [pluginTs()],
 })
 ```
+
+## Check generated code in CI
+
+When you commit the generated files, [`kubb generate --check`](/docs/5.x/reference/commands/generate#check-mode) fails the pipeline if they no longer match the spec and the config. It writes nothing to `output.path`. `--diff` prints what would change.
+
+| Exit code | Meaning | Fix |
+| --- | --- | --- |
+| `0` | The files are up to date. | |
+| `1` | A file is out of date. | Run `npx kubb generate` and commit the result. |
+| `2` | The config or the generation failed. | Read the diagnostics in the job log. |
+
+Install the dependencies first, so the check runs the same formatter and linter as a local run.
+
+::code-group
+
+```yaml [.github/workflows/kubb-check.yml]
+name: Kubb check
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx kubb generate --check --diff
+```
+
+```yaml [.gitlab-ci.yml]
+kubb-check:
+  image: node:22
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    - npm ci
+    - npx kubb generate --check --diff
+```
+
+::
+
+To see how the generated files differ from the base branch, and not only whether they are current, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
 
 ## Add barrel files {#barrel-files}
 

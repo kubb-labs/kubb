@@ -1,8 +1,9 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
+import { ast } from '@kubb/ast'
 import {
   type Config,
   defineExtension,
@@ -36,13 +37,15 @@ type BootstrapOptions = {
    * Configs the mocked loader returns. Empty renders only the Configuration group.
    */
   configs?: Array<Config>
+  check?: boolean
+  diff?: boolean
 }
 
 /**
  * Runs the command with no configs to generate, so only the bootstrap Configuration group renders.
  * Non-rich, so the group is plain text an assertion can read.
  */
-async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOptions = {}) {
+async function bootstrap({ fail = false, reporters, configs = [], check, diff }: BootstrapOptions = {}) {
   const lines: Array<string> = []
   // What reached stdout alone, since `json` keeps it for the report.
   const stdout: Array<string> = []
@@ -66,7 +69,7 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
         : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
-  await run({ logLevel: 'info', watch: false, reporters }).catch((error: Error) => void lines.push(error.message))
+  await run({ logLevel: 'info', watch: false, reporters, check, diff }).catch((error: Error) => void lines.push(error.message))
   // A failed build sets `exitCode` instead of calling `exit()`, so telemetry can finish; record it the same way.
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
@@ -308,5 +311,154 @@ describe('output passes', () => {
     expect(lines.some((line) => line.startsWith('error KUBB_POST_GENERATE_FAILED: Post-generate command failed: '))).toBe(true)
     expect(lines.some((line) => line.startsWith('✗ Generation failed') && line.includes('1 error'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
+  })
+})
+
+describe('check', () => {
+  const roots: Array<string> = []
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      rmSync(root, { recursive: true, force: true })
+      rmSync(resolveCacheDir(root), { recursive: true, force: true })
+    }
+  })
+
+  // Unformatted on purpose: oxfmt rewrites both files, so the bytes on disk differ from what Kubb hands to the storage.
+  const writesFiles = defineExtension({
+    kind: 'plugin',
+    meta: { name: 'writes-files' },
+    hooks: {
+      async 'kubb:plugins:end'({ config, upsertFile }) {
+        for (const [name, source] of [
+          ['pet.ts', 'export const pet = {name:"cat",   tags:[1,2]}'],
+          ['types/index.ts', 'export type Pet = {name:string}'],
+        ] as const) {
+          await upsertFile(
+            ast.factory.createFile({
+              path: resolve(config.root, config.output.path, name),
+              baseName: name.split('/').pop() as `${string}.ts`,
+              sources: [ast.factory.createSource({ nodes: [ast.factory.createText(source)] })],
+              imports: [],
+              exports: [],
+            }),
+          )
+        }
+      },
+    },
+  })
+
+  function project({ clean = false }: { clean?: boolean } = {}) {
+    const root = mkdtempSync(join(tmpdir(), 'kubb-cli-check-'))
+    roots.push(root)
+    const config = {
+      root,
+      input: { openapi: '3.0.3', info: { title: 'pets', version: '1' }, paths: {} },
+      output: { path: './src/gen', clean, format: 'oxfmt', lint: false },
+      adapter: adapterOas(),
+      plugins: [writesFiles()],
+      storage: fsStorage(),
+    } satisfies UserConfig as unknown as Config
+    const file = (name: string) => join(root, 'src/gen', name)
+    /** Every file under the root with its content, which also proves the temporary folder is gone. */
+    const snapshot = () =>
+      Object.fromEntries(
+        readdirSync(root, { recursive: true, withFileTypes: true })
+          .filter((entry) => entry.isFile())
+          .map((entry) => [join(entry.parentPath, entry.name), readFileSync(join(entry.parentPath, entry.name), 'utf8')]),
+      )
+
+    return { root, config, file, snapshot }
+  }
+
+  /** A project whose output a real run wrote and formatted, with the cache a fresh CI checkout does not have removed. */
+  async function generated(options?: { clean?: boolean }) {
+    const target = project(options)
+    await bootstrap({ configs: [target.config] })
+    rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
+    // The formatter ran: the stored bytes are not the ones the plugin produced.
+    expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
+
+    return target
+  }
+
+  it('exits 0 for formatted output that is up to date, without the output manifest', async () => {
+    const { config, snapshot } = await generated()
+    const before = snapshot()
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
+    expect(lines.some((line) => line.includes('0 added · 0 modified · 0 deleted'))).toBe(true)
+    expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
+    expect(snapshot()).toStrictEqual(before)
+  })
+
+  it('exits 1 and lists an edited file as modified, a missing file as added, and leaves the output as it was', async () => {
+    const { config, file, snapshot } = await generated()
+    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
+    rmSync(file('types/index.ts'))
+    const before = snapshot()
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.startsWith('✗ Generated code is out of date'))).toBe(true)
+    expect(lines.some((line) => line.includes('modified: src/gen/pet.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('added: src/gen/types/index.ts'))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 1')
+    expect(snapshot()).toStrictEqual(before)
+  })
+
+  it('lists a file only on disk as deleted when output.clean is on, and ignores it otherwise', async () => {
+    const cleaned = await generated({ clean: true })
+    writeFileSync(cleaned.file('extra.ts'), 'export {}\n')
+
+    const lines = await bootstrap({ configs: [cleaned.config], check: true })
+
+    expect(lines.some((line) => line.includes('deleted: src/gen/extra.ts'))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 1')
+
+    const kept = await generated()
+    writeFileSync(kept.file('extra.ts'), 'export {}\n')
+
+    expect((await bootstrap({ configs: [kept.config], check: true })).filter((line) => line.startsWith('exit '))).toStrictEqual([])
+  })
+
+  it('prints a hunk for the edited file with --diff, which turns the check on', async () => {
+    const { config, file } = await generated()
+    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
+
+    const lines = await bootstrap({ configs: [config], diff: true })
+    const patch = lines.find((line) => line.startsWith('--- a/src/gen/pet.ts'))
+
+    expect(patch).toContain('@@ -1,1 +1,1 @@')
+    expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')
+    expect(patch).toContain('+export const pet = { name: "cat", tags: [1, 2] };')
+    expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('adds the files and the check outcome to the json report', async () => {
+    const { config, file } = await generated()
+    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
+    using stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
+    await bootstrap({ configs: [config], check: true, reporters: ['json'] })
+
+    expect(JSON.parse(String(stdout.mock.calls.at(-1)?.[0]))).toMatchObject([
+      { check: { changed: true }, files: [{ path: 'src/gen/pet.ts', status: 'modified', added: 1, removed: 1 }] },
+    ])
+  })
+
+  it('exits 2 when generation fails, and when --watch is passed too', async () => {
+    const { config } = project()
+    const failed = await bootstrap({ configs: [{ ...config, input: './missing.yaml' } as Config], check: true })
+
+    expect(failed.at(-1)).toBe('exit 2')
+
+    using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    using _exit = vi.spyOn(process, 'exit').mockImplementation(((code?: number) => {
+      throw new Error(`exit ${code}`)
+    }) as never)
+    await expect(run({ logLevel: 'info', watch: true, check: true })).rejects.toThrow('exit 2')
   })
 })

@@ -14,12 +14,13 @@ export type SummaryRenderer = (lines: ReadonlyArray<string>, meta: { title: stri
  * Hosts that collect file changes get a compact diff section. Verbose output adds plugin timings.
  */
 export function formatSummary(report: Report, { showTimings }: { showTimings: boolean }): Array<string> {
-  const { status, plugins, counts, filesCreated, filesUnchanged, fileChanges, dryRun, durationMs, output, timings } = report
+  const { status, plugins, counts, filesCreated, filesUnchanged, fileChanges, dryRun, check, files, durationMs, output, timings } = report
   const failed = status === 'failed'
   const successTone = counts.warnings ? 'yellow' : 'green'
-  const tone = failed ? 'red' : successTone
+  const tone = failed || check?.changed ? 'red' : successTone
   const title = (() => {
     if (failed) return '✗ Generation failed'
+    if (check) return check.changed ? '✗ Generated code is out of date' : '✓ Generated code is up to date'
     if (dryRun) return '◇ Dry run complete'
     if (counts.warnings) return '✓ Generation complete with warnings'
     if (filesCreated > 0 && filesCreated === filesUnchanged) return '✓ Already up to date'
@@ -27,7 +28,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
   })()
   const separator = styleText('dim', ' · ')
   const generated = Math.max(0, filesCreated - filesUnchanged)
-  const fileLabel = `${generated} ${generated === 1 ? 'file' : 'files'} ${dryRun ? 'planned' : 'generated'}`
+  const fileLabel = `${generated} ${generated === 1 ? 'file' : 'files'} ${check ? 'out of date' : dryRun ? 'planned' : 'generated'}`
   const lines = [
     `${styleText(tone, title)}  ${styleText('dim', formatMs(durationMs))}`,
     '',
@@ -62,6 +63,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
       `  ${styleText(fileChanges.added ? 'green' : 'dim', `${fileChanges.added} added`)}${separator}${styleText(fileChanges.modified ? 'yellow' : 'dim', `${fileChanges.modified} modified`)}${separator}${styleText(fileChanges.deleted ? 'red' : 'dim', `${fileChanges.deleted} deleted`)}`,
       `  ${styleText('dim', 'Lines')}  ${styleText(fileChanges.linesAdded ? 'green' : 'dim', `+${fileChanges.linesAdded}`)} ${styleText(fileChanges.linesRemoved ? 'red' : 'dim', `−${fileChanges.linesRemoved}`)}`,
     )
+    for (const file of files ?? []) lines.push(`  ${styleText('dim', `${file.status}:`)} ${file.path}`)
   }
 
   if (showTimings && timings.length > 0) {

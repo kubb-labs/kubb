@@ -57,6 +57,8 @@ export type Report = {
   filesUnchanged: number
   fileChanges?: GenerationResult['fileChanges']
   dryRun?: boolean
+  check?: GenerationResult['check']
+  files?: GenerationResult['files']
   /**
    * Wall-clock time spent generating this config, in milliseconds.
    */
@@ -102,6 +104,8 @@ export function buildReport(result: GenerationResult): Report {
     filesUnchanged,
     fileChanges: result.fileChanges,
     dryRun: result.dryRun,
+    check: result.check,
+    files: result.files,
     durationMs: getElapsedMs(hrStart),
     output: resolve(config.root, config.output.path),
     timings,

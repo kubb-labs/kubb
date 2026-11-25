@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: kubb generate - Generate code from your API spec
-description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, and cli, json, file, and html reporters.
+description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, an out-of-date check for CI, and cli, json, file, and html reporters.
 outline:
   - 2
   - 3
@@ -37,6 +37,8 @@ kubb generate ./petStore.yaml  # this spec instead
 | `--reporter <names>` | | `cli` | Comma-separated [reporters](#reporters) to run: `cli`, `json`, `file`, `html`. |
 | `--watch` | `-w` | `false` | Generate again when the local `input` file changes. |
 | `--dry-run` | | `false` | Preview the run. Writes no files and skips formatting, linting, and `output.postGenerate`. |
+| `--check` | | `false` | Compare the output with the files on disk and write nothing to `output.path`. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
+| `--diff` | | `false` | Print a diff for each out-of-date file. Turns `--check` on. |
 
 ### Watch mode
 
@@ -77,10 +79,61 @@ See [Run summary](#run-summary).
 
 ## Exit codes
 
-| Code | When |
+| Code | Without `--check` | With `--check` or `--diff` |
+| --- | --- | --- |
+| `0` | The run succeeds. | The files on disk are up to date. |
+| `1` | The config fails to load, or any config fails to generate. | A file would be added, modified, or deleted. |
+| `2` | | The config fails to load, or any config fails to generate. |
+
+One failing config does not stop the others.
+
+## Check mode {#check-mode}
+
+`kubb generate --check` answers one question: would a run change the generated files on disk? Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. [Check generated code in CI](/docs/5.x/how-to/recipes#check-generated-code-in-ci) has the workflows.
+
+```shell [Terminal]
+kubb generate --check          # exit 1 when a file is out of date
+kubb generate --check --diff   # also print what would change
+```
+
+Kubb generates into a temporary folder inside the project root, runs `output.format` and `output.lint` there, and compares the result with `output.path`. It then deletes the folder.
+
+```text [Summary]
+✗ Generated code is out of date  412ms
+
+  1 file out of date · 70 unchanged
+  Plugins  4 passed
+  Target   ./src/gen
+  Nothing was written.
+
+Planned file changes
+  0 added · 1 modified · 0 deleted
+  Lines  +2 −1
+  modified: src/gen/types/Pet.ts
+```
+
+| Status | What a run would do |
 | --- | --- |
-| `0` | The run succeeds. |
-| `1` | The config fails to load, or any config fails to generate. One failing config does not stop the others. |
+| `added` | Create the file. It is missing on disk. |
+| `modified` | Rewrite the file. Its content on disk differs. |
+| `deleted` | Remove the file. Only listed with [`output.clean`](/docs/5.x/reference/configuration#outputclean), which removes files Kubb no longer generates. |
+
+With `--reporter json`, each report holds `check.changed` and a `files` array. `--diff` then prints to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output).
+
+`--check` differs from `--dry-run`:
+
+| | `--dry-run` | `--check` |
+| --- | --- | --- |
+| Exit code when files would change | `0` | `1` |
+| Runs `output.format` and `output.lint` | No | Yes, on the temporary folder |
+| Needs the cache in `node_modules/.cache/kubb` to recognize formatted output | Yes | No |
+
+Limits:
+
+- `--check` cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
+- `output.postGenerate` does not run. Its commands name their own paths, so they would write to the real output.
+- `output.path` and `shared.path` must sit inside `root`, and the config must use the default `fs` storage.
+- A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<id>/src/gen`. Use a pattern such as `**/gen/**` when the check reports formatting differences.
 
 ## Less common cases {#less-common-cases}
 
