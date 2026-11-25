@@ -534,13 +534,13 @@ describe('Kubb#generate', () => {
    * A throwaway project with one generated file, so the manifest tests can regenerate it with a
    * different source or a different output pass without repeating the setup.
    */
-  const createProject = ({ format = 'oxfmt' as Config['output']['format'] } = {}) => {
+  const createProject = ({ format = 'oxfmt' as Config['output']['format'], postGenerate = [] as Array<string> } = {}) => {
     const root = tempRoot()
 
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
 
-    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [], force }: ProjectBuild = {}) => {
+    const config = (source = `export const hello = 'world'`) => {
       const plugin = defineExtension({
         kind: 'plugin',
         meta: { name: 'plugin' },
@@ -551,13 +551,15 @@ describe('Kubb#generate', () => {
         },
       })()
 
-      const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] })
-      return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force })
+      return makeConfig({ root, output: { path: './gen', format, postGenerate }, storage, plugins: [plugin] })
     }
+    const generate = ({ source, processOutput = async () => [], force }: ProjectBuild = {}) =>
+      createKubb(config(source), { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force })
 
     return {
       filePath,
       storage,
+      config,
       generate,
       read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
       mtime: () => fs.statSync(filePath).mtimeMs,
@@ -606,6 +608,22 @@ describe('Kubb#generate', () => {
     await project.generate({ processOutput, source: `export const hello = 'there'` })
 
     expect(formats).toStrictEqual(['oxfmt', false, 'oxfmt', 'oxfmt'])
+  })
+
+  it.each<[string, (project: ReturnType<typeof createProject>) => void, Parameters<typeof createProject>[0], boolean]>([
+    ['nothing changed', () => {}, { format: false }, true],
+    ['a generated file was edited', (project) => fs.writeFileSync(project.filePath, 'export {}\n'), { format: false }, false],
+    ['output.postGenerate is set', () => {}, { format: false, postGenerate: ['echo done'] }, false],
+  ])('reports a generated project as fresh when %s: %s', async (_name, change, options, expected) => {
+    const project = createProject(options)
+    await project.generate()
+    change(project)
+
+    expect(await Kubb.isFresh(project.config())).toBe(expected)
+  })
+
+  it('reports a project that was never generated as not fresh', async () => {
+    expect(await Kubb.isFresh(createProject({ format: false }).config())).toBe(false)
   })
 
   it('rewrites the output when the generated source actually changed', async () => {

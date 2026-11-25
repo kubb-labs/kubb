@@ -27,9 +27,7 @@ type OutputManifestEntry = {
 
 type Lockfile = {
   lockfileVersion: number
-  /**
-   * What each config last generated from, keyed by the config's name.
-   */
+  /** What each config last generated from, keyed by the config's name. */
   inputs?: Record<string, InputFingerprint>
   files: Record<string, OutputManifestEntry>
 }
@@ -53,13 +51,9 @@ export type OutputManifest = {
    * Records the source Kubb generated for `key`, so `commit` adds the file to the lock file.
    */
   track(options: { key: string; source: string }): void
-  /**
-   * `true` when every tracked file was up to date, so the output passes have nothing new to run over.
-   */
+  /** `true` when every tracked file was up to date, so the output passes have nothing new to run over. */
   readonly settled: boolean
-  /**
-   * What the config called `name` last generated from, when the lock file recorded it.
-   */
+  /** What the config called `name` last generated from, when the lock file recorded it. */
   inputs(name: string): InputFingerprint | undefined
   /**
    * Whether every file in the lock file still holds its recorded output. With `cleanDir`, that

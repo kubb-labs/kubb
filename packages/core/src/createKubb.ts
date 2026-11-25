@@ -5,7 +5,7 @@ import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
-import { describeConfig, fingerprintInputs } from './inputFingerprint.ts'
+import { describeConfig, fingerprintInputs, type InputFingerprint } from './inputFingerprint.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -40,6 +40,15 @@ function writesOutputDirectory(storage: Storage): boolean {
 
 /** The key of a config's inputs in the lock file. */
 const lockName = (config: Pick<Config, 'name'>): string => config.name ?? 'default'
+
+/** Whether the config, the installed packages and the source files are the ones the lock file recorded. */
+async function matchesRecordedInputs({ config, manifest }: { config: Config; manifest: OutputManifest }): Promise<boolean> {
+  const recorded = manifest.inputs(lockName(config))
+  const configText = recorded && describeConfig(config)
+  if (!recorded || !configText) return false
+
+  return (await fingerprintInputs({ root: config.root, configText, sources: recorded.sources }))?.hash === recorded.hash
+}
 
 /**
  * Whether anything runs over the output directory after the files are written. Only then can the
@@ -112,10 +121,7 @@ export type GenerateOptions = {
    * output and returns the diagnostics they emitted.
    */
   processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
-  /**
-   * Runs `output.format` and `output.lint` even when the build left every file as it was. Use it
-   * after a change the lock file cannot see, such as a new formatter config.
-   */
+  /** Runs `output.format` and `output.lint` even when the build left every file as it was. */
   force?: boolean
 }
 
@@ -175,9 +181,9 @@ export class Kubb {
   }
 
   /**
-   * Whether a build of `userConfig` would leave the output as it is: the config, the installed
-   * packages and the source files match what `kubb.lock` recorded, and every generated file still
-   * holds its recorded output. `false` whenever that cannot be told, such as for a URL input.
+   * Whether a build of `userConfig` would leave the output as it is: its inputs match what
+   * `kubb.lock` recorded, and every generated file still holds its recorded output. `false`
+   * whenever that cannot be told, such as for a URL input.
    *
    * @example
    * ```ts
@@ -190,12 +196,7 @@ export class Kubb {
     if (!writesOutputDirectory(config.storage) || config.output.postGenerate?.length) return false
 
     const manifest = await createOutputManifest({ storage: config.storage, root: config.root })
-    const recorded = manifest.inputs(lockName(config))
-    const configText = recorded && describeConfig(config)
-    if (!recorded || !configText) return false
-
-    const current = await fingerprintInputs({ root: config.root, configText, sources: recorded.sources })
-    if (current?.hash !== recorded.hash) return false
+    if (!(await matchesRecordedInputs({ config, manifest }))) return false
 
     return manifest.matchesDisk({ cleanDir: config.output.clean ? resolve(config.root, config.output.path) : undefined })
   }
@@ -329,7 +330,7 @@ export class Kubb {
 
     await hooks.callHook('kubb:generation:start', { config })
     // Read before the build, so it equals what `isFresh` reads on the next run.
-    const configText = writesOutputDirectory(config.storage) ? describeConfig(config) : null
+    const configText = describeConfig(config)
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
@@ -360,11 +361,8 @@ export class Kubb {
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
-    const inputs = configText ? await fingerprintInputs({ root: config.root, configText, sources: config.adapter?.sources ?? [] }) : null
-    // Every file already is what the formatter and linter made of it. A new package version, such as
-    // the formatter's, changes the inputs, so then they run again.
-    const settled = !options.force && this.#manifest?.settled && inputs !== null && inputs.hash === this.#manifest.inputs(lockName(config))?.hash
-    const passesConfig = settled ? { ...config, output: { ...config.output, format: false as const, lint: false as const } } : config
+    const inputs = await this.#fingerprint(configText)
+    const passesConfig = this.#passesConfig({ inputs, force: options.force })
     const outputDiagnostics = writesOutputDirectory(config.storage)
       ? await processOutput({ config: passesConfig, outputPath: resolve(config.root, config.output.path), hooks, signal })
       : await reportSkippedPasses({ config, hooks })
@@ -387,6 +385,26 @@ export class Kubb {
     })
 
     return { success: !failed, files, diagnostics: finalDiagnostics, input }
+  }
+
+  /** What this build read, or `null` without a lock file to record it in, or when it cannot be compared. */
+  async #fingerprint(configText: string | null): Promise<InputFingerprint | null> {
+    const { config } = this
+    if (!this.#manifest || !configText) return null
+
+    return fingerprintInputs({ root: config.root, configText, sources: config.adapter?.sources ?? [] })
+  }
+
+  /**
+   * The config for the output passes: without the formatter and linter when every file already is
+   * what they made of it. A new formatter version changes the inputs, so those have to match too.
+   */
+  #passesConfig({ inputs, force }: { inputs: InputFingerprint | null; force?: boolean }): Config {
+    const { config } = this
+    const manifest = this.#manifest
+    if (force || !inputs || !manifest?.settled || inputs.hash !== manifest.inputs(lockName(config))?.hash) return config
+
+    return { ...config, output: { ...config.output, format: false, lint: false } }
   }
 
   /** Ends a run: `kubb:generation:end`, then the totals on `kubb:generation:summary`. */

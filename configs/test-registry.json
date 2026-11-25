@@ -98,6 +98,7 @@
   "packages/core/src/moved.test.ts": "Guards the moved-to-kit stubs: each throws KUBB_MOVED_TO_KIT.",
   "packages/core/src/output/runHook.test.ts": "Real child processes: exit codes, ENOENT, abort grace and node_modules/.bin lookup for postGenerate hooks.",
   "packages/core/src/output/runOutputPasses.test.ts": "Golden path for format and postGenerate passes, including a real oxfmt run.",
+  "packages/core/src/inputFingerprint.test.ts": "A wrong fingerprint skips a build that was needed; pins what changes the hash and which inputs cannot be compared.",
   "packages/core/src/outputManifest.test.ts": "Up-to-date decisions are branchy; pins multi-config and corrupted-cache regressions.",
   "packages/core/src/publicAddress.test.ts": "Security range table; gitInput and studio publicFetch tests only hit loopback, 10.x and 169.254.",
   "packages/core/src/reporters/htmlReporter.test.ts": "Only test of the HTML report output and its escaping of spec data into data.js.",

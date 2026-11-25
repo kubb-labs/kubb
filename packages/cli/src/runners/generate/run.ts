@@ -272,6 +272,26 @@ function reportOutcome({
 }
 
 /**
+ * Generates the configs, unless `mayReuse` is set and a build of every config would leave the output
+ * as it is. Returns whether the run succeeded. One config that fails does not stop the others.
+ */
+async function generateOrReuse({
+  configs,
+  hooks,
+  quiet,
+  force,
+  watchMode,
+  mayReuse,
+}: GenerateProps & { quiet: boolean; watchMode: boolean; mayReuse: boolean }): Promise<boolean> {
+  if (mayReuse && (await Promise.all(configs.map((config) => Kubb.isFresh(config)))).every(Boolean)) {
+    if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
+    return true
+  }
+
+  return watchMode ? watch({ configs, hooks, quiet }) : generate({ configs, hooks, force })
+}
+
+/**
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
  * calls `generate` for each config entry, and prints an update notice when a newer version is known.
@@ -365,11 +385,8 @@ export async function run({
   try {
     const runConfigs = toRunConfigs({ configs, input, dryRun, outputCheck })
     // Only the `cli` reporter can do without the results of a build. The others report on each config.
-    const mayReuse = !force && !watchMode && !dryRun && !outputCheck && requestedNames.every((name) => name === 'cli')
-    const upToDate = mayReuse && (await Promise.all(runConfigs.map((config) => Kubb.isFresh(config)))).every(Boolean)
-    if (upToDate && !quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
-    // One config that fails does not stop the others.
-    const succeeded = upToDate || (await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks, force })))
+    const mayReuse = ![force, watchMode, dryRun, outputCheck].some(Boolean) && requestedNames.every((name) => name === 'cli')
+    const succeeded = await generateOrReuse({ configs: runConfigs, hooks, quiet, force, watchMode, mayReuse })
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
