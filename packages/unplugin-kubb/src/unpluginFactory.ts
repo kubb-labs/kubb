@@ -102,7 +102,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   }
 
   // Loaded once per instance, like the generation below: restart the build after editing the config file.
-  let loaded: ReturnType<typeof readConfigs> | undefined
+  let loaded: Promise<Array<UserConfig>> | undefined
   const loadConfigs = () => (loaded ??= readConfigs())
 
   async function runBuild() {

@@ -5,6 +5,8 @@ import { structuredPatch, type StructuredPatchHunk } from 'diff'
  */
 export type DiffStats = { additions: number; deletions: number; hunks: number; lines: number; coarse: boolean }
 
+export type DiffResult = { hunks: Array<StructuredPatchHunk>; stats: DiffStats }
+
 const CONTEXT_LINES = 3
 // Past this, each remaining segment shows as one replace block.
 const DIFF_TIMEOUT_MS = 1_000
@@ -104,7 +106,7 @@ function replaceHunk(before: Array<string>, after: Array<string>): Array<Structu
  * One Myers diff over a whole file grows with lines times changes and stalls on large specs, so each
  * segment between cuts is diffed on its own.
  */
-export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_MS): { hunks: Array<StructuredPatchHunk>; stats: DiffStats } {
+export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_MS): DiffResult {
   const beforeLines = splitLines(before)
   const afterLines = splitLines(after)
   const cuts = cutPoints(beforeLines, afterLines)

@@ -10,17 +10,11 @@ import type { ConvertContext } from './parseSchema.ts'
 export type NodeBaseContext = Pick<ConvertContext, 'schema' | 'name' | 'nullable' | 'defaultValue'>
 
 /**
- * Input shape accepted by `ast.factory.createSchema`, recovered from its own signature so
- * {@link createNode} stays in sync with the AST layer without redeclaring the union.
- */
-export type CreateSchemaProps = Parameters<typeof ast.factory.createSchema>[0]
-
-/**
  * Builds a schema node from a converter's base context plus its type-specific fields. Every
  * converter needs the same metadata fields (`title`, `description`, `examples`, ...) alongside
  * whatever makes its node distinct; this folds both into one call.
  */
-export function createNode({ schema, name, nullable, defaultValue }: NodeBaseContext, extras: CreateSchemaProps): ast.SchemaNode {
+export function createNode({ schema, name, nullable, defaultValue }: NodeBaseContext, extras: ast.CreateSchemaInput): ast.SchemaNode {
   return ast.factory.createSchema({
     name,
     nullable,

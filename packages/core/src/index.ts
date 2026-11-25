@@ -1,7 +1,7 @@
 export { createAdapter } from './createAdapter.ts'
 export { injectFile, kubbContext, memo, requirePlugin, setOptions, tryUseKubb, useConfig, useKubb, useOptions, withContext } from './composables.ts'
 export type { KubbContext } from './composables.ts'
-export { Diagnostics } from './Diagnostics.ts'
+export { DiagnosticError, Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
 export { camelCase, pascalCase } from '@internals/utils'
 export { createKubb, hasOutputPasses, Kubb } from './kubb.ts'
@@ -29,7 +29,16 @@ export { Hookable } from './Hookable.ts'
 export { runHook, type HookResult, type RunHookOptions } from './output/runHook.ts'
 export { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
-export type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
+export type {
+  Adapter,
+  AdapterDefinition,
+  AdapterFactory,
+  AdapterFactoryOptions,
+  AdapterParseOptions,
+  AdapterSource,
+  AdapterValidateOptions,
+  SourceRange,
+} from './createAdapter.ts'
 export type {
   Diagnostic,
   DiagnosticDoc,

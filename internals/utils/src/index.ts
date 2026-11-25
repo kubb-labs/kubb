@@ -1,5 +1,6 @@
 export { camelCase, capitalize, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
-export { type DiffStats, diffHunks } from './diff.ts'
+export type { DiffResult, DiffStats } from './diff.ts'
+export { diffHunks } from './diff.ts'
 export { getErrorChain, getErrorMessage, toError } from './errors.ts'
 export { isCIEnvironment } from './isCIEnvironment.ts'
 export { escapePointerToken, unescapePointerToken } from './jsonPointer.ts'

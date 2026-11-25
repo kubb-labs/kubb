@@ -208,6 +208,25 @@ type ReporterHost = typeof globalThis & { [reporterKey]?: AsyncLocalStorage<(dia
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
 
 /**
+ * An `Error` that carries a {@link Diagnostic}, so structured problems can flow
+ * through the existing throw/catch paths while keeping their code and location.
+ *
+ * @example
+ * ```ts
+ * throw new Diagnostics.Error({ code: diagnosticCode.refNotFound, severity: 'error', message: `Could not find ${ref}`, location: { kind: 'schema', pointer: ref, ref } })
+ * ```
+ */
+export class DiagnosticError extends Error {
+  diagnostic: ProblemDiagnostic
+
+  constructor(diagnostic: ProblemDiagnostic) {
+    super(diagnostic.message, { cause: diagnostic.cause })
+    this.name = 'DiagnosticError'
+    this.diagnostic = diagnostic
+  }
+}
+
+/**
  * Static helpers for working with {@link Diagnostic}s, plus the run-scoped sink
  * that lets deep code report a diagnostic without threading a callback.
  *
@@ -241,31 +260,14 @@ export class Diagnostics {
    */
   static isPerformance = isPerformance
 
-  /**
-   * An `Error` that carries a {@link Diagnostic}, so structured problems can flow
-   * through the existing throw/catch paths while keeping their code and location.
-   *
-   * @example
-   * ```ts
-   * throw new Diagnostics.Error({ code: diagnosticCode.refNotFound, severity: 'error', message: `Could not find ${ref}`, location: { kind: 'schema', pointer: ref, ref } })
-   * ```
-   */
-  static Error = class DiagnosticError extends Error {
-    diagnostic: ProblemDiagnostic
-
-    constructor(diagnostic: ProblemDiagnostic) {
-      super(diagnostic.message, { cause: diagnostic.cause })
-      this.name = 'DiagnosticError'
-      this.diagnostic = diagnostic
-    }
-  }
+  static Error = DiagnosticError
 
   /**
    * Structural check for a {@link Diagnostics.Error}, including one thrown from a duplicated
    * `@kubb/core` copy where `instanceof` fails. Matches on the `name` and a `diagnostic`
    * that carries a `code`.
    */
-  static isError(error: unknown): error is InstanceType<typeof Diagnostics.Error> {
+  static isError(error: unknown): error is DiagnosticError {
     if (error instanceof Diagnostics.Error) return true
     if (!(error instanceof Error) || error.name !== 'DiagnosticError') return false
 
@@ -329,7 +331,7 @@ export class Diagnostics {
     // The innermost one wins: it is where the problem started, and a wrapper only adds context.
     const coded = chain.findLast((current) => Diagnostics.isError(current))
     if (coded) {
-      const { diagnostic } = coded as InstanceType<typeof Diagnostics.Error>
+      const { diagnostic } = coded as DiagnosticError
       // A crash thrown without a cause still needs a stack, so it points at itself.
       return diagnostic.cause || !crashCodes.has(diagnostic.code) ? diagnostic : { ...diagnostic, cause: coded }
     }

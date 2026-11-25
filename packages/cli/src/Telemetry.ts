@@ -41,6 +41,36 @@ export type RunResult = {
   diagnostics?: Array<Diagnostic>
 }
 
+export type OtlpValue =
+  | { stringValue: string }
+  | { boolValue: boolean }
+  | { intValue: number }
+  | { arrayValue: { values: Array<OtlpValue> } }
+  | { kvlistValue: { values: Array<OtlpAttribute> } }
+
+export type OtlpAttribute = { key: string; value: OtlpValue }
+
+export type OtlpSpan = {
+  traceId: string
+  spanId: string
+  name: string
+  kind: number
+  startTimeUnixNano: string
+  endTimeUnixNano: string
+  attributes: Array<OtlpAttribute>
+  events: Array<{ name: string; timeUnixNano: string; attributes: Array<OtlpAttribute> }>
+  status: { code: number }
+}
+
+export type OtlpPayload = {
+  resourceSpans: Array<{
+    resource: { attributes: Array<OtlpAttribute> }
+    scopeSpans: Array<{ scope: { name: string; version: string }; spans: Array<OtlpSpan> }>
+  }>
+}
+
+export type OtlpPayloadOptions = RunResult & { command: TelemetryCommand; duration: number }
+
 /**
  * Returns `true` when telemetry is disabled via `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY`.
  */
@@ -81,15 +111,7 @@ export function toOptionShape(value: unknown, depth = 0, key = ''): unknown {
  *
  * @see https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
  */
-export function buildOtlpPayload({
-  command,
-  duration,
-  status,
-  plugins = [],
-  filesCreated = 0,
-  mcpClient,
-  diagnostics = [],
-}: RunResult & { command: TelemetryCommand; duration: number }) {
+export function buildOtlpPayload({ command, duration, status, plugins = [], filesCreated = 0, mcpClient, diagnostics = [] }: OtlpPayloadOptions): OtlpPayload {
   const traceId = randomBytes(16).toString('hex')
   const spanId = randomBytes(8).toString('hex')
   const endTimeNs = BigInt(Date.now()) * 1_000_000n
@@ -215,7 +237,7 @@ process.stdin.setEncoding('utf8').on('data', (chunk) => (body += chunk)).on('end
  *
  * A detached process sends the request, so the CLI exits without waiting on the network.
  */
-export async function sendTelemetry(payload: ReturnType<typeof buildOtlpPayload>): Promise<void> {
+export async function sendTelemetry(payload: OtlpPayload): Promise<void> {
   if (isDisabled()) {
     return
   }

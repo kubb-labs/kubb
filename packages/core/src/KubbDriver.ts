@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo as storeMemo, toError } from '@internals/utils'
 import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { Diagnostics } from './Diagnostics.ts'
+import type { Diagnostic, DiagnosticError, DiagnosticLocation, ProblemDiagnostic } from './Diagnostics.ts'
 import type { PluginVisitContext } from './definePlugin.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
@@ -95,11 +96,13 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
   })
 }
 
+type CrashSite = { label: string; location?: DiagnosticLocation }
+
 /**
  * Where a generator crashed: a label naming the node and, when the adapter set one, the node's
  * pointer into the input.
  */
-function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
+function getCrashSite(node: SchemaNode | OperationNode): CrashSite {
   if (node.kind === ast.node.kinds.schema) {
     const label = node.name ? `schema "${node.name}"` : 'an inline schema'
     return { label, location: node.pointer ? { kind: 'schema', pointer: node.pointer } : undefined }
@@ -520,7 +523,7 @@ export class KubbDriver {
     plugin: NormalizedPlugin
     hrStart: ReturnType<typeof process.hrtime>
     error?: Error
-    crashSite?: ReturnType<typeof getCrashSite>
+    crashSite?: CrashSite
   }): Promise<Array<Diagnostic>> {
     const duration = getElapsedMs(hrStart)
     await this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success: !error, ...(error ? { error } : {}), config: this.config }))
@@ -570,7 +573,7 @@ export class KubbDriver {
       hooks: plugin.hooks ?? {},
       error: null as Error | null,
       // The node a hook crashed on, so the diagnostic can name it.
-      crashSite: undefined as ReturnType<typeof getCrashSite> | undefined,
+      crashSite: undefined as CrashSite | undefined,
     }))
 
     for (const state of states) {
@@ -749,7 +752,7 @@ export class KubbDriver {
 }
 
 /** The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it. */
-export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): InstanceType<typeof Diagnostics.Error> {
+export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): DiagnosticError {
   const by = requiredBy ? ` by "${requiredBy}"` : ''
   const help = requiredBy ? ` (required by "${requiredBy}")` : ''
 

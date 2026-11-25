@@ -26,6 +26,15 @@ export type KubbReactElement = {
 export type KubbReactNode = KubbReactElement | string | number | bigint | boolean | null | undefined | ReadonlyArray<KubbReactNode>
 
 /**
+ * The renderer `jsxRenderer` returns: it collects the `File` elements of a render into `files`.
+ */
+export type JsxRenderer = {
+  render(element: KubbReactElement): Promise<void>
+  readonly files: Array<ast.FileNode>
+  [Symbol.dispose](): void
+}
+
+/**
  * JSDoc comment block to attach to a generated declaration.
  * Each string in `comments` becomes one line inside the `/** … *\/` block.
  *

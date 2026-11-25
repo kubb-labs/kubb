@@ -6,6 +6,7 @@ import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
 import { diffHunks, getErrorMessage, isPathInside, mkdtemp, read, rm, toError, writeRaw } from '@internals/utils'
+import type { DiffResult } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -314,7 +315,7 @@ class Agent extends RpcTarget implements AgentApi {
   #store: GenerationStore | undefined
   readonly #sandboxCacheRoot = path.join(tmpdir(), `kubb-studio-${randomUUID()}`)
   // Kept sets never change, so a diff is computed once and its pages are cut from it.
-  readonly #diffs = new Map<string, ReturnType<typeof diffHunks>>()
+  readonly #diffs = new Map<string, DiffResult>()
 
   constructor({ options, session }: { options: ResolvedOptions; session: Session }) {
     super()
