@@ -411,6 +411,7 @@ describe('createKubb', () => {
 type ProjectBuild = {
   source?: string
   processOutput?: (context: { config: Config }) => Promise<Array<Diagnostic>>
+  force?: boolean
 }
 
 describe('Kubb#generate', () => {
@@ -539,7 +540,7 @@ describe('Kubb#generate', () => {
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
 
-    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [] }: ProjectBuild = {}) => {
+    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [], force }: ProjectBuild = {}) => {
       const plugin = defineExtension({
         kind: 'plugin',
         meta: { name: 'plugin' },
@@ -551,7 +552,7 @@ describe('Kubb#generate', () => {
       })()
 
       const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] })
-      return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
+      return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force })
     }
 
     return {
@@ -601,9 +602,10 @@ describe('Kubb#generate', () => {
 
     await project.generate({ processOutput })
     await project.generate({ processOutput })
+    await project.generate({ processOutput, force: true })
     await project.generate({ processOutput, source: `export const hello = 'there'` })
 
-    expect(formats).toStrictEqual(['oxfmt', false, 'oxfmt'])
+    expect(formats).toStrictEqual(['oxfmt', false, 'oxfmt', 'oxfmt'])
   })
 
   it('rewrites the output when the generated source actually changed', async () => {

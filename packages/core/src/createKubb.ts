@@ -112,6 +112,11 @@ export type GenerateOptions = {
    * output and returns the diagnostics they emitted.
    */
   processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
+  /**
+   * Runs `output.format` and `output.lint` even when the build left every file as it was. Use it
+   * after a change the lock file cannot see, such as a new formatter config.
+   */
+  force?: boolean
 }
 
 /**
@@ -201,7 +206,7 @@ export class Kubb {
    */
   static async *generate(
     configs: Array<UserConfig>,
-    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput }: GenerateConfigsOptions = {},
+    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput, force }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
     const sharedByConfig = await detectSharedSchemas({ configs, hooks, fileRefs })
     for (const index of only === undefined ? configs.keys() : [only]) {
@@ -210,7 +215,7 @@ export class Kubb {
       // A config built on its own must not empty the directory the others share.
       kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
       try {
-        yield { ...(await kubb.generate({ processOutput })), kubb }
+        yield { ...(await kubb.generate({ processOutput, force })), kubb }
       } catch (error) {
         if (signal?.aborted) throw error
         yield { success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error }
@@ -355,8 +360,11 @@ export class Kubb {
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
-    // Every file already is what the formatter and linter made of it, so they have nothing to do.
-    const passesConfig = this.#manifest?.settled ? { ...config, output: { ...config.output, format: false as const, lint: false as const } } : config
+    const inputs = configText ? await fingerprintInputs({ root: config.root, configText, sources: config.adapter?.sources ?? [] }) : null
+    // Every file already is what the formatter and linter made of it. A new package version, such as
+    // the formatter's, changes the inputs, so then they run again.
+    const settled = !options.force && this.#manifest?.settled && inputs !== null && inputs.hash === this.#manifest.inputs(lockName(config))?.hash
+    const passesConfig = settled ? { ...config, output: { ...config.output, format: false as const, lint: false as const } } : config
     const outputDiagnostics = writesOutputDirectory(config.storage)
       ? await processOutput({ config: passesConfig, outputPath: resolve(config.root, config.output.path), hooks, signal })
       : await reportSkippedPasses({ config, hooks })
@@ -367,10 +375,7 @@ export class Kubb {
     // The formatter and linter have had their turn, so what sits on disk now is what the next run
     // has to recognize as unchanged. Only record it when they finished: a pass that failed halfway
     // leaves files Kubb has to stay free to regenerate.
-    if (!failed && this.#manifest) {
-      const inputs = configText && (await fingerprintInputs({ root: config.root, configText, sources: config.adapter?.sources ?? [] }))
-      await this.#manifest.commit({ name: lockName(config), inputs: inputs || null })
-    }
+    if (!failed) await this.#manifest?.commit({ name: lockName(config), inputs })
 
     await this.#end({
       config,

@@ -56,12 +56,13 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
 export type GenerateProps = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
+  force?: boolean
 }
 
 /**
  * Generates the configs and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks, force }: GenerateProps): Promise<boolean> {
   // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime(), diagnostics }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -75,7 +76,7 @@ export async function generate({ configs, hooks }: GenerateProps): Promise<boole
   })
   let succeeded = true
   try {
-    for await (const { success, error } of Kubb.generate(configs, { hooks })) {
+    for await (const { success, error } of Kubb.generate(configs, { hooks, force })) {
       if (error) await Diagnostics.emit(hooks, error)
       succeeded &&= success
     }
@@ -368,7 +369,7 @@ export async function run({
     const upToDate = mayReuse && (await Promise.all(runConfigs.map((config) => Kubb.isFresh(config)))).every(Boolean)
     if (upToDate && !quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     // One config that fails does not stop the others.
-    const succeeded = upToDate || (await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks })))
+    const succeeded = upToDate || (await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks, force })))
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
