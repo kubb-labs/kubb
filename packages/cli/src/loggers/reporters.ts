@@ -187,7 +187,7 @@ function setupReporters(
   // A check reports on the config the user wrote, not on the temporary folder it generated into.
   const reportedConfig = (config: Config): Config => outputCheck?.userConfig(config) ?? config
   // A check writes nothing to the output either, and every reporter gets its file changes.
-  const preview = dryRun || Boolean(outputCheck)
+  const writesNothing = dryRun || Boolean(outputCheck)
   const changesForAll = fileChanges || Boolean(outputCheck)
 
   context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
@@ -198,7 +198,7 @@ function setupReporters(
       diagnostics,
       filesCreated,
       filesUnchanged: current?.filesUnchanged ?? 0,
-      dryRun: preview,
+      dryRun: writesNothing,
       status,
       hrStart,
     }

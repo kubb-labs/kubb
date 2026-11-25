@@ -220,7 +220,7 @@ function toRunConfigs({
   dryRun?: boolean
   outputCheck?: OutputCheck
 }) {
-  if (outputCheck) return outputCheck.redirect(configs.map((config) => toRunConfig({ config, input, dryRun: false })))
+  if (outputCheck) return outputCheck.stage(configs.map((config) => toRunConfig({ config, input, dryRun: false })))
 
   return configs.map((config) => toRunConfig({ config, input, dryRun }))
 }

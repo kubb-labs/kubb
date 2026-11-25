@@ -24,13 +24,13 @@ function summaryTone({ status, check, counts }: Report): 'red' | 'yellow' | 'gre
 }
 
 /** How many files the run changes, and the word for it. A check counts every file a run would change, deletions included. */
-function changedFiles({ check, dryRun, filesCreated, filesUnchanged }: Report): { count: number; verb: string } {
+function countChangedFiles({ check, dryRun, filesCreated, filesUnchanged }: Report): { count: number; verb: string } {
   if (check) return { count: check.files.length, verb: 'out of date' }
   return { count: Math.max(0, filesCreated - filesUnchanged), verb: dryRun ? 'planned' : 'generated' }
 }
 
 /** One `modified: src/gen/pet.ts` line per file a check found out of date. */
-function checkedFileLines({ check }: Report): Array<string> {
+function outOfDateLines({ check }: Report): Array<string> {
   return (check?.files ?? []).map((file) => `  ${styleText('dim', `${file.status}:`)} ${file.path}`)
 }
 
@@ -44,7 +44,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
   const tone = summaryTone(report)
   const title = summaryTitle(report)
   const separator = styleText('dim', ' · ')
-  const { count: generated, verb: fileVerb } = changedFiles(report)
+  const { count: generated, verb: fileVerb } = countChangedFiles(report)
   const fileLabel = `${generated} ${generated === 1 ? 'file' : 'files'} ${fileVerb}`
   const lines = [
     `${styleText(tone, title)}  ${styleText('dim', formatMs(durationMs))}`,
@@ -80,7 +80,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
       `  ${styleText(fileChanges.added ? 'green' : 'dim', `${fileChanges.added} added`)}${separator}${styleText(fileChanges.modified ? 'yellow' : 'dim', `${fileChanges.modified} modified`)}${separator}${styleText(fileChanges.deleted ? 'red' : 'dim', `${fileChanges.deleted} deleted`)}`,
       `  ${styleText('dim', 'Lines')}  ${styleText(fileChanges.linesAdded ? 'green' : 'dim', `+${fileChanges.linesAdded}`)} ${styleText(fileChanges.linesRemoved ? 'red' : 'dim', `−${fileChanges.linesRemoved}`)}`,
     )
-    lines.push(...checkedFileLines(report))
+    lines.push(...outOfDateLines(report))
   }
 
   if (showTimings && timings.length > 0) {
