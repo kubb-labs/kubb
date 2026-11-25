@@ -47,6 +47,8 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     'kubb generate --config kubb.config.ts',
     'kubb generate --watch             # regenerate whenever the spec changes',
     'kubb generate --dry-run           # preview the run without writing files',
+    'kubb generate --check             # exit 1 when the generated files on disk are out of date',
+    'kubb generate --check --diff      # also print what would change',
     'kubb generate --reporter html     # write an HTML run report',
     'kubb studio                       # connect this project to Kubb Studio and generate from the browser',
     'kubb studio --allow-write         # let Studio write the generated files to disk',
@@ -65,6 +67,16 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       type: 'boolean',
       description: 'Watch mode: rebuilds when the local input file changes',
       short: 'w',
+      default: false,
+    },
+    check: {
+      type: 'boolean',
+      description: 'Compare the output with the files on disk without writing. Exits 1 when they are out of date, 2 on a failure',
+      default: false,
+    },
+    diff: {
+      type: 'boolean',
+      description: 'Print a diff for each out-of-date file. Implies --check',
       default: false,
     },
     verbose: {
@@ -97,6 +109,9 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       watch: values.watch,
       reporters: values.reporter,
       dryRun: ctx.extensions[dryRunId].enabled,
+      // `--diff` alone is a check that also prints the diffs.
+      check: values.check || values.diff,
+      diff: values.diff,
     })
   },
 })

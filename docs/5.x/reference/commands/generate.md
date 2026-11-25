@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: kubb generate - Generate code from your API spec
-description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, and cli, json, file, and html reporters.
+description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, a CI check, and cli, json, file, and html reporters.
 outline:
   - 2
   - 3
@@ -37,10 +37,23 @@ kubb generate ./petStore.yaml  # this spec instead
 | `--reporter <names>` | | `cli` | Comma-separated [reporters](#reporters) to run: `cli`, `json`, `file`, `html`. |
 | `--watch` | `-w` | `false` | Generate again when the local `input` file changes. |
 | `--dry-run` | | `false` | Preview the run. Writes no files and skips formatting, linting, and `output.postGenerate`. |
+| `--check` | | `false` | Compare the output with the files on disk and write nothing to `output.path`. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
+| `--diff` | | `false` | Print a diff for each out-of-date file. Turns `--check` on. |
 
 ### Watch mode
 
 `--watch` watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode details](#watch-mode-details).
+
+### Check mode {#check-mode}
+
+`--check` tells you whether a run would change the generated files on disk, and writes nothing to `output.path`. Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. `--diff` also prints what would change.
+
+```shell [Terminal]
+kubb generate --check          # exit 1 when a file is out of date
+kubb generate --check --diff   # also print what would change
+```
+
+[Check generated code in CI](/docs/5.x/how-to/recipes#check-generated-code-in-ci) has the workflows. See [Check mode details](#check-mode-details) and [Exit codes](#exit-codes).
 
 ## Reporters
 
@@ -77,10 +90,13 @@ See [Run summary](#run-summary).
 
 ## Exit codes
 
-| Code | When |
-| --- | --- |
-| `0` | The run succeeds. |
-| `1` | The config fails to load, or any config fails to generate. One failing config does not stop the others. |
+| Code | Without `--check` | With `--check` or `--diff` |
+| --- | --- | --- |
+| `0` | The run succeeds. | The files on disk are up to date. |
+| `1` | The config fails to load, or any config fails to generate. | A file would be added, modified, or deleted. |
+| `2` | | The config fails to load, or any config fails to generate. |
+
+One failing config does not stop the others.
 
 ## Less common cases {#less-common-cases}
 
@@ -101,6 +117,61 @@ To keep `clean` off during incremental runs, pass a function to `defineConfig` a
 #### Adapter sources
 
 When you write an adapter, its `sources` member lists the files and URLs the last `parse()` read, even unreadable ones. A watcher can rebuild when one of them changes, but `kubb generate --watch` does not read them. See [Adapters](/docs/5.x/reference/kit/adapters).
+
+### Check mode details {#check-mode-details}
+
+Kubb generates into a temporary folder inside the project root, runs `output.format` and `output.lint` there, and compares the result with `output.path`. It then deletes the folder.
+
+```text [Out of date]
+✗ Generated code is out of date  412ms
+
+  3 files out of date · 70 unchanged
+  Plugins  4 passed
+  Target   ./src/gen
+
+Out-of-date files
+  modified  src/gen/types/Pet.ts    +2 −1
+  added     src/gen/types/Order.ts  +14 −0
+  deleted   src/gen/types/Tag.ts    +0 −3
+
+  1 added · 1 modified · 1 deleted
+  Run `kubb generate` to update them.
+```
+
+Each row shows the status, the path from `root`, and the lines a run would add and remove. When every file is up to date, the summary stays short:
+
+```text [Up to date]
+✓ Generated code is up to date  407ms
+
+  71 files checked
+  Plugins  4 passed
+  Target   ./src/gen
+```
+
+| Status | What a run would do |
+| --- | --- |
+| `added` | Create the file. It is missing on disk. |
+| `modified` | Rewrite the file. Its content on disk differs. |
+| `deleted` | Remove the file. Only listed with [`output.clean`](/docs/5.x/reference/configuration#outputclean), which removes files Kubb no longer generates. |
+
+With `--reporter json`, each report holds `check.changed` and `check.files`. `--diff` then prints to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output).
+
+`--check` differs from `--dry-run`:
+
+| | `--dry-run` | `--check` |
+| --- | --- | --- |
+| Exit code when files would change | `0` | `1` |
+| Runs `output.format` and `output.lint` | No | Yes, on the temporary folder |
+| Needs the cache in `node_modules/.cache/kubb` to recognize formatted output | Yes | No |
+
+`--check` has these limits:
+
+- It cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
+- `output.postGenerate` does not run. Its commands name their own paths, so they would write to the real output.
+- `output.path`, `shared.path`, and every file a plugin writes must sit inside `root`, and the config must use the default `fs` storage.
+
+> [!WARNING]
+> A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. The check then reports formatting differences. Use a pattern such as `**/gen/**`.
 
 ### Run summary {#run-summary}
 

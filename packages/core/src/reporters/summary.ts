@@ -9,30 +9,95 @@ import type { Report } from './report.ts'
  */
 export type SummaryRenderer = (lines: ReadonlyArray<string>, meta: { title: string; status: 'success' | 'failed' }) => void
 
+function summaryTitle({ status, check, dryRun, counts, filesCreated, filesUnchanged }: Report): string {
+  if (status === 'failed') return '✗ Generation failed'
+  if (check) return check.changed ? '✗ Generated code is out of date' : '✓ Generated code is up to date'
+  if (dryRun) return '◇ Dry run complete'
+  if (counts.warnings) return '✓ Generation complete with warnings'
+  if (filesCreated > 0 && filesCreated === filesUnchanged) return '✓ Already up to date'
+  return '✓ Generation complete'
+}
+
+function summaryTone({ status, check, counts }: Report): 'red' | 'yellow' | 'green' {
+  if (status === 'failed' || check?.changed) return 'red'
+  return counts.warnings ? 'yellow' : 'green'
+}
+
+const separator = styleText('dim', ' · ')
+
+/** How many files the run changes, and the word for it. A check counts every file a run would change, deletions included. */
+function countChangedFiles({ check, dryRun, filesCreated, filesUnchanged }: Report): { count: number; verb: string } {
+  if (check?.changed) return { count: check.files.length, verb: 'out of date' }
+  if (check) return { count: filesCreated, verb: 'checked' }
+  return { count: Math.max(0, filesCreated - filesUnchanged), verb: dryRun ? 'planned' : 'generated' }
+}
+
+/** `3 files out of date · 70 unchanged`. A clean check has only checked files, so it names no unchanged ones. */
+function filesLine(report: Report): string {
+  const { count, verb } = countChangedFiles(report)
+  const label = styleText(count ? 'bold' : 'dim', `${count} ${count === 1 ? 'file' : 'files'} ${verb}`)
+  if (!report.filesUnchanged || report.check?.changed === false) return `  ${label}`
+
+  return `  ${label}${separator}${styleText('dim', `${report.filesUnchanged} unchanged`)}`
+}
+
+type FileChanges = NonNullable<Report['fileChanges']>
+
+function changeCounts({ added, modified, deleted }: FileChanges): string {
+  return [
+    styleText(added ? 'green' : 'dim', `${added} added`),
+    styleText(modified ? 'yellow' : 'dim', `${modified} modified`),
+    styleText(deleted ? 'red' : 'dim', `${deleted} deleted`),
+  ].join(separator)
+}
+
+function lineCounts({ linesAdded, linesRemoved }: Pick<FileChanges, 'linesAdded' | 'linesRemoved'>): string {
+  return `${styleText(linesAdded ? 'green' : 'dim', `+${linesAdded}`)} ${styleText(linesRemoved ? 'red' : 'dim', `−${linesRemoved}`)}`
+}
+
+const statusTones = { added: 'green', modified: 'yellow', deleted: 'red' } as const
+
+/**
+ * The files a check found out of date as a table of status, path and line counts, then the totals
+ * and how to fix it. A clean check prints nothing here.
+ */
+function outOfDateLines({ check, fileChanges }: Report): Array<string> {
+  if (!check?.changed || !fileChanges) return []
+  // A loop, not `Math.max(...)`: a first check can list thousands of files, and a spread that long can overflow the stack.
+  const pathWidth = check.files.reduce((width, file) => Math.max(width, file.path.length), 0)
+
+  return [
+    '',
+    styleText('bold', 'Out-of-date files'),
+    ...check.files.map((file) => `  ${styleText(statusTones[file.status], file.status.padEnd(8))}  ${file.path.padEnd(pathWidth)}  ${lineCounts(file)}`),
+    '',
+    `  ${changeCounts(fileChanges)}`,
+    '  Run `kubb generate` to update them.',
+  ]
+}
+
+/** The totals of a run that wrote, or of a dry run that would write. */
+function fileChangeLines({ fileChanges, dryRun }: Report): Array<string> {
+  if (!fileChanges) return []
+
+  return [
+    '',
+    styleText('bold', dryRun ? 'Planned file changes' : 'File changes'),
+    `  ${changeCounts(fileChanges)}`,
+    `  ${styleText('dim', 'Lines')}  ${lineCounts(fileChanges)}`,
+  ]
+}
+
 /**
  * Puts the outcome first, followed by file counts, labeled plugin results, and the output path.
  * Hosts that collect file changes get a compact diff section. Verbose output adds plugin timings.
  */
 export function formatSummary(report: Report, { showTimings }: { showTimings: boolean }): Array<string> {
-  const { status, plugins, counts, filesCreated, filesUnchanged, fileChanges, dryRun, durationMs, output, timings } = report
+  const { status, plugins, counts, check, dryRun, durationMs, output, timings } = report
   const failed = status === 'failed'
-  const successTone = counts.warnings ? 'yellow' : 'green'
-  const tone = failed ? 'red' : successTone
-  const title = (() => {
-    if (failed) return '✗ Generation failed'
-    if (dryRun) return '◇ Dry run complete'
-    if (counts.warnings) return '✓ Generation complete with warnings'
-    if (filesCreated > 0 && filesCreated === filesUnchanged) return '✓ Already up to date'
-    return '✓ Generation complete'
-  })()
-  const separator = styleText('dim', ' · ')
-  const generated = Math.max(0, filesCreated - filesUnchanged)
-  const fileLabel = `${generated} ${generated === 1 ? 'file' : 'files'} ${dryRun ? 'planned' : 'generated'}`
-  const lines = [
-    `${styleText(tone, title)}  ${styleText('dim', formatMs(durationMs))}`,
-    '',
-    `  ${styleText(generated ? 'bold' : 'dim', fileLabel)}${filesUnchanged ? separator + styleText('dim', `${filesUnchanged} unchanged`) : ''}`,
-  ]
+  const tone = summaryTone(report)
+  const title = summaryTitle(report)
+  const lines = [`${styleText(tone, title)}  ${styleText('dim', formatMs(durationMs))}`, '', filesLine(report)]
 
   const notRun = plugins.total - plugins.passed - plugins.failed.length
   const pluginCounts = [
@@ -53,16 +118,9 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
   const destination = relative(host.cwd(), output)
   const displayPath = destination.startsWith('..') || isAbsolute(destination) ? output : `./${destination}`
   lines.push(`  ${styleText('dim', failed || dryRun ? 'Target' : 'Output')}   ${styleText(failed ? 'dim' : 'cyan', displayPath)}`)
-  if (dryRun) lines.push(`  ${styleText('dim', 'Nothing was written.')}`)
-
-  if (fileChanges) {
-    lines.push(
-      '',
-      styleText('bold', dryRun ? 'Planned file changes' : 'File changes'),
-      `  ${styleText(fileChanges.added ? 'green' : 'dim', `${fileChanges.added} added`)}${separator}${styleText(fileChanges.modified ? 'yellow' : 'dim', `${fileChanges.modified} modified`)}${separator}${styleText(fileChanges.deleted ? 'red' : 'dim', `${fileChanges.deleted} deleted`)}`,
-      `  ${styleText('dim', 'Lines')}  ${styleText(fileChanges.linesAdded ? 'green' : 'dim', `+${fileChanges.linesAdded}`)} ${styleText(fileChanges.linesRemoved ? 'red' : 'dim', `−${fileChanges.linesRemoved}`)}`,
-    )
-  }
+  // A check says what is stale and how to update it, so it needs no reminder that nothing was written.
+  if (dryRun && !check) lines.push(`  ${styleText('dim', 'Nothing was written.')}`)
+  lines.push(...(check ? outOfDateLines(report) : fileChangeLines(report)))
 
   if (showTimings && timings.length > 0) {
     const nameWidth = Math.max(...timings.map((timing) => timing.plugin.length))

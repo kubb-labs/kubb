@@ -356,13 +356,15 @@ npm has a newer Kubb than the one running. See [Update check](#update-check).
 | `counts` | Diagnostics by severity, without timings |
 | `timings` | Per-plugin durations, slowest first |
 | `fileChanges` | File and line changes, when collected |
+| `check.changed` | With [`--check`](/docs/5.x/reference/commands/generate#check-mode): `true` when the output on disk is out of date |
+| `check.files` | With `--check`: each out-of-date file as `{ path, status, linesAdded, linesRemoved }`. `path` is relative to `root`, and `status` is `added`, `modified`, or `deleted`. |
 | `diagnostics[].title`, `.cause` | The code's catalog entry |
 | `diagnostics[].help` | Its own fix, or the catalog fix |
 | `diagnostics[].plugin`, `.issues` | The reporting plugin, and a crashed extension's issue tracker |
 | `diagnostics[].causes`, `.stack` | Wrapped error messages, and a [crash](#crashes) stack |
 | `diagnostics[].docsUrl` | This page's entry. `KUBB_UNKNOWN` has none. |
 
-Any error still exits with code 1. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters) for other reporters.
+Any error still exits with code 1, or with code 2 under `--check`. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters) for other reporters.
 
 ## Less common cases {#less-common-cases}
 

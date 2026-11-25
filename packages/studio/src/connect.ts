@@ -5,7 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
-import { getErrorMessage, isPathInside, mkdtemp, read, rm, toError, writeRaw } from '@internals/utils'
+import { diffHunks, getErrorMessage, isPathInside, mkdtemp, read, rm, toError, writeRaw } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -25,7 +25,7 @@ import { version as kubbVersion } from '../package.json'
 import { editConfig } from '@internals/shared'
 import { readConfigFileView, toEntryView } from './configView.ts'
 import { signAgentPayload } from './agentKey.ts'
-import { diffHunks, pageHunks } from './diff.ts'
+import { pageHunks } from './diff.ts'
 import { type ExtensionCommandContext, installExtension, readInstalledExtensions, removeExtension, runKubb, updateExtensions } from './extensions.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'

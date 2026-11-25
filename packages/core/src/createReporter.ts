@@ -67,6 +67,14 @@ export type GenerationResult = {
    * The result previews generation without writing output.
    */
   dryRun?: boolean
+  /**
+   * Set by `kubb generate --check`. `changed` is `true` when the output on disk is out of date, and
+   * `files` lists what a run would change, with `path` relative to `config.root`.
+   */
+  check?: {
+    changed: boolean
+    files: Array<{ path: string; status: 'added' | 'modified' | 'deleted'; linesAdded: number; linesRemoved: number }>
+  }
   status: 'success' | 'failed'
   /**
    * `process.hrtime()` snapshot taken when this config started generating.

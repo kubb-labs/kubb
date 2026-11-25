@@ -82,12 +82,13 @@ export type CreateKubbOptions = {
   fileRefs?: Array<string>
 }
 
-export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal' | 'fileRefs'> & {
-  /**
-   * Index of the one config to build. It is still compared with the others, but never empties the directory they share.
-   */
-  only?: number
-}
+export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal' | 'fileRefs'> &
+  GenerateOptions & {
+    /**
+     * Index of the one config to build. It is still compared with the others, but never empties the directory they share.
+     */
+    only?: number
+  }
 
 export type ConfigGenerateResult = GenerateResult & {
   kubb: Kubb
@@ -171,7 +172,7 @@ export class Kubb {
    */
   static async *generate(
     configs: Array<UserConfig>,
-    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only }: GenerateConfigsOptions = {},
+    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
     const sharedByConfig = await detectSharedSchemas({ configs, hooks, fileRefs })
     for (const index of only === undefined ? configs.keys() : [only]) {
@@ -180,7 +181,7 @@ export class Kubb {
       // A config built on its own must not empty the directory the others share.
       kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
       try {
-        yield { ...(await kubb.generate()), kubb }
+        yield { ...(await kubb.generate({ processOutput })), kubb }
       } catch (error) {
         if (signal?.aborted) throw error
         yield { success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error }

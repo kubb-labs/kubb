@@ -2,11 +2,12 @@ import process from 'node:process'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { isPathInside, memo } from '@internals/utils'
-import type { GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
+import type { Config, GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
+import type { OutputCheck } from '../runners/generate/check.ts'
 import {
   type ChangeTally,
   createChangeTally,
@@ -36,6 +37,18 @@ type GenerationRun = {
   live?: LiveChanges
 }
 
+/** The totals of a check, from the files it found out of date. */
+function tallyCheck({ files, unchanged }: { files: NonNullable<GenerationResult['check']>['files']; unchanged: number }): ChangeTally {
+  const tally = createChangeTally()
+  tally.unchanged = unchanged
+  for (const file of files) {
+    tally[file.status]++
+    tally.linesAdded += file.linesAdded
+    tally.linesRemoved += file.linesRemoved
+  }
+  return tally
+}
+
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function setupReporters(
   context: Hookable<KubbHooks>,
@@ -45,6 +58,7 @@ function setupReporters(
     writer = defaultWriter(),
     dryRun = false,
     fileChanges = false,
+    outputCheck,
   }: {
     /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
     logLevel: number
@@ -59,6 +73,10 @@ function setupReporters(
      * Hands `fileChanges` to every reporter, not only `cli`.
      */
     fileChanges?: boolean
+    /**
+     * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
+     */
+    outputCheck?: Pick<OutputCheck, 'compare' | 'userConfig'>
   },
 ): void {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
@@ -87,7 +105,7 @@ function setupReporters(
     pluginFiles?.clear()
     seen.clear()
     const outputPath = resolve(config.root, config.output.path)
-    const tracked = trackChanges && (dryRun || config.storage?.name === 'fs')
+    const tracked = !outputCheck && trackChanges && (dryRun || config.storage?.name === 'fs')
     const live = ((): LiveChanges | undefined => {
       // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
       if (!tracked || dryRun || hasOutputPasses(config)) return undefined
@@ -138,8 +156,14 @@ function setupReporters(
     config,
     storage,
     current,
-  }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<ChangeTally | undefined> {
+  }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<
+    (ChangeTally & { check?: GenerationResult['check'] }) | undefined
+  > {
     const { live, paths, previous } = current
+    if (outputCheck) {
+      const { unchanged, ...check } = await outputCheck.compare({ config, storage, paths })
+      return { ...tallyCheck({ files: check.files, unchanged }), check }
+    }
     if (live) {
       const { tally, fingerprints, processed } = live
       for (const [filePath, fingerprint] of fingerprints) {
@@ -160,21 +184,36 @@ function setupReporters(
     return changes
   }
 
+  // A check reports on the config the user wrote, not on the temporary folder it generated into.
+  const reportedConfig = (config: Config): Config => outputCheck?.userConfig(config) ?? config
+  // A check writes nothing to the output either, and every reporter gets its file changes.
+  const writesNothing = dryRun || Boolean(outputCheck)
+  const changesForAll = fileChanges || Boolean(outputCheck)
+
   context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     const current = run
     run = undefined
-    const result: GenerationResult = { config, diagnostics, filesCreated, filesUnchanged: current?.filesUnchanged ?? 0, dryRun, status, hrStart }
+    const result: GenerationResult = {
+      config: reportedConfig(config),
+      diagnostics,
+      filesCreated,
+      filesUnchanged: current?.filesUnchanged ?? 0,
+      dryRun: writesNothing,
+      status,
+      hrStart,
+    }
     const cliResult = { ...result }
     const counted = current && status !== 'failed' ? await countChanges({ config, storage, current }) : undefined
     if (counted) {
-      const { unchanged, ...changes } = counted
+      const { unchanged, check, ...changes } = counted
       cliResult.filesCreated = changes.added + changes.modified + unchanged
       cliResult.filesUnchanged = unchanged
       cliResult.fileChanges = changes
+      cliResult.check = check
     }
     for (const reporter of selected) {
       const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
-      await reporter.report({ ...(reporter.name === 'cli' || fileChanges ? cliResult : result), pluginFiles: grouped }, ctx)
+      await reporter.report({ ...(reporter.name === 'cli' || changesForAll ? cliResult : result), pluginFiles: grouped }, ctx)
     }
   })
 
