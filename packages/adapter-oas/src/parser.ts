@@ -12,7 +12,7 @@ import type { ParserOptions } from './parserOptions.ts'
 /**
  * Parser context holding the raw OpenAPI document and its `$ref` service.
  */
-export type OasParserContext = {
+export type SchemaParserOptions = {
   document: Document
   refs: Refs
   /**
@@ -50,7 +50,7 @@ export class SchemaParser {
   // The key lists of the presence checks `#requireKeys` builds, so two entries that check the same keys compare equal.
   readonly #presenceKeys = new WeakMap<ast.SchemaNode, string>()
 
-  constructor(ctx: OasParserContext) {
+  constructor(ctx: SchemaParserOptions) {
     this.#document = ctx.document
     this.#refs = ctx.refs
     this.#renames = ctx.renames
@@ -171,6 +171,6 @@ export class SchemaParser {
  *
  * @internal
  */
-export function createSchemaParser(ctx: OasParserContext): SchemaParser {
+export function createSchemaParser(ctx: SchemaParserOptions): SchemaParser {
   return new SchemaParser(ctx)
 }

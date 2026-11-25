@@ -290,7 +290,8 @@ export async function connect(
     // The background worker writes to a log file, so it gets the plain logger rather than the
     // animated one. The logger also covers the `studio:*` events and each generation run.
     const hooks = new Hookable<KubbHooks>()
-    installReporters(hooks, {
+    installReporters({
+      context: hooks,
       logLevel: logLevelMap[options.logLevel ?? 'info'],
       reporters: [cliReporter],
       ...(context.onState ? { writer: plainWriter } : {}),

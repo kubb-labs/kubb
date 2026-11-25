@@ -70,7 +70,7 @@ async function summarize({
   const config = createKubb({ root, input: './openapi.yaml', output: { path: output, clean }, storage }).config
   const hooks = new Hookable<KubbHooks>()
   const lines: Array<string> = []
-  installReporters(hooks, { logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+  installReporters({ context: hooks, logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
   await hooks.callHook('kubb:generation:start', { config })
   await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
   if (clean) await storage.empty(output)
@@ -96,7 +96,7 @@ describe('installReporters', () => {
         },
       }),
     )
-    installReporters(hooks, { logLevel: logLevel.info, reporters })
+    installReporters({ context: hooks, logLevel: logLevel.info, reporters })
     const file = ast.factory.createFile({ path: '/gen/shared.ts', baseName: 'shared.ts' })
     for (const name of ['one', 'two']) {
       const kubb = createKubb({ name, root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() })
@@ -144,7 +144,8 @@ describe('installReporters', () => {
       const hooks = new Hookable<KubbHooks>()
       const lines: Array<string> = []
       const reports: Array<GenerationResult> = []
-      installReporters(hooks, {
+      installReporters({
+        context: hooks,
         logLevel: logLevel.info,
         reporters: [cliReporter, createReporter({ name: 'custom', report: (result) => void reports.push(result) })],
         dryRun,
@@ -227,7 +228,7 @@ describe('installReporters', () => {
   ])('names each written file in plain output only at the verbose level (log level %s)', async (level, named) => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
-    installReporters(hooks, { logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+    installReporters({ context: hooks, logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
     const config = createKubb({ root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() }).config
     const files = (['a.ts', 'b.ts'] as const).map((name) => ast.factory.createFile({ path: `/tmp/gen/${name}`, baseName: name }))
     await hooks.callHook('kubb:generation:start', { config })
@@ -246,7 +247,7 @@ describe('installReporters', () => {
   it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new Hookable<KubbHooks>()
 
-    installReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    installReporters({ context: context, logLevel: logLevel.info, reporters: [jsonReporter] })
 
     expect(context.listenerCount('kubb:hook:line')).toBe(0)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
@@ -260,7 +261,7 @@ describe('installReporters', () => {
       return true
     })
 
-    installReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    installReporters({ context: context, logLevel: logLevel.info, reporters: [jsonReporter] })
 
     await context.callHook('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
@@ -315,7 +316,7 @@ describe('installReporters', () => {
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(stripVTControlCharacters(String(line))))
 
-    installReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+    installReporters({ context: context, logLevel: logLevel.info, reporters: [cliReporter] })
     await context.callHook('kubb:generation:start', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [] } as unknown as Config,
     })
@@ -346,7 +347,7 @@ describe('studio session events', () => {
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line) => void lines.push(String(line)))
 
-    installReporters(context, { logLevel: level, reporters: [cliReporter] })
+    installReporters({ context: context, logLevel: level, reporters: [cliReporter] })
     await emit(context)
 
     return lines

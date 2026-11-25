@@ -66,6 +66,7 @@ async function tallyLive({
 }
 
 export type ReportersOptions = {
+  context: Hookable<KubbHooks>
   /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
   logLevel: number
   reporters: ReadonlyArray<Reporter>
@@ -109,15 +110,7 @@ class Reporters {
   // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
   #run: GenerationRun | undefined
 
-  constructor({
-    context,
-    logLevel,
-    reporters,
-    writer = defaultWriter(),
-    dryRun = false,
-    fileChanges = false,
-    outputCheck,
-  }: ReportersOptions & { context: Hookable<KubbHooks> }) {
+  constructor({ context, logLevel, reporters, writer = defaultWriter(), dryRun = false, fileChanges = false, outputCheck }: ReportersOptions) {
     const hasJson = reporters.some((reporter) => reporter.name === 'json')
     this.#selected = reporters.flatMap((reporter) => {
       if (reporter.name !== 'cli') return [reporter]
@@ -254,8 +247,8 @@ class Reporters {
 }
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
-function installReporters(context: Hookable<KubbHooks>, options: ReportersOptions): void {
-  new Reporters({ ...options, context })
+function installReporters(options: ReportersOptions): Reporters {
+  return new Reporters(options)
 }
 
 export default installReporters

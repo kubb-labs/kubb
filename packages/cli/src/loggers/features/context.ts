@@ -24,7 +24,9 @@ export type LoggerContext = {
   onRun: <Name extends keyof KubbHooks & string>(name: Name, fn: (...args: KubbHooks[Name]) => unknown) => () => void
 }
 
-export function createLoggerContext({ hooks, writer, logLevel }: { hooks: Hookable<KubbHooks>; writer: LoggerWriter; logLevel: number }): LoggerContext {
+export type LoggerContextOptions = { hooks: Hookable<KubbHooks>; writer: LoggerWriter; logLevel: number }
+
+export function createLoggerContext({ hooks, writer, logLevel }: LoggerContextOptions): LoggerContext {
   const text = (message: string) => (logLevel >= logLevelMap.verbose ? `${styleText('dim', `[${clock()}]`)} ${message}` : message)
   const ctx: LoggerContext = {
     hooks,

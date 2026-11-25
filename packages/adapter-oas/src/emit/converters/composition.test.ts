@@ -1,14 +1,14 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it, test } from 'vitest'
 import { adapterOas } from '../../adapter.ts'
-import { createSchemaParser, type OasParserContext } from '../../parser.ts'
+import { createSchemaParser, type SchemaParserOptions } from '../../parser.ts'
 import { createRefs } from '../../refs.ts'
 import type { Document, SchemaObject } from '../../types.ts'
 
 const emptyDocument = { openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as Document
-const emptyCtx: OasParserContext = { document: emptyDocument, refs: createRefs(emptyDocument) }
+const emptyCtx: SchemaParserOptions = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
-function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }): ast.SchemaNode {
+function parseSchema(ctx: SchemaParserOptions, { schema, name }: { schema: SchemaObject; name?: string }): ast.SchemaNode {
   return createSchemaParser(ctx).parse({ schema, name })
 }
 

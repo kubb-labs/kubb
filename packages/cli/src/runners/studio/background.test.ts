@@ -3,11 +3,12 @@ import { connect as connectSocket, createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { getWorkerStatus, serveWorker, stopWorker } from './background.ts'
+import { getWorkerStatus, startWorkerServer, stopWorker } from './background.ts'
+import type { WorkerServerResult } from './background.ts'
 import { getProjectKubbHome } from './credentials.ts'
 
 let home: string
-const owners: Array<Awaited<ReturnType<typeof serveWorker>>> = []
+const owners: Array<WorkerServerResult> = []
 
 beforeEach(async () => {
   home = await mkdtemp(path.join(tmpdir(), 'kubb-worker-'))
@@ -22,7 +23,7 @@ afterEach(async () => {
 
 it('allows one simultaneous owner and stops only through authenticated control', async () => {
   const signals = [new AbortController(), new AbortController()]
-  owners.push(...(await Promise.all(signals.map((signal) => serveWorker(signal)))))
+  owners.push(...(await Promise.all(signals.map((signal) => startWorkerServer({ shutdown: signal })))))
   expect(owners.filter((owner) => !('existing' in owner))).toHaveLength(1)
   const ownerIndex = owners.findIndex((owner) => !('existing' in owner))
   const owner = owners[ownerIndex]!
@@ -55,7 +56,7 @@ it('allows one simultaneous owner and stops only through authenticated control',
 })
 
 it('reclaims stale state without signaling its PID and retains login-required status', async () => {
-  const first = await serveWorker(new AbortController())
+  const first = await startWorkerServer({ shutdown: new AbortController() })
   if ('existing' in first) throw new Error('Unexpected owner')
   await first.close()
   const file = path.join(getProjectKubbHome(), 'worker.json')
@@ -70,7 +71,7 @@ it('reclaims stale state without signaling its PID and retains login-required st
   } finally {
     await new Promise<void>((resolve) => listener.close(() => resolve()))
   }
-  const next = await serveWorker(new AbortController())
+  const next = await startWorkerServer({ shutdown: new AbortController() })
   if ('existing' in next) throw new Error('Unexpected owner')
   await next.state('authentication required')
   await next.close()

@@ -62,6 +62,8 @@ function indexEvents(events: ReadonlyArray<Event>): EventIndex {
   return { types, styles, starts, ends, collections: new Map() }
 }
 
+type SourceLocatorOptions = { index: EventIndex; source: string }
+
 class SourceLocator {
   readonly #index: EventIndex
   readonly #source: string
@@ -70,7 +72,7 @@ class SourceLocator {
   readonly #starts: Int32Array
   readonly #ends: Int32Array
 
-  constructor({ index, source }: { index: EventIndex; source: string }) {
+  constructor({ index, source }: SourceLocatorOptions) {
     this.#index = index
     this.#source = source
     this.#types = index.types
@@ -185,8 +187,8 @@ class SourceLocator {
   }
 }
 
-function createLocator({ index, source }: { index: EventIndex; source: string }): SourceLocator {
-  return new SourceLocator({ index, source })
+function createSourceLocator(options: SourceLocatorOptions): SourceLocator {
+  return new SourceLocator(options)
 }
 
 function parse(source: string): EventIndex | undefined {
@@ -210,7 +212,7 @@ export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   const index = memo(indexes, source, () => parse(source))
   if (!index) return undefined
 
-  const locator = createLocator({ index, source })
+  const locator = createSourceLocator({ index, source })
   const ref = 'ref' in location ? location.ref : undefined
   return locator.find(location.pointer) ?? (ref ? locator.findRef(ref) : undefined)
 }

@@ -100,6 +100,6 @@ class Session {
   }
 }
 
-export function createSession(options: SessionOptions): void {
-  new Session(options)
+export function createSession(options: SessionOptions): Session {
+  return new Session(options)
 }

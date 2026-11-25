@@ -51,6 +51,8 @@ async function addDeletedFiles({
   }
 }
 
+export type OutputCheckOptions = { diff: boolean }
+
 /**
  * One `kubb generate --check` run. Each config generates into memory and no formatter or linter runs.
  *
@@ -67,7 +69,7 @@ export class OutputCheck {
   #changed = false
   #missingLockfile = false
 
-  constructor({ diff }: { diff: boolean }) {
+  constructor({ diff }: OutputCheckOptions) {
     this.#diff = diff
   }
 
@@ -160,6 +162,6 @@ export class OutputCheck {
   }
 }
 
-export function createOutputCheck(options: { diff: boolean }): OutputCheck {
+export function createOutputCheck(options: OutputCheckOptions): OutputCheck {
   return new OutputCheck(options)
 }

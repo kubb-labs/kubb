@@ -98,7 +98,7 @@ class BuildTracker {
   }
 }
 
-export function trackBuild(hooks: Hookable<KubbHooks>): { take(): BuildSnapshot } {
+export function createBuildTracker(hooks: Hookable<KubbHooks>): BuildTracker {
   return new BuildTracker(hooks)
 }
 

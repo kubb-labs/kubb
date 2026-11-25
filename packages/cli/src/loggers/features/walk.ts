@@ -10,17 +10,27 @@ import type { Spinner } from './spinner.ts'
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80
 
-function createState() {
+export type WalkState = {
+  totalPlugins: number
+  completedPlugins: number
+  failedPlugins: number
+  /** `process.hrtime()` snapshot taken at the start of generation, for the elapsed time. */
+  hrStart: [number, number]
+  /** Plugin results held back while the generation step owns the line. */
+  pluginLines: Array<string>
+  /** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
+  walk: { total: number; visited: Set<string>; plugins: Map<string, { count: number; current: string }> }
+  lastWalkDraw: number
+}
+
+function createState(): WalkState {
   return {
     totalPlugins: 0,
     completedPlugins: 0,
     failedPlugins: 0,
-    /** `process.hrtime()` snapshot taken at the start of generation, for the elapsed time. */
     hrStart: process.hrtime(),
-    /** Plugin results held back while the generation step owns the line. */
-    pluginLines: [] as Array<string>,
-    /** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
-    walk: { total: 0, visited: new Set<string>(), plugins: new Map<string, { count: number; current: string }>() },
+    pluginLines: [],
+    walk: { total: 0, visited: new Set(), plugins: new Map() },
     lastWalkDraw: 0,
   }
 }
@@ -31,7 +41,7 @@ export type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Prog
  * The node walk the plugins share: the live generation block, and the plugin results printed once the walk ends.
  */
 export class Walk {
-  readonly state = createState()
+  readonly state: WalkState = createState()
   readonly #ctx: LoggerContext
   readonly #spinner: Spinner
   readonly #progress: Progress

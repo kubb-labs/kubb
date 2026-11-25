@@ -97,6 +97,6 @@ class Generation {
   }
 }
 
-export function createGeneration(options: GenerationOptions): { renderSummary: SummaryRenderer } {
+export function createGeneration(options: GenerationOptions): Generation {
   return new Generation(options)
 }

@@ -55,7 +55,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
         for (const key of Object.keys(changes) as Array<keyof FileChanges>) changes[key] += fileChanges?.[key] ?? 0
       },
     }
-    installReporters(hooks, { logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
+    installReporters({ context: hooks, logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
     if (!(await generate({ configs, hooks }))) throw new Error('Generation failed')
     const changed = changes.added + changes.modified + changes.deleted
     spinner.stop(changed ? `Generated: ${pluralize(changed, 'file')} changed` : 'Generated: no files changed')
