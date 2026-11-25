@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Diagnostics } from '@kubb/kit'
-import { assertInputExists, isPrivateHost, resolveSource } from './source.ts'
+import { assertInputExists, isPrivateHost, parseYaml, resolveSource } from './source.ts'
 
 function codeOf(error: unknown): string | undefined {
   return Diagnostics.isError(error) ? error.diagnostic.code : undefined
@@ -64,6 +64,23 @@ describe('resolveSource', () => {
     const error = await resolveSource('https://specs.example.com/openapi.yaml?rev=1').catch((caught: unknown) => caught)
 
     expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
+  })
+})
+
+describe('parseYaml', () => {
+  const options = { origin: 'openapi.yaml', help: '', json: false }
+
+  it('keeps `<<` as a plain key and YAML 1.1 words as strings', () => {
+    const data = '%YAML 1.1\n---\nbase: &base\n  type: object\nschema:\n  <<: *base\n  enabled: yes\n  created: 2001-12-14\n'
+
+    expect(parseYaml(data, options)).toStrictEqual({
+      base: { type: 'object' },
+      schema: { '<<': { type: 'object' }, enabled: 'yes', created: '2001-12-14' },
+    })
+  })
+
+  it('keeps an integer above the safe range as a number', () => {
+    expect(parseYaml('maximum: 18446744073709552000\n', options)).toStrictEqual({ maximum: 18446744073709552000 })
   })
 })
 

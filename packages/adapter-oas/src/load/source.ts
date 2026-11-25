@@ -3,6 +3,7 @@ import { isIP } from 'node:net'
 import { exists, getErrorMessage, read, toError } from '@internals/utils'
 import { isPublicAddress } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
+import { parse as parseFast } from '@visulima/yaml'
 import { CORE_SCHEMA, constructFromEvents, parseEvents } from 'js-yaml'
 import { parse } from 'yaml'
 import { rememberEvents } from '../sourceLocator.ts'
@@ -152,8 +153,9 @@ export async function resolveSource(sourcePath: string, { remember, ...options }
  * value, as every JSON parser does. YAML flow syntax also starts with `{`, so a parse failure falls
  * through to YAML. Pass `json: false` for a source known to be YAML.
  *
- * `js-yaml` parses about ten times faster than `yaml`, and rejects duplicate keys instead of
- * keeping the last one. Its core schema keeps timestamps as strings and `<<` as a plain key, as
+ * `@visulima/yaml` parses YAML first, about a third faster than `js-yaml`. Anything it rejects
+ * goes to `js-yaml`, which parses about ten times faster than `yaml`. Both reject duplicate keys
+ * instead of keeping the last one, keep timestamps as strings, and keep `<<` as a plain key, as
  * `yaml` does for YAML 1.2.
  */
 export function parseYaml(
@@ -166,6 +168,13 @@ export function parseYaml(
     } catch {
       // Not JSON, so YAML parses it below.
     }
+  }
+  try {
+    const document = parseFast(data, { merge: false, schema: 'core' })
+    // The source locator reads `js-yaml` events, and parses the source itself when a diagnostic needs a location.
+    if (typeof document === 'object' && document !== null) return document
+  } catch {
+    // `js-yaml` accepts some documents this parser rejects, so it decides below.
   }
   try {
     const events = parseEvents(data, {})

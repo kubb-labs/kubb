@@ -10,6 +10,7 @@ allowBuilds:
   msw: true
 catalog:
   "@types/node": 22.20.5
+  "@visulima/yaml": ^2.0.0
   "@vitest/coverage-v8": ^5.1.1
   "@vitest/ui": ^5.1.1
   js-yaml: ^5.5.0
