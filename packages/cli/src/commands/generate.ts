@@ -81,7 +81,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     force: {
       type: 'boolean',
-      description: 'Generate even when kubb-lock.yaml says the output is up to date',
+      description: 'Generate even when kubb-lock.json says the output is up to date',
       default: false,
     },
     verbose: {

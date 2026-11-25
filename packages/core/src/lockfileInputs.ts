@@ -8,7 +8,7 @@ import { readInstalledPackages } from './installedPackages.ts'
 import type { Config } from './types.ts'
 
 /**
- * What a build read, as `kubb-lock.yaml` records it: one hash, plus the source files to hash again on the next run.
+ * What a build read, as `kubb-lock.json` records it: one hash, plus the source files to hash again on the next run.
  */
 export type LockfileInputs = { hash: string; sources: Array<string> }
 

@@ -123,12 +123,12 @@ When you write an adapter, its `sources` member lists the files and URLs the las
 
 Kubb generates in memory and compares each file with the one on disk. It writes nothing and runs no formatter or linter.
 
-A formatter rewrites what Kubb generates, so the generated text and the file on disk often differ. [`kubb-lock.yaml`](#kubb-lock) records what each generated file became after `output.format`, `output.lint`, and `output.postGenerate`. A file is up to date when:
+A formatter rewrites what Kubb generates, so the generated text and the file on disk often differ. [`kubb-lock.json`](#kubb-lock) records what each generated file became after `output.format`, `output.lint`, and `output.postGenerate`. A file is up to date when:
 
 - the file on disk holds the generated text, or
-- `kubb-lock.yaml` lists the file, and its two hashes equal the hash of the generated text and the hash of the file on disk.
+- `kubb-lock.json` lists the file, and its two hashes equal the hash of the generated text and the hash of the file on disk.
 
-Without `output.format`, `output.lint`, and `output.postGenerate`, the check needs no `kubb-lock.yaml`.
+Without `output.format`, `output.lint`, and `output.postGenerate`, the check needs no `kubb-lock.json`.
 
 ```text [Out of date]
 ✗ Generated code is out of date  412ms
@@ -172,7 +172,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 | Lists each out-of-date file with its path | No | Yes |
 | Prints a diff with `--diff` | No | Yes |
 
-`--dry-run` and `--check` run no formatter or linter. Each reads `kubb-lock.yaml` to recognize formatted output.
+`--dry-run` and `--check` run no formatter or linter. Each reads `kubb-lock.json` to recognize formatted output.
 
 `--check` has these limits:
 
@@ -185,7 +185,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 
 `kubb generate` skips the build when nothing it reads has changed since the last run. It prints "Up to date" and exits with `0`. Pass `--force` to generate anyway.
 
-A run is up to date when all of these match [`kubb-lock.yaml`](#kubb-lock):
+A run is up to date when all of these match [`kubb-lock.json`](#kubb-lock):
 
 - The config, with the source of every function in it.
 - The spec, and every local file it references with `$ref`.
@@ -205,23 +205,28 @@ Kubb always generates in these cases:
 
 A run that still generates, such as one with `--reporter json`, skips `output.format` and `output.lint` when nothing it reads changed and every file comes out unchanged. `--force` runs them.
 
-### `kubb-lock.yaml` {#kubb-lock}
+### `kubb-lock.json` {#kubb-lock}
 
-`kubb generate` writes `kubb-lock.yaml` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files.
+`kubb generate` writes `kubb-lock.json` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files.
 
 `--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
 
-```yaml [kubb-lock.yaml]
-lockfileVersion: 1
-inputs:
-  src/gen:
-    hash: 0c3bf1dc…
-    sources:
-      - openapi.yaml
-files:
-  src/gen/types/Pet.ts:
-    source: 647596c2…
-    output: 002220b7…
+```json [kubb-lock.json]
+{
+  "lockfileVersion": 1,
+  "inputs": {
+    "src/gen": {
+      "hash": "0c3bf1dc…",
+      "sources": ["openapi.yaml"]
+    }
+  },
+  "files": {
+    "src/gen/types/Pet.ts": {
+      "source": "647596c2…",
+      "output": "002220b7…"
+    }
+  }
+}
 ```
 
 | Field | Value |
@@ -234,8 +239,8 @@ files:
 | `source` | SHA-256 hash of the code Kubb generated. |
 | `output` | SHA-256 hash of the file on disk after `output.format`, `output.lint`, and `output.postGenerate`. Line endings count as `\n`. |
 
-- Do not edit `kubb-lock.yaml`. After a merge conflict, run `kubb generate` and commit the result.
-- When `--check` finds formatted output and no `kubb-lock.yaml`, it exits with `1` and tells you to run `kubb generate`.
+- Do not edit `kubb-lock.json`. After a merge conflict, run `kubb generate` and commit the result.
+- When `--check` finds formatted output and no `kubb-lock.json`, it exits with `1` and tells you to run `kubb generate`.
 
 ### Run summary {#run-summary}
 

@@ -367,14 +367,14 @@ describe('check', () => {
   async function generated(options?: { clean?: boolean }) {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
-    expect(readFileSync(join(target.root, 'kubb-lock.yaml'), 'utf8')).toContain('  src/gen/pet.ts:')
+    expect(readFileSync(join(target.root, 'kubb-lock.json'), 'utf8')).toContain('"src/gen/pet.ts": {')
     // The formatter ran: the stored bytes are not the ones the plugin produced.
     expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
 
     return target
   }
 
-  it('exits 0 for formatted output that is up to date, from kubb-lock.yaml alone', async () => {
+  it('exits 0 for formatted output that is up to date, from kubb-lock.json alone', async () => {
     const { config, snapshot } = await generated()
     const before = snapshot()
 
@@ -388,7 +388,7 @@ describe('check', () => {
     expect(snapshot()).toStrictEqual(before)
   })
 
-  it('reports formatted output as unchanged in a dry run, from kubb-lock.yaml alone', async () => {
+  it('reports formatted output as unchanged in a dry run, from kubb-lock.json alone', async () => {
     const { config, snapshot } = await generated()
     const before = snapshot()
 
@@ -446,30 +446,30 @@ describe('check', () => {
     expect(target.snapshot()).toStrictEqual(before)
   })
 
-  it('exits 1 and names kubb-lock.yaml when formatted output has no lockfile', async () => {
+  it('exits 1 and names kubb-lock.json when formatted output has no lockfile', async () => {
     const { config, root } = await generated()
-    rmSync(join(root, 'kubb-lock.yaml'))
+    rmSync(join(root, 'kubb-lock.json'))
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.includes('No readable kubb-lock.yaml found. Run `kubb generate` and commit kubb-lock.yaml'))).toBe(true)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json found. Run `kubb generate` and commit kubb-lock.json'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
-  it('keeps the missing kubb-lock.yaml warning out of stdout for the json reporter', async () => {
+  it('keeps the missing kubb-lock.json warning out of stdout for the json reporter', async () => {
     const { config, root } = await generated()
-    rmSync(join(root, 'kubb-lock.yaml'))
+    rmSync(join(root, 'kubb-lock.json'))
     using _stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
 
     const lines = await bootstrap({ configs: [config], check: true, reporters: ['json'] })
 
-    expect(lines.some((line) => line.includes('No readable kubb-lock.yaml found'))).toBe(true)
-    expect(lines.stdout.some((line) => line.includes('No readable kubb-lock.yaml found'))).toBe(false)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(true)
+    expect(lines.stdout.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(false)
   })
 
   describe('reuse', () => {
     const upToDate = (lines: Array<string>) =>
-      lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.yaml'))
+      lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.json'))
 
     async function fromSpecFile() {
       const target = project()
@@ -483,7 +483,7 @@ describe('check', () => {
       return { ...target, config, spec }
     }
 
-    it('skips the build when the config, the spec and the output match kubb-lock.yaml', async () => {
+    it('skips the build when the config, the spec and the output match kubb-lock.json', async () => {
       const { config, snapshot } = await fromSpecFile()
       const before = snapshot()
 
