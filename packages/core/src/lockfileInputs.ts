@@ -7,16 +7,16 @@ import { version as kubbVersion } from '../package.json'
 import { readInstalledPackages } from './installedPackages.ts'
 import type { Config } from './types.ts'
 
-/** What a build read, as `kubb-lock.yaml` records it: one hash, plus the source files to hash again on the next run. */
+/**
+ * What a build read, as `kubb-lock.yaml` records it: one hash, plus the source files to hash again on the next run.
+ */
 export type LockfileInputs = { hash: string; sources: Array<string> }
 
-/** Line endings are normalized, so a checkout that converts them gets the same hash. */
+/**
+ * Line endings are normalized, so a checkout that converts them gets the same hash.
+ */
 export const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
 
-/** Per-run and per-machine members of a config, which say nothing about what it generates. */
-const SKIPPED_KEYS = new Set(['root', 'storage', 'reporters'])
-
-/** A value `JSON.stringify` would drop or flatten, in a form that keeps what it holds. */
 function toSerializable(value: unknown): unknown {
   if (typeof value === 'function' || typeof value === 'bigint' || value instanceof RegExp) return String(value)
   if (value instanceof Map || value instanceof Set) return [...value]
@@ -32,8 +32,9 @@ export function serializeConfig(config: Config): string | null {
   try {
     // An adapter keeps the document it parsed, which is the spec and not the config.
     const adapter = config.adapter && { name: config.adapter.name, options: config.adapter.options }
-    const text = JSON.stringify({ ...config, adapter }, (key, raw: unknown) => {
-      if (SKIPPED_KEYS.has(key)) return undefined
+    // `root`, `storage` and `reporters` differ per run and per machine, and say nothing about what is generated.
+    const { root: _root, storage: _storage, reporters: _reporters, ...rest } = config
+    const text = JSON.stringify({ ...rest, adapter }, (_key, raw: unknown) => {
       const value = toSerializable(raw)
       if (typeof value !== 'object' || value === null) return value
       if (seen.has(value)) return '[circular]'
@@ -65,7 +66,7 @@ async function readPackageVersions(root: string): Promise<Array<string> | null> 
   return [...new Set(packages.flat().map(({ package: name, version }) => `${name}@${version}`))].sort()
 }
 
-/** The content of `file`, or `null` when it cannot be read or changed after `since`. */
+// `null` when the file cannot be read, or changed after `since`.
 async function readSource({ file, since }: { file: string; since?: number }): Promise<string | null> {
   try {
     if (since !== undefined && (await stat(file)).mtimeMs > since) return null
@@ -90,7 +91,9 @@ export async function hashInputs({
   root: string
   configText: string
   sources: Array<string>
-  /** When the build started, in milliseconds. A source saved later is not what the build read. */
+  /**
+   * When the build started, in milliseconds. A source saved later is not what the build read.
+   */
   since?: number
 }): Promise<LockfileInputs | null> {
   const files = [...new Set(sources.map((source) => resolve(root, source)))].sort()

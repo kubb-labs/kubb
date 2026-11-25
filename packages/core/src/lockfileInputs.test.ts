@@ -11,7 +11,8 @@ const makeConfig = (config: Partial<Config> & Record<string, unknown> = {}) =>
 describe('serializeConfig', () => {
   it.each([
     ['an option', { output: { path: './other' } }],
-    ['the body of a function', { plugins: [{ name: 'plugin', transform: () => 'b' }] }],
+    ['the body of a function', { plugins: [{ name: 'plugin', transform: (): string => 'b' }] }],
+    ['a plugin option named root', { plugins: [{ name: 'plugin', transform: (): string => 'a', options: { root: './other' } }] }],
   ])('changes when %s changes', (_name, change) => {
     const base = makeConfig({ plugins: [{ name: 'plugin', transform: () => 'a' }] as never })
 
