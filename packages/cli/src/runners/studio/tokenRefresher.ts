@@ -4,18 +4,20 @@ import { type Credentials, getMachineId, updateCredentials } from './credentials
 
 const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
 
+export type TokenRefresherOptions = {
+  studioUrl: string
+  signal: AbortSignal
+  warn: (message: string) => void
+  credentials: { get: () => Credentials; set: (credentials: Credentials) => void }
+}
+
 export class TokenRefresher {
-  readonly #options: ConstructorParameters<typeof TokenRefresher>[0]
+  readonly #options: TokenRefresherOptions
   // The timer and a rejected token share one request: two refreshes of one token cannot both succeed.
   #refreshing: Promise<boolean> | undefined
   #timer: NodeJS.Timeout | undefined
 
-  constructor(options: {
-    studioUrl: string
-    signal: AbortSignal
-    warn: (message: string) => void
-    credentials: { get: () => Credentials; set: (credentials: Credentials) => void }
-  }) {
+  constructor(options: TokenRefresherOptions) {
     this.#options = options
   }
 
@@ -64,7 +66,7 @@ export class TokenRefresher {
 }
 
 /** Refreshes the token now when it is a day old, then once a day until `stop`. `credentials` reads and replaces the connection's credentials. */
-export async function startTokenRefresher(options: ConstructorParameters<typeof TokenRefresher>[0]): Promise<TokenRefresher> {
+export async function startTokenRefresher(options: TokenRefresherOptions): Promise<TokenRefresher> {
   const refresher = new TokenRefresher(options)
   await refresher.refresh()
   refresher.start()

@@ -12,6 +12,8 @@ function formatJobLine({ command, result, requestedBy }: { command: string; resu
   return `${styleText('dim', clock())}  ${command.padEnd(10)} ${by}${result}`
 }
 
+export type SessionOptions = { ctx: LoggerContext; spinner: Spinner }
+
 /**
  * A `kubb studio` session. It emits these on the same emitter as its generations, so one logger
  * renders the whole command: the connection, then one job line per command.
@@ -20,7 +22,7 @@ class Session {
   // The last generation's outcome, for the job line `studio:command` prints after it.
   #job: { fileCount: number; ms: number; errors: number } | null = null
 
-  constructor({ ctx, spinner }: { ctx: LoggerContext; spinner: Spinner }) {
+  constructor({ ctx, spinner }: SessionOptions) {
     const { writer, silent, human, logLevel, text, hooks } = ctx
 
     hooks.hook('studio:disconnected', ({ code, reason }) => {
@@ -98,6 +100,6 @@ class Session {
   }
 }
 
-export function createSession(options: ConstructorParameters<typeof Session>[0]): void {
+export function createSession(options: SessionOptions): void {
   new Session(options)
 }

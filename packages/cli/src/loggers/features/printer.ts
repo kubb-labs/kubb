@@ -11,20 +11,24 @@ import type { Phases } from './phases.ts'
 import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 
+export type PrinterOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; phases: Phases }
+
+export type PrinterState = {
+  /** Problems held back so the human view can print them grouped by plugin once the build ends. */
+  problems: Array<ProblemDiagnostic>
+  /** The finished config's diagnostics, for the closing verdict. */
+  diagnostics: Array<Diagnostic>
+  /** A local-file input, which a located diagnostic points into; `load` parses it once, on the first such diagnostic. */
+  spec: { path: string; adapter: Adapter; source: Promise<string | undefined> } | undefined
+}
+
 /** Warnings, errors and diagnostics: printed as they come, or held back and grouped by plugin once a human's build ends. */
 export class Printer {
-  readonly state: {
-    /** Problems held back so the human view can print them grouped by plugin once the build ends. */
-    problems: Array<ProblemDiagnostic>
-    /** The finished config's diagnostics, for the closing verdict. */
-    diagnostics: Array<Diagnostic>
-    /** A local-file input, which a located diagnostic points into; `load` parses it once, on the first such diagnostic. */
-    spec: { path: string; adapter: Adapter; source: Promise<string | undefined> } | undefined
-  } = { problems: [], diagnostics: [], spec: undefined }
+  readonly state: PrinterState = { problems: [], diagnostics: [], spec: undefined }
   readonly #ctx: LoggerContext
   readonly #formatOptions: DiagnosticFormatOptions
 
-  constructor({ ctx, spinner, progress, phases }: { ctx: LoggerContext; spinner: Spinner; progress: Progress; phases: Phases }) {
+  constructor({ ctx, spinner, progress, phases }: PrinterOptions) {
     this.#ctx = ctx
     const { writer, silent, human, logLevel, text, line, hooks } = ctx
     const { audience } = writer
@@ -181,6 +185,6 @@ export class Printer {
   }
 }
 
-export function createPrinter(options: ConstructorParameters<typeof Printer>[0]): Printer {
+export function createPrinter(options: PrinterOptions): Printer {
   return new Printer(options)
 }

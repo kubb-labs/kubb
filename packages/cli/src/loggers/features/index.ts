@@ -24,7 +24,7 @@ export function installLogger({ hooks, writer, logLevel }: { hooks: Hookable<Kub
   const progress = createProgress({ ctx, spinner })
   const walk = createWalk({ ctx, spinner, progress })
   const phases = createPhases({ ctx, spinner })
-  const problems = createPrinter({ ctx, spinner, progress, phases })
+  const printer = createPrinter({ ctx, spinner, progress, phases })
   createSession({ ctx, spinner })
-  return createGeneration({ ctx, spinner, progress, walk, phases, problems })
+  return createGeneration({ ctx, spinner, progress, walk, phases, printer })
 }

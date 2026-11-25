@@ -25,6 +25,8 @@ function createState() {
   }
 }
 
+export type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress }
+
 /**
  * The node walk the plugins share: the live generation block, and the plugin results printed once the walk ends.
  */
@@ -34,7 +36,7 @@ export class Walk {
   readonly #spinner: Spinner
   readonly #progress: Progress
 
-  constructor({ ctx, spinner, progress }: { ctx: LoggerContext; spinner: Spinner; progress: Progress }) {
+  constructor({ ctx, spinner, progress }: WalkOptions) {
     this.#ctx = ctx
     this.#spinner = spinner
     this.#progress = progress
@@ -128,6 +130,6 @@ export class Walk {
   }
 }
 
-export function createWalk(options: ConstructorParameters<typeof Walk>[0]): Walk {
+export function createWalk(options: WalkOptions): Walk {
   return new Walk(options)
 }
