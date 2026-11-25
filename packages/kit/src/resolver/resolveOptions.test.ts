@@ -74,4 +74,12 @@ describe('resolveOptions', () => {
 
     expect(resolveOptions<Options | undefined>(operation, { options: undefined, override: [...override] })).toStrictEqual({ output: 'b' })
   })
+
+  it('does not reuse an include-filtered result for a call without include', () => {
+    const options = fresh()
+    const exclude = [{ type: 'schemaName' as const, pattern: '^Other$' }]
+
+    expect(resolveOptions<Options>(schema, { options, exclude, include: [{ type: 'schemaName', pattern: 'Store' }] })).toBeNull()
+    expect(resolveOptions<Options>(schema, { options, exclude })).toBe(options)
+  })
 })

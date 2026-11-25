@@ -55,7 +55,7 @@ async function build(plugins: Array<Plugin>, meta?: Parameters<typeof adapter>[0
   return { driver, diagnostics, files: driver.fileManager.files.map((file) => file.path).sort() }
 }
 
-function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag'; pattern: string }>) {
+function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag' | 'schemaName'; pattern: string }>) {
   return defineExtension({
     kind: 'plugin',
     meta: { name: 'plugin-example' },
@@ -167,6 +167,76 @@ describe('generatorVisitor', () => {
 
     expect(log).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operation:getPet', 'operations:getPet'])
     expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
+  })
+
+  it('keeps the schemas a schemaName include references', async () => {
+    const log: Array<string> = []
+
+    const { files } = await build([examplePlugin(log, [{ type: 'schemaName', pattern: '^Pet$' }])])
+
+    expect(log).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operations:'])
+    expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
+  })
+
+  it('keeps referenced schemas when a schemaName include meets an exclude and no macro', async () => {
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-referenced' },
+      setup(options) {
+        addGenerator({
+          name: 'referenced',
+          schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
+        })
+        return { ...options, include: [{ type: 'schemaName', pattern: '^Pet$' }], exclude: [{ type: 'schemaName', pattern: '^Unused$' }] }
+      },
+    })()
+
+    const { files } = await build([plugin])
+
+    expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts'])
+  })
+
+  it('follows a reference a macro adds to a kept schema', async () => {
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-macro-ref' },
+      setup(options) {
+        addMacro({
+          name: 'link',
+          schema: (node: SchemaNode) =>
+            node.name === 'Store' ? { ...node, properties: [ast.factory.createProperty({ name: 'unused', required: false, schema: ref('Unused') })] } : node,
+        })
+        addGenerator({
+          name: 'macro-ref',
+          schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
+        })
+        return { ...options, include: [{ type: 'schemaName', pattern: '^Pet$' }] }
+      },
+    })()
+
+    const { files } = await build([plugin])
+
+    expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts'])
+  })
+
+  it('drops the schemas only an excluded schema references', async () => {
+    const filesFor = async (pattern: string) => {
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-exclude' },
+        setup(options) {
+          addGenerator({
+            name: 'exclude',
+            schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
+          })
+          return { ...options, exclude: [{ type: 'schemaName', pattern }] }
+        },
+      })()
+      return (await build([plugin])).files
+    }
+
+    expect(await filesFor('^Pet$')).toStrictEqual(['gen/Unused.ts'])
+    expect(await filesFor('^Store$')).toStrictEqual(['gen/Pet.ts', 'gen/Unused.ts'])
   })
 
   it('keeps one template per generator handler and the resolver in memo', async () => {
@@ -350,7 +420,7 @@ describe('generatorVisitor', () => {
     expect(built).toStrictEqual([{ label: 'pet' }, { label: undefined }])
     expect(seen.map(([name, printer]) => [name, built.indexOf(printer)])).toStrictEqual([
       ['Pet', 0],
-      ['Store', 1],
+      ['Store', 0],
       ['Unused', 1],
     ])
   })

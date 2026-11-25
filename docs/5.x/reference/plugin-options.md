@@ -253,7 +253,7 @@ Generates only the operations and schemas that match an entry. Default: everythi
 > [!WARNING]
 > A string `pattern` becomes `new RegExp(pattern)`, so it matches anywhere: `'pet'` also matches `'petType'`. Write `'^pet$'` for an exact match.
 
-Without a `schemaName` entry, `include` keeps only the schemas its operations use. See [Filters](#filters).
+Without a `schemaName` entry, `include` keeps only the schemas its operations use. A `schemaName` entry also keeps the schemas the matched schemas reference. See [Filters](#filters).
 
 ```typescript [Type definition]
 export type Include =
@@ -296,6 +296,8 @@ Skips every operation or schema that matches an entry. Entries match as in [How 
 
 ::
 
+A `schemaName` entry also drops the schemas only the excluded schemas reference. See [Filters](#filters).
+
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -317,6 +319,8 @@ Gives matching operations or schemas other plugin options. Entries match as in [
 :::
 
 ::
+
+A `schemaName` entry also applies to the schemas the matched schemas reference. See [Filters](#filters).
 
 ```typescript [Type definition]
 export type Override = Include & {
@@ -416,6 +420,9 @@ See [Macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [`ast.mac
 When an `include` or `exclude` mixes operation and `schemaName` entries, schemas follow their own rules.
 
 - Only `schemaName` entries filter schemas by name.
+- A `schemaName` entry in `include` also keeps every schema the matched schemas reference, directly or through other schemas, so the generated imports resolve. Add a schema to `exclude` to leave it out.
+- A `schemaName` entry in `exclude` also drops the schemas that only the excluded schemas reference. A schema that a kept schema or operation still uses stays.
+- A `schemaName` entry in `override` also applies to the schemas the matched schemas reference, unless they match an `override` entry themselves.
 - An `include` with operation entries and no `schemaName` entry keeps only the schemas those operations use, also indirectly.
 - An `include` with only `schemaName` entries generates no operations.
 
