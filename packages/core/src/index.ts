@@ -52,7 +52,7 @@ export type {
   UpdateDiagnostic,
 } from './Diagnostics.ts'
 export type { CreateKubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './kubb.ts'
-export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
+export type { FileChanges, GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'

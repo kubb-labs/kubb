@@ -35,6 +35,14 @@ export type ReporterPluginFiles = Array<{
   files: Array<string>
 }>
 
+export type FileChanges = {
+  added: number
+  modified: number
+  deleted: number
+  linesAdded: number
+  linesRemoved: number
+}
+
 /**
  * One config's outcome within a run, as handed to a {@link Reporter}.
  */
@@ -56,13 +64,7 @@ export type GenerationResult = {
    * Changes compared with the output before this run, when the host collected them.
    * Line totals include added and deleted files.
    */
-  fileChanges?: {
-    added: number
-    modified: number
-    deleted: number
-    linesAdded: number
-    linesRemoved: number
-  }
+  fileChanges?: FileChanges
   /**
    * The result previews generation without writing output.
    */

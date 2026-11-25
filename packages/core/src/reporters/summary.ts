@@ -2,6 +2,7 @@ import { isAbsolute, relative } from 'node:path'
 import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
 import { host } from '../host.ts'
+import type { FileChanges } from '../createReporter.ts'
 import type { Report } from './report.ts'
 
 /**
@@ -40,8 +41,6 @@ function filesLine(report: Report): string {
 
   return `  ${label}${separator}${styleText('dim', `${report.filesUnchanged} unchanged`)}`
 }
-
-type FileChanges = NonNullable<Report['fileChanges']>
 
 function changeCounts({ added, modified, deleted }: FileChanges): string {
   return [

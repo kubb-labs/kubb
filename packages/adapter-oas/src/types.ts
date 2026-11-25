@@ -123,11 +123,6 @@ export type ReferenceObject = OpenAPIV3_1.ReferenceObject
 export type ResponseObject = Omit<OpenAPIV3_1.ResponseObject, 'description'> & { description?: string; summary?: string }
 
 /**
- * OpenAPI request body object that maps content types to their media type objects.
- */
-export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
-
-/**
  * How one part of a multipart body is serialized, with the OpenAPI 3.2 nested `encoding`, `prefixEncoding` and `itemEncoding`.
  */
 export type EncodingObject = Omit<OpenAPIV3_1.EncodingObject, 'style'> & {
@@ -163,10 +158,6 @@ export type SecuritySchemeObject = {
 }
 
 export type TagObject = OpenAPIV3_1.TagObject & { summary?: string; parent?: string; kind?: string }
-
-export type HeaderObject = OpenAPIV3_1.HeaderObject
-
-export type LinkObject = OpenAPIV3_1.LinkObject
 
 /**
  * OpenAPI server object describing a base URL and its `{variable}` substitutions, with the OpenAPI 3.2 `name`.
