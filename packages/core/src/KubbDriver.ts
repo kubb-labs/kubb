@@ -10,7 +10,7 @@ import { checkCompatibility, checkDependencies, resolveMeta } from './defineExte
 import { kubbContext, withContext } from './composables.ts'
 import { FileManager } from './FileManager.ts'
 import { createMemo, type Memo } from './memo.ts'
-import type { OutputManifest } from './outputManifest.ts'
+import type { Lockfile } from './lockfile.ts'
 import type { SharedSchemas } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
@@ -25,7 +25,7 @@ export type Options = {
   /**
    * Passed to `fileManager.write` so files the output passes already normalized are left alone.
    */
-  manifest?: OutputManifest
+  lockfile?: Lockfile
   /**
    * The directories `output.clean` empties: the output directory, and the shared one when this build cleans it. Emptied
    * right before the files are written, so a run that fails earlier leaves the previous output in place.
@@ -456,7 +456,7 @@ export class KubbDriver {
           await fileManager.write(fileManager.files, {
             storage: config.storage,
             parsers: parsersMap,
-            manifest: this.options.manifest,
+            lockfile: this.options.lockfile,
             signal: this.options.signal,
             cleaned: this.options.cleanPaths,
             shared: this.#shared,

@@ -4,17 +4,7 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
 import { ast } from '@kubb/ast'
-import {
-  type Config,
-  defineExtension,
-  Diagnostics,
-  fsStorage,
-  memoryStorage,
-  type PostGenerateCommand,
-  resolveCacheDir,
-  resolveMeta,
-  type UserConfig,
-} from '@kubb/core'
+import { type Config, defineExtension, Diagnostics, fsStorage, memoryStorage, type PostGenerateCommand, resolveMeta, type UserConfig } from '@kubb/core'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as mascot from '../../ui/mascot.ts'
@@ -39,13 +29,15 @@ type BootstrapOptions = {
   configs?: Array<Config>
   check?: boolean
   diff?: boolean
+  force?: boolean
+  dryRun?: boolean
 }
 
 /**
  * Runs the command with no configs to generate, so only the bootstrap Configuration group renders.
  * Non-rich, so the group is plain text an assertion can read.
  */
-async function bootstrap({ fail = false, reporters, configs = [], check, diff }: BootstrapOptions = {}) {
+async function bootstrap({ fail = false, reporters, configs = [], check, diff, force, dryRun }: BootstrapOptions = {}) {
   const lines: Array<string> = []
   // What reached stdout alone, since `json` keeps it for the report.
   const stdout: Array<string> = []
@@ -69,7 +61,7 @@ async function bootstrap({ fail = false, reporters, configs = [], check, diff }:
         : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
-  await run({ logLevel: 'info', watch: false, reporters, check, diff }).catch((error: Error) => void lines.push(error.message))
+  await run({ logLevel: 'info', watch: false, reporters, check, diff, force, dryRun }).catch((error: Error) => void lines.push(error.message))
   // A failed build sets `exitCode` instead of calling `exit()`, so telemetry can finish; record it the same way.
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
@@ -273,7 +265,6 @@ describe('output passes', () => {
   afterEach(() => {
     for (const root of roots.splice(0)) {
       rmSync(root, { recursive: true, force: true })
-      rmSync(resolveCacheDir(root), { recursive: true, force: true })
     }
   })
 
@@ -320,7 +311,6 @@ describe('check', () => {
   afterEach(() => {
     for (const root of roots.splice(0)) {
       rmSync(root, { recursive: true, force: true })
-      rmSync(resolveCacheDir(root), { recursive: true, force: true })
     }
   })
 
@@ -333,7 +323,7 @@ describe('check', () => {
         for (const [name, source] of [
           ['pet.ts', 'export const pet = {name:"cat",   tags:[1,2]}'],
           ['types/index.ts', 'export type Pet = {name:string}'],
-          // Not under `output.path`: a check must stage this one too, not write it.
+          // Not under `output.path`: a check must compare this one too, not write it.
           ['../client.ts', 'export const client = 1'],
           // Named by its real path, not through `output.path`, the way a plugin with a hard-coded folder does.
           [join(config.root, 'src/gen/fixed.ts'), 'export const fixed = 1'],
@@ -363,7 +353,7 @@ describe('check', () => {
       plugins: [writesFiles()],
     } satisfies UserConfig as unknown as Config
     const file = (name: string) => join(root, 'src/gen', name)
-    /** Every file under the root with its content, which also proves the temporary folder is gone. */
+    // Every file under the root with its content, which also proves a check writes nothing.
     const snapshot = () =>
       Object.fromEntries(
         readdirSync(root, { recursive: true, withFileTypes: true })
@@ -374,18 +364,17 @@ describe('check', () => {
     return { root, config, file, snapshot }
   }
 
-  /** A project whose output a real run wrote and formatted, with the cache a fresh CI checkout does not have removed. */
   async function generated(options?: { clean?: boolean }) {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
-    rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
+    expect(readFileSync(join(target.root, 'kubb-lock.json'), 'utf8')).toContain('"src/gen/pet.ts": {')
     // The formatter ran: the stored bytes are not the ones the plugin produced.
     expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
 
     return target
   }
 
-  it('exits 0 for formatted output that is up to date, without the output manifest', async () => {
+  it('exits 0 for formatted output that is up to date, from kubb-lock.json alone', async () => {
     const { config, snapshot } = await generated()
     const before = snapshot()
 
@@ -396,6 +385,16 @@ describe('check', () => {
     expect(lines.some((line) => line.includes('Out-of-date files'))).toBe(false)
     expect(lines.some((line) => line.includes('to update them'))).toBe(false)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
+    expect(snapshot()).toStrictEqual(before)
+  })
+
+  it('reports formatted output as unchanged in a dry run, from kubb-lock.json alone', async () => {
+    const { config, snapshot } = await generated()
+    const before = snapshot()
+
+    const lines = await bootstrap({ configs: [config], dryRun: true })
+
+    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged'))).toBe(true)
     expect(snapshot()).toStrictEqual(before)
   })
 
@@ -432,6 +431,88 @@ describe('check', () => {
     expect((await bootstrap({ configs: [kept.config], check: true })).filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
+  it('exits 0 when the linter config ignores every path outside src', async () => {
+    const target = project()
+    // Lints `src/` only: a pass over any folder outside it finds no files and fails.
+    writeFileSync(join(target.root, '.oxlintrc.json'), JSON.stringify({ ignorePatterns: ['**/*', '!src/**/*'] }))
+    const config = { ...target.config, output: { ...target.config.output, lint: 'oxlint' } } as Config
+    await bootstrap({ configs: [config] })
+    const before = target.snapshot()
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
+    expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
+    expect(target.snapshot()).toStrictEqual(before)
+  })
+
+  it('exits 1 and names kubb-lock.json when formatted output has no lockfile', async () => {
+    const { config, root } = await generated()
+    rmSync(join(root, 'kubb-lock.json'))
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json found. Run `kubb generate` and commit kubb-lock.json'))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('keeps the missing kubb-lock.json warning out of stdout for the json reporter', async () => {
+    const { config, root } = await generated()
+    rmSync(join(root, 'kubb-lock.json'))
+    using _stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
+    const lines = await bootstrap({ configs: [config], check: true, reporters: ['json'] })
+
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(true)
+    expect(lines.stdout.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(false)
+  })
+
+  describe('reuse', () => {
+    const upToDate = (lines: Array<string>) =>
+      lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.json'))
+
+    async function fromSpecFile() {
+      const target = project()
+      const spec = join(target.root, 'openapi.json')
+      writeFileSync(spec, JSON.stringify(target.config.input))
+      writeFileSync(join(target.root, 'package.json'), '{}')
+      const config = (output: Partial<Config['output']> = {}) =>
+        ({ ...target.config, input: spec, adapter: adapterOas(), plugins: [writesFiles()], output: { ...target.config.output, ...output } }) as Config
+      await bootstrap({ configs: [config()] })
+
+      return { ...target, config, spec }
+    }
+
+    it('skips the build when the config, the spec and the output match kubb-lock.json', async () => {
+      const { config, snapshot } = await fromSpecFile()
+      const before = snapshot()
+
+      const lines = await bootstrap({ configs: [config()] })
+
+      expect(upToDate(lines)).toBe(true)
+      expect(snapshot()).toStrictEqual(before)
+    })
+
+    it.each([
+      ['--force is passed', () => ({ force: true })],
+      [
+        'the spec changed',
+        ({ spec }: { spec: string }) => void writeFileSync(spec, JSON.stringify({ openapi: '3.0.3', info: { title: 'pets', version: '2' }, paths: {} })),
+      ],
+      ['another reporter needs the results', () => ({ reporters: ['cli', 'json'] as Array<'cli' | 'json'> })],
+    ])('generates again when %s', async (_name, change) => {
+      const target = await fromSpecFile()
+      const options = change(target) ?? {}
+      // The `json` reporter prints its report to stdout.
+      using _stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
+      const lines = await bootstrap({ configs: [target.config()], ...options })
+
+      expect(upToDate(lines)).toBe(false)
+      expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
+    })
+  })
+
   it('prints a hunk for the edited file with --diff', async () => {
     const { config, file } = await generated()
     writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
@@ -441,11 +522,12 @@ describe('check', () => {
 
     expect(patch).toContain('@@ -1,1 +1,1 @@')
     expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')
-    expect(patch).toContain('+export const pet = { name: "cat", tags: [1, 2] };')
+    // No formatter runs in a check, so the new side is the code as Kubb generates it.
+    expect(patch).toContain('+export const pet = {name:"cat",   tags:[1,2]}')
     expect(lines.at(-1)).toBe('exit 1')
   })
 
-  it('stages a file a plugin writes outside output.path instead of writing it', async () => {
+  it('compares a file a plugin writes outside output.path instead of writing it', async () => {
     const { config, root, snapshot } = await generated()
     rmSync(join(root, 'src/client.ts'))
     const before = snapshot()
@@ -480,15 +562,12 @@ describe('check', () => {
     ])
   })
 
-  it.each([
-    ['an output.path outside the root', { output: { path: '../gen' } }, '--check cannot compare `output.path`'],
-    ['a storage other than fs', { storage: memoryStorage() }, '--check compares files on disk, but this config uses the "memory" storage.'],
-  ])('exits 2 and creates no temporary folder for %s', async (_name, override, message) => {
+  it('exits 2 and writes nothing for a storage other than fs', async () => {
     const { config, root } = project()
 
-    const lines = await bootstrap({ configs: [{ ...config, ...override } as Config], check: true })
+    const lines = await bootstrap({ configs: [{ ...config, storage: memoryStorage() } as Config], check: true })
 
-    expect(lines.some((line) => line.includes(message))).toBe(true)
+    expect(lines.some((line) => line.includes('--check compares files on disk, but this config uses the "memory" storage.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 2')
     expect(readdirSync(root)).toStrictEqual([])
   })

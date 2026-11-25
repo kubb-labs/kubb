@@ -37,8 +37,9 @@ kubb generate ./petStore.yaml  # this spec instead
 | `--reporter <names>` | | `cli` | Comma-separated [reporters](#reporters) to run: `cli`, `json`, `file`, `html`. |
 | `--watch` | `-w` | `false` | Generate again when the local `input` file changes. |
 | `--dry-run` | | `false` | Preview the run. Writes no files and skips formatting, linting, and `output.postGenerate`. |
-| `--check` | | `false` | Compare the output with the files on disk and write nothing to `output.path`. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
+| `--check` | | `false` | Compare the output with the files on disk and write nothing. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
 | `--diff` | | `false` | Print a diff for each out-of-date file. Turns `--check` on. |
+| `--force` | | `false` | Generate, format, and lint even when the run is [up to date](#up-to-date-runs). |
 
 ### Watch mode
 
@@ -46,7 +47,7 @@ kubb generate ./petStore.yaml  # this spec instead
 
 ### Check mode {#check-mode}
 
-`--check` tells you whether a run would change the generated files on disk, and writes nothing to `output.path`. Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. `--diff` also prints what would change.
+`--check` tells you whether a run would change the generated files on disk, and writes nothing. Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. `--diff` also prints what would change.
 
 ```shell [Terminal]
 kubb generate --check          # exit 1 when a file is out of date
@@ -120,7 +121,14 @@ When you write an adapter, its `sources` member lists the files and URLs the las
 
 ### Check mode details {#check-mode-details}
 
-Kubb generates into a temporary folder inside the project root, runs `output.format` and `output.lint` there, and compares the result with `output.path`. It then deletes the folder.
+Kubb generates in memory and compares each file with the one on disk. It writes nothing and runs no formatter or linter.
+
+A formatter rewrites what Kubb generates, so the generated text and the file on disk often differ. [`kubb-lock.json`](#kubb-lock) records what each generated file became after `output.format`, `output.lint`, and `output.postGenerate`. A file is up to date when:
+
+- the file on disk holds the generated text, or
+- `kubb-lock.json` lists the file, and its two hashes equal the hash of the generated text and the hash of the file on disk.
+
+Without `output.format`, `output.lint`, and `output.postGenerate`, the check needs no `kubb-lock.json`.
 
 ```text [Out of date]
 ✗ Generated code is out of date  412ms
@@ -161,17 +169,78 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 | | `--dry-run` | `--check` |
 | --- | --- | --- |
 | Exit code when files would change | `0` | `1` |
-| Runs `output.format` and `output.lint` | No | Yes, on the temporary folder |
-| Needs the cache in `node_modules/.cache/kubb` to recognize formatted output | Yes | No |
+| Lists each out-of-date file with its path | No | Yes |
+| Prints a diff with `--diff` | No | Yes |
+
+`--dry-run` and `--check` run no formatter or linter. Each reads `kubb-lock.json` to recognize formatted output.
 
 `--check` has these limits:
 
 - It cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
-- `output.postGenerate` does not run. Its commands name their own paths, so they would write to the real output.
-- `output.path`, `shared.path`, and every file a plugin writes must sit inside `root`, and the config must use the default `fs` storage.
+- The config must use the default `fs` storage.
+- With `output.format`, `output.lint`, or `output.postGenerate`, the line counts and `--diff` compare the file on disk with the code before those steps ran. A changed file can show more changed lines than a run would write.
+- A new formatter version or formatter config does not make the check fail. Run `kubb generate --force` after you change one.
+
+### Up-to-date runs {#up-to-date-runs}
+
+`kubb generate` skips the build when nothing it reads has changed since the last run. It prints "Up to date" and exits with `0`. Pass `--force` to generate anyway.
+
+A run is up to date when all of these match [`kubb-lock.json`](#kubb-lock):
+
+- The config, with the source of every function in it.
+- The spec, and every local file it references with `$ref`.
+- The version of Kubb and of every package in the `dependencies` and `devDependencies` of each `package.json` from `root` up.
+- Every generated file on disk.
+
+Kubb always generates in these cases:
+
+- The input is a URL or a git input, or the spec references a URL. Kubb cannot compare those without fetching them.
+- The adapter does not list the files it read, or no `package.json` exists in `root` or above it.
+- The config sets `output.postGenerate`.
+- The config uses a storage other than `fs`.
+- You pass `--watch`, `--check`, `--dry-run`, or a reporter other than `cli`.
 
 > [!WARNING]
-> A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. The check then reports formatting differences. Use a pattern such as `**/gen/**`.
+> Kubb does not see a change in a file that your config imports, such as a helper module or a plugin you develop locally under the same version. It also does not see a change in your formatter's or linter's config file. Run `kubb generate --force` after you edit one.
+
+A run that still generates, such as one with `--reporter json`, skips `output.format` and `output.lint` when nothing it reads changed and every file comes out unchanged. `--force` runs them.
+
+### `kubb-lock.json` {#kubb-lock}
+
+`kubb generate` writes `kubb-lock.json` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files.
+
+`--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
+
+```json [kubb-lock.json]
+{
+  "lockfileVersion": 1,
+  "inputs": {
+    "src/gen": {
+      "hash": "0c3bf1dc…",
+      "sources": ["openapi.yaml"]
+    }
+  },
+  "files": {
+    "src/gen/types/Pet.ts": {
+      "source": "647596c2…",
+      "output": "002220b7…"
+    }
+  }
+}
+```
+
+| Field | Value |
+| --- | --- |
+| `lockfileVersion` | The format version. Kubb ignores a file with another version. |
+| `inputs` | What each config last generated from, keyed by the config's `name`, or its `output.path` without one. Left out for an input Kubb cannot compare, such as a URL. |
+| `hash` | SHA-256 hash of the config, the package versions, and the content of the `sources`. Line endings count as `\n`. |
+| `sources` | The spec and the local files it references, as paths from `root`. |
+| `files` | One entry per generated file, keyed by its path from `root`. |
+| `source` | SHA-256 hash of the code Kubb generated. |
+| `output` | SHA-256 hash of the file on disk after `output.format`, `output.lint`, and `output.postGenerate`. Line endings count as `\n`. |
+
+- Do not edit `kubb-lock.json`. After a merge conflict, run `kubb generate` and commit the result.
+- When `--check` finds formatted output and no `kubb-lock.json`, it exits with `1` and tells you to run `kubb generate`.
 
 ### Run summary {#run-summary}
 
