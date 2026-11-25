@@ -1,6 +1,6 @@
 import { escapePointerToken } from '@internals/utils'
 import { pascalCase } from '@kubb/core'
-import { ast, Diagnostics, Url } from '@kubb/kit'
+import { ast, Diagnostics, macroEnumName, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
@@ -399,9 +399,14 @@ function parseParameter({
   const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
   const mediaType = getMediaType({ content: param.content, contentType, refs })
   const rawSchema = param.schema ?? mediaType?.schema
-  const schema: ast.SchemaNode = rawSchema
+  const parsed: ast.SchemaNode = rawSchema
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
+  // An inline enum gets `enumSuffix`, the same as an inline enum on an object property.
+  const schema =
+    parentName && param.name
+      ? ast.macro.apply(parsed, [macroEnumName({ parentName, propName: param.name, enumSuffix: options.enumSuffix })], { depth: 'shallow' })
+      : parsed
   if (rawSchema) scanSchema(schema, contentType ? `${pointer}/content/${escapePointerToken(contentType)}/schema` : `${pointer}/schema`)
   return ast.factory.createParameter({
     pointer,

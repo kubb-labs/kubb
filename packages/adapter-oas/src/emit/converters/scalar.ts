@@ -174,6 +174,19 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 }
 
 /**
+ * Primitive of an enum's members. Without a `type`, the values decide: `{ enum: [0, 1] }` is a number enum.
+ */
+function getEnumPrimitive(type: string | undefined, values: Array<string | number | boolean>): 'number' | 'boolean' | 'string' {
+  if (type === 'boolean') return 'boolean'
+  if (type === 'number' || type === 'integer') return 'number'
+  if (type !== undefined || values.length === 0) return 'string'
+  if (values.every((value) => typeof value === 'boolean')) return 'boolean'
+  if (values.every((value) => typeof value === 'number')) return 'number'
+
+  return 'string'
+}
+
+/**
  * Converts an `enum` schema into an `EnumSchemaNode`.
  */
 export function convertEnum({ schema, name, nullable, type, parse }: ConvertContext): ast.SchemaNode {
@@ -194,8 +207,8 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
 
   const enumNullable = nullable || nullInEnum || undefined
   const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
-  const primitive: 'number' | 'boolean' | 'string' = type === 'boolean' ? 'boolean' : type === 'number' || type === 'integer' ? 'number' : 'string'
   const uniqueValues = [...new Set(filteredValues)]
+  const primitive = getEnumPrimitive(type, uniqueValues)
 
   const ctx = { schema, name, nullable: enumNullable as true | undefined, defaultValue: enumDefault }
 
@@ -210,11 +223,13 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
   const rawEnumNames = extensionKey ? (memberSlots((schema as Record<string, unknown>)[extensionKey]) as Array<string | number> | undefined) : undefined
   const rawEnumDescriptions = descriptionKey ? (memberSlots((schema as Record<string, unknown>)[descriptionKey]) as Array<string> | undefined) : undefined
   const seenNames = new Set<string>()
+  const seenValues = new Set<string | number | boolean>()
 
   return createNode(ctx, {
     type: 'enum',
     primitive,
-    namedEnumValues: uniqueValues
+    // Pair each value with its name before duplicates go, so a later value keeps its own name.
+    namedEnumValues: filteredValues
       .map((value, index) => ({
         name: String(rawEnumNames?.[index] ?? value),
         value,
@@ -222,7 +237,8 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
         description: rawEnumDescriptions?.[index],
       }))
       .filter((entry) => {
-        if (seenNames.has(entry.name)) return false
+        if (seenValues.has(entry.value) || seenNames.has(entry.name)) return false
+        seenValues.add(entry.value)
         seenNames.add(entry.name)
         return true
       }),
