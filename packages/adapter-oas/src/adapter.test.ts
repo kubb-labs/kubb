@@ -1004,7 +1004,7 @@ describe('adapterOas options', () => {
 
     const node = await adapterOas({ validate: false, enums: 'root' }).parse({ type: 'data', data: spec })
 
-    expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['PetStatusEnum', 'ListPetsStatus', 'Pet'])
+    expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['PetStatusEnum', 'ListPetsStatusEnum', 'Pet'])
     expect(node.schemas[0]).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
 
     const pet = ast.schema.narrow(
@@ -1014,7 +1014,39 @@ describe('adapterOas options', () => {
     expect(pet?.properties[0]?.schema).toMatchObject({ type: 'ref', name: 'PetStatusEnum', ref: '#/components/schemas/PetStatusEnum' })
 
     const status = node.operations[0]?.parameters.find((parameter) => parameter.name === 'status')
-    expect(status?.schema).toMatchObject({ type: 'ref', name: 'ListPetsStatus', ref: '#/components/schemas/ListPetsStatus' })
+    expect(status?.schema).toMatchObject({ type: 'ref', name: 'ListPetsStatusEnum', ref: '#/components/schemas/ListPetsStatusEnum' })
+  })
+
+  it('applies enumSuffix to an inline enum on a parameter', async () => {
+    const spec = {
+      openapi: '3.0.3',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            operationId: 'getPets',
+            parameters: [{ name: 'state', in: 'query', schema: { type: 'string', enum: ['open', 'closed'] } }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Pet: { type: 'object', properties: { state: { type: 'string', enum: ['open', 'closed'] } } },
+        },
+      },
+    } as const
+
+    const node = await adapterOas({ validate: false, enumSuffix: 'Marker' }).parse({ type: 'data', data: spec })
+
+    const pet = ast.schema.narrow(
+      node.schemas.find((schema) => schema.name === 'Pet')!,
+      'object',
+    )
+    expect(pet?.properties[0]?.schema).toMatchObject({ type: 'enum', name: 'PetStateMarker' })
+
+    const state = node.operations[0]?.parameters.find((parameter) => parameter.name === 'state')
+    expect(state?.schema).toMatchObject({ type: 'enum', name: 'GetPetsStateMarker' })
   })
 })
 
