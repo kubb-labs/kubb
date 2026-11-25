@@ -4,12 +4,13 @@ import { type Config, createLockfile, Diagnostics, fsStorage, type GenerationRes
 import { formatPatch } from 'diff'
 import { diffFile, type FileChange, fingerprintFile, statusKeys } from './utils.ts'
 
-/** The config the user wrote, kept on the copy a check generates from. */
+// The config the user wrote, kept on the copy a check generates from.
 type Origin = { config: Config; root: string }
 
-// Core copies it when it resolves the config.
+// Core copies a symbol key when it resolves the config, so the origin survives.
 const originKey = Symbol('kubb.check.origin')
 type CheckConfig = Config & { [originKey]?: Origin }
+const originOf = (config: Config): Origin => (config as CheckConfig)[originKey]!
 
 type CheckedFile = NonNullable<GenerationResult['check']>['files'][number]
 
@@ -57,15 +58,11 @@ async function addDeletedFiles({
  * A generated file is up to date when the file on disk holds the same text, or when `kubb-lock.yaml`
  * records that this exact source came out of the output passes as the text on disk. `kubb generate`
  * writes that record, so the check gives the same answer on a fresh checkout.
- *
- * @example
- * ```ts
- * const check = createOutputCheck({ diff: false })
- * const configs = check.prepare(userConfigs)
- * ```
  */
 export class OutputCheck {
-  /** One unified diff per changed file, filled only with `diff`. */
+  /**
+   * One unified diff per changed file, filled only with `diff`.
+   */
   readonly patches: Array<string> = []
   readonly #diff: boolean
   #changed = false
@@ -75,17 +72,20 @@ export class OutputCheck {
     this.#diff = diff
   }
 
-  /** `true` once any config's output differs from the files on disk. */
   get changed(): boolean {
     return this.#changed
   }
 
-  /** `true` once a config that formats or lints its output has no `kubb-lock.yaml` to compare with. */
+  /**
+   * `true` once a config that formats or lints its output has no `kubb-lock.yaml` to compare with.
+   */
   get missingLockfile(): boolean {
     return this.#missingLockfile
   }
 
-  /** The configs to generate instead: each keeps its files in memory. Throws for a config a check cannot compare. */
+  /**
+   * The configs to generate instead: each keeps its files in memory. Throws for a config a check cannot compare.
+   */
   prepare(configs: ReadonlyArray<Config>): Array<Config> {
     return configs.map((config): CheckConfig => {
       // A config without `storage` gets the fs storage from core.
@@ -108,12 +108,13 @@ export class OutputCheck {
     })
   }
 
-  /** The config as the user wrote it, for a config from `prepare`. */
+  /**
+   * The config as the user wrote it, for a config from `prepare`.
+   */
   original(config: Config): Config {
-    return (config as CheckConfig)[originKey]!.config
+    return originOf(config).config
   }
 
-  /** Compares what `config` generated into `storage` with the files on disk. */
   async compare({
     config,
     storage,
@@ -123,7 +124,7 @@ export class OutputCheck {
     storage: Storage
     paths: ReadonlySet<string>
   }): Promise<NonNullable<GenerationResult['check']> & { unchanged: number }> {
-    const origin = (config as CheckConfig)[originKey]!
+    const origin = originOf(config)
     const diff = this.#diff
     const disk = fsStorage()
     const lockfile = await createLockfile({ storage: disk, root: origin.root })
@@ -160,7 +161,6 @@ export class OutputCheck {
   }
 }
 
-/** Starts a `kubb generate --check` run. `diff` also collects a unified diff per changed file. */
 export function createOutputCheck(options: { diff: boolean }): OutputCheck {
   return new OutputCheck(options)
 }

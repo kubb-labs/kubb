@@ -29,7 +29,7 @@ describe('createLockfile', () => {
     return { root, file, lock, readLock: () => parse(readFileSync(lock, 'utf8')) as unknown }
   }
 
-  /** A project whose lockfile recorded `a.ts` and its formatted output, with the lockfile the next run would load. */
+  // A project whose lockfile recorded `a.ts` and its formatted output, with the lockfile the next run would load.
   async function recorded() {
     const target = project()
     await storage.writeItem(target.file('a.ts'), formatted)
@@ -93,12 +93,11 @@ describe('createLockfile', () => {
   })
 
   it.each([
-    ['was deleted', null],
-    ['no longer holds the recorded output', 'const a = 999\n'],
-  ])('drops the entry of a file that %s', async (_name, content) => {
+    ['was deleted', (path: string) => rmSync(path)],
+    ['no longer holds the recorded output', (path: string) => writeFileSync(path, 'const a = 999\n')],
+  ])('drops the entry of a file that %s', async (_name, change) => {
     const { file, lockfile, readLock } = await recorded()
-    if (content === null) rmSync(file('a.ts'))
-    else writeFileSync(file('a.ts'), content)
+    change(file('a.ts'))
 
     await lockfile.write()
 
@@ -171,6 +170,25 @@ describe('createLockfile', () => {
     await second.write({ name: 'admin', inputs: { hash: 'b', sources: [] } })
 
     expect(readLock()).toStrictEqual({ lockfileVersion: 1, inputs: { admin: { hash: 'b', sources: [] } }, files: {} })
+  })
+
+  it.each([
+    [
+      'keeps the inputs of the other configs when the missing file is in a folder this run cleaned',
+      true,
+      { api: { hash: 'a', sources: [] }, admin: { hash: 'b', sources: [] } },
+    ],
+    ['drops the inputs of the other configs when a file went missing outside a cleaned folder', false, { admin: { hash: 'b', sources: [] } }],
+  ])('%s', async (_name, isCleaned, inputs) => {
+    const { root, file, readLock } = await recorded()
+    const first = await createLockfile({ storage, root })
+    await first.write({ name: 'api', inputs: { hash: 'a', sources: [] } })
+    rmSync(file('a.ts'))
+
+    const second = await createLockfile({ storage, root })
+    await second.write({ name: 'admin', inputs: { hash: 'b', sources: [] }, cleaned: isCleaned ? [join(root, 'gen')] : [] })
+
+    expect(readLock()).toStrictEqual({ lockfileVersion: 1, inputs, files: {} })
   })
 
   it('ignores an inputs record that is not a hash with a list of sources', async () => {

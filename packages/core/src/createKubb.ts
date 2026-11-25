@@ -38,11 +38,11 @@ function writesOutputDirectory(storage: Storage): boolean {
   return storage.name === 'fs'
 }
 
-/** The key of a config's inputs in the lockfile: its name, or its output path, which sets unnamed configs apart. */
+// The output path sets unnamed configs apart.
 const lockfileKey = ({ name, root, output }: Pick<Config, 'name' | 'root' | 'output'>): string =>
   name ?? toPosixPath(relative(root, resolve(root, output.path)))
 
-/** The files the adapter read, or `null` when it lists none for a spec that is a file. */
+// `null` when the adapter lists no files for a spec that is a file.
 function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Array<string> | null {
   if (!adapter) return []
   if (!adapter.sources) return null
@@ -51,7 +51,6 @@ function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Arr
   return adapter.sources
 }
 
-/** Whether the config, the installed packages and the source files are the ones the lockfile recorded. */
 async function satisfiesLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
   const recorded = lockfile.inputs(lockfileKey(config))
   const configText = recorded && serializeConfig(config)
@@ -131,7 +130,9 @@ export type GenerateOptions = {
    * output and returns the diagnostics they emitted.
    */
   processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
-  /** Runs `output.format` and `output.lint` even when the build left every file as it was. */
+  /**
+   * Runs `output.format` and `output.lint` even when the build left every file as it was.
+   */
   force?: boolean
 }
 
@@ -179,6 +180,7 @@ export class Kubb {
   readonly config: Config
   #driver: KubbDriver | null = null
   #lockfile: Lockfile | null = null
+  #cleanPaths: Array<string> = []
   readonly #signal: AbortSignal | undefined
   #sharedSchemas: SharedSchemas | undefined
   readonly #fileRefs: Array<string> | undefined
@@ -286,6 +288,7 @@ export class Kubb {
 
     this.#driver = driver
     this.#lockfile = lockfile ?? null
+    this.#cleanPaths = dirsToClean.map(([, dir]) => dir)
   }
 
   /**
@@ -339,9 +342,9 @@ export class Kubb {
     const hrStart = process.hrtime()
 
     await hooks.callHook('kubb:generation:start', { config })
-    // Read before the build, so it equals what `isUpToDate` reads on the next run.
-    const configText = serializeConfig(config)
     const startedAt = Date.now()
+    // Serialized before the build, so the text equals what `isUpToDate` serializes on the next run.
+    const configText = serializeConfig(config)
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
@@ -384,7 +387,7 @@ export class Kubb {
     // The formatter and linter have had their turn, so what sits on disk now is what the next run
     // has to recognize as unchanged. Only record it when they finished: a pass that failed halfway
     // leaves files Kubb has to stay free to regenerate.
-    if (!failed) await this.#lockfile?.write({ name: lockfileKey(config), inputs })
+    if (!failed) await this.#lockfile?.write({ name: lockfileKey(config), inputs, cleaned: this.#cleanPaths })
 
     await this.#end({
       config,
@@ -398,7 +401,7 @@ export class Kubb {
     return { success: !failed, files, diagnostics: finalDiagnostics, input }
   }
 
-  /** What this build read, or `null` without a lockfile to record it in, or when it cannot be compared. */
+  // `null` without a lockfile to record the inputs in, or when they cannot be compared.
   async #hashInputs({ configText, since }: { configText: string | null; since: number }): Promise<LockfileInputs | null> {
     const { config } = this
     const sources = readSources(config)
@@ -407,7 +410,7 @@ export class Kubb {
     return hashInputs({ root: config.root, configText, sources, since })
   }
 
-  /** The config for the output passes, without the formatter and linter when the inputs and every file are unchanged. */
+  // Drops the formatter and linter when the inputs and every file are unchanged.
   #passesConfig({ inputs, force }: { inputs: LockfileInputs | null; force?: boolean }): Config {
     const { config } = this
     const lockfile = this.#lockfile

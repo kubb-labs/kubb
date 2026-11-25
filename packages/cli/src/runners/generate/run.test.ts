@@ -30,13 +30,14 @@ type BootstrapOptions = {
   check?: boolean
   diff?: boolean
   force?: boolean
+  dryRun?: boolean
 }
 
 /**
  * Runs the command with no configs to generate, so only the bootstrap Configuration group renders.
  * Non-rich, so the group is plain text an assertion can read.
  */
-async function bootstrap({ fail = false, reporters, configs = [], check, diff, force }: BootstrapOptions = {}) {
+async function bootstrap({ fail = false, reporters, configs = [], check, diff, force, dryRun }: BootstrapOptions = {}) {
   const lines: Array<string> = []
   // What reached stdout alone, since `json` keeps it for the report.
   const stdout: Array<string> = []
@@ -60,7 +61,7 @@ async function bootstrap({ fail = false, reporters, configs = [], check, diff, f
         : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
-  await run({ logLevel: 'info', watch: false, reporters, check, diff, force }).catch((error: Error) => void lines.push(error.message))
+  await run({ logLevel: 'info', watch: false, reporters, check, diff, force, dryRun }).catch((error: Error) => void lines.push(error.message))
   // A failed build sets `exitCode` instead of calling `exit()`, so telemetry can finish; record it the same way.
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
@@ -352,7 +353,7 @@ describe('check', () => {
       plugins: [writesFiles()],
     } satisfies UserConfig as unknown as Config
     const file = (name: string) => join(root, 'src/gen', name)
-    /** Every file under the root with its content, which also proves a check writes nothing. */
+    // Every file under the root with its content, which also proves a check writes nothing.
     const snapshot = () =>
       Object.fromEntries(
         readdirSync(root, { recursive: true, withFileTypes: true })
@@ -363,7 +364,7 @@ describe('check', () => {
     return { root, config, file, snapshot }
   }
 
-  /** A project whose output a real run wrote and formatted, as a fresh CI checkout holds it: the files and `kubb-lock.yaml`. */
+  // A project as a fresh CI checkout holds it: the formatted files and `kubb-lock.yaml`.
   async function generated(options?: { clean?: boolean }) {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
@@ -385,6 +386,16 @@ describe('check', () => {
     expect(lines.some((line) => line.includes('Out-of-date files'))).toBe(false)
     expect(lines.some((line) => line.includes('to update them'))).toBe(false)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
+    expect(snapshot()).toStrictEqual(before)
+  })
+
+  it('reports formatted output as unchanged in a dry run, from kubb-lock.yaml alone', async () => {
+    const { config, snapshot } = await generated()
+    const before = snapshot()
+
+    const lines = await bootstrap({ configs: [config], dryRun: true })
+
+    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged'))).toBe(true)
     expect(snapshot()).toStrictEqual(before)
   })
 
@@ -421,7 +432,7 @@ describe('check', () => {
     expect((await bootstrap({ configs: [kept.config], check: true })).filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
-  it('runs no formatter or linter, so ignore rules that skip a temporary folder cannot fail the check', async () => {
+  it('exits 0 when the linter config ignores every path outside src', async () => {
     const target = project()
     // Lints `src/` only: a pass over any folder outside it finds no files and fails.
     writeFileSync(join(target.root, '.oxlintrc.json'), JSON.stringify({ ignorePatterns: ['**/*', '!src/**/*'] }))
@@ -442,7 +453,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.includes('No kubb-lock.yaml found. Run `kubb generate` and commit kubb-lock.yaml'))).toBe(true)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.yaml found. Run `kubb generate` and commit kubb-lock.yaml'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
@@ -453,15 +464,15 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true, reporters: ['json'] })
 
-    expect(lines.some((line) => line.includes('No kubb-lock.yaml found'))).toBe(true)
-    expect(lines.stdout.some((line) => line.includes('No kubb-lock.yaml found'))).toBe(false)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.yaml found'))).toBe(true)
+    expect(lines.stdout.some((line) => line.includes('No readable kubb-lock.yaml found'))).toBe(false)
   })
 
   describe('reuse', () => {
     const upToDate = (lines: Array<string>) =>
       lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.yaml'))
 
-    /** A generated project that reads its spec from a file. Each run loads its config anew, as the CLI does. */
+    // Each run loads its config anew, as the CLI does.
     async function fromSpecFile() {
       const target = project()
       const spec = join(target.root, 'openapi.json')

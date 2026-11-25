@@ -130,8 +130,7 @@ async function writeChanged({
   // Every generated file goes into the lockfile, also one this run leaves as it is.
   lockfile?.add({ key: file.path, source })
   // Asked for every stored file, so the lockfile knows when every file is already up to date.
-  const upToDate = stored !== null && lockfile?.matches({ key: file.path, source, disk: stored })
-  if (stored !== null && (upToDate || matchesStored({ stored, source }))) {
+  if (stored !== null && (lockfile?.matches({ key: file.path, source, disk: stored }) || matchesStored({ stored, source }))) {
     return { written: false, stored }
   }
   signal?.throwIfAborted()

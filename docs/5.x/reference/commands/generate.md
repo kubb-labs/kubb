@@ -126,7 +126,7 @@ Kubb generates in memory and compares each file with the one on disk. It writes 
 A formatter rewrites what Kubb generates, so the generated text and the file on disk often differ. [`kubb-lock.yaml`](#kubb-lock) records what each generated file became after `output.format`, `output.lint`, and `output.postGenerate`. A file is up to date when:
 
 - the file on disk holds the generated text, or
-- `kubb-lock.yaml` holds a hash of the generated text and a hash of the file on disk, and both match.
+- `kubb-lock.yaml` lists the file, and its two hashes equal the hash of the generated text and the hash of the file on disk.
 
 Without `output.format`, `output.lint`, and `output.postGenerate`, the check needs no `kubb-lock.yaml`.
 
@@ -172,7 +172,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 | Lists each out-of-date file with its path | No | Yes |
 | Prints a diff with `--diff` | No | Yes |
 
-Both run no formatter or linter, and both read `kubb-lock.yaml` to recognize formatted output.
+`--dry-run` and `--check` run no formatter or linter. Each reads `kubb-lock.yaml` to recognize formatted output.
 
 `--check` has these limits:
 
@@ -197,6 +197,7 @@ Kubb always generates in these cases:
 - The input is a URL or a git input, or the spec references a URL. Kubb cannot compare those without fetching them.
 - The adapter does not list the files it read, or no `package.json` exists in `root` or above it.
 - The config sets `output.postGenerate`.
+- The config uses a storage other than `fs`.
 - You pass `--watch`, `--check`, `--dry-run`, or a reporter other than `cli`.
 
 > [!WARNING]
@@ -206,7 +207,9 @@ A run that still generates, such as one with `--reporter json`, skips `output.fo
 
 ### `kubb-lock.yaml` {#kubb-lock}
 
-`kubb generate` writes `kubb-lock.yaml` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files. `--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
+`kubb generate` writes `kubb-lock.yaml` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files.
+
+`--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
 
 ```yaml [kubb-lock.yaml]
 lockfileVersion: 1

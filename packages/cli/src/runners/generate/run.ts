@@ -212,7 +212,7 @@ function startOutputCheck({ check = false, diff = false, watch }: Pick<GenerateC
   return { outputCheck: createOutputCheck({ diff }), failureExitCode: 2 }
 }
 
-/** `--check` wins over `--dry-run`: it writes nothing either. */
+// `--check` wins over `--dry-run`: it writes nothing either.
 function toRunConfigs({
   configs,
   input,
@@ -244,11 +244,11 @@ function showsTip({
   return !quiet && !watchMode && succeeded && !outputCheck?.changed
 }
 
-/** Says why every formatted file reads as out of date. stdout belongs to the `json` report. */
+// stdout belongs to the `json` report, so the warning goes to stderr there.
 function warnMissingLockfile({ json }: { json: boolean }): void {
-  const message = `No ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`
-  if (json) console.error(message)
-  else logWarn(message)
+  const message = `No readable ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`
+  const warn = json ? console.error : logWarn
+  warn(message)
 }
 
 /**
@@ -278,7 +278,14 @@ function reportOutcome({
   if (outputCheck?.changed) process.exitCode = 1
 }
 
-/** Generates the configs, unless `canSkip` is set and a build of every config would leave the output as it is. */
+async function isUpToDate(configs: ReadonlyArray<Config>): Promise<boolean> {
+  for (const config of configs) {
+    if (!(await Kubb.isUpToDate(config))) return false
+  }
+
+  return true
+}
+
 async function generateOrSkip({
   configs,
   hooks,
@@ -287,7 +294,7 @@ async function generateOrSkip({
   watchMode,
   canSkip,
 }: GenerateProps & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
-  if (canSkip && (await Promise.all(configs.map((config) => Kubb.isUpToDate(config)))).every(Boolean)) {
+  if (canSkip && (await isUpToDate(configs))) {
     if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     return true
   }

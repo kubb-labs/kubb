@@ -39,7 +39,7 @@ export function resolveCacheDir(root: string): string {
  * @example
  * ```ts
  * const cache = cacheStorage({ root: config.root })
- * await cache.writeItem('output-manifest.json', JSON.stringify(entries))
+ * await cache.writeItem('entries.json', JSON.stringify(entries))
  * ```
  */
 export const cacheStorage = createStorage(({ root = host.cwd() }: CacheStorageOptions) => {
