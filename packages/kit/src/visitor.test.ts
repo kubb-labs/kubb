@@ -223,10 +223,10 @@ describe('generatorVisitor', () => {
     const filesFor = async (pattern: string) => {
       const plugin = defineExtension({
         kind: 'plugin',
-        meta: { name: 'plugin-orphans' },
+        meta: { name: 'plugin-exclude' },
         setup(options) {
           addGenerator({
-            name: 'orphans',
+            name: 'exclude',
             schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
           })
           return { ...options, exclude: [{ type: 'schemaName', pattern }] }

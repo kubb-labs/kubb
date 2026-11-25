@@ -75,7 +75,7 @@ function operationSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<
 }
 
 // A schemaName exclude also drops the schemas only the excluded schemas reference.
-function orphanedSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<string> {
+function unusedSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<string> {
   const exclude = pluginOptions(ctx).exclude?.filter(({ type }) => type === 'schemaName') ?? []
   // The filter list is also the cache key, so these results stay apart from the plugin's own.
   const excluded = new Set(ctx.schemas.filter((node) => exclude.length && resolver.default.options(node, { options: exclude, exclude }) === null))
@@ -88,9 +88,9 @@ function orphanedSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<s
   return new Set([...candidates].filter((name) => !used.has(name)))
 }
 
-// Names the walk leaves out before a rule runs: the orphaned schemas, and those an operation-based include does not use.
+// Names the walk leaves out before a rule runs: schemas only an excluded schema uses, and schemas an operation-based include does not use.
 function skippedSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<string> {
-  const skipped = orphanedSchemaNames(ctx, resolver)
+  const skipped = unusedSchemaNames(ctx, resolver)
   const allowed = operationSchemaNames(ctx, resolver)
   if (!allowed) return skipped
   for (const { name } of ctx.schemas) {
