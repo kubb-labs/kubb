@@ -182,7 +182,7 @@ Both run no formatter or linter, and both read `kubb.lock` to recognize formatte
 
 ### `kubb.lock` {#kubb-lock}
 
-`kubb generate` writes `kubb.lock` to `root` when the config sets `output.format`, `output.lint`, or `output.postGenerate`. Commit it with the generated files. `--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
+`kubb generate` writes `kubb.lock` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files. `--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
 
 ```json [kubb.lock]
 {
@@ -199,9 +199,9 @@ Both run no formatter or linter, and both read `kubb.lock` to recognize formatte
 | Field | Value |
 | --- | --- |
 | `lockfileVersion` | The format version. Kubb ignores a file with another version. |
-| `files` | One entry per generated file that the formatter, linter, or a `postGenerate` command changed, keyed by its path from `root`. |
+| `files` | One entry per generated file, keyed by its path from `root`. |
 | `source` | SHA-256 hash of the code Kubb generated. |
-| `output` | SHA-256 hash of the file on disk after those steps. Line endings count as `\n`. |
+| `output` | SHA-256 hash of the file on disk after `output.format`, `output.lint`, and `output.postGenerate`. Line endings count as `\n`. |
 
 - Do not edit `kubb.lock`. After a merge conflict, run `kubb generate` and commit the result.
 - When `--check` finds formatted output and no `kubb.lock`, it exits with `1` and tells you to run `kubb generate`.

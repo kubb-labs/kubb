@@ -207,7 +207,7 @@ export class Kubb {
     // A second setup replaces the driver, so the old one's plugin listeners must go first.
     this.dispose()
     const config = this.config
-    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, root: config.root }) : undefined
+    const manifest = writesOutputDirectory(config.storage) ? await createOutputManifest({ storage: config.storage, root: config.root }) : undefined
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])

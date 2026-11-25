@@ -45,14 +45,13 @@ export type OutputManifest = {
    */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
   /**
-   * Records the source Kubb wrote for `key`, marking it as the only kind of file the output passes
-   * can have changed and so the only kind `commit` has to re-read.
+   * Records the source Kubb generated for `key`, so `commit` adds the file to the lock file.
    */
   track(options: { key: string; source: string }): void
   /**
-   * Re-reads the files written this run and writes `kubb.lock`. An entry from an earlier run stays
-   * while its file still holds the recorded output, so a run that generates a different set of
-   * files keeps what another config recorded. A file the output passes left as written gets no entry.
+   * Re-reads the files generated this run and writes `kubb.lock` with one entry for each. An entry
+   * from an earlier run stays while its file still holds the recorded output, so a run that
+   * generates a different set of files keeps what another config recorded.
    */
   commit(): Promise<void>
 }
@@ -95,7 +94,7 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
   const loaded = await loadEntries(lockPath)
   const entries = loaded ?? {}
   const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
-  const tracked = new Map<string, { source: string; trimmed: string }>()
+  const tracked = new Map<string, string>()
 
   return {
     exists: loaded !== null,
@@ -106,7 +105,7 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
       return entry.source === digest(source) && entry.output === digest(disk)
     },
     track({ key, source }) {
-      tracked.set(key, { source: digest(source), trimmed: digest(source.trim()) })
+      tracked.set(key, digest(source))
     },
     async commit() {
       try {
@@ -125,11 +124,9 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
         await inParallel({
           items: [...tracked],
           limit: FILE_CONCURRENCY,
-          run: async ([key, { source, trimmed }]) => {
+          run: async ([key, source]) => {
             const stored = await storage.readItem(key)
-            // The storage trims what it writes, so an untouched file equals the trimmed source.
-            if (stored === null || digest(stored.trim()) === trimmed) return
-            next[toLockKey(key)] = { source, output: digest(stored) }
+            if (stored !== null) next[toLockKey(key)] = { source, output: digest(stored) }
           },
         })
 

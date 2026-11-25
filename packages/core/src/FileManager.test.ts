@@ -240,22 +240,22 @@ describe('FileManager', () => {
       expect(await storage.readItem('/repo/src/user.ts')).toContain('/* a */')
     })
 
-    // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
-    it.each([['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']]])(
-      '%s %s',
-      async (_verb, _name, stored, upToDate, tracked) => {
-        const storage = memoryStorage()
-        if (stored !== null) await storage.writeItem('a.ts', stored)
-        const writeItem = vi.spyOn(storage, 'writeItem')
-        const manifest = stubManifest({ upToDate })
-        const manager = new FileManager()
+    // Every generated file is tracked, so the lock file lists it whether this run wrote it or not.
+    it.each([
+      ['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']],
+      ['skips', 'a file the manifest knows as up to date, and still tracks it', 'formatted', true, []],
+    ])('%s %s', async (_verb, _name, stored, upToDate, written) => {
+      const storage = memoryStorage()
+      if (stored !== null) await storage.writeItem('a.ts', stored)
+      const writeItem = vi.spyOn(storage, 'writeItem')
+      const manifest = stubManifest({ upToDate })
+      const manager = new FileManager()
 
-        await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
 
-        expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(tracked)
-        expect(manifest.tracked).toStrictEqual(tracked)
-      },
-    )
+      expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(written)
+      expect(manifest.tracked).toStrictEqual(['a.ts'])
+    })
 
     it('hands each parsed source to kubb:file:processed, including files the storage already held', async () => {
       const storage = memoryStorage()

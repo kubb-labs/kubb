@@ -49,7 +49,6 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
     input: input ?? config.input,
     // Dry-run never touches disk, regardless of the config's own storage driver.
     storage: dryRun ? memoryStorage() : config.storage,
-    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
     output: dryRun ? { ...config.output, format: false, lint: false, postGenerate: [] } : config.output,
   }
 }

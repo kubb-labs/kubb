@@ -598,21 +598,22 @@ describe('Kubb#generate', () => {
     expect(project.read()).toBe(`export const hello = 'moon'\n`)
   })
 
-  it.each<[string, Parameters<typeof createProject>[0], ProjectBuild]>([
-    [
-      'an output pass failed',
-      {},
-      {
-        processOutput: async () => [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }],
-      },
-    ],
-    ['nothing runs over the output', { format: false }, {}],
-  ])('keeps no manifest when %s', async (_name, projectOptions, build) => {
-    const project = createProject(projectOptions)
+  it('writes no lock file when an output pass failed', async () => {
+    const project = createProject()
 
-    await project.generate(build)
+    await project.generate({
+      processOutput: async () => [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }],
+    })
 
     expect(project.hasManifest()).toBe(false)
+  })
+
+  it('writes the lock file when nothing runs over the output', async () => {
+    const project = createProject({ format: false })
+
+    await project.generate()
+
+    expect(project.hasManifest()).toBe(true)
   })
 })
 

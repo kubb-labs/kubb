@@ -127,13 +127,13 @@ async function writeChanged({
 }> {
   signal?.throwIfAborted()
   const stored = cleaned?.some((dir) => isPathInside(file.path, dir)) ? null : await storage.readItem(file.path)
+  // Every generated file goes into the lock file, also one this run leaves as it is.
+  manifest?.track({ key: file.path, source })
   if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) {
     return { written: false, stored }
   }
   signal?.throwIfAborted()
   await storage.writeItem(file.path, source, { stored })
-  // Only a file that was written can have been changed by the output passes.
-  manifest?.track({ key: file.path, source })
   return { written: true, stored }
 }
 

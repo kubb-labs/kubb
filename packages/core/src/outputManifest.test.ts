@@ -66,14 +66,14 @@ describe('createOutputManifest', () => {
     expect(stored.files['gen/a.ts']).toStrictEqual({ source: expect.stringMatching(/^[0-9a-f]{64}$/), output: expect.stringMatching(/^[0-9a-f]{64}$/) })
   })
 
-  it('records no entry for a file the output passes left as written', async () => {
+  it('records a file the output passes left as written', async () => {
     const { root, file, readLock } = project()
     await storage.writeItem(file('a.ts'), 'const a = 1')
     const manifest = await createOutputManifest({ storage, root })
     manifest.track({ key: file('a.ts'), source: 'const a = 1' })
     await manifest.commit()
 
-    expect(readLock()).toStrictEqual({ lockfileVersion: 1, files: {} })
+    expect(readLock()).toMatchObject({ files: { 'gen/a.ts': { source: expect.any(String), output: expect.any(String) } } })
   })
 
   it('keeps the entries of another config generating into the same root', async () => {
