@@ -55,6 +55,26 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
+// A schemaName include also keeps the schemas its matches reference, so their imports resolve.
+function keepReferenced(ctx: PluginVisitContext, state: VisitState): void {
+  if (!pluginOptions(ctx).include?.some(({ type }) => type === 'schemaName')) return
+  const { resolver } = state.context
+  const referenced = ast.graph.getUsedNames([...state.schemas.keys()], ctx.schemas)
+  for (const node of ctx.schemas) {
+    if (state.schemas.has(node) || !node.name || !referenced.has(node.name)) continue
+    try {
+      const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude: true })
+      if (!resolved) continue
+      state.schemas.set(node, resolved)
+      const schemaName = resolved.transformedNode.name
+      if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
+    } catch (caughtError) {
+      state.schemas.set(node, toError(caughtError))
+      return
+    }
+  }
+}
+
 // Runs a template's `render` with `ctx` as `this`, as its context argument and as `useKubb()`.
 function run<TArgs extends Array<unknown>, TResult>(ctx: object, fn: (...args: TArgs) => TResult, ...args: TArgs): TResult {
   return withContext(ctx, () => fn.apply(ctx, args))
@@ -139,22 +159,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
         }
       }
 
-      // A schemaName include also keeps the schemas its matches reference, so their imports resolve.
-      if (!include?.some(({ type }) => type === 'schemaName')) return
-      const referenced = ast.graph.getUsedNames([...state.schemas.keys()], ctx.schemas)
-      for (const node of ctx.schemas) {
-        if (state.schemas.has(node) || !node.name || !referenced.has(node.name)) continue
-        try {
-          const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude: true })
-          if (!resolved) continue
-          state.schemas.set(node, resolved)
-          const schemaName = resolved.transformedNode.name
-          if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
-        } catch (caughtError) {
-          state.schemas.set(node, toError(caughtError))
-          return
-        }
-      }
+      keepReferenced(ctx, state)
     },
     async 'kubb:plugin:visit:schema'(node, ctx) {
       const state = getState(ctx)
