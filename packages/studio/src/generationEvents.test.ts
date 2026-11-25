@@ -1,12 +1,12 @@
 import process from 'node:process'
 import { Hookable, type KubbHooks, runHook } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStream } from './generationEvents.ts'
+import { createGenerationStream, GenerationStream } from './generationEvents.ts'
 
 describe('Generation event stream', () => {
   it('serializes an error without its stack for a waiting reader and skips core hooks outside the public catalog', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
+    const generation = createGenerationStream({ hooks, jobId: 'job-1' })
     const reader = generation.stream.getReader()
     const reading = reader.read()
 
@@ -23,7 +23,7 @@ describe('Generation event stream', () => {
 
   it('sends error stacks only in debug mode', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1', { debug: true })
+    const generation = new GenerationStream({ hooks, jobId: 'job-1', debug: true })
 
     await hooks.callHook('kubb:error', { error: new Error('broken') })
     await generation.close()
@@ -37,7 +37,7 @@ describe('Generation event stream', () => {
     { debug: true, stack: expect.stringContaining('broken') },
   ])('sends diagnostic and hook error stacks only when debug is $debug', async ({ debug, stack }) => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1', { debug })
+    const generation = createGenerationStream({ hooks, jobId: 'job-1', debug })
 
     await hooks.callHook('kubb:diagnostic', {
       diagnostic: { code: 'KUBB_UNKNOWN', severity: 'error', message: 'broken', cause: new Error('broken') },
@@ -52,7 +52,7 @@ describe('Generation event stream', () => {
 
   it('keeps errors when progress fills the event queue', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
+    const generation = createGenerationStream({ hooks, jobId: 'job-1' })
 
     for (let i = 0; i < 1_025; i++) await hooks.callHook('kubb:info', { message: `step ${i}` })
     await hooks.callHook('kubb:error', { error: new Error('broken') })
@@ -65,7 +65,7 @@ describe('Generation event stream', () => {
 
   it('lets the event loop run after a step event, so a run busy rendering in memory still sends it', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
+    const generation = createGenerationStream({ hooks, jobId: 'job-1' })
     let ticked = false
     setImmediate(() => {
       ticked = true
@@ -79,7 +79,7 @@ describe('Generation event stream', () => {
 
   it('strips terminal styling from messages, which core writes for a console', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
+    const generation = createGenerationStream({ hooks, jobId: 'job-1' })
 
     await hooks.callHook('kubb:success', { message: 'Formatting with \u001b[2mprettier\u001b[22m successfully' })
     await generation.close()
@@ -92,7 +92,7 @@ describe('Generation event stream', () => {
 describe('hook events from a command core runs', () => {
   it('publishes hook:start, one hook:line per stdout line and a successful hook:end under one id', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
+    const generation = createGenerationStream({ hooks, jobId: 'job-1' })
     const args = ['-e', "console.log('first');console.log('second')"]
 
     await runHook({ hooks, command: process.execPath, args })
