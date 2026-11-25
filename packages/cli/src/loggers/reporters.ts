@@ -2,7 +2,7 @@ import process from 'node:process'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { isPathInside, memo } from '@internals/utils'
-import type { GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
+import type { Config, GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
@@ -30,8 +30,6 @@ type GenerationRun = {
   outputPath: string
   filesUnchanged: number
   paths: Set<string>
-  // Check runs only: how the generated files differ from the output on disk.
-  check?: GenerationResult['check']
   // Read-back runs only: the whole output as it was before generation.
   previous?: Map<string, string>
   reading?: Promise<Map<string, string>>
@@ -158,12 +156,13 @@ function setupReporters(
     config,
     storage,
     current,
-  }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<ChangeTally | undefined> {
+  }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<
+    (ChangeTally & { check?: GenerationResult['check'] }) | undefined
+  > {
     const { live, paths, previous } = current
     if (outputCheck) {
       const { unchanged, ...check } = await outputCheck.compare({ config, storage, paths })
-      current.check = check
-      return tallyCheck({ files: check.files, unchanged })
+      return { ...tallyCheck({ files: check.files, unchanged }), check }
     }
     if (live) {
       const { tally, fingerprints, processed } = live
@@ -185,31 +184,36 @@ function setupReporters(
     return changes
   }
 
+  // A check reports on the config the user wrote, not on the temporary folder it generated into.
+  const reportedConfig = (config: Config): Config => outputCheck?.userConfig(config) ?? config
+  // A check writes nothing to the output either, and every reporter gets its file changes.
+  const preview = dryRun || Boolean(outputCheck)
+  const changesForAll = fileChanges || Boolean(outputCheck)
+
   context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     const current = run
     run = undefined
-    // A check reports on the config the user wrote, not on the temporary folder it generated into.
     const result: GenerationResult = {
-      config: outputCheck?.userConfig(config) ?? config,
+      config: reportedConfig(config),
       diagnostics,
       filesCreated,
       filesUnchanged: current?.filesUnchanged ?? 0,
-      dryRun: dryRun || Boolean(outputCheck),
+      dryRun: preview,
       status,
       hrStart,
     }
     const cliResult = { ...result }
     const counted = current && status !== 'failed' ? await countChanges({ config, storage, current }) : undefined
     if (counted) {
-      const { unchanged, ...changes } = counted
+      const { unchanged, check, ...changes } = counted
       cliResult.filesCreated = changes.added + changes.modified + unchanged
       cliResult.filesUnchanged = unchanged
       cliResult.fileChanges = changes
-      cliResult.check = current?.check
+      cliResult.check = check
     }
     for (const reporter of selected) {
       const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
-      await reporter.report({ ...(reporter.name === 'cli' || fileChanges || outputCheck ? cliResult : result), pluginFiles: grouped }, ctx)
+      await reporter.report({ ...(reporter.name === 'cli' || changesForAll ? cliResult : result), pluginFiles: grouped }, ctx)
     }
   })
 

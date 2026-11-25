@@ -32,9 +32,8 @@ function longestIncreasing(values: Array<number>): Array<number> {
   return result.reverse()
 }
 
-// Where to cut both files so each segment diffs on its own: inside each unchanged stretch that keeps a full
-// context on both sides, so no hunk crosses a cut. Lines that occur once in each file, in the same order, find them.
-function cutPoints(before: Array<string>, after: Array<string>): Array<[number, number]> {
+// The lines that occur once in each file, in the same order in both, as [index in before, index in after].
+function findAnchors(before: Array<string>, after: Array<string>): Array<readonly [number, number]> {
   const counts = new Map<string, { before: number; after: number; index: number }>()
   for (const [index, line] of before.entries()) {
     const count = counts.get(line)
@@ -52,8 +51,12 @@ function cutPoints(before: Array<string>, after: Array<string>): Array<[number, 
   const unique = [...counts]
     .filter(([, count]) => count.before === 1 && count.after === 1)
     .map(([line, count]) => [count.index, afterIndex.get(line)!] as const)
-  const anchors = longestIncreasing(unique.map(([, index]) => index)).map((index) => unique[index]!)
+  return longestIncreasing(unique.map(([, index]) => index)).map((index) => unique[index]!)
+}
 
+// Where to cut both files so each segment diffs on its own: inside each unchanged stretch that keeps a full
+// context on both sides, so no hunk crosses a cut. The anchors find those stretches.
+function cutPoints(before: Array<string>, after: Array<string>): Array<[number, number]> {
   const cuts: Array<[number, number]> = [[0, 0]]
   let run = { before: 0, after: 0, length: 0 }
   const closeRun = () => {
@@ -61,7 +64,7 @@ function cutPoints(before: Array<string>, after: Array<string>): Array<[number, 
   }
   let i = 0
   let j = 0
-  for (const [anchorBefore, anchorAfter] of anchors) {
+  for (const [anchorBefore, anchorAfter] of findAnchors(before, after)) {
     // The lines between two anchors are unchanged when both sides hold the same lines.
     const unchanged = anchorBefore - i === anchorAfter - j && before.slice(i, anchorBefore).every((line, offset) => line === after[j + offset])
     if (unchanged && run.length && run.before + run.length === i) {

@@ -9,31 +9,42 @@ import type { Report } from './report.ts'
  */
 export type SummaryRenderer = (lines: ReadonlyArray<string>, meta: { title: string; status: 'success' | 'failed' }) => void
 
+function summaryTitle({ status, check, dryRun, counts, filesCreated, filesUnchanged }: Report): string {
+  if (status === 'failed') return '✗ Generation failed'
+  if (check) return check.changed ? '✗ Generated code is out of date' : '✓ Generated code is up to date'
+  if (dryRun) return '◇ Dry run complete'
+  if (counts.warnings) return '✓ Generation complete with warnings'
+  if (filesCreated > 0 && filesCreated === filesUnchanged) return '✓ Already up to date'
+  return '✓ Generation complete'
+}
+
+function summaryTone({ status, check, counts }: Report): 'red' | 'yellow' | 'green' {
+  if (status === 'failed' || check?.changed) return 'red'
+  return counts.warnings ? 'yellow' : 'green'
+}
+
+/** How many files the run changes, and the word for it. A check counts every file a run would change, deletions included. */
+function changedFiles({ check, dryRun, filesCreated, filesUnchanged }: Report): { count: number; verb: string } {
+  if (check) return { count: check.files.length, verb: 'out of date' }
+  return { count: Math.max(0, filesCreated - filesUnchanged), verb: dryRun ? 'planned' : 'generated' }
+}
+
+/** One `modified: src/gen/pet.ts` line per file a check found out of date. */
+function checkedFileLines({ check }: Report): Array<string> {
+  return (check?.files ?? []).map((file) => `  ${styleText('dim', `${file.status}:`)} ${file.path}`)
+}
+
 /**
  * Puts the outcome first, followed by file counts, labeled plugin results, and the output path.
  * Hosts that collect file changes get a compact diff section. Verbose output adds plugin timings.
  */
 export function formatSummary(report: Report, { showTimings }: { showTimings: boolean }): Array<string> {
-  const { status, plugins, counts, filesCreated, filesUnchanged, fileChanges, dryRun, check, durationMs, output, timings } = report
+  const { status, plugins, counts, filesUnchanged, fileChanges, dryRun, durationMs, output, timings } = report
   const failed = status === 'failed'
-  const successTone = counts.warnings ? 'yellow' : 'green'
-  const tone = failed || check?.changed ? 'red' : successTone
-  const title = (() => {
-    if (failed) return '✗ Generation failed'
-    if (check) return check.changed ? '✗ Generated code is out of date' : '✓ Generated code is up to date'
-    if (dryRun) return '◇ Dry run complete'
-    if (counts.warnings) return '✓ Generation complete with warnings'
-    if (filesCreated > 0 && filesCreated === filesUnchanged) return '✓ Already up to date'
-    return '✓ Generation complete'
-  })()
+  const tone = summaryTone(report)
+  const title = summaryTitle(report)
   const separator = styleText('dim', ' · ')
-  // A check counts every file a run would change, deletions included.
-  const generated = check ? check.files.length : Math.max(0, filesCreated - filesUnchanged)
-  const fileVerb = (() => {
-    if (check) return 'out of date'
-    if (dryRun) return 'planned'
-    return 'generated'
-  })()
+  const { count: generated, verb: fileVerb } = changedFiles(report)
   const fileLabel = `${generated} ${generated === 1 ? 'file' : 'files'} ${fileVerb}`
   const lines = [
     `${styleText(tone, title)}  ${styleText('dim', formatMs(durationMs))}`,
@@ -69,7 +80,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
       `  ${styleText(fileChanges.added ? 'green' : 'dim', `${fileChanges.added} added`)}${separator}${styleText(fileChanges.modified ? 'yellow' : 'dim', `${fileChanges.modified} modified`)}${separator}${styleText(fileChanges.deleted ? 'red' : 'dim', `${fileChanges.deleted} deleted`)}`,
       `  ${styleText('dim', 'Lines')}  ${styleText(fileChanges.linesAdded ? 'green' : 'dim', `+${fileChanges.linesAdded}`)} ${styleText(fileChanges.linesRemoved ? 'red' : 'dim', `−${fileChanges.linesRemoved}`)}`,
     )
-    for (const file of check?.files ?? []) lines.push(`  ${styleText('dim', `${file.status}:`)} ${file.path}`)
+    lines.push(...checkedFileLines(report))
   }
 
   if (showTimings && timings.length > 0) {
