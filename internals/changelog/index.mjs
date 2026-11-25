@@ -134,7 +134,8 @@ function flush() {
   if (!body.trim()) {
     newBody = `# Changelog\n\n${block}\n`
   } else if (/^# .+\n/.test(body)) {
-    newBody = body.replace(/^(# .+\n)(\n)?/, `$1\n${block}\n`)
+    // A replacer function, because a `$'` or `$&` in a release note is a pattern in a replacement string.
+    newBody = body.replace(/^(# .+\n)(\n)?/, (_match, heading) => `${heading}\n${block}\n`)
   } else {
     newBody = `${block}\n${body}`
   }
