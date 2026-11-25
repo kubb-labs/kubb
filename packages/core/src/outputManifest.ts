@@ -1,9 +1,8 @@
 import { hash } from 'node:crypto'
 import { relative, resolve } from 'node:path'
-import { inParallel, toPosixPath } from '@internals/utils'
+import { inParallel, readIfExists, toPosixPath, writeRaw } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
-import { fsStorage } from './storages/fsStorage.ts'
 
 /** Bumped when the stored shape changes, so an older lock file is discarded instead of misread. */
 const LOCKFILE_VERSION = 1
@@ -67,9 +66,9 @@ const isEntry = (value: unknown): value is OutputManifestEntry =>
   typeof (value as OutputManifestEntry).source === 'string' &&
   typeof (value as OutputManifestEntry).output === 'string'
 
-async function loadEntries({ lock, lockPath }: { lock: Storage; lockPath: string }): Promise<Record<string, OutputManifestEntry> | null> {
+async function loadEntries(lockPath: string): Promise<Record<string, OutputManifestEntry> | null> {
   try {
-    const stored = await lock.readItem(lockPath)
+    const stored = await readIfExists(lockPath)
     if (stored === null) return null
 
     const data = JSON.parse(stored) as Lockfile
@@ -82,27 +81,18 @@ async function loadEntries({ lock, lockPath }: { lock: Storage; lockPath: string
   }
 }
 
-/** One file per line, sorted by path, so a change to one file is a one-line diff. */
-function printLockfile(entries: Record<string, OutputManifestEntry>): string {
-  const lines = Object.keys(entries)
-    .sort()
-    .map((key) => `    ${JSON.stringify(key)}: { "source": "${entries[key]!.source}", "output": "${entries[key]!.output}" }`)
-
-  return `{\n  "lockfileVersion": ${LOCKFILE_VERSION},\n  "files": {${lines.length ? `\n${lines.join(',\n')}\n  ` : ''}}\n}\n`
-}
-
 /**
  * Loads `kubb.lock` from `root`, starting empty when it is missing, unreadable, or from an older
- * version. `storage` holds the generated files, `lock` holds the lock file itself.
+ * version. `storage` holds the generated files.
  *
  * @example
  * ```ts
  * const manifest = await createOutputManifest({ storage: config.storage, root: config.root })
  * ```
  */
-export async function createOutputManifest({ storage, root, lock = fsStorage() }: { storage: Storage; root: string; lock?: Storage }): Promise<OutputManifest> {
+export async function createOutputManifest({ storage, root }: { storage: Storage; root: string }): Promise<OutputManifest> {
   const lockPath = resolve(root, LOCKFILE_NAME)
-  const loaded = await loadEntries({ lock, lockPath })
+  const loaded = await loadEntries(lockPath)
   const entries = loaded ?? {}
   const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
   const tracked = new Map<string, { source: string; trimmed: string }>()
@@ -143,8 +133,14 @@ export async function createOutputManifest({ storage, root, lock = fsStorage() }
           },
         })
 
-        const content = printLockfile(next)
-        if (content !== (await lock.readItem(lockPath))) await lock.writeItem(lockPath, content)
+        // Sorted by path, so the file reads the same whatever order the files were written in.
+        const files = Object.fromEntries(
+          Object.keys(next)
+            .sort()
+            .map((key) => [key, next[key]!]),
+        )
+        const content = `${JSON.stringify({ lockfileVersion: LOCKFILE_VERSION, files } satisfies Lockfile, null, 2)}\n`
+        if (content !== (await readIfExists(lockPath))) await writeRaw(lockPath, content)
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */
       }

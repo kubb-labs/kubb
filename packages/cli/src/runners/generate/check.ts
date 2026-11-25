@@ -125,8 +125,9 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
     async compare({ config, storage, paths }) {
       const stage = stageOf(config)
       const { userConfig, root } = stage
-      const manifest = await createOutputManifest({ storage: fsStorage(), root })
-      missingLock ||= !manifest.exists && hasOutputPasses({ output: userConfig.output, storage: fsStorage() })
+      const disk = fsStorage()
+      const manifest = await createOutputManifest({ storage: disk, root })
+      missingLock ||= !manifest.exists && hasOutputPasses({ output: userConfig.output, storage: disk })
       const stale: Array<StaleFile> = []
       let unchanged = 0
 

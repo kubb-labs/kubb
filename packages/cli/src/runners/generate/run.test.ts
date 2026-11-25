@@ -4,17 +4,7 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
 import { ast } from '@kubb/ast'
-import {
-  type Config,
-  defineExtension,
-  Diagnostics,
-  fsStorage,
-  memoryStorage,
-  type PostGenerateCommand,
-  resolveCacheDir,
-  resolveMeta,
-  type UserConfig,
-} from '@kubb/core'
+import { type Config, defineExtension, Diagnostics, fsStorage, memoryStorage, type PostGenerateCommand, resolveMeta, type UserConfig } from '@kubb/core'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as mascot from '../../ui/mascot.ts'
@@ -273,7 +263,6 @@ describe('output passes', () => {
   afterEach(() => {
     for (const root of roots.splice(0)) {
       rmSync(root, { recursive: true, force: true })
-      rmSync(resolveCacheDir(root), { recursive: true, force: true })
     }
   })
 
@@ -320,7 +309,6 @@ describe('check', () => {
   afterEach(() => {
     for (const root of roots.splice(0)) {
       rmSync(root, { recursive: true, force: true })
-      rmSync(resolveCacheDir(root), { recursive: true, force: true })
     }
   })
 
@@ -374,11 +362,10 @@ describe('check', () => {
     return { root, config, file, snapshot }
   }
 
-  /** A project whose output a real run wrote and formatted, as a fresh CI checkout holds it: the files and `kubb.lock`, no cache. */
+  /** A project whose output a real run wrote and formatted, as a fresh CI checkout holds it: the files and `kubb.lock`. */
   async function generated(options?: { clean?: boolean }) {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
-    rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
     expect(Object.keys(JSON.parse(readFileSync(join(target.root, 'kubb.lock'), 'utf8')).files)).toContain('src/gen/pet.ts')
     // The formatter ran: the stored bytes are not the ones the plugin produced.
     expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
@@ -439,7 +426,6 @@ describe('check', () => {
     writeFileSync(join(target.root, '.oxlintrc.json'), JSON.stringify({ ignorePatterns: ['**/*', '!src/**/*'] }))
     const config = { ...target.config, output: { ...target.config.output, lint: 'oxlint' } } as Config
     await bootstrap({ configs: [config] })
-    rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
     const before = target.snapshot()
 
     const lines = await bootstrap({ configs: [config], check: true })

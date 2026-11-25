@@ -11,7 +11,6 @@ import { defineExtension } from './defineExtension.ts'
 import type { Config, KubbHooks, UserConfig } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
-import { resolveCacheDir } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -417,12 +416,8 @@ type ProjectBuild = {
 describe('Kubb#generate', () => {
   const roots: Array<string> = []
 
-  // Each root also seeds a cache directory outside it, so both have to be removed.
   afterEach(() => {
-    for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true })
-      fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
-    }
+    for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true })
   })
 
   const tempRoot = () => {

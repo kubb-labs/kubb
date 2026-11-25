@@ -188,7 +188,10 @@ Both run no formatter or linter, and both read `kubb.lock` to recognize formatte
 {
   "lockfileVersion": 1,
   "files": {
-    "src/gen/types/Pet.ts": { "source": "647596c2…", "output": "002220b7…" }
+    "src/gen/types/Pet.ts": {
+      "source": "647596c2…",
+      "output": "002220b7…"
+    }
   }
 }
 ```
@@ -201,7 +204,6 @@ Both run no formatter or linter, and both read `kubb.lock` to recognize formatte
 | `output` | SHA-256 hash of the file on disk after those steps. Line endings count as `\n`. |
 
 - Do not edit `kubb.lock`. After a merge conflict, run `kubb generate` and commit the result.
-- A run keeps the entries of files it did not generate while they still match the files on disk, so several configs can share one `root`.
 - When `--check` finds formatted output and no `kubb.lock`, it exits with `1` and tells you to run `kubb generate`.
 
 ### Run summary {#run-summary}
