@@ -90,13 +90,9 @@ function relativeToRoot({ root, absolute, option }: { root: string; absolute: st
 /** A generated folder that takes the place of the real one while the output passes run. */
 type Swap = { real: string; staged: string; original: string; movedOriginal: boolean; movedStaged: boolean; createdParent?: string }
 
-/** Where the folder a swap replaces waits: a second temporary folder next to the staged one. */
 const originalsDir = (stageDir: string): string => `${stageDir}-original`
 
-/**
- * Moves the staged folder to its real path and the folder already there out of the way. Each step is
- * recorded on `swap` once it is done, so `swapOut` undoes exactly what happened, even after a failure halfway.
- */
+/** Moves the staged folder to its real path and the folder there out of the way. `swap` records each step, so `swapOut` undoes only what happened. */
 function swapIn(swap: Swap): void {
   if (existsSync(swap.real)) {
     mkdirSync(dirname(swap.original), { recursive: true })
@@ -266,7 +262,6 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
 
       return withRealPaths({
         stage,
-        // A folder inside another one moves with it.
         folders: staged.filter((folder) => !staged.some((other) => other !== folder && isPathInside(folder, other))),
         run: () =>
           runOutputPasses({
