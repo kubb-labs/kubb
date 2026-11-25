@@ -5,10 +5,10 @@ import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
 import type { LockfileInputs } from './lockfileInputs.ts'
 
-/** Bumped when the stored shape changes, so an older lock file is discarded instead of misread. */
+/** Bumped when the stored shape changes, so an older lockfile is discarded instead of misread. */
 const LOCKFILE_VERSION = 1
 
-/** Name of the lock file, written to the project root and meant to be committed. */
+/** Name of the lockfile, written to the project root and meant to be committed. */
 export const LOCKFILE_NAME = 'kubb.lock'
 
 /** How one generated file looked on either side of the output passes. */
@@ -36,11 +36,11 @@ export type Lockfile = {
   readonly exists: boolean
   /** `true` when `source` is known to come out of the output passes as exactly `disk`, so the write can be skipped. */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
-  /** Records the source Kubb generated for `key`, so `write` adds the file to the lock file. */
+  /** Records the source Kubb generated for `key`, so `write` adds the file to the lockfile. */
   track(options: { key: string; source: string }): void
   /** `true` when every tracked file was up to date, so the output passes have nothing new to run over. */
   readonly allFilesUpToDate: boolean
-  /** What the config called `name` last generated from, when the lock file recorded it. */
+  /** What the config called `name` last generated from, when the lockfile recorded it. */
   inputs(name: string): LockfileInputs | undefined
   /** Whether every listed file still holds its recorded output, and `cleanDir` holds no file that is not listed. */
   matchesOutput(options?: { cleanDir?: string }): Promise<boolean>
@@ -52,7 +52,7 @@ export type Lockfile = {
   write(options?: { name: string; inputs: LockfileInputs | null }): Promise<void>
 }
 
-/** Line endings are normalized, so a checkout that converts them still matches the lock file. */
+/** Line endings are normalized, so a checkout that converts them still matches the lockfile. */
 const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
 
 const isEntry = (value: unknown): value is LockfileEntry =>
@@ -65,9 +65,9 @@ const isInputs = (value: unknown): value is LockfileInputs =>
   Array.isArray((value as LockfileInputs).sources) &&
   (value as LockfileInputs).sources.every((source) => typeof source === 'string')
 
-async function readLockfileObject(lockPath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
+async function readLockfileObject(lockfilePath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
   try {
-    const stored = await readIfExists(lockPath)
+    const stored = await readIfExists(lockfilePath)
     if (stored === null) return null
 
     const data = JSON.parse(stored) as LockfileObject
@@ -92,17 +92,17 @@ async function readLockfileObject(lockPath: string): Promise<Pick<LockfileObject
  * ```
  */
 export async function createLockfile({ storage, root }: { storage: Storage; root: string }): Promise<Lockfile> {
-  const lockPath = resolve(root, LOCKFILE_NAME)
-  const loaded = await readLockfileObject(lockPath)
+  const lockfilePath = resolve(root, LOCKFILE_NAME)
+  const loaded = await readLockfileObject(lockfilePath)
   const entries = loaded?.files ?? {}
   const upToDateKeys = new Set<string>()
-  const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
+  const toLockfileKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
   const tracked = new Map<string, string>()
 
   return {
     exists: loaded !== null,
     isUpToDate({ key, source, disk }) {
-      const entry = entries[toLockKey(key)]
+      const entry = entries[toLockfileKey(key)]
       if (!entry || entry.source !== digest(source) || entry.output !== digest(disk)) return false
       upToDateKeys.add(key)
 
@@ -125,7 +125,7 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
       if (stale.size) return false
       if (!cleanDir) return true
 
-      return (await storage.readKeys(cleanDir)).every((name) => Object.hasOwn(entries, toLockKey(resolve(cleanDir, name))))
+      return (await storage.readKeys(cleanDir)).every((name) => Object.hasOwn(entries, toLockfileKey(resolve(cleanDir, name))))
     },
     track({ key, source }) {
       tracked.set(key, digest(source))
@@ -133,7 +133,7 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
     async write(options) {
       try {
         const next: Record<string, LockfileEntry> = {}
-        const written = new Set([...tracked.keys()].map(toLockKey))
+        const written = new Set([...tracked.keys()].map(toLockfileKey))
         let droppedEntry = false
 
         await inParallel({
@@ -151,7 +151,7 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
           limit: FILE_CONCURRENCY,
           run: async ([key, source]) => {
             const stored = await storage.readItem(key)
-            if (stored !== null) next[toLockKey(key)] = { source, output: digest(stored) }
+            if (stored !== null) next[toLockfileKey(key)] = { source, output: digest(stored) }
           },
         })
 
@@ -166,8 +166,8 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
         if (options?.inputs) inputs[options.name] = options.inputs
         else if (options) delete inputs[options.name]
         const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
-        // Through the storage, so a run that stages its files stages the lock file with them.
-        await storage.writeItem(lockPath, JSON.stringify(object, null, 2))
+        // Through the storage, so a run that stages its files stages the lockfile with them.
+        await storage.writeItem(lockfilePath, JSON.stringify(object, null, 2))
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */
       }

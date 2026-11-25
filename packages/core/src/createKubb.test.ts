@@ -617,7 +617,7 @@ describe('Kubb#generate', () => {
     ['nothing changed', () => {}, { format: false }, true],
     ['a generated file was edited', (project) => fs.writeFileSync(project.filePath, 'export {}\n'), { format: false }, false],
     ['output.postGenerate is set', () => {}, { format: false, postGenerate: ['echo done'] }, false],
-  ])('reports a generated project as fresh when %s: %s', async (_name, change, options, expected) => {
+  ])('reports a generated project as up to date when %s: %s', async (_name, change, options, expected) => {
     const project = createProject(options)
     await project.generate()
     change(project)
@@ -643,7 +643,7 @@ describe('Kubb#generate', () => {
     expect(await Kubb.isUpToDate(config)).toBe(false)
   })
 
-  it('reports a project that was never generated as not fresh', async () => {
+  it('reports a project that was never generated as not up to date', async () => {
     expect(await Kubb.isUpToDate(createProject({ format: false }).config())).toBe(false)
   })
 
@@ -656,7 +656,7 @@ describe('Kubb#generate', () => {
     expect(project.read()).toBe(`export const hello = 'moon'\n`)
   })
 
-  it('writes no lock file when an output pass failed', async () => {
+  it('writes no lockfile when an output pass failed', async () => {
     const project = createProject()
 
     await project.generate({
@@ -666,7 +666,7 @@ describe('Kubb#generate', () => {
     expect(project.hasLockfile()).toBe(false)
   })
 
-  it('writes the lock file when nothing runs over the output', async () => {
+  it('writes the lockfile when nothing runs over the output', async () => {
     const project = createProject({ format: false })
 
     await project.generate()

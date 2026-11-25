@@ -127,9 +127,9 @@ async function writeChanged({
 }> {
   signal?.throwIfAborted()
   const stored = cleaned?.some((dir) => isPathInside(file.path, dir)) ? null : await storage.readItem(file.path)
-  // Every generated file goes into the lock file, also one this run leaves as it is.
+  // Every generated file goes into the lockfile, also one this run leaves as it is.
   lockfile?.track({ key: file.path, source })
-  // Asked for every stored file, so the lockfile knows when the whole output is already allFilesUpToDate.
+  // Asked for every stored file, so the lockfile knows when every file is already up to date.
   const upToDate = stored !== null && lockfile?.isUpToDate({ key: file.path, source, disk: stored })
   if (stored !== null && (upToDate || matchesStored({ stored, source }))) {
     return { written: false, stored }

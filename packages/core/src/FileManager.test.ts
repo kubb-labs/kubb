@@ -243,7 +243,7 @@ describe('FileManager', () => {
       expect(await storage.readItem('/repo/src/user.ts')).toContain('/* a */')
     })
 
-    // Every generated file is tracked, so the lock file lists it whether this run wrote it or not.
+    // Every generated file is tracked, so the lockfile lists it whether this run wrote it or not.
     it.each([
       ['writes', 'a file that is not on disk yet, whatever the lockfile says', null, true, ['a.ts']],
       ['skips', 'a file the lockfile knows as up to date, and still tracks it', 'formatted', true, []],

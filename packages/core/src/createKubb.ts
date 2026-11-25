@@ -38,7 +38,7 @@ function writesOutputDirectory(storage: Storage): boolean {
   return storage.name === 'fs'
 }
 
-/** The key of a config's inputs in the lock file: its name, or its output path, which sets unnamed configs apart. */
+/** The key of a config's inputs in the lockfile: its name, or its output path, which sets unnamed configs apart. */
 const lockfileKey = ({ name, root, output }: Pick<Config, 'name' | 'root' | 'output'>): string =>
   name ?? toPosixPath(relative(root, resolve(root, output.path)))
 
@@ -50,7 +50,7 @@ function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Arr
   return adapter.sources
 }
 
-/** Whether the config, the installed packages and the source files are the ones the lock file recorded. */
+/** Whether the config, the installed packages and the source files are the ones the lockfile recorded. */
 async function inputsMatchLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
   const recorded = lockfile.inputs(lockfileKey(config))
   const configText = recorded && serializeConfig(config)
@@ -397,7 +397,7 @@ export class Kubb {
     return { success: !failed, files, diagnostics: finalDiagnostics, input }
   }
 
-  /** What this build read, or `null` without a lock file to record it in, or when it cannot be compared. */
+  /** What this build read, or `null` without a lockfile to record it in, or when it cannot be compared. */
   async #hashInputs({ configText, since }: { configText: string | null; since: number }): Promise<LockfileInputs | null> {
     const { config } = this
     const sources = readSources(config)

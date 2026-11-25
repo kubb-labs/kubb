@@ -436,7 +436,7 @@ describe('check', () => {
     expect(target.snapshot()).toStrictEqual(before)
   })
 
-  it('exits 1 and names kubb.lock when formatted output has no lock file', async () => {
+  it('exits 1 and names kubb.lock when formatted output has no lockfile', async () => {
     const { config, root } = await generated()
     rmSync(join(root, 'kubb.lock'))
 

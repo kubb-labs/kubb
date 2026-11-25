@@ -107,7 +107,7 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
       ...config,
       [stageKey]: { userConfig: config, root: resolve(config.root ?? '') },
       storage: memoryStorage(),
-      // Nothing is on disk for the passes to run over. The lock file stands in for them.
+      // Nothing is on disk for the passes to run over. The lockfile stands in for them.
       output: { ...config.output, format: false, lint: false, postGenerate: [] },
     }
   }

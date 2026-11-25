@@ -28,7 +28,7 @@ describe('createLockfile', () => {
     return { root, file, lock, readLock: () => JSON.parse(readFileSync(lock, 'utf8')) as unknown }
   }
 
-  /** A project whose lock file recorded `a.ts` and its formatted output, with the lockfile the next run would load. */
+  /** A project whose lockfile recorded `a.ts` and its formatted output, with the lockfile the next run would load. */
   async function recorded() {
     const target = project()
     await storage.writeItem(target.file('a.ts'), formatted)
@@ -105,7 +105,7 @@ describe('createLockfile', () => {
   })
 
   it.each([
-    ['no lock file', null],
+    ['no lockfile', null],
     ['files that are not a record', JSON.stringify({ lockfileVersion: 1, files: 'nope' })],
     ['another version', JSON.stringify({ lockfileVersion: 0, files: { 'gen/a.ts': { source: 'x', output: 'y' } } })],
     ['corrupted content', 'not json'],
@@ -137,7 +137,7 @@ describe('createLockfile', () => {
     ['every file holds its recorded output', () => {}, true],
     ['a file was edited', ({ file }: { file: (name: string) => string }) => writeFileSync(file('a.ts'), 'const a = 999\n'), false],
     [
-      'the cleaned folder holds a file the lock file does not list',
+      'the cleaned folder holds a file the lockfile does not list',
       ({ file }: { file: (name: string) => string }) => writeFileSync(file('extra.ts'), ''),
       false,
     ],
@@ -181,7 +181,7 @@ describe('createLockfile', () => {
     expect(lockfile.inputs('admin')).toStrictEqual({ hash: 'b', sources: ['openapi.yaml'] })
   })
 
-  it('writes the lock file through the storage, so a run that stages its files leaves the project alone', async () => {
+  it('writes the lockfile through the storage, so a run that stages its files leaves the project alone', async () => {
     const { root, lock } = project()
     const staged = memoryStorage()
     await staged.writeItem(join(root, 'gen', 'a.ts'), formatted)
@@ -193,7 +193,7 @@ describe('createLockfile', () => {
     expect(JSON.parse((await staged.readItem(lock)) as string)).toMatchObject({ files: { 'gen/a.ts': expect.anything() } })
   })
 
-  it('skips a file that disappeared before the commit', async () => {
+  it('skips a file that disappeared before the write', async () => {
     const { root, file, readLock } = project()
     const lockfile = await createLockfile({ storage, root })
     lockfile.track({ key: file('gone.ts'), source: 'const a = 1' })
@@ -202,9 +202,9 @@ describe('createLockfile', () => {
     expect(readLock()).toStrictEqual({ lockfileVersion: 1, files: {} })
   })
 
-  it('does not fail the build when the lock file cannot be written', async () => {
+  it('does not fail the build when the lockfile cannot be written', async () => {
     const { root, file, lock } = project()
-    // A folder in the lock file's place: it can be neither read nor replaced.
+    // A folder in the lockfile's place: it can be neither read nor replaced.
     mkdirSync(lock)
     await storage.writeItem(file('a.ts'), formatted)
     const lockfile = await createLockfile({ storage, root })
