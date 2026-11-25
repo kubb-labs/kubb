@@ -2,6 +2,7 @@ import { hash, randomBytes } from 'node:crypto'
 import { readFile, rename, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { connect as connectSocket, createServer } from 'node:net'
+import type { Server, Socket } from 'node:net'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { Diagnostics } from '@kubb/core'
@@ -125,10 +126,71 @@ export async function stopWorker(): Promise<void> {
   })
 }
 
-/** The listening port is the project lock, so stale state never needs a PID-based takeover. */
-export async function serveWorker(shutdown: AbortController) {
-  const record: WorkerRecord = { id: randomBytes(16).toString('hex'), pid: process.pid, port: 0, state: 'starting', startedAt: Date.now() }
-  const server = createServer((socket) => {
+// Hash the project directory to choose its loopback port; fail on collisions.
+const controlPort = () => 20_000 + (Number.parseInt(hash('sha256', getProjectKubbHome()).slice(0, 8), 16) % 30_000)
+
+type WorkerServerOptions = { shutdown: AbortController }
+
+class WorkerServer {
+  readonly #record: WorkerRecord = { id: randomBytes(16).toString('hex'), pid: process.pid, port: 0, state: 'starting', startedAt: Date.now() }
+  readonly #shutdown: AbortController
+  readonly #server: Server
+  #saving = Promise.resolve()
+
+  constructor({ shutdown }: WorkerServerOptions) {
+    this.#shutdown = shutdown
+    this.#server = createServer((socket) => this.#accept(socket))
+  }
+
+  async listen(port: number): Promise<boolean> {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        this.#server.once('error', reject)
+        this.#server.listen(port, '127.0.0.1', resolve)
+      })
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EADDRINUSE') throw error
+      return false
+    }
+    this.#record.port = port
+    try {
+      await this.#save()
+    } catch (error) {
+      this.#server.close()
+      throw error
+    }
+    return true
+  }
+
+  async state(state: WorkerState): Promise<void> {
+    this.#record.state = state
+    await this.#save()
+  }
+
+  async close(): Promise<void> {
+    try {
+      if (this.#record.state !== 'authentication required') {
+        this.#record.state = 'stopped'
+        await this.#save()
+      }
+    } finally {
+      await new Promise<void>((resolve, reject) => this.#server.close((error) => (error ? reject(error) : resolve())))
+    }
+  }
+
+  #save(): Promise<void> {
+    const record = this.#record
+    const value = JSON.stringify(record)
+    this.#saving = this.#saving.then(async () => {
+      const temporary = `${statePath()}.${record.id}`
+      await writeFile(temporary, value, { mode: 0o600 })
+      await rename(temporary, statePath())
+    })
+    return this.#saving
+  }
+
+  #accept(socket: Socket): void {
+    const record = this.#record
     let input = ''
     socket.setTimeout(2_000, () => socket.destroy())
     socket.on('error', () => {})
@@ -146,70 +208,34 @@ export async function serveWorker(shutdown: AbortController) {
           return
         }
         socket.end(JSON.stringify(record))
-        if (request.command === 'stop') shutdown.abort()
+        if (request.command === 'stop') this.#shutdown.abort()
       } catch {
         socket.destroy()
       }
     })
-  })
-  // Hash the project directory to choose its loopback port; fail on collisions.
-  const port = 20_000 + (Number.parseInt(hash('sha256', getProjectKubbHome()).slice(0, 8), 16) % 30_000)
-  try {
-    await new Promise<void>((resolve, reject) => {
-      server.once('error', reject)
-      server.listen(port, '127.0.0.1', resolve)
-    })
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'EADDRINUSE') throw error
-    // Let a simultaneous starter finish writing its record before checking ownership.
-    await delay(100)
-    const existing = await readWorker()
-    if (existing?.port === port) {
-      try {
-        return { existing: await requestWorker(existing, 'status') }
-      } catch {
-        /* Refuse an unverified listener. */
-      }
+  }
+}
+
+/** The listening port is the project lock, so stale state never needs a PID-based takeover. */
+export async function serveWorker(shutdown: AbortController) {
+  const worker = new WorkerServer({ shutdown })
+  const port = controlPort()
+  if (await worker.listen(port)) return worker
+  // Let a simultaneous starter finish writing its record before checking ownership.
+  await delay(100)
+  const existing = await readWorker()
+  if (existing?.port === port) {
+    try {
+      return { existing: await requestWorker(existing, 'status') }
+    } catch {
+      /* Refuse an unverified listener. */
     }
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.unknown,
-      severity: 'error',
-      message: 'The project control port is occupied or another worker is starting. Try again after stopping that listener.',
-    })
   }
-  record.port = port
-  let saving = Promise.resolve()
-  const save = () => {
-    const value = JSON.stringify(record)
-    saving = saving.then(async () => {
-      const temporary = `${statePath()}.${record.id}`
-      await writeFile(temporary, value, { mode: 0o600 })
-      await rename(temporary, statePath())
-    })
-    return saving
-  }
-  try {
-    await save()
-  } catch (error) {
-    server.close()
-    throw error
-  }
-  return {
-    async state(state: WorkerState) {
-      record.state = state
-      await save()
-    },
-    async close() {
-      try {
-        if (record.state !== 'authentication required') {
-          record.state = 'stopped'
-          await save()
-        }
-      } finally {
-        await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
-      }
-    },
-  }
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.unknown,
+    severity: 'error',
+    message: 'The project control port is occupied or another worker is starting. Try again after stopping that listener.',
+  })
 }
 
 export type WorkerLaunch = { options: StudioOptions; prepared: PreparedConnection }
