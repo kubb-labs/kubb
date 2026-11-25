@@ -8,7 +8,7 @@ import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import type { Config, KubbHooks } from './types.ts'
 import { FileManager } from './FileManager.ts'
-import type { OutputManifest } from './outputManifest.ts'
+import type { Lockfile } from './lockfile.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
 const tempDirs: Array<string> = []
@@ -28,18 +28,17 @@ function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parame
   })
 }
 
-function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { tracked: Array<string> } {
+function stubLockfile({ upToDate }: { upToDate: boolean }): Pick<Lockfile, 'matches' | 'add'> & { tracked: Array<string> } {
   const tracked: Array<string> = []
 
   return {
     tracked,
-    isUpToDate() {
+    matches() {
       return upToDate
     },
-    track({ key }) {
+    add({ key }) {
       tracked.push(key)
     },
-    async commit() {},
   }
 }
 
@@ -182,7 +181,7 @@ describe('FileManager', () => {
   })
 
   describe('write', () => {
-    // With no manifest in play, the stored bytes decide. A storage keeping bytes verbatim stores
+    // With no lockfile in play, the stored bytes decide. A storage keeping bytes verbatim stores
     // leading whitespace back, so comparing against a trimmed source would rewrite every build.
     it.each([['a source with leading whitespace, verbatim', '\n/* a.ts */', '\n/* a.ts */']])(
       'skips a file when the storage holds %s',
@@ -239,22 +238,22 @@ describe('FileManager', () => {
       expect(await storage.readItem('/repo/src/user.ts')).toContain('/* a */')
     })
 
-    // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
-    it.each([['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']]])(
-      '%s %s',
-      async (_verb, _name, stored, upToDate, tracked) => {
-        const storage = memoryStorage()
-        if (stored !== null) await storage.writeItem('a.ts', stored)
-        const writeItem = vi.spyOn(storage, 'writeItem')
-        const manifest = stubManifest({ upToDate })
-        const manager = new FileManager()
+    // Every generated file is tracked, so the lockfile lists it whether this run wrote it or not.
+    it.each([
+      ['writes', 'a file that is not on disk yet, whatever the lockfile says', null, true, ['a.ts']],
+      ['skips', 'a file the lockfile knows as up to date, and still tracks it', 'formatted', true, []],
+    ])('%s %s', async (_verb, _name, stored, upToDate, written) => {
+      const storage = memoryStorage()
+      if (stored !== null) await storage.writeItem('a.ts', stored)
+      const writeItem = vi.spyOn(storage, 'writeItem')
+      const lockfile = stubLockfile({ upToDate })
+      const manager = new FileManager()
 
-        await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, lockfile })
 
-        expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(tracked)
-        expect(manifest.tracked).toStrictEqual(tracked)
-      },
-    )
+      expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(written)
+      expect(lockfile.tracked).toStrictEqual(['a.ts'])
+    })
 
     it('hands each parsed source to kubb:file:processed, including files the storage already held', async () => {
       const storage = memoryStorage()

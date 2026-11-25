@@ -157,11 +157,11 @@ export default defineConfig({
 
 ## Check generated code in CI
 
-When you commit the generated files, [`kubb generate --check`](/docs/5.x/reference/commands/generate#check-mode) fails the pipeline if they no longer match the spec and the config. It writes nothing to `output.path`. `--diff` prints what would change.
+When you commit the generated files, [`kubb generate --check`](/docs/5.x/reference/commands/generate#check-mode) fails the pipeline if they no longer match the spec and the config. It writes nothing. `--diff` prints what would change.
 
 When the job exits with code 1, run `npx kubb generate` and commit the result. Code 2 means the config or the generation failed. See [Exit codes](/docs/5.x/reference/commands/generate#exit-codes).
 
-Install the dependencies first, so the check runs the same formatter and linter as a local run.
+Commit [`kubb-lock.json`](/docs/5.x/reference/commands/generate#kubb-lock) next to the generated files. The check reads it to recognize formatted output, so the job needs no formatter or linter.
 
 ::code-group
 

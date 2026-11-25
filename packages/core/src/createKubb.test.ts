@@ -11,7 +11,6 @@ import { defineExtension } from './defineExtension.ts'
 import type { Config, KubbHooks, UserConfig } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
-import { resolveCacheDir } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -411,18 +410,15 @@ describe('createKubb', () => {
 
 type ProjectBuild = {
   source?: string
-  processOutput?: () => Promise<Array<Diagnostic>>
+  processOutput?: (context: { config: Config }) => Promise<Array<Diagnostic>>
+  force?: boolean
 }
 
 describe('Kubb#generate', () => {
   const roots: Array<string> = []
 
-  // Each root also seeds a cache directory outside it, so both have to be removed.
   afterEach(() => {
-    for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true })
-      fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
-    }
+    for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true })
   })
 
   const tempRoot = () => {
@@ -535,16 +531,18 @@ describe('Kubb#generate', () => {
   })
 
   /**
-   * A throwaway project with one generated file, so the manifest tests can regenerate it with a
+   * A throwaway project with one generated file, so the lockfile tests can regenerate it with a
    * different source or a different output pass without repeating the setup.
    */
-  const createProject = ({ format = 'oxfmt' as Config['output']['format'] } = {}) => {
+  const createProject = ({ format = 'oxfmt' as Config['output']['format'], postGenerate = [] as Array<string> } = {}) => {
     const root = tempRoot()
+    // The installed package versions are part of what a build reads.
+    fs.writeFileSync(path.join(root, 'package.json'), '{}')
 
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
 
-    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [] }: ProjectBuild = {}) => {
+    const config = (source = `export const hello = 'world'`) => {
       const plugin = defineExtension({
         kind: 'plugin',
         meta: { name: 'plugin' },
@@ -555,17 +553,20 @@ describe('Kubb#generate', () => {
         },
       })()
 
-      const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] })
-      return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
+      // Without an adapter: the mocked one does not list the files it read, so its inputs are never recorded.
+      return makeConfig({ root, output: { path: './gen', format, postGenerate }, storage, adapter: undefined, plugins: [plugin] })
     }
+    const generate = ({ source, processOutput = async () => [], force }: ProjectBuild = {}) =>
+      createKubb(config(source), { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force })
 
     return {
       filePath,
       storage,
+      config,
       generate,
       read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
       mtime: () => fs.statSync(filePath).mtimeMs,
-      hasManifest: () => fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json')),
+      hasLockfile: () => fs.existsSync(path.join(root, 'kubb-lock.json')),
     }
   }
 
@@ -588,10 +589,64 @@ describe('Kubb#generate', () => {
     const writeItem = vi.spyOn(project.storage, 'writeItem')
     await project.generate({ processOutput })
 
-    // The manifest itself still goes through the storage, so scope this to the generated file.
+    // The lockfile itself still goes through the storage, so scope this to the generated file.
     expect(writeItem).not.toHaveBeenCalledWith(project.filePath, expect.anything())
     expect(project.mtime()).toBe(afterFirst)
     expect(project.read()).toBe(formatted)
+  })
+
+  it('turns the formatter and linter off for a rebuild that left every file as it was', async () => {
+    const project = createProject()
+    const formatted = 'export const hello = "world";\n'
+    const formats: Array<Config['output']['format']> = []
+    const processOutput: ProjectBuild['processOutput'] = async ({ config }) => {
+      formats.push(config.output.format)
+      fs.writeFileSync(project.filePath, formatted, { encoding: 'utf-8' })
+      return []
+    }
+
+    await project.generate({ processOutput })
+    await project.generate({ processOutput })
+    await project.generate({ processOutput, force: true })
+    await project.generate({ processOutput, source: `export const hello = 'there'` })
+
+    expect(formats).toStrictEqual(['oxfmt', false, 'oxfmt', 'oxfmt'])
+  })
+
+  it.each<[string, (project: ReturnType<typeof createProject>) => void, Parameters<typeof createProject>[0], boolean]>([
+    ['nothing changed', () => {}, { format: false }, true],
+    ['a generated file was edited', (project) => fs.writeFileSync(project.filePath, 'export {}\n'), { format: false }, false],
+    ['output.postGenerate is set', () => {}, { format: false, postGenerate: ['echo done'] }, false],
+  ])('reports a generated project as up to date when %s: %s', async (_name, change, options, expected) => {
+    const project = createProject(options)
+    await project.generate()
+    change(project)
+
+    expect(await Kubb.isUpToDate(project.config())).toBe(expected)
+  })
+
+  it('records the inputs under the output path of a config without a name', async () => {
+    const project = createProject({ format: false })
+    await project.generate()
+
+    expect(Object.keys(JSON.parse(fs.readFileSync(path.join(path.dirname(path.dirname(project.filePath)), 'kubb-lock.json'), 'utf8')).inputs)).toStrictEqual([
+      'gen',
+    ])
+  })
+
+  it('records no inputs for an adapter that does not list the files it read', async () => {
+    const root = tempRoot()
+    fs.writeFileSync(path.join(root, 'package.json'), '{}')
+    const config = makeConfig({ root, input: './openapi.yaml', output: { path: './gen' }, storage: fsStorage(), adapter: createMockedAdapter(), plugins: [] })
+
+    await createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate()
+
+    expect(JSON.parse(fs.readFileSync(path.join(root, 'kubb-lock.json'), 'utf8'))).toStrictEqual({ lockfileVersion: 1, files: {} })
+    expect(await Kubb.isUpToDate(config)).toBe(false)
+  })
+
+  it('reports a project that was never generated as not up to date', async () => {
+    expect(await Kubb.isUpToDate(createProject({ format: false }).config())).toBe(false)
   })
 
   it('rewrites the output when the generated source actually changed', async () => {
@@ -603,21 +658,22 @@ describe('Kubb#generate', () => {
     expect(project.read()).toBe(`export const hello = 'moon'\n`)
   })
 
-  it.each<[string, Parameters<typeof createProject>[0], ProjectBuild]>([
-    [
-      'an output pass failed',
-      {},
-      {
-        processOutput: async () => [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }],
-      },
-    ],
-    ['nothing runs over the output', { format: false }, {}],
-  ])('keeps no manifest when %s', async (_name, projectOptions, build) => {
-    const project = createProject(projectOptions)
+  it('writes no lockfile when an output pass failed', async () => {
+    const project = createProject()
 
-    await project.generate(build)
+    await project.generate({
+      processOutput: async () => [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }],
+    })
 
-    expect(project.hasManifest()).toBe(false)
+    expect(project.hasLockfile()).toBe(false)
+  })
+
+  it('writes the lockfile when nothing runs over the output', async () => {
+    const project = createProject({ format: false })
+
+    await project.generate()
+
+    expect(project.hasLockfile()).toBe(true)
   })
 })
 

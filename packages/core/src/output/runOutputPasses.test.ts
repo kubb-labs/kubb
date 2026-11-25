@@ -5,7 +5,6 @@ import process from 'node:process'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createMockedAdapter } from '../mocks.ts'
 import { Hookable } from '../Hookable.ts'
-import { resolveCacheDir } from '../storages/cacheStorage.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
 import type { Config, KubbHooks, KubbHookStartContext } from '../types.ts'
 import type { Diagnostic } from '../Diagnostics.ts'
@@ -15,10 +14,7 @@ const node = process.execPath
 const roots: Array<string> = []
 
 afterEach(() => {
-  for (const root of roots.splice(0)) {
-    fs.rmSync(root, { recursive: true, force: true })
-    fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
-  }
+  for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true })
 })
 
 function makeConfig(output: Partial<Config['output']>): Config {

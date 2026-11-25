@@ -1,13 +1,13 @@
-import { resolve } from 'node:path'
-import { getElapsedMs, isPathInside } from '@internals/utils'
+import { relative, resolve } from 'node:path'
+import { getElapsedMs, isPathInside, toPosixPath } from '@internals/utils'
 import type { FileNode, InputNode } from '@kubb/ast'
 import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
+import { serializeConfig, hashInputs, type LockfileInputs } from './lockfileInputs.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
-import { cacheStorage } from './storages/cacheStorage.ts'
+import { createLockfile, type Lockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbGenerationEndContext, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
@@ -38,9 +38,30 @@ function writesOutputDirectory(storage: Storage): boolean {
   return storage.name === 'fs'
 }
 
+// The output path sets unnamed configs apart.
+const lockfileKey = ({ name, root, output }: Pick<Config, 'name' | 'root' | 'output'>): string =>
+  name ?? toPosixPath(relative(root, resolve(root, output.path)))
+
+// `null` when the adapter lists no files for a spec that is a file.
+function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Array<string> | null {
+  if (!adapter) return []
+  if (!adapter.sources) return null
+  if (!adapter.sources.length && typeof input === 'string') return null
+
+  return adapter.sources
+}
+
+async function satisfiesLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
+  const recorded = lockfile.inputs(lockfileKey(config))
+  const configText = recorded && serializeConfig(config)
+  if (!recorded || !configText) return false
+
+  return (await hashInputs({ root: config.root, configText, sources: recorded.sources }))?.hash === recorded.hash
+}
+
 /**
  * Whether anything runs over the output directory after the files are written. Only then can the
- * bytes on disk stop matching what Kubb wrote, which is what the manifest exists to track.
+ * bytes on disk stop matching what Kubb wrote, which is what the lockfile exists to track.
  */
 export function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'storage'>): boolean {
   return writesOutputDirectory(storage) && Boolean(output.format || output.lint || output.postGenerate?.length)
@@ -109,6 +130,10 @@ export type GenerateOptions = {
    * output and returns the diagnostics they emitted.
    */
   processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
+  /**
+   * Runs `output.format` and `output.lint` even when the build left every file as it was.
+   */
+  force?: boolean
 }
 
 /**
@@ -154,7 +179,8 @@ export class Kubb {
   readonly hooks: Hookable<KubbHooks>
   readonly config: Config
   #driver: KubbDriver | null = null
-  #manifest: OutputManifest | null = null
+  #lockfile: Lockfile | null = null
+  #cleanPaths: Array<string> = []
   readonly #signal: AbortSignal | undefined
   #sharedSchemas: SharedSchemas | undefined
   readonly #fileRefs: Array<string> | undefined
@@ -167,12 +193,33 @@ export class Kubb {
   }
 
   /**
+   * Whether a build of `userConfig` would leave the output as it is: its inputs match what
+   * `kubb-lock.json` recorded, and every generated file still holds its recorded output. `false`
+   * whenever that cannot be told, such as for a URL input.
+   *
+   * @example
+   * ```ts
+   * if (!(await Kubb.isUpToDate(config))) await createKubb(config).generate()
+   * ```
+   */
+  static async isUpToDate(userConfig: UserConfig): Promise<boolean> {
+    const config = resolveConfig(userConfig)
+    // `postGenerate` commands can do anything, so a run that skips them is not the same run.
+    if (!writesOutputDirectory(config.storage) || config.output.postGenerate?.length) return false
+
+    const lockfile = await createLockfile({ storage: config.storage, root: config.root })
+    if (!(await satisfiesLockfile({ config, lockfile }))) return false
+
+    return lockfile.verify({ cleanDir: config.output.clean ? resolve(config.root, config.output.path) : undefined })
+  }
+
+  /**
    * Generates every config of a `defineConfig([...])` array in order and yields each result as its config finishes, so
    * memory holds one config at a time. A config that fails does not stop the others. Only an aborted `signal` rejects.
    */
   static async *generate(
     configs: Array<UserConfig>,
-    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput }: GenerateConfigsOptions = {},
+    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput, force }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
     const sharedByConfig = await detectSharedSchemas({ configs, hooks, fileRefs })
     for (const index of only === undefined ? configs.keys() : [only]) {
@@ -181,7 +228,7 @@ export class Kubb {
       // A config built on its own must not empty the directory the others share.
       kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
       try {
-        yield { ...(await kubb.generate({ processOutput })), kubb }
+        yield { ...(await kubb.generate({ processOutput, force })), kubb }
       } catch (error) {
         if (signal?.aborted) throw error
         yield { success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error }
@@ -208,7 +255,7 @@ export class Kubb {
     // A second setup replaces the driver, so the old one's plugin listeners must go first.
     this.dispose()
     const config = this.config
-    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
+    const lockfile = writesOutputDirectory(config.storage) ? await createLockfile({ storage: config.storage, root: config.root }) : undefined
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])
@@ -231,7 +278,7 @@ export class Kubb {
     // failure leaves the previous output in place; a plugin error while generating still empties and writes.
     const driver = new KubbDriver(config, {
       hooks: this.hooks,
-      manifest,
+      lockfile,
       signal,
       cleanPaths: dirsToClean.map(([, dir]) => dir),
       sharedSchemas: this.#sharedSchemas,
@@ -240,7 +287,8 @@ export class Kubb {
     await driver.setup()
 
     this.#driver = driver
-    this.#manifest = manifest ?? null
+    this.#lockfile = lockfile ?? null
+    this.#cleanPaths = dirsToClean.map(([, dir]) => dir)
   }
 
   /**
@@ -294,6 +342,9 @@ export class Kubb {
     const hrStart = process.hrtime()
 
     await hooks.callHook('kubb:generation:start', { config })
+    const startedAt = Date.now()
+    // Serialized before the build, so the text equals what `isUpToDate` serializes on the next run.
+    const configText = serializeConfig(config)
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
@@ -324,8 +375,10 @@ export class Kubb {
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
+    const inputs = await this.#hashInputs({ configText, since: startedAt })
+    const passesConfig = this.#passesConfig({ inputs, force: options.force })
     const outputDiagnostics = writesOutputDirectory(config.storage)
-      ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
+      ? await processOutput({ config: passesConfig, outputPath: resolve(config.root, config.output.path), hooks, signal })
       : await reportSkippedPasses({ config, hooks })
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
@@ -334,7 +387,7 @@ export class Kubb {
     // The formatter and linter have had their turn, so what sits on disk now is what the next run
     // has to recognize as unchanged. Only record it when they finished: a pass that failed halfway
     // leaves files Kubb has to stay free to regenerate.
-    if (!failed) await this.#manifest?.commit()
+    if (!failed) await this.#lockfile?.write({ name: lockfileKey(config), inputs, cleaned: this.#cleanPaths })
 
     await this.#end({
       config,
@@ -346,6 +399,24 @@ export class Kubb {
     })
 
     return { success: !failed, files, diagnostics: finalDiagnostics, input }
+  }
+
+  // `null` without a lockfile to record the inputs in, or when they cannot be compared.
+  async #hashInputs({ configText, since }: { configText: string | null; since: number }): Promise<LockfileInputs | null> {
+    const { config } = this
+    const sources = readSources(config)
+    if (!this.#lockfile || !configText || !sources) return null
+
+    return hashInputs({ root: config.root, configText, sources, since })
+  }
+
+  // Drops the formatter and linter when the inputs and every file are unchanged.
+  #passesConfig({ inputs, force }: { inputs: LockfileInputs | null; force?: boolean }): Config {
+    const { config } = this
+    const lockfile = this.#lockfile
+    if (force || !inputs || !lockfile?.unchanged || inputs.hash !== lockfile.inputs(lockfileKey(config))?.hash) return config
+
+    return { ...config, output: { ...config.output, format: false, lint: false } }
   }
 
   /** Ends a run: `kubb:generation:end`, then the totals on `kubb:generation:summary`. */
