@@ -253,7 +253,7 @@ Generates only the operations and schemas that match an entry. Default: everythi
 > [!WARNING]
 > A string `pattern` becomes `new RegExp(pattern)`, so it matches anywhere: `'pet'` also matches `'petType'`. Write `'^pet$'` for an exact match.
 
-Without a `schemaName` entry, `include` keeps only the schemas its operations use. See [Filters](#filters).
+Without a `schemaName` entry, `include` keeps only the schemas its operations use. A `schemaName` entry also keeps the schemas the matched schemas reference. See [Filters](#filters).
 
 ```typescript [Type definition]
 export type Include =
@@ -416,7 +416,7 @@ See [Macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [`ast.mac
 When an `include` or `exclude` mixes operation and `schemaName` entries, schemas follow their own rules.
 
 - Only `schemaName` entries filter schemas by name.
-- A `schemaName` entry in `include` also keeps the schemas its matches reference, also indirectly, so their imports resolve. An `exclude` entry still removes them.
+- A `schemaName` entry in `include` also keeps every schema the matched schemas reference, directly or through other schemas, so the generated imports resolve. Add a schema to `exclude` to leave it out.
 - An `include` with operation entries and no `schemaName` entry keeps only the schemas those operations use, also indirectly.
 - An `include` with only `schemaName` entries generates no operations.
 

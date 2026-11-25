@@ -66,8 +66,8 @@ function retainReferenced(ctx: PluginVisitContext, state: VisitState, node: Sche
   return resolved.transformedNode
 }
 
-// A schemaName include also keeps the schemas its matches reference, so their imports resolve.
-// References are read after the macros ran, since a macro can add one.
+// A schemaName include also keeps the schemas the matched schemas reference, so their imports resolve.
+// References are read after the macros run, since a macro can add one.
 function keepReferenced(ctx: PluginVisitContext, state: VisitState): void {
   if (!pluginOptions(ctx).include?.some(({ type }) => type === 'schemaName')) return
   const byName = new Map(ctx.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : [])))
