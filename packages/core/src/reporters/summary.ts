@@ -63,7 +63,8 @@ const statusTones = { added: 'green', modified: 'yellow', deleted: 'red' } as co
  */
 function outOfDateLines({ check, fileChanges }: Report): Array<string> {
   if (!check?.changed || !fileChanges) return []
-  const pathWidth = Math.max(...check.files.map((file) => file.path.length))
+  // A loop, not `Math.max(...)`: a first check can list thousands of files, and a spread that long can overflow the stack.
+  const pathWidth = check.files.reduce((width, file) => Math.max(width, file.path.length), 0)
 
   return [
     '',

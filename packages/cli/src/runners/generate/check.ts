@@ -1,10 +1,10 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
-import { diffHunks, isPathInside, read, toPosixPath } from '@internals/utils'
+import { diffHunks, inParallel, isPathInside, listFiles, read, toPosixPath } from '@internals/utils'
 import { type Config, Diagnostics, fsStorage, type GenerateOptions, type GenerationResult, runOutputPasses, type Storage } from '@kubb/core'
 import { formatPatch } from 'diff'
-import { diffOutput, readOutputFiles, statusKeys } from './utils.ts'
+import { diffFile, type FileChange, fingerprintFile, statusKeys } from './utils.ts'
 
 /**
  * What `kubb generate --check` needs for one run: the configs staged in a temporary folder, the
@@ -93,19 +93,37 @@ function relativeToRoot({ root, absolute, option }: { root: string; absolute: st
   })
 }
 
+type CheckedFile = NonNullable<GenerationResult['check']>['files'][number]
+
+/** A file a check found out of date, with its unified diff when `--diff` asks for one. */
+type StaleFile = { file: CheckedFile; patch?: string }
+
+function toStaleFile({ change, root, texts }: { change: FileChange; root: string; texts?: { before: string; after: string } }): StaleFile {
+  const path = toPosixPath(relative(root, change.path))
+  const file = { path, status: statusKeys[change.status], linesAdded: change.added ?? 0, linesRemoved: change.removed ?? 0 }
+  if (!texts) return { file }
+  const { hunks } = diffHunks(texts.before, texts.after)
+
+  return { file, patch: formatPatch({ oldFileName: `a/${path}`, newFileName: `b/${path}`, oldHeader: undefined, newHeader: undefined, hunks }).trimEnd() }
+}
+
 /**
- * The files on disk a check compares with, keyed by their real path: the output folder, plus each generated file outside it.
+ * The files `output.clean` would delete: on disk under `output.path`, but not generated. Only these
+ * are read, one at a time, for their line count.
  */
-async function readDiskFiles({ stage: { userConfig, root }, paths }: { stage: Stage; paths: ReadonlySet<string> }): Promise<Map<string, string>> {
-  const files = await readOutputFiles(resolve(root, userConfig.output.path))
-  // Generated files outside `output.path`, such as `shared.path` or a file a plugin writes elsewhere.
-  for (const filePath of paths) {
-    if (files.has(filePath)) continue
+async function findDeletedFiles({ stage, generated, diff }: { stage: Stage; generated: ReadonlySet<string>; diff: boolean }): Promise<Array<StaleFile>> {
+  const outputPath = resolve(stage.root, stage.userConfig.output.path)
+  const deleted: Array<StaleFile> = []
+  for await (const name of listFiles(outputPath)) {
+    const filePath = join(outputPath, name)
+    if (generated.has(filePath)) continue
     const source = await read(filePath).catch(() => null)
-    if (source !== null) files.set(filePath, source)
+    if (source === null) continue
+    const change = { status: 'D', path: filePath, added: 0, removed: fingerprintFile(source).deletedLines } as const
+    deleted.push(toStaleFile({ change, root: stage.root, texts: diff ? { before: source, after: '' } : undefined }))
   }
 
-  return files
+  return deleted
 }
 
 /**
@@ -172,24 +190,40 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
     async compare({ config, storage, paths }) {
       const stage = stageOf(config)
       const { userConfig, root } = stage
-      // Both sides use the real path: a plugin can name a file by its staged path or by its real one, and the storage stages either.
-      const diskPaths = new Set(Array.from(paths, (filePath) => toDiskPath(stage, filePath)))
-      const diskFiles = await readDiskFiles({ stage, paths: diskPaths })
+      // Keyed by the real path: a plugin can name a file by its staged path or by its real one, and the storage stages either.
+      const generated = new Set<string>()
+      const stale: Array<StaleFile> = []
+      let unchanged = 0
 
+      // One pass: each file is read from both sides, compared and dropped, so only the stale ones stay in memory.
       // No manifest: both sides went through the same output passes, so the bytes compare directly.
-      const result = await diffOutput({ storage, paths: diskPaths, clean: Boolean(userConfig.output.clean), previousFiles: diskFiles })
-      const files: NonNullable<GenerationResult['check']>['files'] = []
-      for (const change of result.files.toSorted((a, b) => a.path.localeCompare(b.path))) {
-        const path = toPosixPath(relative(root, change.path))
-        files.push({ path, status: statusKeys[change.status], linesAdded: change.added ?? 0, linesRemoved: change.removed ?? 0 })
-        if (!diff) continue
-        const after = change.status === 'D' ? '' : ((await storage.readItem(change.path)) ?? '')
-        const { hunks } = diffHunks(diskFiles.get(change.path) ?? '', after)
-        patches.push(formatPatch({ oldFileName: `a/${path}`, newFileName: `b/${path}`, oldHeader: undefined, newHeader: undefined, hunks }).trimEnd())
+      await inParallel({
+        items: [...paths],
+        limit: 50,
+        run: async (filePath) => {
+          const diskPath = toDiskPath(stage, filePath)
+          generated.add(diskPath)
+          const [after, before] = await Promise.all([storage.readItem(diskPath), read(diskPath).catch(() => null)])
+          if (after === null) return
+          const change = diffFile({ path: diskPath, next: after, previous: before })
+          if (!change) {
+            unchanged++
+            return
+          }
+          stale.push(toStaleFile({ change, root, texts: diff ? { before: before ?? '', after } : undefined }))
+        },
+      })
+      if (userConfig.output.clean) stale.push(...(await findDeletedFiles({ stage, generated, diff })))
+
+      stale.sort((a, b) => a.file.path.localeCompare(b.file.path))
+      const files: Array<CheckedFile> = []
+      for (const { file, patch } of stale) {
+        files.push(file)
+        if (patch) patches.push(patch)
       }
       changed ||= files.length > 0
 
-      return { changed: files.length > 0, files, unchanged: result.unchanged }
+      return { changed: files.length > 0, files, unchanged }
     },
   }
 }
