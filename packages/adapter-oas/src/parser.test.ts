@@ -621,6 +621,19 @@ describe('parseSchema format', () => {
       },
     },
     {
+      title: 'int32 enum with x-enumNames and no type',
+      schema: { format: 'int32', enum: [0, 1], 'x-enumNames': ['None', 'Received'] },
+      expected: {
+        type: 'enum',
+        format: 'int32',
+        primitive: 'number',
+        namedEnumValues: [
+          { name: 'None', value: 0, primitive: 'number' },
+          { name: 'Received', value: 1, primitive: 'number' },
+        ],
+      },
+    },
+    {
       title: 'int32 enum without names',
       schema: { type: 'integer', format: 'int32', enum: [0, 1] },
       expected: {

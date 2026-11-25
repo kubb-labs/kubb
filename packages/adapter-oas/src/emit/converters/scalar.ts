@@ -174,6 +174,17 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 }
 
 /**
+ * Primitive of an enum's members. Without a `type`, the values decide: `{ enum: [0, 1] }` is a number enum.
+ */
+function getEnumPrimitive(type: string | undefined, values: Array<string | number | boolean>): 'number' | 'boolean' | 'string' {
+  if (type === 'boolean') return 'boolean'
+  if (type === 'number' || type === 'integer') return 'number'
+  if (type === undefined && values.every((value) => typeof value === 'number')) return 'number'
+
+  return 'string'
+}
+
+/**
  * Converts an `enum` schema into an `EnumSchemaNode`.
  */
 export function convertEnum({ schema, name, nullable, type, parse }: ConvertContext): ast.SchemaNode {
@@ -194,8 +205,8 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
 
   const enumNullable = nullable || nullInEnum || undefined
   const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
-  const primitive: 'number' | 'boolean' | 'string' = type === 'boolean' ? 'boolean' : type === 'number' || type === 'integer' ? 'number' : 'string'
   const uniqueValues = [...new Set(filteredValues)]
+  const primitive = getEnumPrimitive(type, uniqueValues)
 
   const ctx = { schema, name, nullable: enumNullable as true | undefined, defaultValue: enumDefault }
 
