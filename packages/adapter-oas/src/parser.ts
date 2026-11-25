@@ -32,6 +32,10 @@ function hasUnevaluatedSiblings(schema: SchemaObject): boolean {
   return [schema.allOf, schema.anyOf, schema.oneOf, schema.if, schema.dependentSchemas, schema.$ref].some((value) => value !== undefined)
 }
 
+function isKeyList(value: unknown): value is Array<string> {
+  return Array.isArray(value) && value.length > 0 && value.every((name) => typeof name === 'string')
+}
+
 /**
  * The schema converter bound to one OpenAPI document: `parse` dispatches each schema through the
  * ordered `schemaRules` table, with the parser options merged once.
@@ -152,8 +156,7 @@ export class SchemaParser {
       conditionals.push({ if: condition, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) })
     }
     for (const [key, required] of entries(schema.dependentRequired)) {
-      if (Array.isArray(required) && required.length && required.every((name) => typeof name === 'string'))
-        conditionals.push({ if: this.#requireKeys([key]), then: this.#requireKeys(required) })
+      if (isKeyList(required)) conditionals.push({ if: this.#requireKeys([key]), then: this.#requireKeys(required) })
     }
     for (const [key, dependent] of entries(schema.dependentSchemas)) {
       const thenNode = branch(dependent)

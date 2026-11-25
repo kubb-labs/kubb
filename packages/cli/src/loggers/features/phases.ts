@@ -211,18 +211,22 @@ export class Phases {
       ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`
       : `${styleText('red', '✗')} ${label} failed${error?.message ? ` (${error.message})` : ''}`
 
+    this.#reportHook({ outcome, success, lines: active.lines })
+  }
+
+  #reportHook({ outcome, success, lines }: { outcome: string; success: boolean; lines: Array<string> }): void {
     const phase = this.#phase
     if (phase) {
       if (phase.showHookResults || !success) {
         phase.lines.push(outcome)
       }
-      phase.output.push(...active.lines)
+      phase.output.push(...lines)
       return
     }
 
     this.#spinner.stop()
     this.#ctx.writer.step(this.#ctx.text(outcome))
-    this.#writeOutput(active.lines)
+    this.#writeOutput(lines)
   }
 
   reset(): void {
