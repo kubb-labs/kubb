@@ -404,7 +404,9 @@ function parseParameter({
     : ast.factory.createSchema({ type: options.unknownType })
   // An inline enum gets `enumSuffix`, the same as an inline enum on an object property.
   const schema =
-    parentName && param.name ? ast.macro.apply(parsed, [macroEnumName({ parentName, propName: param.name, enumSuffix: options.enumSuffix })], { depth: 'shallow' }) : parsed
+    parentName && param.name
+      ? ast.macro.apply(parsed, [macroEnumName({ parentName, propName: param.name, enumSuffix: options.enumSuffix })], { depth: 'shallow' })
+      : parsed
   if (rawSchema) scanSchema(schema, contentType ? `${pointer}/content/${escapePointerToken(contentType)}/schema` : `${pointer}/schema`)
   return ast.factory.createParameter({
     pointer,
