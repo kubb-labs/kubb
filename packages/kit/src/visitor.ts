@@ -55,13 +55,27 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
-// Keeps a referenced schema without the include check. Returns its node after macros, or null when exclude leaves it out.
-function retainReferenced(ctx: PluginVisitContext, state: VisitState, node: SchemaNode): SchemaNode | null {
+// An operation-based include without a schemaName include keeps only the schemas those operations use.
+function operationSchemaNames(ctx: PluginVisitContext, resolver: Resolver): Set<string> | null {
+  const { include } = pluginOptions(ctx)
+  if (!include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) || include.some(({ type }) => type === 'schemaName')) return null
+  const operations = ctx.operations.filter((operation) => resolveNode(ctx, resolver, [], operation) !== null)
+  return ast.graph.getUsedNames(operations, ctx.schemas)
+}
+
+// Keeps a schema the rules allow and reserves its name. Returns its node after macros, or null when the rules leave it out.
+function retainSchema(
+  ctx: PluginVisitContext,
+  state: VisitState,
+  node: SchemaNode,
+  { skipInclude, allowed }: { skipInclude?: boolean; allowed?: Set<string> | null } = {},
+): SchemaNode | null {
   const { resolver } = state.context
-  const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude: true })
+  const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude })
   if (!resolved) return null
-  state.schemas.set(node, resolved)
   const schemaName = resolved.transformedNode.name
+  if (allowed && schemaName && !allowed.has(schemaName)) return null
+  state.schemas.set(node, resolved)
   if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
   return resolved.transformedNode
 }
@@ -81,7 +95,7 @@ function keepReferenced(ctx: PluginVisitContext, state: VisitState): void {
       if (!node || seen.has(name)) continue
       seen.add(name)
       try {
-        const kept = retainReferenced(ctx, state, node)
+        const kept = retainSchema(ctx, state, node, { skipInclude: true })
         if (kept) queue.push(kept)
       } catch (caughtError) {
         state.schemas.set(node, toError(caughtError))
@@ -151,23 +165,11 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       if (!state.templates.Schema.length) return
 
-      // An operation-based include without a schemaName include keeps only the schemas those operations use.
-      const { include } = pluginOptions(ctx)
-      let allowed: Set<string> | null = null
-      if (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) && !include.some(({ type }) => type === 'schemaName')) {
-        const operations = ctx.operations.filter((operation) => resolveNode(ctx, resolver, [], operation) !== null)
-        allowed = ast.graph.getUsedNames(operations, ctx.schemas)
-      }
-
       // Reserve names before generation, with the same macros and filters, so later collisions get suffixes.
+      const allowed = operationSchemaNames(ctx, resolver)
       for (const node of ctx.schemas) {
         try {
-          const resolved = resolveNode(ctx, resolver, state.macros, node)
-          if (!resolved) continue
-          const schemaName = resolved.transformedNode.name
-          if (allowed && schemaName && !allowed.has(schemaName)) continue
-          state.schemas.set(node, resolved)
-          if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
+          retainSchema(ctx, state, node, { allowed })
         } catch (caughtError) {
           // Reported at this node's turn, so the output of earlier schemas stays.
           state.schemas.set(node, toError(caughtError))
