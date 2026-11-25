@@ -416,6 +416,7 @@ See [Macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [`ast.mac
 When an `include` or `exclude` mixes operation and `schemaName` entries, schemas follow their own rules.
 
 - Only `schemaName` entries filter schemas by name.
+- A `schemaName` entry in `include` also keeps the schemas its matches reference, also indirectly, so their imports resolve. An `exclude` entry still removes them.
 - An `include` with operation entries and no `schemaName` entry keeps only the schemas those operations use, also indirectly.
 - An `include` with only `schemaName` entries generates no operations.
 

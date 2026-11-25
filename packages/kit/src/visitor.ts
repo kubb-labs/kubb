@@ -43,10 +43,12 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   resolver: Resolver,
   macros: Array<Macro>,
   node: TNode,
+  { skipInclude = false }: { skipInclude?: boolean } = {},
 ): Resolved<TNode> | null {
   const transformedNode = ast.macro.apply(node, macros)
   const options = pluginOptions(ctx)
-  const { exclude, include, override } = options
+  const { exclude, override } = options
+  const include = skipInclude ? undefined : options.include
   if (!exclude?.length && !include?.length && !override?.length) return { transformedNode, options }
 
   const resolved = resolver.default.options<NormalizedPlugin['options']>(transformedNode, { options, exclude, include, override })
@@ -133,7 +135,24 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
         } catch (caughtError) {
           // Reported at this node's turn, so the output of earlier schemas stays.
           state.schemas.set(node, toError(caughtError))
-          break
+          return
+        }
+      }
+
+      // A schemaName include also keeps the schemas its matches reference, so their imports resolve.
+      if (!include?.some(({ type }) => type === 'schemaName')) return
+      const referenced = ast.graph.getUsedNames([...state.schemas.keys()], ctx.schemas)
+      for (const node of ctx.schemas) {
+        if (state.schemas.has(node) || !node.name || !referenced.has(node.name)) continue
+        try {
+          const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude: true })
+          if (!resolved) continue
+          state.schemas.set(node, resolved)
+          const schemaName = resolved.transformedNode.name
+          if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
+        } catch (caughtError) {
+          state.schemas.set(node, toError(caughtError))
+          return
         }
       }
     },

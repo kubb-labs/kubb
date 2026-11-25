@@ -55,7 +55,7 @@ async function build(plugins: Array<Plugin>, meta?: Parameters<typeof adapter>[0
   return { driver, diagnostics, files: driver.fileManager.files.map((file) => file.path).sort() }
 }
 
-function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag'; pattern: string }>) {
+function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag' | 'schemaName'; pattern: string }>) {
   return defineExtension({
     kind: 'plugin',
     meta: { name: 'plugin-example' },
@@ -166,6 +166,15 @@ describe('generatorVisitor', () => {
     const { files } = await build([examplePlugin(log, [{ type: 'tag', pattern: 'pet' }])])
 
     expect(log).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operation:getPet', 'operations:getPet'])
+    expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
+  })
+
+  it('keeps the schemas a schemaName include references', async () => {
+    const log: Array<string> = []
+
+    const { files } = await build([examplePlugin(log, [{ type: 'schemaName', pattern: '^Pet$' }])])
+
+    expect(log).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operations:'])
     expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
   })
 

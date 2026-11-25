@@ -73,7 +73,8 @@ export function collectImportedRefNames(node: SchemaNode, { checks = false }: { 
 }
 
 /**
- * Collects the names of all top-level schemas transitively used by a set of operations.
+ * Collects the names of all top-level schemas transitively used by a set of operations or schemas.
+ * A schema root counts the schemas it references, not itself.
  *
  * An operation uses a schema when its parameters, request body, or responses reference it, directly
  * or through other named schemas. Once a name is added to the result it is not revisited, so
@@ -92,7 +93,7 @@ export function collectImportedRefNames(node: SchemaNode, { checks = false }: { 
  * }
  * ```
  */
-export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
+export function collectUsedSchemaNames(roots: ReadonlyArray<OperationNode | SchemaNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const schemaMap = new Map<string, SchemaNode>()
   for (const schema of schemas) {
     if (schema.name) schemaMap.set(schema.name, schema)
@@ -110,8 +111,8 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
     }
   }
 
-  for (const op of operations) {
-    for (const schema of collect<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+  for (const root of roots) {
+    for (const schema of collect<SchemaNode>(root, { depth: 'shallow', schema: (node) => node })) {
       visitSchema(schema)
     }
   }
