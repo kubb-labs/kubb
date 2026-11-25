@@ -38,7 +38,47 @@ export type OutputCheck = {
   cleanup(): void
 }
 
-type Target = { config: Config; dir: string }
+type Target = { config: Config; root: string; dir: string }
+
+// Carried on each redirected config. Core copies it when it resolves the config, so two configs with the same output folder keep their own target.
+const targetKey = Symbol('kubb.check.target')
+type RedirectedConfig = Config & { [targetKey]?: Target }
+
+const targetOf = (config: RedirectedConfig): Target => config[targetKey]!
+
+/** The real path of a generated file: a path in the temporary folder maps back to its place under the root. */
+function toDiskPath({ root, dir }: Target, filePath: string): string {
+  return isPathInside(filePath, dir) ? join(root, relative(dir, filePath)) : filePath
+}
+
+/**
+ * The fs storage of a check. A plugin can write next to `output.path`, so every key inside the root
+ * moves into the temporary folder, and a key outside the root is refused. Nothing real is written.
+ */
+function stagedStorage({ root, dir }: Pick<Target, 'root' | 'dir'>): Storage {
+  const fs = fsStorage()
+  const stage = (key: string): string => {
+    const absolute = resolve(key)
+    if (isPathInside(absolute, dir)) return absolute
+    if (isPathInside(absolute, root)) return join(dir, relative(root, absolute))
+
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `--check cannot generate "${absolute}" because it is outside the project root.`,
+      help: 'Keep every generated file inside `root`.',
+    })
+  }
+
+  return {
+    name: fs.name,
+    readItem: (key) => fs.readItem(stage(key)),
+    writeItem: (key, value, options) => fs.writeItem(stage(key), value, options),
+    removeItem: (key) => fs.removeItem(stage(key)),
+    readKeys: (base) => fs.readKeys(base && stage(base)),
+    empty: async (base) => (base ? fs.empty(stage(base)) : undefined),
+  }
+}
 
 /** The path of `absolute` below `root`. Throws when it sits outside, since the temporary folder mirrors the project root. */
 function pathInRoot({ root, absolute, option }: { root: string; absolute: string; option: string }): string {
@@ -56,16 +96,16 @@ function pathInRoot({ root, absolute, option }: { root: string; absolute: string
 /**
  * The files on disk a check compares with, keyed by the temporary path of the file generated for each.
  */
-async function readDiskFiles({ target: { config, dir }, paths }: { target: Target; paths: ReadonlySet<string> }): Promise<Map<string, string>> {
-  const root = resolve(config.root)
+async function readDiskFiles({ target, paths }: { target: Target; paths: ReadonlySet<string> }): Promise<Map<string, string>> {
+  const { config, root, dir } = target
   const files = new Map<string, string>()
   for (const [filePath, source] of await readOutputFiles(resolve(root, config.output.path))) {
     files.set(join(dir, relative(root, filePath)), source)
   }
-  // Generated files outside `output.path`, such as `shared.path`.
+  // Generated files outside `output.path`, such as `shared.path` or a file a plugin writes elsewhere.
   for (const filePath of paths) {
     if (files.has(filePath)) continue
-    const source = await read(join(root, relative(dir, filePath))).catch(() => null)
+    const source = await read(toDiskPath(target, filePath)).catch(() => null)
     if (source !== null) files.set(filePath, source)
   }
 
@@ -80,7 +120,6 @@ async function readDiskFiles({ target: { config, dir }, paths }: { target: Targe
  * `output.postGenerate` does not run: its commands name their own paths and would write to the real output.
  */
 export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
-  const targets = new Map<string, Target>()
   // One temporary folder per project root.
   const dirs = new Map<string, string>()
   const patches: Array<string> = []
@@ -92,7 +131,7 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
   // A backstop for `process.exit()`, which skips every `finally`.
   process.once('exit', cleanup)
 
-  const redirectConfig = (config: Config): Config => {
+  const redirectConfig = (config: Config): RedirectedConfig => {
     // A config without `storage` gets the fs storage from core.
     if (config.storage && config.storage.name !== 'fs') {
       throw new Diagnostics.Error({
@@ -102,25 +141,23 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
         help: 'Run --check on a config that uses the default fs storage.',
       })
     }
-    const root = resolve(config.root)
+    const root = resolve(config.root ?? '')
     const output = pathInRoot({ root, absolute: resolve(root, config.output.path), option: 'output.path' })
     const sharedPath = config.shared && pathInRoot({ root, absolute: resolve(root, config.shared.path), option: 'shared.path' })
     const dir = dirs.get(root) ?? mkdtempSync(join(root, '.kubb-check-'))
     dirs.set(root, dir)
     const outputPath = join(dir, output)
     const shared = config.shared && sharedPath ? { ...config.shared, path: join(dir, sharedPath) } : config.shared
-    targets.set(outputPath, { config, dir })
 
     return {
       ...config,
-      storage: fsStorage(),
+      [targetKey]: { config, root, dir },
+      storage: stagedStorage({ root, dir }),
       shared,
       // The passes run through `processOutput`, so core keeps no output manifest for the temporary folder.
       output: { ...config.output, path: outputPath, clean: false, format: false, lint: false, postGenerate: [] },
     }
   }
-
-  const targetOf = (config: Config): Target => targets.get(resolve(config.root, config.output.path))!
 
   return {
     redirect: (configs) => configs.map(redirectConfig),
@@ -140,14 +177,14 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
     },
     async compare({ config, storage, paths }) {
       const target = targetOf(config)
-      const { config: userConfig, dir } = target
+      const { config: userConfig, root } = target
       const previousFiles = await readDiskFiles({ target, paths })
 
       // No manifest: both sides went through the same output passes, so the bytes compare directly.
       const result = await diffOutput({ storage, paths, clean: Boolean(userConfig.output.clean), previousFiles })
       const files: NonNullable<GenerationResult['check']>['files'] = []
       for (const change of result.files.toSorted((a, b) => a.path.localeCompare(b.path))) {
-        const path = toPosixPath(relative(dir, change.path))
+        const path = toPosixPath(relative(root, toDiskPath(target, change.path)))
         files.push({ path, status: statusKeys[change.status], linesAdded: change.added ?? 0, linesRemoved: change.removed ?? 0 })
         if (!diff) continue
         const after = change.status === 'D' ? '' : ((await storage.readItem(change.path)) ?? '')

@@ -333,6 +333,8 @@ describe('check', () => {
         for (const [name, source] of [
           ['pet.ts', 'export const pet = {name:"cat",   tags:[1,2]}'],
           ['types/index.ts', 'export type Pet = {name:string}'],
+          // Not under `output.path`: a check must stage this one too, not write it.
+          ['../client.ts', 'export const client = 1'],
         ] as const) {
           await upsertFile(
             ast.factory.createFile({
@@ -435,6 +437,29 @@ describe('check', () => {
     expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')
     expect(patch).toContain('+export const pet = { name: "cat", tags: [1, 2] };')
     expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('stages a file a plugin writes outside output.path instead of writing it', async () => {
+    const { config, root, snapshot } = await generated()
+    rmSync(join(root, 'src/client.ts'))
+    const before = snapshot()
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.includes('added: src/client.ts'))).toBe(true)
+    expect(snapshot()).toStrictEqual(before)
+  })
+
+  it('keeps the report of each config when two configs share an output folder', async () => {
+    const { config } = await generated()
+    using stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
+    await bootstrap({ configs: ['first', 'second'].map((name) => ({ ...config, name })), check: true, reporters: ['json'] })
+
+    expect(JSON.parse(String(stdout.mock.calls.at(-1)?.[0]))).toMatchObject([
+      { name: 'first', check: { changed: false } },
+      { name: 'second', check: { changed: false } },
+    ])
   })
 
   it('adds the files and the check outcome to the json report', async () => {

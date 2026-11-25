@@ -156,7 +156,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 
 - It cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
 - `output.postGenerate` does not run. Its commands name their own paths, so they would write to the real output.
-- `output.path` and `shared.path` must sit inside `root`, and the config must use the default `fs` storage.
+- `output.path`, `shared.path`, and every file a plugin writes must sit inside `root`, and the config must use the default `fs` storage.
 
 > [!WARNING]
 > A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. The check then reports formatting differences. Use a pattern such as `**/gen/**`.

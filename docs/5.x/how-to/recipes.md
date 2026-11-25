@@ -196,7 +196,7 @@ kubb-check:
 
 ::
 
-To see how the generated files differ from the base branch, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
+To see which generated files changed against the base branch, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
 
 ## Add barrel files {#barrel-files}
 
