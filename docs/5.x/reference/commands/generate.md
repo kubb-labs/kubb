@@ -37,7 +37,7 @@ kubb generate ./petStore.yaml  # this spec instead
 | `--reporter <names>` | | `cli` | Comma-separated [reporters](#reporters) to run: `cli`, `json`, `file`, `html`. |
 | `--watch` | `-w` | `false` | Generate again when the local `input` file changes. |
 | `--dry-run` | | `false` | Preview the run. Writes no files and skips formatting, linting, and `output.postGenerate`. |
-| `--check` | | `false` | Compare the output with the files on disk and write nothing to `output.path`. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
+| `--check` | | `false` | Compare the output with the files on disk and leave `output.path` as it was. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
 | `--diff` | | `false` | Print a diff for each out-of-date file. Turns `--check` on. |
 
 ### Watch mode
@@ -46,7 +46,7 @@ kubb generate ./petStore.yaml  # this spec instead
 
 ### Check mode {#check-mode}
 
-`--check` tells you whether a run would change the generated files on disk, and writes nothing to `output.path`. Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. `--diff` also prints what would change.
+`--check` tells you whether a run would change the generated files on disk, and leaves `output.path` as it was. Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. `--diff` also prints what would change.
 
 ```shell [Terminal]
 kubb generate --check          # exit 1 when a file is out of date
@@ -120,7 +120,9 @@ When you write an adapter, its `sources` member lists the files and URLs the las
 
 ### Check mode details {#check-mode-details}
 
-Kubb generates into a temporary folder inside the project root, runs `output.format` and `output.lint` there, and compares the result with `output.path`. It then deletes the folder.
+Kubb generates into a temporary folder inside the project root, `.kubb-check-<random>`, and compares the result with `output.path`. It then deletes the folder.
+
+`output.format` and `output.lint` run on the real `output.path`, so your ignore rules and path overrides apply as they do in a plain `kubb generate`. For that step Kubb moves your files into a second temporary folder, puts the generated files in their place, and moves your files back when the tools finish, fail, or you press Ctrl+C. A config with neither option never touches `output.path`.
 
 ```text [Out of date]
 ✗ Generated code is out of date  412ms
@@ -161,7 +163,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 | | `--dry-run` | `--check` |
 | --- | --- | --- |
 | Exit code when files would change | `0` | `1` |
-| Runs `output.format` and `output.lint` | No | Yes, on the temporary folder |
+| Runs `output.format` and `output.lint` | No | Yes, on `output.path`, which it then restores |
 | Needs the cache in `node_modules/.cache/kubb` to recognize formatted output | Yes | No |
 
 `--check` has these limits:
@@ -171,7 +173,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 - `output.path`, `shared.path`, and every file a plugin writes must sit inside `root`, and the config must use the default `fs` storage.
 
 > [!WARNING]
-> A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. The check then reports formatting differences. Use a pattern such as `**/gen/**`.
+> While the formatter and linter run, `output.path` holds the generated files. If the process is killed in that moment, your files are in `.kubb-check-<random>-original` inside `root`. Move them back, or run `kubb generate`.
 
 ### Run summary {#run-summary}
 

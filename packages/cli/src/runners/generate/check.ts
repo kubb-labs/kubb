@@ -1,5 +1,5 @@
-import { mkdtempSync, rmSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
+import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from 'node:fs'
+import { dirname, join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { diffHunks, inParallel, isPathInside, listFiles, read, toPosixPath } from '@internals/utils'
 import { type Config, Diagnostics, fsStorage, type GenerateOptions, type GenerationResult, runOutputPasses, type Storage } from '@kubb/core'
@@ -8,7 +8,7 @@ import { diffFile, type FileChange, fingerprintFile, statusKeys } from './utils.
 
 /**
  * What `kubb generate --check` needs for one run: the configs staged in a temporary folder, the
- * output passes for that folder, and the comparison with the files on disk.
+ * output passes for the staged files, and the comparison with the files on disk.
  */
 export type OutputCheck = {
   /**
@@ -47,7 +47,7 @@ function toDiskPath({ root, stageDir }: Stage, filePath: string): string {
 
 /**
  * The fs storage of a check. A plugin can write next to `output.path`, so every key inside the root
- * moves into the temporary folder, and a key outside the root is refused. Nothing real is written.
+ * moves into the temporary folder, and a key outside the root is refused.
  */
 function stagedStorage({ root, stageDir }: Pick<Stage, 'root' | 'stageDir'>): Storage {
   const fs = fsStorage()
@@ -85,6 +85,38 @@ function relativeToRoot({ root, absolute, option }: { root: string; absolute: st
     message: `--check cannot compare \`${option}\` "${absolute}" because it is not a folder inside the project root.`,
     help: `Point \`${option}\` at a folder inside \`root\`, such as \`./src/gen\`.`,
   })
+}
+
+/** A generated folder that takes the place of the real one while the output passes run. */
+type Swap = { real: string; staged: string; original: string; movedOriginal: boolean; movedStaged: boolean; createdParent?: string }
+
+/** Where the folder a swap replaces waits: a second temporary folder next to the staged one. */
+const originalsDir = (stageDir: string): string => `${stageDir}-original`
+
+/**
+ * Moves the staged folder to its real path and the folder already there out of the way. Each step is
+ * recorded on `swap` once it is done, so `swapOut` undoes exactly what happened, even after a failure halfway.
+ */
+function swapIn(swap: Swap): void {
+  if (existsSync(swap.real)) {
+    mkdirSync(dirname(swap.original), { recursive: true })
+    renameSync(swap.real, swap.original)
+    swap.movedOriginal = true
+  }
+  swap.createdParent = mkdirSync(dirname(swap.real), { recursive: true })
+  renameSync(swap.staged, swap.real)
+  swap.movedStaged = true
+}
+
+/** Moves the generated folder back to the temporary folder and restores the real one. Safe to call twice. */
+function swapOut(swap: Swap): void {
+  if (swap.movedStaged && existsSync(swap.real)) renameSync(swap.real, swap.staged)
+  swap.movedStaged = false
+  if (swap.movedOriginal) renameSync(swap.original, swap.real)
+  swap.movedOriginal = false
+  // No folder to restore: drop the parents that were only made to hold the generated one.
+  if (swap.createdParent) rmSync(swap.createdParent, { recursive: true, force: true })
+  swap.createdParent = undefined
 }
 
 type CheckedFile = NonNullable<GenerationResult['check']>['files'][number]
@@ -129,21 +161,62 @@ async function addDeletedFiles({
 
 /**
  * Sets up a check run. Each config generates into `<root>/.kubb-check-<random>/<output.path>` with the fs
- * storage, so formatters and linters find the project's config files and `output.path` is never written.
- * The folder is not under `node_modules`, which prettier, oxfmt and eslint skip.
+ * storage, so the build never writes to `output.path`.
+ *
+ * The formatter and linter run on the real `output.path`: the generated folder is swapped in for the
+ * passes and the user's folder is put back right after. A tool applies its ignore rules and overrides
+ * by path, so only the real path gives the result a plain `kubb generate` gets.
  *
  * `output.postGenerate` does not run: its commands name their own paths and would write to the real output.
  */
 export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
   const stageDirs = new Map<string, string>()
   const patches: Array<string> = []
+  const swaps = new Set<Swap>()
   let changed = false
 
+  // Without a listener a signal ends the process at once and leaves the generated folder at `output.path`.
+  const interrupt = { SIGINT: () => process.exit(130), SIGTERM: () => process.exit(143) }
   const cleanup = () => {
-    for (const stageDir of stageDirs.values()) rmSync(stageDir, { recursive: true, force: true })
+    process.off('exit', cleanup)
+    for (const [signal, listener] of Object.entries(interrupt)) process.off(signal, listener)
+    // The user's files go back first: the folders removed below hold them during a swap.
+    for (const swap of swaps) swapOut(swap)
+    swaps.clear()
+    for (const stageDir of stageDirs.values()) {
+      rmSync(stageDir, { recursive: true, force: true })
+      rmSync(originalsDir(stageDir), { recursive: true, force: true })
+    }
   }
   // A backstop for `process.exit()`, which skips every `finally`.
   process.once('exit', cleanup)
+  for (const [signal, listener] of Object.entries(interrupt)) process.once(signal, listener)
+
+  /** Runs `run` with the generated `folders` at their real paths. The user's folders are back when it settles. */
+  const withRealPaths = async <T>({ stage, folders, run }: { stage: Stage; folders: Array<string>; run: () => Promise<T> }): Promise<T> => {
+    const active: Array<Swap> = []
+    try {
+      for (const staged of folders.filter((folder) => existsSync(folder))) {
+        const swap: Swap = {
+          real: toDiskPath(stage, staged),
+          staged,
+          original: join(originalsDir(stage.stageDir), relative(stage.stageDir, staged)),
+          movedOriginal: false,
+          movedStaged: false,
+        }
+        swaps.add(swap)
+        active.push(swap)
+        swapIn(swap)
+      }
+
+      return await run()
+    } finally {
+      for (const swap of active.reverse()) {
+        swapOut(swap)
+        swaps.delete(swap)
+      }
+    }
+  }
 
   const stageConfig = (config: Config): StagedConfig => {
     // A config without `storage` gets the fs storage from core.
@@ -180,13 +253,28 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
     get changed() {
       return changed
     },
-    async processOutput({ config, ...options }) {
-      const { output } = stageOf(config).userConfig
+    async processOutput({ config, outputPath, ...options }) {
+      const stage = stageOf(config)
+      const { output, shared } = stage.userConfig
       if (output.postGenerate?.length) {
-        await options.hooks.callHook('kubb:warn', { message: 'Skipped output.postGenerate because --check never writes to output.path.' })
+        await options.hooks.callHook('kubb:warn', { message: 'Skipped output.postGenerate because --check leaves output.path as it is.' })
       }
+      if (!output.format && !output.lint) return []
 
-      return runOutputPasses({ ...options, config: { ...config, output: { ...config.output, format: output.format, lint: output.lint } } })
+      const sharedPath = config.shared && resolve(config.root, config.shared.path)
+      const staged = [...new Set(sharedPath ? [outputPath, sharedPath] : [outputPath])]
+
+      return withRealPaths({
+        stage,
+        // A folder inside another one moves with it.
+        folders: staged.filter((folder) => !staged.some((other) => other !== folder && isPathInside(folder, other))),
+        run: () =>
+          runOutputPasses({
+            ...options,
+            outputPath: toDiskPath(stage, outputPath),
+            config: { ...config, shared, output: { ...config.output, format: output.format, lint: output.lint } },
+          }),
+      })
     },
     async compare({ config, storage, paths }) {
       const stage = stageOf(config)

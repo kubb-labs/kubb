@@ -71,7 +71,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     check: {
       type: 'boolean',
-      description: 'Compare the output with the files on disk without writing. Exits 1 when they are out of date, 2 on a failure',
+      description: 'Compare the output with the files on disk and leave them as they were. Exits 1 when they are out of date, 2 on a failure',
       default: false,
     },
     diff: {

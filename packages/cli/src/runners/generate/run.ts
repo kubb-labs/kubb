@@ -94,7 +94,7 @@ export type GenerateCommandOptions = {
   reporters?: Array<ReporterName>
   dryRun?: boolean
   /**
-   * Generates into a temporary folder and compares it with `output.path`, which is never written.
+   * Generates into a temporary folder and compares it with `output.path`, which is left as it was.
    * The run exits with 1 when the output is out of date and with 2 when it fails.
    */
   check?: boolean
@@ -208,7 +208,7 @@ function startOutputCheck({ check = false, diff = false, watch }: Pick<GenerateC
   return { outputCheck: createOutputCheck({ diff }), failureExitCode: 2 }
 }
 
-/** `--check` wins over `--dry-run`: it writes nothing to `output.path` either. */
+/** `--check` wins over `--dry-run`: it leaves `output.path` as it was too. */
 function toRunConfigs({
   configs,
   input,

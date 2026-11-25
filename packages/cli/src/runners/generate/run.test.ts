@@ -432,6 +432,37 @@ describe('check', () => {
     expect((await bootstrap({ configs: [kept.config], check: true })).filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
+  it('runs the formatter and linter on output.path, so ignore rules that name it from the root still match', async () => {
+    const target = project()
+    // Lints `src/` only, and skips the temporary folder the way a `.gitignore` entry for it does.
+    writeFileSync(join(target.root, '.oxlintrc.json'), JSON.stringify({ ignorePatterns: ['**/*', '!src/**/*'] }))
+    writeFileSync(join(target.root, '.gitignore'), '/.kubb-check-*/\n')
+    const config = { ...target.config, output: { ...target.config.output, lint: 'oxlint' } } as Config
+    await bootstrap({ configs: [config] })
+    rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
+    const before = target.snapshot()
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
+    expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
+    expect(target.snapshot()).toStrictEqual(before)
+  })
+
+  it('puts the output back as it was when the formatter fails', async () => {
+    const { config, root, file, snapshot } = await generated()
+    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
+    writeFileSync(file('extra.ts'), 'export {}\n')
+    writeFileSync(join(root, '.oxfmtrc.json'), '{ not json')
+    const before = snapshot()
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.includes('formatter failed'))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 2')
+    expect(snapshot()).toStrictEqual(before)
+  })
+
   it('prints a hunk for the edited file with --diff', async () => {
     const { config, file } = await generated()
     writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
