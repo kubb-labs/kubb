@@ -9,6 +9,43 @@ outline: 2
 
 # Changelog
 
+## v5.26.0 — Nov 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Upgrade `@readme/openapi-parser` to 11. ([#4783](https://github.com/kubb-labs/kubb/pull/4783))
+
+### @kubb/cli
+
+#### Features
+
+- Add `kubb generate --check`, which exits with 1 when the generated files on disk are out of date, and `--diff`, which also prints what would change. Neither writes to `output.path`. ([#4787](https://github.com/kubb-labs/kubb/pull/4787))
+
+  ```shell
+  kubb generate --check
+  ```
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- A `schemaName` entry in `include`, `exclude`, or `override` also covers the schemas that the matched schemas reference. ([#4788](https://github.com/kubb-labs/kubb/pull/4788))
+
+  ```diff
+    include: [
+      { type: 'schemaName', pattern: '^Pet$' },
+  -   { type: 'schemaName', pattern: '^Store$' }, // Pet references Store
+    ],
+  ```
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Upgrade `capnweb` to 0.13. ([#4783](https://github.com/kubb-labs/kubb/pull/4783))
+
 ## v5.25.1 — Nov 24, 2026
 
 ### @kubb/adapter-oas
