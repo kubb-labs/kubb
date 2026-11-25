@@ -12,7 +12,7 @@ function documentWith(paths: Record<string, unknown>, components: Record<string,
 
 function parseOperations(document: Document): Array<ast.OperationNode> {
   const refs = createRefs(document)
-  const parseSchema = createSchemaParser({ document, refs })
+  const parseSchema = createSchemaParser({ document, refs }).parse
   return getOperations(document, refs).map((operation) => parseOperation({ operation, document, refs, options: DEFAULT_PARSER_OPTIONS, parseSchema }))
 }
 

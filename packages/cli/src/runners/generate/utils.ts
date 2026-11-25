@@ -79,23 +79,27 @@ function createSnapshot(): BuildSnapshot {
  * Collects a {@link BuildSnapshot} from the hooks while a build runs. `take` hands back the finished
  * build's snapshot and starts the next one.
  */
-export function trackBuild(hooks: Hookable<KubbHooks>): { take(): BuildSnapshot } {
-  let current = createSnapshot()
+class BuildTracker {
+  #current = createSnapshot()
 
-  hooks.hook('kubb:generate:schema', (node) => {
-    if (node.name) current.schemas.add(node.name)
-  })
-  hooks.hook('kubb:generate:operation', (node) => {
-    current.operations.add(node.operationId)
-  })
-
-  return {
-    take() {
-      const snapshot = current
-      current = createSnapshot()
-      return snapshot
-    },
+  constructor(hooks: Hookable<KubbHooks>) {
+    hooks.hook('kubb:generate:schema', (node) => {
+      if (node.name) this.#current.schemas.add(node.name)
+    })
+    hooks.hook('kubb:generate:operation', (node) => {
+      this.#current.operations.add(node.operationId)
+    })
   }
+
+  take(): BuildSnapshot {
+    const snapshot = this.#current
+    this.#current = createSnapshot()
+    return snapshot
+  }
+}
+
+export function trackBuild(hooks: Hookable<KubbHooks>): { take(): BuildSnapshot } {
+  return new BuildTracker(hooks)
 }
 
 export type NameChange = { added: number; removed: number }

@@ -3,7 +3,7 @@ import type { LoggerWriter } from '../types.ts'
 import { createLoggerContext } from './context.ts'
 import { createGeneration } from './generation.ts'
 import { createPhases } from './phases.ts'
-import { createProblems } from './problems.ts'
+import { createPrinter } from './printer.ts'
 import { createProgress } from './progress.ts'
 import { createSession } from './session.ts'
 import { createSpinner } from './spinner.ts'
@@ -24,7 +24,7 @@ export function installLogger({ hooks, writer, logLevel }: { hooks: Hookable<Kub
   const progress = createProgress({ ctx, spinner })
   const walk = createWalk({ ctx, spinner, progress })
   const phases = createPhases({ ctx, spinner })
-  const problems = createProblems({ ctx, spinner, progress, phases })
+  const printer = createPrinter({ ctx, spinner, progress, phases })
   createSession({ ctx, spinner })
-  return createGeneration({ ctx, spinner, progress, walk, phases, problems })
+  return createGeneration({ ctx, spinner, progress, walk, phases, printer })
 }

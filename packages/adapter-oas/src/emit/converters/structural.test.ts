@@ -14,7 +14,7 @@ const document = {
 const refs = createRefs(document)
 
 function parse(schema: SchemaObject, name: string | null = 'Pet', options: Partial<ParserOptions> = {}): ast.SchemaNode {
-  return createSchemaParser({ document, refs, options })({ schema, name })
+  return createSchemaParser({ document, refs, options }).parse({ schema, name })
 }
 
 describe('object', () => {

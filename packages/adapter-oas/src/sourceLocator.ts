@@ -62,12 +62,72 @@ function indexEvents(events: ReadonlyArray<Event>): EventIndex {
   return { types, styles, starts, ends, collections: new Map() }
 }
 
-function createLocator({ index, source }: { index: EventIndex; source: string }) {
-  const { types, styles, starts, ends, collections } = index
-  const isCollection = (at: number) => types[at] === EVENT_ID.MAPPING || types[at] === EVENT_ID.SEQUENCE
+class SourceLocator {
+  readonly #index: EventIndex
+  readonly #source: string
+  readonly #types: Uint8Array
+  readonly #styles: Uint8Array
+  readonly #starts: Int32Array
+  readonly #ends: Int32Array
 
-  const readText = (at: number): string => {
-    const text = source.slice(starts[at], ends[at])
+  constructor({ index, source }: { index: EventIndex; source: string }) {
+    this.#index = index
+    this.#source = source
+    this.#types = index.types
+    this.#styles = index.styles
+    this.#starts = index.starts
+    this.#ends = index.ends
+  }
+
+  find(pointer: string): Range {
+    // The first event opens the document, the second is its root.
+    return this.#walk({ at: 1, tokens: pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken), range: undefined })
+  }
+
+  findRef(ref: string): Range {
+    this.#index.refs ??= this.#indexRefs()
+    return this.#index.refs.get(ref)
+  }
+
+  // Every `$ref` value in the document, mapped to the range of its first occurrence.
+  #indexRefs(): Map<string, NonNullable<Range>> {
+    const types = this.#types
+    const refs = new Map<string, NonNullable<Range>>()
+    // -1 in a sequence. In a mapping, 0 before a key and 1 before its value.
+    const frames: Array<number> = []
+    for (let at = 1; at + 1 < types.length; at++) {
+      if (!this.#stepFrames({ frames, at }) || !this.#isRefKey(at)) continue
+      const text = this.#readText(at + 1)
+      if (!refs.has(text)) refs.set(text, { start: this.#starts[at + 1]!, end: this.#ends[at + 1]! })
+    }
+    return refs
+  }
+
+  // Moves `frames` past the event at `at`, and tells whether that event is a mapping key.
+  #stepFrames({ frames, at }: { frames: Array<number>; at: number }): boolean {
+    if (this.#types[at] === EVENT_ID.POP) {
+      frames.pop()
+      return false
+    }
+    const top = frames.length - 1
+    const isKey = frames[top] === 0
+    if (frames[top]! >= 0) frames[top] = 1 - frames[top]!
+    if (this.#isCollection(at)) frames.push(this.#types[at] === EVENT_ID.MAPPING ? 0 : -1)
+    return isKey
+  }
+
+  // A `$ref` key followed by its scalar value.
+  #isRefKey(at: number): boolean {
+    return this.#types[at] === EVENT_ID.SCALAR && this.#types[at + 1] === EVENT_ID.SCALAR && this.#readText(at) === '$ref'
+  }
+
+  #isCollection(at: number): boolean {
+    return this.#types[at] === EVENT_ID.MAPPING || this.#types[at] === EVENT_ID.SEQUENCE
+  }
+
+  #readText(at: number): string {
+    const styles = this.#styles
+    const text = this.#source.slice(this.#starts[at], this.#ends[at])
     if (styles[at] === SCALAR_STYLE.SINGLE_QUOTED) return text.slice(1, -1).replaceAll("''", "'")
     if (styles[at] !== SCALAR_STYLE.DOUBLE_QUOTED) return text
     try {
@@ -77,73 +137,56 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
     }
   }
 
-  const readNode = (at: number): NonNullable<Range> & { next: number } => {
-    if (!isCollection(at)) return { start: starts[at]!, end: ends[at]!, next: at + 1 }
+  #readNode(at: number): NonNullable<Range> & { next: number } {
+    const starts = this.#starts
+    if (!this.#isCollection(at)) return { start: starts[at]!, end: this.#ends[at]!, next: at + 1 }
     let next = at + 1
     let end = starts[at]!
-    while (types[next] !== EVENT_ID.POP) ({ end, next } = readNode(next))
+    while (this.#types[next] !== EVENT_ID.POP) ({ end, next } = this.#readNode(next))
     // A flow collection ends at its closing bracket, which no event marks, after any commas and comments.
-    if (styles[at] === COLLECTION_STYLE.FLOW) {
+    if (this.#styles[at] === COLLECTION_STYLE.FLOW) {
       flowGap.lastIndex = end
-      flowGap.exec(source)
+      flowGap.exec(this.#source)
       end = flowGap.lastIndex + 1
     }
     return { start: starts[at]!, end, next: next + 1 }
   }
 
-  const readChildren = (collection: number) => {
+  #readChildren(collection: number): { keys: Map<string, Child>; items: Array<Child> } {
+    const types = this.#types
     const keys = new Map<string, Child>()
     const items: Array<Child> = []
     const isMapping = types[collection] === EVENT_ID.MAPPING
     for (let at = collection + 1; types[at] !== EVENT_ID.POP;) {
       const key = isMapping ? at : undefined
-      if (key !== undefined) at = readNode(at).next
-      const { start, end, next } = readNode(at)
+      if (key !== undefined) at = this.#readNode(at).next
+      const { start, end, next } = this.#readNode(at)
       if (key === undefined) items.push({ index: at, range: { start, end } })
-      const raw = key !== undefined && types[key] === EVENT_ID.SCALAR ? readText(key) : undefined
-      const text = raw !== undefined && styles[key!] === SCALAR_STYLE.PLAIN ? toKeyText(raw) : raw
-      if (text !== undefined && !keys.has(text)) keys.set(text, { index: at, range: { start: starts[key!]!, end: ends[key!]! } })
+      const text = key !== undefined ? this.#readKey(key) : undefined
+      if (text !== undefined && !keys.has(text)) keys.set(text, { index: at, range: { start: this.#starts[key!]!, end: this.#ends[key!]! } })
       at = next
     }
     return { keys, items }
   }
 
-  // Follows `tokens` from the collection at `at`. The range is the last key or item it reached.
-  const walk = ({ at, tokens: [token, ...rest], range }: { at: number; tokens: Array<string>; range: Range }): Range => {
-    if (token === undefined) return range
-    if (!isCollection(at)) return undefined
-    const { keys, items } = memo(collections, at, () => readChildren(at))
-    const child = keys.get(token) ?? items[Number(token)]
-    return child ? walk({ at: child.index, tokens: rest, range: child.range }) : undefined
+  #readKey(key: number): string | undefined {
+    if (this.#types[key] !== EVENT_ID.SCALAR) return undefined
+    const raw = this.#readText(key)
+    return this.#styles[key] === SCALAR_STYLE.PLAIN ? toKeyText(raw) : raw
   }
 
-  return {
-    find(pointer: string): Range {
-      // The first event opens the document, the second is its root.
-      return walk({ at: 1, tokens: pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken), range: undefined })
-    },
-    findRef(ref: string): Range {
-      if (!index.refs) {
-        index.refs = new Map()
-        // -1 in a sequence. In a mapping, 0 before a key and 1 before its value.
-        const frames: Array<number> = []
-        for (let at = 1; at + 1 < types.length; at++) {
-          if (types[at] === EVENT_ID.POP) {
-            frames.pop()
-            continue
-          }
-          const top = frames.length - 1
-          const isKey = frames[top] === 0
-          if (frames[top]! >= 0) frames[top] = 1 - frames[top]!
-          if (isCollection(at)) frames.push(types[at] === EVENT_ID.MAPPING ? 0 : -1)
-          if (!isKey || types[at] !== EVENT_ID.SCALAR || types[at + 1] !== EVENT_ID.SCALAR || readText(at) !== '$ref') continue
-          const text = readText(at + 1)
-          if (!index.refs.has(text)) index.refs.set(text, { start: starts[at + 1]!, end: ends[at + 1]! })
-        }
-      }
-      return index.refs.get(ref)
-    },
+  // Follows `tokens` from the collection at `at`. The range is the last key or item it reached.
+  #walk({ at, tokens: [token, ...rest], range }: { at: number; tokens: Array<string>; range: Range }): Range {
+    if (token === undefined) return range
+    if (!this.#isCollection(at)) return undefined
+    const { keys, items } = memo(this.#index.collections, at, () => this.#readChildren(at))
+    const child = keys.get(token) ?? items[Number(token)]
+    return child ? this.#walk({ at: child.index, tokens: rest, range: child.range }) : undefined
   }
+}
+
+function createLocator({ index, source }: { index: EventIndex; source: string }): SourceLocator {
+  return new SourceLocator({ index, source })
 }
 
 function parse(source: string): EventIndex | undefined {
@@ -167,7 +210,7 @@ export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   const index = memo(indexes, source, () => parse(source))
   if (!index) return undefined
 
-  const { find, findRef } = createLocator({ index, source })
+  const locator = createLocator({ index, source })
   const ref = 'ref' in location ? location.ref : undefined
-  return find(location.pointer) ?? (ref ? findRef(ref) : undefined)
+  return locator.find(location.pointer) ?? (ref ? locator.findRef(ref) : undefined)
 }

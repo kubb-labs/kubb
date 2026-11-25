@@ -8,7 +8,7 @@ import { extractDiscriminatedAllOfMembers, findDiscriminators, getDefaultMapping
 function setup(schemas: Record<string, unknown>) {
   const document = { openapi: '3.1.0', info: { title: 'Pets', version: '1' }, paths: {}, components: { schemas } } as Document
   const refs = createRefs(document)
-  return { refs, parse: createSchemaParser({ document, refs }) }
+  return { refs, parse: createSchemaParser({ document, refs }).parse }
 }
 
 const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })

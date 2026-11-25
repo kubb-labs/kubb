@@ -7,8 +7,6 @@ import type { LoggerContext } from './context.ts'
 import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 
-export type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress }
-
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80
 
@@ -26,6 +24,8 @@ function createState() {
     lastWalkDraw: 0,
   }
 }
+
+export type WalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress }
 
 /**
  * The node walk the plugins share: the live generation block, and the plugin results printed once the walk ends.

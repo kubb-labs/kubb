@@ -3,12 +3,12 @@ import type { SummaryRenderer } from '@kubb/core'
 import type { LogStatus } from '../types.ts'
 import { getInputPath, type LoggerContext } from './context.ts'
 import type { Phases } from './phases.ts'
-import type { Problems } from './problems.ts'
+import type { Printer } from './printer.ts'
 import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
 import type { Walk } from './walk.ts'
 
-export type GenerationOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; walk: Walk; phases: Phases; problems: Problems }
+export type GenerationOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; walk: Walk; phases: Phases; printer: Printer }
 
 /**
  * One config's run: the group it opens, the state every feature resets at its start, and the
@@ -19,7 +19,7 @@ class Generation {
 
   constructor(options: GenerationOptions) {
     this.#options = options
-    const { ctx, spinner, progress, walk, problems } = options
+    const { ctx, spinner, progress, walk, printer } = options
     const { writer, silent, text, hooks, onRun } = ctx
 
     hooks.hook('kubb:lifecycle:start', () => {
@@ -32,7 +32,7 @@ class Generation {
 
       walk.state.totalPlugins = config.plugins?.length ?? 0
       progress.state.inMemory = config.storage?.name === 'memory'
-      problems.setSpec(config)
+      printer.setSpec(config)
 
       if (silent) {
         return
@@ -48,30 +48,30 @@ class Generation {
     onRun('kubb:generation:end', async ({ diagnostics = [] }) => {
       spinner.stop()
       progress.stop()
-      problems.state.diagnostics = diagnostics
-      await problems.flush()
+      printer.state.diagnostics = diagnostics
+      await printer.flush()
     })
 
     hooks.hook('kubb:lifecycle:end', async () => {
-      await problems.flush()
+      await printer.flush()
       this.#closeGroup('failed')
       this.#reset()
     })
   }
 
   #reset(): void {
-    const { spinner, progress, walk, phases, problems } = this.#options
+    const { spinner, progress, walk, phases, printer } = this.#options
     spinner.reset()
     progress.reset()
     walk.reset()
     phases.reset()
-    problems.reset()
+    printer.reset()
   }
 
   // A run that throws before `kubb:generation:end` never reaches the summary, so the lifecycle
   // end calls this too rather than leave a group without its closing line.
   #closeGroup(status: LogStatus): void {
-    const { ctx, spinner, progress, problems } = this.#options
+    const { ctx, spinner, progress, printer } = this.#options
     if (!ctx.groupOpen) {
       return
     }
@@ -79,7 +79,7 @@ class Generation {
 
     spinner.stop()
     progress.stop()
-    ctx.writer.groupEnd(status === 'failed' ? styleText('red', problems.failedTitle()) : styleText('green', '✓ Generation succeeded'))
+    ctx.writer.groupEnd(status === 'failed' ? styleText('red', printer.failedTitle()) : styleText('green', '✓ Generation succeeded'))
   }
 
   // An arrow function, because the `cli` reporter calls it without the instance.

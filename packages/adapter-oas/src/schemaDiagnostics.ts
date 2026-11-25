@@ -13,8 +13,28 @@ export function scanSchema(node: ast.SchemaNode, pointer = node.pointer): void {
   if (pointer) visit(node, pointer)
 }
 
-// Pointers per unsupported format, collected while `groupUnsupportedFormats` runs.
-let formatTally: Map<string, Set<string>> | undefined
+class FormatTally {
+  // Pointers per unsupported format, collected while `groupUnsupportedFormats` runs.
+  #pointers: Map<string, Set<string>> | undefined
+
+  group<T>(fn: () => T): T {
+    this.#pointers = memo.create()
+    try {
+      return fn()
+    } finally {
+      const tally = this.#pointers
+      this.#pointers = undefined
+      for (const [format, pointers] of tally) reportUnsupportedFormat(format, [...pointers])
+    }
+  }
+
+  add(format: string, pointer: string): void {
+    if (!this.#pointers) return reportUnsupportedFormat(format, [pointer])
+    memo(this.#pointers, format, () => new Set()).add(pointer)
+  }
+}
+
+const formatTally = new FormatTally()
 
 /**
  * Runs `fn` and reports `KUBB_UNSUPPORTED_FORMAT` once per format with the number of schemas that use it,
@@ -22,19 +42,7 @@ let formatTally: Map<string, Set<string>> | undefined
  * thousands of warnings that say the same thing. `fn` must be synchronous.
  */
 export function groupUnsupportedFormats<T>(fn: () => T): T {
-  formatTally = memo.create()
-  try {
-    return fn()
-  } finally {
-    const tally = formatTally
-    formatTally = undefined
-    for (const [format, pointers] of tally) reportUnsupportedFormat(format, [...pointers])
-  }
-}
-
-function tallyFormat(format: string, pointer: string): void {
-  if (!formatTally) return reportUnsupportedFormat(format, [pointer])
-  memo(formatTally, format, () => new Set()).add(pointer)
+  return formatTally.group(fn)
 }
 
 function reportUnsupportedFormat(format: string, pointers: Array<string>): void {
@@ -63,7 +71,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
   }
 
   if (typeof node.format === 'string' && !isHandledFormat(node.format)) {
-    tallyFormat(node.format, pointer)
+    formatTally.add(node.format, pointer)
   }
 
   if (node.type === 'object') {

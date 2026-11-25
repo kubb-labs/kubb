@@ -23,7 +23,7 @@ import {
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../ui/text.ts'
-import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
+import installReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'
 import { logIntro, logOutro, logSpacer, logTip } from '../../ui/intro.ts'
 import { logError, logInfo, logStep, logWarn } from '../../ui/log.ts'
@@ -335,7 +335,7 @@ export async function run({
   const quiet = logLevel <= logLevelMap.silent || json
 
   // The run log goes to stderr in `json` mode, so an error with no report entry is never silent and stdout stays one JSON document.
-  if (json) setupReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
+  if (json) installReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
   // The config loads while the banner plays. Once it settles the banner jumps to its last frame, so
   // the build starts right away and no frame lands between log lines.
@@ -375,7 +375,7 @@ export async function run({
   } catch (error) {
     if (!quiet) configSpinner.error('Config failed loading')
 
-    if (!json) setupReporters(hooks, { logLevel, reporters: [cliReporter] })
+    if (!json) installReporters(hooks, { logLevel, reporters: [cliReporter] })
     // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
     await Diagnostics.emit(hooks, error)
 
@@ -387,7 +387,7 @@ export async function run({
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  setupReporters(hooks, { logLevel, reporters, dryRun, outputCheck })
+  installReporters(hooks, { logLevel, reporters, dryRun, outputCheck })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 

@@ -41,7 +41,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
   spinner.start('Generating with the new versions')
   try {
     // Imported here, so the config loader and the generate path never slow down `kubb --help`.
-    const [{ getConfigs }, { generate }, { default: setupReporters }] = await Promise.all([
+    const [{ getConfigs }, { generate }, { default: installReporters }] = await Promise.all([
       import('../../config.ts'),
       import('../generate/run.ts'),
       import('../../loggers/reporters.ts'),
@@ -55,7 +55,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
         for (const key of Object.keys(changes) as Array<keyof FileChanges>) changes[key] += fileChanges?.[key] ?? 0
       },
     }
-    setupReporters(hooks, { logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
+    installReporters(hooks, { logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
     if (!(await generate({ configs, hooks }))) throw new Error('Generation failed')
     const changed = changes.added + changes.modified + changes.deleted
     spinner.stop(changed ? `Generated: ${pluralize(changed, 'file')} changed` : 'Generated: no files changed')

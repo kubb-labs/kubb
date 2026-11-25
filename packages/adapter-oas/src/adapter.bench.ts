@@ -25,7 +25,7 @@ async function getPetStoreDocument(): Promise<Document> {
 function parseOas(document: Document): void {
   const refs = createRefs(document)
   const { schemas: schemaObjects, pointers } = getSchemas(document, {}, refs)
-  const parseSchema = createSchemaParser({ document, refs, options: DEFAULT_PARSER_OPTIONS })
+  const parseSchema = createSchemaParser({ document, refs, options: DEFAULT_PARSER_OPTIONS }).parse
 
   const nodes: Array<ast.SchemaNode> = []
   for (const [name, schema] of Object.entries(schemaObjects)) {
