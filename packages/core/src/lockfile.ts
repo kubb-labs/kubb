@@ -1,10 +1,9 @@
-import { hash } from 'node:crypto'
 import { relative, resolve } from 'node:path'
 import { inParallel, readIfExists, toPosixPath } from '@internals/utils'
 import { parse, stringify } from 'yaml'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
-import type { LockfileInputs } from './lockfileInputs.ts'
+import { digest, type LockfileInputs } from './lockfileInputs.ts'
 
 /** Bumped when the stored shape changes, so an older lockfile is discarded instead of misread. */
 const LOCKFILE_VERSION = 1
@@ -27,9 +26,6 @@ export type LockfileObject = {
   inputs?: Record<string, LockfileInputs>
   files: Record<string, LockfileEntry>
 }
-
-/** Line endings are normalized, so a checkout that converts them still matches the lockfile. */
-const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 
@@ -121,16 +117,16 @@ export class Lockfile {
 
   /** Whether every listed file still holds its recorded output, and `cleanDir` holds no file that is not listed. */
   async verify({ cleanDir }: { cleanDir?: string } = {}): Promise<boolean> {
-    const stale = new Set<string>()
+    let stale = false
     await inParallel({
       items: Object.entries(this.#entries),
       limit: FILE_CONCURRENCY,
       run: async ([key, entry]) => {
         const stored = await this.#storage.readItem(resolve(this.#root, key))
-        if (stored === null || digest(stored) !== entry.output) stale.add(key)
+        if (stored === null || digest(stored) !== entry.output) stale = true
       },
     })
-    if (stale.size) return false
+    if (stale) return false
     if (!cleanDir) return true
 
     return (await this.#storage.readKeys(cleanDir)).every((name) => Object.hasOwn(this.#entries, this.#toKey(resolve(cleanDir, name))))
@@ -142,8 +138,6 @@ export class Lockfile {
    * `name` generated from, and drops that record when it is `null`.
    */
   async write(options?: { name: string; inputs: LockfileInputs | null }): Promise<void> {
-    const storage = this.#storage
-    const root = this.#root
     try {
       const next: Record<string, LockfileEntry> = {}
       const written = new Set([...this.#added.keys()].map((key) => this.#toKey(key)))
@@ -153,7 +147,7 @@ export class Lockfile {
         items: Object.entries(this.#entries).filter(([key]) => !written.has(key)),
         limit: FILE_CONCURRENCY,
         run: async ([key, entry]) => {
-          const stored = await storage.readItem(resolve(root, key))
+          const stored = await this.#storage.readItem(resolve(this.#root, key))
           if (stored !== null && digest(stored) === entry.output) next[key] = entry
           else droppedEntry = true
         },
@@ -163,7 +157,7 @@ export class Lockfile {
         items: [...this.#added],
         limit: FILE_CONCURRENCY,
         run: async ([key, source]) => {
-          const stored = await storage.readItem(key)
+          const stored = await this.#storage.readItem(key)
           if (stored !== null) next[this.#toKey(key)] = { source, output: digest(stored) }
         },
       })
@@ -181,7 +175,7 @@ export class Lockfile {
       const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
       // Through the storage, so a run that stages its files stages the lockfile with them.
       // `lineWidth: 0` keeps each value on one line, whatever the length of a path.
-      await storage.writeItem(resolve(root, LOCKFILE_NAME), stringify(object, { lineWidth: 0 }))
+      await this.#storage.writeItem(resolve(this.#root, LOCKFILE_NAME), stringify(object, { lineWidth: 0 }))
     } catch {
       /* the record is an optimization, so a storage failure here must not fail a finished build */
     }

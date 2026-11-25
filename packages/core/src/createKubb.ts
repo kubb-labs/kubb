@@ -45,7 +45,8 @@ const lockfileKey = ({ name, root, output }: Pick<Config, 'name' | 'root' | 'out
 /** The files the adapter read, or `null` when it lists none for a spec that is a file. */
 function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Array<string> | null {
   if (!adapter) return []
-  if (!adapter.sources?.length && (!adapter.sources || typeof input === 'string')) return null
+  if (!adapter.sources) return null
+  if (!adapter.sources.length && typeof input === 'string') return null
 
   return adapter.sources
 }

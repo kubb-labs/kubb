@@ -10,6 +10,9 @@ import type { Config } from './types.ts'
 /** What a build read, as `kubb-lock.yaml` records it: one hash, plus the source files to hash again on the next run. */
 export type LockfileInputs = { hash: string; sources: Array<string> }
 
+/** Line endings are normalized, so a checkout that converts them gets the same hash. */
+export const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
+
 /** Per-run and per-machine members of a config, which say nothing about what it generates. */
 const SKIPPED_KEYS = new Set(['root', 'storage', 'reporters'])
 
@@ -95,8 +98,7 @@ export async function hashInputs({
   if (!packages || contents.includes(null)) return null
 
   const paths = files.map((file) => toPosixPath(relative(root, file)))
-  // Line endings are normalized, so a checkout that converts them gets the same hash.
-  const digests = contents.map((content) => hash('sha256', content!.replaceAll('\r\n', '\n')))
+  const digests = contents.map((content) => digest(content!))
 
   return { hash: hash('sha256', JSON.stringify([kubbVersion, packages, configText, paths, digests])), sources: paths }
 }
