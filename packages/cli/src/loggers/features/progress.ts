@@ -6,6 +6,8 @@ import type { WriterProgress } from '../types.ts'
 import type { LoggerContext } from './context.ts'
 import type { Spinner } from './spinner.ts'
 
+export type ProgressOptions = { ctx: LoggerContext; spinner: Spinner }
+
 export type ProgressState = {
   progress: WriterProgress | null
   totalFiles: number
@@ -19,7 +21,7 @@ export class Progress {
   readonly state: ProgressState = { progress: null, totalFiles: 0, processedFiles: 0, inMemory: false }
   readonly #ctx: LoggerContext
 
-  constructor({ ctx, spinner }: { ctx: LoggerContext; spinner: Spinner }) {
+  constructor({ ctx, spinner }: ProgressOptions) {
     this.#ctx = ctx
     const { writer, silent, human, logLevel, text, onRun } = ctx
     const { state } = this
@@ -71,6 +73,6 @@ export class Progress {
   }
 }
 
-export function createProgress(options: { ctx: LoggerContext; spinner: Spinner }): Progress {
+export function createProgress(options: ProgressOptions): Progress {
   return new Progress(options)
 }

@@ -70,11 +70,9 @@ export class Problems {
       }
 
       // The writer draws the error symbol, so the message goes in bare.
-      if (spinner.active) {
-        spinner.stop(message, 'failed')
-      } else {
-        writer.error(text(message))
-      }
+      const drawn = spinner.active
+      if (drawn) spinner.stop(message, 'failed')
+      if (!drawn) writer.error(text(message))
       if (details.length) {
         writer.block(details.map(text))
       }

@@ -145,21 +145,20 @@ export class SchemaParser {
   }
 
   #toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {
-    const branch = (value: unknown) => this.#toBranch(value)
     const entries = (value: unknown) => (value && typeof value === 'object' ? Object.entries(value) : [])
     const conditionals: NonNullable<ast.SchemaNode['conditionals']> = []
 
-    const condition = branch(schema.if)
+    const condition = this.#toBranch(schema.if)
     if (condition) {
-      const thenNode = branch(schema.then)
-      const elseNode = branch(schema.else)
+      const thenNode = this.#toBranch(schema.then)
+      const elseNode = this.#toBranch(schema.else)
       conditionals.push({ if: condition, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) })
     }
     for (const [key, required] of entries(schema.dependentRequired)) {
       if (isKeyList(required)) conditionals.push({ if: this.#requireKeys([key]), then: this.#requireKeys(required) })
     }
     for (const [key, dependent] of entries(schema.dependentSchemas)) {
-      const thenNode = branch(dependent)
+      const thenNode = this.#toBranch(dependent)
       if (thenNode) conditionals.push({ if: this.#requireKeys([key]), then: thenNode })
     }
 
