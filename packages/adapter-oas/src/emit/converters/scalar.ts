@@ -179,7 +179,9 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 function getEnumPrimitive(type: string | undefined, values: Array<string | number | boolean>): 'number' | 'boolean' | 'string' {
   if (type === 'boolean') return 'boolean'
   if (type === 'number' || type === 'integer') return 'number'
-  if (type === undefined && values.every((value) => typeof value === 'number')) return 'number'
+  if (type !== undefined || values.length === 0) return 'string'
+  if (values.every((value) => typeof value === 'boolean')) return 'boolean'
+  if (values.every((value) => typeof value === 'number')) return 'number'
 
   return 'string'
 }
@@ -221,11 +223,13 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
   const rawEnumNames = extensionKey ? (memberSlots((schema as Record<string, unknown>)[extensionKey]) as Array<string | number> | undefined) : undefined
   const rawEnumDescriptions = descriptionKey ? (memberSlots((schema as Record<string, unknown>)[descriptionKey]) as Array<string> | undefined) : undefined
   const seenNames = new Set<string>()
+  const seenValues = new Set<string | number | boolean>()
 
   return createNode(ctx, {
     type: 'enum',
     primitive,
-    namedEnumValues: uniqueValues
+    // Pair each value with its name before duplicates go, so a later value keeps its own name.
+    namedEnumValues: filteredValues
       .map((value, index) => ({
         name: String(rawEnumNames?.[index] ?? value),
         value,
@@ -233,7 +237,8 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
         description: rawEnumDescriptions?.[index],
       }))
       .filter((entry) => {
-        if (seenNames.has(entry.name)) return false
+        if (seenValues.has(entry.value) || seenNames.has(entry.name)) return false
+        seenValues.add(entry.value)
         seenNames.add(entry.name)
         return true
       }),

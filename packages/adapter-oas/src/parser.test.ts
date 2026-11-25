@@ -634,6 +634,18 @@ describe('parseSchema format', () => {
       },
     },
     {
+      title: 'int32 enum with a duplicate value and x-enumNames',
+      schema: { type: 'integer', format: 'int32', enum: [0, 0, 1], 'x-enumNames': ['None', 'None', 'Ready'] },
+      expected: {
+        type: 'enum',
+        format: 'int32',
+        namedEnumValues: [
+          { name: 'None', value: 0 },
+          { name: 'Ready', value: 1 },
+        ],
+      },
+    },
+    {
       title: 'int32 enum without names',
       schema: { type: 'integer', format: 'int32', enum: [0, 1] },
       expected: {
@@ -1738,6 +1750,8 @@ describe('parseSchema enum', () => {
     { title: 'integer', schema: { type: 'integer', enum: [1, 2, 3] }, primitive: 'number', values: [1, 2, 3] },
     { title: 'boolean', schema: { type: 'boolean', enum: [true, false] }, primitive: 'boolean', values: [true, false] },
     { title: 'string with x-enumNames', schema: { enum: ['a', 'b'], 'x-enumNames': ['Alpha', 'Beta'] }, primitive: 'string', values: ['a', 'b'] },
+    { title: 'boolean without a type', schema: { enum: [true, false], 'x-enumNames': ['Yes', 'No'] }, primitive: 'boolean', values: [true, false] },
+    { title: 'number without a type', schema: { enum: [1, 2] }, primitive: 'number', values: [1, 2] },
   ] satisfies Array<{ title: string; schema: SchemaObject; primitive: string; values: Array<unknown> }>)(
     'produces namedEnumValues with primitive $primitive for a $title enum',
     async ({ schema, primitive, values }) => {
@@ -1789,7 +1803,7 @@ describe('parseSchema enum', () => {
     expect(ast.schema.narrow(node, 'enum')?.namedEnumValues?.map((v) => v.name)).toStrictEqual(['A', 'B'])
   })
 
-  it('x-enumNames deduplicates by value first, mapping names by deduped index', () => {
+  it('x-enumNames keeps each name with its value when a duplicate value is dropped', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
         type: 'integer',
@@ -1799,8 +1813,7 @@ describe('parseSchema enum', () => {
     })
     const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
-    // After deduping values to [1, 2], names are looked up by position in the deduped array
-    expect(values?.map((v) => v.name)).toStrictEqual(['First', 'Duplicate'])
+    expect(values?.map((v) => v.name)).toStrictEqual(['First', 'Second'])
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
