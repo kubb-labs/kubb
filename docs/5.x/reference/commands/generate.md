@@ -189,12 +189,13 @@ A run is up to date when all of these match [`kubb.lock`](#kubb-lock):
 
 - The config, with the source of every function in it.
 - The spec, and every local file it references with `$ref`.
-- The version of Kubb and of every package in the project's `dependencies` and `devDependencies`.
+- The version of Kubb and of every package in the `dependencies` and `devDependencies` of each `package.json` from `root` up.
 - Every generated file on disk.
 
 Kubb always generates in these cases:
 
 - The input is a URL or a git input, or the spec references a URL. Kubb cannot compare those without fetching them.
+- The adapter does not list the files it read, or no `package.json` exists in `root` or above it.
 - The config sets `output.postGenerate`.
 - You pass `--watch`, `--check`, `--dry-run`, or a reporter other than `cli`.
 
@@ -211,7 +212,7 @@ A run that still generates, such as one with `--reporter json`, skips `output.fo
 {
   "lockfileVersion": 1,
   "inputs": {
-    "default": {
+    "src/gen": {
       "hash": "0c3bf1dc…",
       "sources": ["openapi.yaml"]
     }
@@ -228,8 +229,8 @@ A run that still generates, such as one with `--reporter json`, skips `output.fo
 | Field | Value |
 | --- | --- |
 | `lockfileVersion` | The format version. Kubb ignores a file with another version. |
-| `inputs` | What each config last generated from, keyed by the config's `name`, or `default` without one. Left out for an input Kubb cannot compare, such as a URL. |
-| `hash` | SHA-256 hash of the config, the package versions, and the content of the `sources`. |
+| `inputs` | What each config last generated from, keyed by the config's `name`, or its `output.path` without one. Left out for an input Kubb cannot compare, such as a URL. |
+| `hash` | SHA-256 hash of the config, the package versions, and the content of the `sources`. Line endings count as `\n`. |
 | `sources` | The spec and the local files it references, as paths from `root`. |
 | `files` | One entry per generated file, keyed by its path from `root`. |
 | `source` | SHA-256 hash of the code Kubb generated. |

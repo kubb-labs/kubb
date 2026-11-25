@@ -244,6 +244,13 @@ function showsTip({
   return !quiet && !watchMode && succeeded && !outputCheck?.changed
 }
 
+/** Says why every formatted file reads as out of date. stdout belongs to the `json` report. */
+function warnMissingLockfile({ json }: { json: boolean }): void {
+  const message = `No ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`
+  if (json) console.error(message)
+  else logWarn(message)
+}
+
 /**
  * Ends a run: prints the diffs of a check and sets the exit code. A check that succeeded exits with 1
  * when the output is out of date. stdout belongs to the `json` report, so the diffs go to stderr there.
@@ -253,16 +260,16 @@ function reportOutcome({
   failureExitCode,
   outputCheck,
   json,
+  silent,
 }: {
   succeeded: boolean
   failureExitCode: number
   outputCheck?: OutputCheck
   json: boolean
+  silent: boolean
 }): void {
   for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
-  // Without the lock file every formatted file reads as out of date, so say why.
-  if (outputCheck?.missingLockfile)
-    logWarn(`No ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`)
+  if (outputCheck?.missingLockfile && !silent) warnMissingLockfile({ json })
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
     process.exitCode = failureExitCode
@@ -271,10 +278,7 @@ function reportOutcome({
   if (outputCheck?.changed) process.exitCode = 1
 }
 
-/**
- * Generates the configs, unless `mayReuse` is set and a build of every config would leave the output
- * as it is. Returns whether the run succeeded. One config that fails does not stop the others.
- */
+/** Generates the configs, unless `mayReuse` is set and a build of every config would leave the output as it is. */
 async function generateOrReuse({
   configs,
   hooks,
@@ -393,7 +397,7 @@ export async function run({
     await checkForUpdate({ hooks, latestVersion: await withTimeout({ promise: latestVersion, ms: UPDATE_WAIT_MS }) })
 
     await hooks.callHook('kubb:lifecycle:end')
-    reportOutcome({ succeeded, failureExitCode, outputCheck, json })
+    reportOutcome({ succeeded, failureExitCode, outputCheck, json, silent: logLevel <= logLevelMap.silent })
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.

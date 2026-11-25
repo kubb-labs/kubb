@@ -446,6 +446,17 @@ describe('check', () => {
     expect(lines.at(-1)).toBe('exit 1')
   })
 
+  it('keeps the missing kubb.lock warning out of stdout for the json reporter', async () => {
+    const { config, root } = await generated()
+    rmSync(join(root, 'kubb.lock'))
+    using _stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
+    const lines = await bootstrap({ configs: [config], check: true, reporters: ['json'] })
+
+    expect(lines.some((line) => line.includes('No kubb.lock found'))).toBe(true)
+    expect(lines.stdout.some((line) => line.includes('No kubb.lock found'))).toBe(false)
+  })
+
   describe('reuse', () => {
     const upToDate = (lines: Array<string>) =>
       lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb.lock'))
@@ -455,6 +466,7 @@ describe('check', () => {
       const target = project()
       const spec = join(target.root, 'openapi.json')
       writeFileSync(spec, JSON.stringify(target.config.input))
+      writeFileSync(join(target.root, 'package.json'), '{}')
       const config = (output: Partial<Config['output']> = {}) =>
         ({ ...target.config, input: spec, adapter: adapterOas(), plugins: [writesFiles()], output: { ...target.config.output, ...output } }) as Config
       await bootstrap({ configs: [config()] })

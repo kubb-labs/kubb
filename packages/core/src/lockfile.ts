@@ -1,6 +1,6 @@
 import { hash } from 'node:crypto'
 import { relative, resolve } from 'node:path'
-import { inParallel, readIfExists, toPosixPath, writeRaw } from '@internals/utils'
+import { inParallel, readIfExists, toPosixPath } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
 import type { LockfileInputs } from './lockfileInputs.ts'
@@ -11,17 +11,11 @@ const LOCKFILE_VERSION = 1
 /** Name of the lock file, written to the project root and meant to be committed. */
 export const LOCKFILE_NAME = 'kubb.lock'
 
-/**
- * How one generated file looked on either side of the output passes.
- */
+/** How one generated file looked on either side of the output passes. */
 type LockfileEntry = {
-  /**
-   * Hash of the content Kubb handed to the storage.
-   */
+  /** Hash of the content Kubb handed to the storage. */
   source: string
-  /**
-   * Hash of what the storage held once the output passes were done with it.
-   */
+  /** Hash of what the storage held once the output passes were done with it. */
   output: string
 }
 
@@ -35,36 +29,25 @@ type LockfileObject = {
 /**
  * Remembers what the output passes did to each generated file, so a later run can tell "the
  * formatter already turned this exact source into what is stored" apart from a real change.
- * Without it the storage compares Kubb's bytes against the formatter's, never matches, and
- * rewrites the whole output tree on every build. The record lives in `kubb.lock`, so a fresh
- * checkout can answer the same question without running the formatter.
+ * The record lives in `kubb.lock`, so a fresh checkout can tell without running the formatter.
  */
 export type Lockfile = {
   /** `false` when no `kubb.lock` could be read, so nothing a formatter changed can be recognized. */
   readonly exists: boolean
-  /**
-   * `true` when `source` is known to come out of the output passes as exactly the content stored,
-   * meaning the write can be skipped.
-   */
+  /** `true` when `source` is known to come out of the output passes as exactly `disk`, so the write can be skipped. */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
-  /**
-   * Records the source Kubb generated for `key`, so `commit` adds the file to the lock file.
-   */
+  /** Records the source Kubb generated for `key`, so `write` adds the file to the lock file. */
   track(options: { key: string; source: string }): void
   /** `true` when every tracked file was up to date, so the output passes have nothing new to run over. */
   readonly allFilesUpToDate: boolean
   /** What the config called `name` last generated from, when the lock file recorded it. */
   inputs(name: string): LockfileInputs | undefined
-  /**
-   * Whether every file in the lock file still holds its recorded output. With `cleanDir`, that
-   * folder must also hold no file the lock file does not list.
-   */
+  /** Whether every listed file still holds its recorded output, and `cleanDir` holds no file that is not listed. */
   matchesOutput(options?: { cleanDir?: string }): Promise<boolean>
   /**
-   * Re-reads the files generated this run and writes `kubb.lock` with one entry for each. An entry
-   * from an earlier run stays while its file still holds the recorded output, so a run that
-   * generates a different set of files keeps what another config recorded. `inputs` records what
-   * the config called `name` generated from, and drops that record when it is `null`.
+   * Writes `kubb.lock` with one entry for each file generated this run. An entry from an earlier run
+   * stays while its file still holds the recorded output. `inputs` records what the config called
+   * `name` generated from, and drops that record when it is `null`.
    */
   write(options?: { name: string; inputs: LockfileInputs | null }): Promise<void>
 }
@@ -75,6 +58,13 @@ const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', 
 const isEntry = (value: unknown): value is LockfileEntry =>
   typeof value === 'object' && value !== null && typeof (value as LockfileEntry).source === 'string' && typeof (value as LockfileEntry).output === 'string'
 
+const isInputs = (value: unknown): value is LockfileInputs =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as LockfileInputs).hash === 'string' &&
+  Array.isArray((value as LockfileInputs).sources) &&
+  (value as LockfileInputs).sources.every((source) => typeof source === 'string')
+
 async function readLockfileObject(lockPath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
   try {
     const stored = await readIfExists(lockPath)
@@ -84,9 +74,9 @@ async function readLockfileObject(lockPath: string): Promise<Pick<LockfileObject
     if (data.lockfileVersion !== LOCKFILE_VERSION) return null
     if (typeof data.files !== 'object' || data.files === null || Array.isArray(data.files)) return null
 
-    const inputs = typeof data.inputs === 'object' && data.inputs !== null ? data.inputs : {}
+    const inputs = Object.entries(typeof data.inputs === 'object' && data.inputs !== null ? data.inputs : {}).filter(([, value]) => isInputs(value))
 
-    return { files: Object.fromEntries(Object.entries(data.files).filter(([, entry]) => isEntry(entry))), inputs }
+    return { files: Object.fromEntries(Object.entries(data.files).filter(([, entry]) => isEntry(entry))), inputs: Object.fromEntries(inputs) }
   } catch {
     return null
   }
@@ -144,6 +134,7 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
       try {
         const next: Record<string, LockfileEntry> = {}
         const written = new Set([...tracked.keys()].map(toLockKey))
+        let droppedEntry = false
 
         await inParallel({
           items: Object.entries(entries).filter(([key]) => !written.has(key)),
@@ -151,6 +142,7 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
           run: async ([key, entry]) => {
             const stored = await storage.readItem(resolve(root, key))
             if (stored !== null && digest(stored) === entry.output) next[key] = entry
+            else droppedEntry = true
           },
         })
         // Reads the tree back through the same pool that wrote it, rather than one file at a time.
@@ -169,12 +161,13 @@ export async function createLockfile({ storage, root }: { storage: Storage; root
             .sort()
             .map((key) => [key, next[key]!]),
         )
-        const inputs = { ...loaded?.inputs }
+        // A dropped entry belonged to another config, whose output is then no longer what it recorded.
+        const inputs = droppedEntry ? {} : { ...loaded?.inputs }
         if (options?.inputs) inputs[options.name] = options.inputs
         else if (options) delete inputs[options.name]
         const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
-        const content = `${JSON.stringify(object, null, 2)}\n`
-        if (content !== (await readIfExists(lockPath))) await writeRaw(lockPath, content)
+        // Through the storage, so a run that stages its files stages the lock file with them.
+        await storage.writeItem(lockPath, JSON.stringify(object, null, 2))
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */
       }

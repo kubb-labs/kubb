@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -33,13 +33,28 @@ describe('serializeConfig', () => {
   })
 
   it('returns null for a config with a getter that throws', () => {
-    const adapter = {
-      get document(): never {
-        throw new Error('not parsed yet')
+    const plugin = {
+      get options(): never {
+        throw new Error('not ready')
       },
     }
 
-    expect(serializeConfig(makeConfig({ adapter: adapter as never }))).toBeNull()
+    expect(serializeConfig(makeConfig({ plugins: [plugin] as never }))).toBeNull()
+  })
+
+  it('reads only the name and options of the adapter, not the document it parsed', () => {
+    const adapter = (document: unknown) => ({ name: 'oas', options: { validate: true }, document, sources: document ? ['/project/openapi.yaml'] : [] })
+
+    expect(serializeConfig(makeConfig({ adapter: adapter({ openapi: '3.0.3' }) as never }))).toBe(
+      serializeConfig(makeConfig({ adapter: adapter(null) as never })),
+    )
+  })
+
+  it('is the same for a config file checked out with CRLF line endings', () => {
+    const lf = makeConfig({ plugins: [{ name: 'plugin', transform: 'function () {\n  return 1\n}' }] as never })
+    const crlf = makeConfig({ plugins: [{ name: 'plugin', transform: 'function () {\r\n  return 1\r\n}' }] as never })
+
+    expect(serializeConfig(crlf)).toBe(serializeConfig(lf))
   })
 })
 
@@ -53,7 +68,8 @@ describe('hashInputs', () => {
   function project() {
     const root = mkdtempSync(join(tmpdir(), 'kubb-inputs-'))
     roots.push(root)
-    writeFileSync(join(root, 'openapi.yaml'), 'openapi: 3.0.3')
+    writeFileSync(join(root, 'openapi.yaml'), 'openapi: 3.0.3\ninfo: {}')
+    writeFileSync(join(root, 'package.json'), '{}')
 
     return root
   }
@@ -80,10 +96,37 @@ describe('hashInputs', () => {
     expect((await hashInputs({ root, configText, sources }))?.hash).not.toBe(before?.hash)
   })
 
+  it('is the same for a spec checked out with CRLF line endings', async () => {
+    const root = project()
+    const before = await hashInputs({ root, configText: '{}', sources: ['openapi.yaml'] })
+    writeFileSync(join(root, 'openapi.yaml'), 'openapi: 3.0.3\r\ninfo: {}')
+
+    expect(await hashInputs({ root, configText: '{}', sources: ['openapi.yaml'] })).toStrictEqual(before)
+  })
+
+  it('counts the packages of a workspace root above the project', async () => {
+    const workspace = project()
+    const root = join(workspace, 'packages', 'api')
+    mkdirSync(root, { recursive: true })
+    const before = await hashInputs({ root, configText: '{}', sources: [] })
+    writeFileSync(join(workspace, 'package.json'), JSON.stringify({ dependencies: { vitest: '*' } }))
+
+    expect(before).not.toBeNull()
+    expect((await hashInputs({ root, configText: '{}', sources: [] }))?.hash).not.toBe(before?.hash)
+  })
+
   it.each([
-    ['a URL', 'https://example.com/openapi.yaml'],
-    ['a missing file', 'missing.yaml'],
-  ])('returns null for %s, which cannot be compared', async (_name, source) => {
-    expect(await hashInputs({ root: project(), configText: '{}', sources: [source] })).toBeNull()
+    ['a URL', 'https://example.com/openapi.yaml', undefined],
+    ['a missing file', 'missing.yaml', undefined],
+    ['a file saved after the build started', 'openapi.yaml', 0],
+  ])('returns null for %s, which cannot be compared', async (_name, source, since) => {
+    expect(await hashInputs({ root: project(), configText: '{}', sources: [source], since })).toBeNull()
+  })
+
+  it('returns null without a package.json, since the installed versions are unknown', async () => {
+    const root = project()
+    rmSync(join(root, 'package.json'))
+
+    expect(await hashInputs({ root, configText: '{}', sources: ['openapi.yaml'] })).toBeNull()
   })
 })

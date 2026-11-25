@@ -1,9 +1,10 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createLockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
 
 /**
  * What the formatter leaves behind for `const a = 1`: a semicolon and a trailing newline.
@@ -157,6 +158,39 @@ describe('createLockfile', () => {
     lockfile.track({ key: file('b.ts'), source: 'const b = 2' })
 
     expect(lockfile.allFilesUpToDate).toBe(false)
+  })
+
+  it('drops the inputs of the other configs when one of their files no longer holds its recorded output', async () => {
+    const { root, file, readLock } = await recorded()
+    const first = await createLockfile({ storage, root })
+    await first.write({ name: 'api', inputs: { hash: 'a', sources: [] } })
+    writeFileSync(file('a.ts'), 'const a = 999\n')
+
+    const second = await createLockfile({ storage, root })
+    await second.write({ name: 'admin', inputs: { hash: 'b', sources: [] } })
+
+    expect(readLock()).toStrictEqual({ lockfileVersion: 1, inputs: { admin: { hash: 'b', sources: [] } }, files: {} })
+  })
+
+  it('ignores an inputs record that is not a hash with a list of sources', async () => {
+    const { root, lock } = project()
+    writeFileSync(lock, JSON.stringify({ lockfileVersion: 1, inputs: { api: { hash: 'a' }, admin: { hash: 'b', sources: ['openapi.yaml'] } }, files: {} }))
+    const lockfile = await createLockfile({ storage, root })
+
+    expect(lockfile.inputs('api')).toBeUndefined()
+    expect(lockfile.inputs('admin')).toStrictEqual({ hash: 'b', sources: ['openapi.yaml'] })
+  })
+
+  it('writes the lock file through the storage, so a run that stages its files leaves the project alone', async () => {
+    const { root, lock } = project()
+    const staged = memoryStorage()
+    await staged.writeItem(join(root, 'gen', 'a.ts'), formatted)
+    const lockfile = await createLockfile({ storage: staged, root })
+    lockfile.track({ key: join(root, 'gen', 'a.ts'), source: 'const a = 1' })
+    await lockfile.write()
+
+    expect(existsSync(lock)).toBe(false)
+    expect(JSON.parse((await staged.readItem(lock)) as string)).toMatchObject({ files: { 'gen/a.ts': expect.anything() } })
   })
 
   it('skips a file that disappeared before the commit', async () => {

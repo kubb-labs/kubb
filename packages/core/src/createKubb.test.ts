@@ -536,6 +536,8 @@ describe('Kubb#generate', () => {
    */
   const createProject = ({ format = 'oxfmt' as Config['output']['format'], postGenerate = [] as Array<string> } = {}) => {
     const root = tempRoot()
+    // The installed package versions are part of what a build reads.
+    fs.writeFileSync(path.join(root, 'package.json'), '{}')
 
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
@@ -551,7 +553,8 @@ describe('Kubb#generate', () => {
         },
       })()
 
-      return makeConfig({ root, output: { path: './gen', format, postGenerate }, storage, plugins: [plugin] })
+      // Without an adapter: the mocked one does not list the files it read, so its inputs are never recorded.
+      return makeConfig({ root, output: { path: './gen', format, postGenerate }, storage, adapter: undefined, plugins: [plugin] })
     }
     const generate = ({ source, processOutput = async () => [], force }: ProjectBuild = {}) =>
       createKubb(config(source), { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force })
@@ -620,6 +623,24 @@ describe('Kubb#generate', () => {
     change(project)
 
     expect(await Kubb.isUpToDate(project.config())).toBe(expected)
+  })
+
+  it('records the inputs under the output path of a config without a name', async () => {
+    const project = createProject({ format: false })
+    await project.generate()
+
+    expect(Object.keys(JSON.parse(fs.readFileSync(path.join(path.dirname(path.dirname(project.filePath)), 'kubb.lock'), 'utf8')).inputs)).toStrictEqual(['gen'])
+  })
+
+  it('records no inputs for an adapter that does not list the files it read', async () => {
+    const root = tempRoot()
+    fs.writeFileSync(path.join(root, 'package.json'), '{}')
+    const config = makeConfig({ root, input: './openapi.yaml', output: { path: './gen' }, storage: fsStorage(), adapter: createMockedAdapter(), plugins: [] })
+
+    await createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate()
+
+    expect(JSON.parse(fs.readFileSync(path.join(root, 'kubb.lock'), 'utf8'))).toStrictEqual({ lockfileVersion: 1, files: {} })
+    expect(await Kubb.isUpToDate(config)).toBe(false)
   })
 
   it('reports a project that was never generated as not fresh', async () => {

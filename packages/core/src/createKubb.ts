@@ -1,5 +1,5 @@
-import { resolve } from 'node:path'
-import { getElapsedMs, isPathInside } from '@internals/utils'
+import { relative, resolve } from 'node:path'
+import { getElapsedMs, isPathInside, toPosixPath } from '@internals/utils'
 import type { FileNode, InputNode } from '@kubb/ast'
 import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
@@ -38,8 +38,17 @@ function writesOutputDirectory(storage: Storage): boolean {
   return storage.name === 'fs'
 }
 
-/** The key of a config's inputs in the lock file. */
-const lockfileKey = (config: Pick<Config, 'name'>): string => config.name ?? 'default'
+/** The key of a config's inputs in the lock file: its name, or its output path, which sets unnamed configs apart. */
+const lockfileKey = ({ name, root, output }: Pick<Config, 'name' | 'root' | 'output'>): string =>
+  name ?? toPosixPath(relative(root, resolve(root, output.path)))
+
+/** The files the adapter read, or `null` when it lists none for a spec that is a file. */
+function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Array<string> | null {
+  if (!adapter) return []
+  if (!adapter.sources?.length && (!adapter.sources || typeof input === 'string')) return null
+
+  return adapter.sources
+}
 
 /** Whether the config, the installed packages and the source files are the ones the lock file recorded. */
 async function inputsMatchLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
@@ -331,6 +340,7 @@ export class Kubb {
     await hooks.callHook('kubb:generation:start', { config })
     // Read before the build, so it equals what `isUpToDate` reads on the next run.
     const configText = serializeConfig(config)
+    const startedAt = Date.now()
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
@@ -361,7 +371,7 @@ export class Kubb {
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
-    const inputs = await this.#hashInputs(configText)
+    const inputs = await this.#hashInputs({ configText, since: startedAt })
     const passesConfig = this.#passesConfig({ inputs, force: options.force })
     const outputDiagnostics = writesOutputDirectory(config.storage)
       ? await processOutput({ config: passesConfig, outputPath: resolve(config.root, config.output.path), hooks, signal })
@@ -388,17 +398,15 @@ export class Kubb {
   }
 
   /** What this build read, or `null` without a lock file to record it in, or when it cannot be compared. */
-  async #hashInputs(configText: string | null): Promise<LockfileInputs | null> {
+  async #hashInputs({ configText, since }: { configText: string | null; since: number }): Promise<LockfileInputs | null> {
     const { config } = this
-    if (!this.#lockfile || !configText) return null
+    const sources = readSources(config)
+    if (!this.#lockfile || !configText || !sources) return null
 
-    return hashInputs({ root: config.root, configText, sources: config.adapter?.sources ?? [] })
+    return hashInputs({ root: config.root, configText, sources, since })
   }
 
-  /**
-   * The config for the output passes: without the formatter and linter when every file already is
-   * what they made of it. A new formatter version changes the inputs, so those have to match too.
-   */
+  /** The config for the output passes, without the formatter and linter when the inputs and every file are unchanged. */
   #passesConfig({ inputs, force }: { inputs: LockfileInputs | null; force?: boolean }): Config {
     const { config } = this
     const lockfile = this.#lockfile
