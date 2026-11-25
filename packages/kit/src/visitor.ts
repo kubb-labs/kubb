@@ -6,7 +6,7 @@ import { isKubbElement } from '@kubb/renderer-jsx/jsx-runtime'
 import { getResolver, type RegisteredTemplate, slot } from './composables.ts'
 import { resolveFile } from './file.ts'
 import { resolveFrom } from './from.ts'
-import type { Resolver } from './resolver/Resolver.ts'
+import type { Resolver } from './resolver/resolver.ts'
 import type { TemplateContext, PrinterContext, PrinterFactory, TemplateKind, TemplateNode } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])

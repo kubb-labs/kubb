@@ -2,7 +2,7 @@ import type { OperationNode, OperationsNode } from '@kubb/ast'
 import { describe, expectTypeOf, it } from 'vitest'
 import type { getResolver, provide } from './composables.ts'
 import type { from, RefName } from './from.ts'
-import type { Resolver } from './resolver/Resolver.ts'
+import type { Resolver } from './resolver/resolver.ts'
 import type { defineTemplate } from './defineTemplate.ts'
 import type { TemplateContext, PluginType, Template, TemplateNode } from './types.ts'
 

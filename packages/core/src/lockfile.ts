@@ -1,7 +1,7 @@
 import { relative, resolve } from 'node:path'
 import { inParallel, isPathInside, readIfExists, toPosixPath } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
-import { FILE_CONCURRENCY } from './FileManager.ts'
+import { FILE_CONCURRENCY } from './fileManager.ts'
 import { digest, type LockfileInputs } from './lockfileInputs.ts'
 
 // Bumped when the stored shape changes, so an older lockfile is discarded instead of misread.

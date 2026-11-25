@@ -1,6 +1,6 @@
 import type { Macro, OperationNode, OperationsNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, type PluginName, type RendererFactory, useKubb } from '@kubb/core'
-import { Resolver } from './resolver/Resolver.ts'
+import { Resolver } from './resolver/resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
 import type {
   Generator,

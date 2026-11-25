@@ -4,8 +4,8 @@ import process from 'node:process'
 import { runInNewContext } from 'node:vm'
 import { Diagnostics } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry, toOptionShape } from './Telemetry.ts'
-import type { OtlpPayloadOptions, OtlpSpan } from './Telemetry.ts'
+import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry, toOptionShape } from './telemetry.ts'
+import type { OtlpPayloadOptions, OtlpSpan } from './telemetry.ts'
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }))
 

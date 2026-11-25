@@ -5,7 +5,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
-import { defineResolver, Resolver } from './resolver/Resolver.ts'
+import { defineResolver, Resolver } from './resolver/resolver.ts'
 import type { Generator, TemplateContext } from './types.ts'
 
 // Runs each plain test plugin through kit's `defineExtension`, so it gets kit's visitor.

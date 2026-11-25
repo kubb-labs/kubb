@@ -4,7 +4,7 @@ import { type DiagnosticCode, diagnosticCode, docsUrl, explain } from './diagnos
 import { crashCodes, format, serialize } from './formatDiagnostic.ts'
 import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
-import type { Hookable } from './Hookable.ts'
+import type { Hookable } from './hookable.ts'
 
 /**
  * How serious a diagnostic is. `error` fails the build, `warning` and `info`

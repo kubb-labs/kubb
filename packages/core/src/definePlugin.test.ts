@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { assertPluginOption, normalizeOutput } from './definePlugin.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 
 describe('normalizeOutput', () => {
   // Mode is inferred from the path extension unless set, and a group always means a directory.

@@ -1,7 +1,7 @@
 import { stripVTControlCharacters, styleText } from 'node:util'
 import { getErrorChain } from '@internals/utils'
 import { type DiagnosticCode, diagnosticCode, docsUrl, explain } from './diagnosticCatalog.ts'
-import type { Diagnostic, DiagnosticLocation, DiagnosticSeverity, ProblemDiagnostic } from './Diagnostics.ts'
+import type { Diagnostic, DiagnosticLocation, DiagnosticSeverity, ProblemDiagnostic } from './diagnostics.ts'
 
 // Same test as `Diagnostics.isProblem`, kept here so this file imports only types from `Diagnostics.ts`.
 const isProblem = (diagnostic: Diagnostic): diagnostic is ProblemDiagnostic => (diagnostic.kind ?? 'problem') === 'problem'

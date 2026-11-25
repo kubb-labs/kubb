@@ -1,4 +1,4 @@
-import { Resolver } from './Resolver.ts'
+import { Resolver } from './resolver.ts'
 import type { PluginType } from '../types.ts'
 import type { ResolverBuildOptions, ResolverFile } from './types.ts'
 

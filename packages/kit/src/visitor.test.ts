@@ -9,7 +9,7 @@ import { defineTemplate } from './defineTemplate.ts'
 import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { file } from './file.ts'
 import { from } from './from.ts'
-import { Resolver } from './resolver/Resolver.ts'
+import { Resolver } from './resolver/resolver.ts'
 import type { TemplateContext, PrinterContext } from './types.ts'
 
 type SubtreePrinterOptions = PrinterFactoryOptions<'subtree', { depth: number }, string>

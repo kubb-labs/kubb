@@ -2,7 +2,7 @@ import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
-import type { DiagnosticLocation } from './Diagnostics.ts'
+import type { DiagnosticLocation } from './diagnostics.ts'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config

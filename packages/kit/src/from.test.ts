@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
 import { type From, type FromResolver, from } from './from.ts'
 import { getResolver, provide, slot } from './composables.ts'
-import { Resolver } from './resolver/Resolver.ts'
+import { Resolver } from './resolver/resolver.ts'
 
 function createMemo(): Memo {
   const store = new Map<string, unknown>()

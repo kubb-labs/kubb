@@ -1,6 +1,6 @@
 import { satisfies } from 'verkit'
 import { version as kubbVersion } from '../package.json'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Parser, ParserBuild, ParserFactory } from './defineParser.ts'
 import type { Plugin, PluginDefinition, PluginFactory, PluginType, PluginName } from './definePlugin.ts'

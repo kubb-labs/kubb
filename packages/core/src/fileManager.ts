@@ -6,9 +6,9 @@ import { ast, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import type { Lockfile } from './lockfile.ts'
-import type { Hookable } from './Hookable.ts'
+import type { Hookable } from './hookable.ts'
 import type { Config, KubbFileProcessingUpdate, KubbHooks } from './types.ts'
 
 /** Files kept in flight at once, writing the output and reading it back for the lockfile. */

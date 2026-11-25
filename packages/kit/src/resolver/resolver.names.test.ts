@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { Resolver } from './Resolver.ts'
+import { Resolver } from './resolver.ts'
 
 describe('resolver name reservations', () => {
   test('reuses an allocation for equivalent readonly array keys', () => {

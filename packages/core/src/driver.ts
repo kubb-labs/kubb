@@ -1,15 +1,15 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo as storeMemo, toError } from '@internals/utils'
 import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { Diagnostics } from './Diagnostics.ts'
-import type { Diagnostic, DiagnosticError, DiagnosticLocation, ProblemDiagnostic } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
+import type { Diagnostic, DiagnosticError, DiagnosticLocation, ProblemDiagnostic } from './diagnostics.ts'
 import type { PluginVisitContext } from './definePlugin.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext, withContext } from './composables.ts'
-import { FileManager } from './FileManager.ts'
+import { FileManager } from './fileManager.ts'
 import { createMemo, type Memo } from './memo.ts'
 import type { Lockfile } from './lockfile.ts'
 import type { SharedSchemas } from './detectSharedSchemas.ts'
@@ -17,7 +17,7 @@ import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
-import type { Hookable } from './Hookable.ts'
+import type { Hookable } from './hookable.ts'
 
 export type DriverOptions = {
   hooks: Hookable<KubbHooks>

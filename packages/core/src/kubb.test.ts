@@ -6,14 +6,14 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb, Kubb } from './kubb.ts'
-import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './diagnostics.ts'
 import { defineExtension } from './defineExtension.ts'
 import type { Config, KubbHooks, UserConfig } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
-import { Hookable } from './Hookable.ts'
+import { Hookable } from './hookable.ts'
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {

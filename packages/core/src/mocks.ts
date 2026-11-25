@@ -1,7 +1,7 @@
 import { ast } from '@kubb/ast'
 import { vi } from 'vitest'
 import { createMemo } from './memo.ts'
-import { pluginNotFoundError } from './KubbDriver.ts'
+import { pluginNotFoundError } from './driver.ts'
 import type { Config } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } from './definePlugin.ts'

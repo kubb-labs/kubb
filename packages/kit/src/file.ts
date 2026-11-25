@@ -1,6 +1,6 @@
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
-import type { Resolver } from './resolver/Resolver.ts'
+import type { Resolver } from './resolver/resolver.ts'
 import { type RegisteredTemplate, slot } from './composables.ts'
 import type { PrinterContext } from './types.ts'
 

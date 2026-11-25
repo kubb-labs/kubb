@@ -1,13 +1,13 @@
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
-import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
-import { Driver } from './KubbDriver.ts'
+import { type Diagnostic, Diagnostics } from './diagnostics.ts'
+import { Driver } from './driver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { Plugin, PluginVisitContext } from './definePlugin.ts'
 import { memo, useKubb } from './composables.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
-import { Hookable } from './Hookable.ts'
+import { Hookable } from './hookable.ts'
 import { checkoutGitInput } from './gitInput.ts'
 
 vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<typeof import('./gitInput.ts')>()), checkoutGitInput: vi.fn() }))

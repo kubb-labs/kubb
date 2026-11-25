@@ -1,5 +1,5 @@
 import type { OperationNode, ParameterNode } from '@kubb/ast'
-import { defineResolver } from '../resolver/Resolver.ts'
+import { defineResolver } from '../resolver/resolver.ts'
 import { operationKey } from './operationKey.ts'
 
 /** Names an operation's parameters (`param.*`) through the plugin's top-level `name`. */

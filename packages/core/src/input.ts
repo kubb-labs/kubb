@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import type { InputNode } from '@kubb/ast'
 import type { Config, Input } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'

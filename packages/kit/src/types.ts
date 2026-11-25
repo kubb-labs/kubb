@@ -3,7 +3,7 @@ import type { FileNode, OperationNode, OperationsNode, SchemaNode } from '@kubb/
 import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
 import type { FileOptions, FileTarget } from './file.ts'
 import type { From, SourceResolver } from './from.ts'
-import type { Resolver } from './resolver/Resolver.ts'
+import type { Resolver } from './resolver/resolver.ts'
 
 /**
  * Core's plugin type plus the resolver and printer that kit's generators receive.

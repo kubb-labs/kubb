@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Hookable } from './Hookable.ts'
+import { Hookable } from './hookable.ts'
 
 type TestHooks = {
   test: [string, number]

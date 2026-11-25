@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: test case */
 
 import { describe, expect, test } from 'vitest'
-import { Url } from './Url.ts'
+import { Url } from './url.ts'
 
 describe('Url.toPath', () => {
   test('converts path params to Express-style colon syntax', () => {

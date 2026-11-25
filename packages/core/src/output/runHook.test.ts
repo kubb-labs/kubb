@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Hookable } from '../Hookable.ts'
+import { Hookable } from '../hookable.ts'
 import type { KubbHooks, KubbHookEndContext, KubbHookStartContext } from '../types.ts'
 import { runHook } from './runHook.ts'
 

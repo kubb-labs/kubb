@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { memo as storeMemo } from '@internals/utils'
 import type { UserFileNode } from '@kubb/ast'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, PluginVisitContext, ResolvePluginOptions } from './definePlugin.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import type { Memo, MemoKey, MemoValue } from './memo.ts'
 import type { Config } from './types.ts'
 

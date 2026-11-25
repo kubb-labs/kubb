@@ -21,7 +21,7 @@ import {
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
-import { trackRun } from '../../Telemetry.ts'
+import { trackRun } from '../../telemetry.ts'
 import { pluralize } from '../../ui/text.ts'
 import installReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'

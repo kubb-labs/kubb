@@ -3,7 +3,7 @@ import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { file, type FileContext, resolveFile } from './file.ts'
 import { slot } from './composables.ts'
-import { Resolver } from './resolver/Resolver.ts'
+import { Resolver } from './resolver/resolver.ts'
 
 function createMemo(): Memo {
   const store = new Map<string, unknown>()

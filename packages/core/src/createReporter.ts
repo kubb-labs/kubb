@@ -1,6 +1,6 @@
 import type { LiteralUnion, ValueOf } from '@internals/utils'
 import type { Config } from './types.ts'
-import type { Diagnostic } from './Diagnostics.ts'
+import type { Diagnostic } from './diagnostics.ts'
 
 /**
  * Numeric log-level thresholds used internally to compare verbosity.

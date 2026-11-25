@@ -6,8 +6,8 @@ import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { getErrorMessage, toError } from '@internals/utils'
 import { x } from 'tinyexec'
-import { Diagnostics } from './Diagnostics.ts'
-import type { DiagnosticError } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
+import type { DiagnosticError } from './diagnostics.ts'
 import { isPublicAddress } from './publicAddress.ts'
 
 /**

@@ -1,7 +1,7 @@
 import { hash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { ast, type InputNode, type SchemaNode } from '@kubb/ast'
-import type { Hookable } from './Hookable.ts'
+import type { Hookable } from './hookable.ts'
 import { host } from './host.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { KubbHooks, UserConfig } from './types.ts'
