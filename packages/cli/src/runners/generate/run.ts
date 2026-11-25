@@ -224,7 +224,7 @@ function toRunConfigs({
   dryRun?: boolean
   outputCheck?: OutputCheck
 }) {
-  if (outputCheck) return outputCheck.stage(configs.map((config) => toRunConfig({ config, input, dryRun: false })))
+  if (outputCheck) return outputCheck.prepare(configs.map((config) => toRunConfig({ config, input, dryRun: false })))
 
   return configs.map((config) => toRunConfig({ config, input, dryRun }))
 }
@@ -278,16 +278,16 @@ function reportOutcome({
   if (outputCheck?.changed) process.exitCode = 1
 }
 
-/** Generates the configs, unless `mayReuse` is set and a build of every config would leave the output as it is. */
-async function generateOrReuse({
+/** Generates the configs, unless `canSkip` is set and a build of every config would leave the output as it is. */
+async function generateOrSkip({
   configs,
   hooks,
   quiet,
   force,
   watchMode,
-  mayReuse,
-}: GenerateProps & { quiet: boolean; watchMode: boolean; mayReuse: boolean }): Promise<boolean> {
-  if (mayReuse && (await Promise.all(configs.map((config) => Kubb.isUpToDate(config)))).every(Boolean)) {
+  canSkip,
+}: GenerateProps & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
+  if (canSkip && (await Promise.all(configs.map((config) => Kubb.isUpToDate(config)))).every(Boolean)) {
     if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     return true
   }
@@ -389,8 +389,8 @@ export async function run({
   try {
     const runConfigs = toRunConfigs({ configs, input, dryRun, outputCheck })
     // Only the `cli` reporter can do without the results of a build. The others report on each config.
-    const mayReuse = ![force, watchMode, dryRun, outputCheck].some(Boolean) && requestedNames.every((name) => name === 'cli')
-    const succeeded = await generateOrReuse({ configs: runConfigs, hooks, quiet, force, watchMode, mayReuse })
+    const canSkip = ![force, watchMode, dryRun, outputCheck].some(Boolean) && requestedNames.every((name) => name === 'cli')
+    const succeeded = await generateOrSkip({ configs: runConfigs, hooks, quiet, force, watchMode, canSkip })
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()

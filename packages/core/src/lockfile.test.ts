@@ -33,7 +33,7 @@ describe('createLockfile', () => {
     const target = project()
     await storage.writeItem(target.file('a.ts'), formatted)
     const lockfile = await createLockfile({ storage, root: target.root })
-    lockfile.track({ key: target.file('a.ts'), source: 'const a = 1' })
+    lockfile.add({ key: target.file('a.ts'), source: 'const a = 1' })
     await lockfile.write()
 
     return { ...target, lockfile: await createLockfile({ storage, root: target.root }) }
@@ -48,7 +48,7 @@ describe('createLockfile', () => {
     const { lockfile, file } = await recorded()
 
     expect(lockfile.exists).toBe(true)
-    expect(lockfile.isUpToDate({ key: file(name), ...entry })).toBe(expected)
+    expect(lockfile.matches({ key: file(name), ...entry })).toBe(expected)
   })
 
   it('writes the files sorted and keyed by the path from the root', async () => {
@@ -56,8 +56,8 @@ describe('createLockfile', () => {
     await storage.writeItem(file('b.ts'), 'const b = 2;\n')
     await storage.writeItem(file('a.ts'), formatted)
     const lockfile = await createLockfile({ storage, root })
-    lockfile.track({ key: file('b.ts'), source: 'const b = 2' })
-    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
+    lockfile.add({ key: file('b.ts'), source: 'const b = 2' })
+    lockfile.add({ key: file('a.ts'), source: 'const a = 1' })
     await lockfile.write()
 
     const stored = JSON.parse(readFileSync(lock, 'utf8')) as { lockfileVersion: number; files: Record<string, { source: string; output: string }> }
@@ -71,7 +71,7 @@ describe('createLockfile', () => {
     const { root, file, readLock } = project()
     await storage.writeItem(file('a.ts'), 'const a = 1')
     const lockfile = await createLockfile({ storage, root })
-    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
+    lockfile.add({ key: file('a.ts'), source: 'const a = 1' })
     await lockfile.write()
 
     expect(readLock()).toMatchObject({ files: { 'gen/a.ts': { source: expect.any(String), output: expect.any(String) } } })
@@ -82,13 +82,13 @@ describe('createLockfile', () => {
     await storage.writeItem(file('second.ts'), 'const b = 2;\n')
 
     const second = await createLockfile({ storage, root })
-    second.track({ key: file('second.ts'), source: 'const b = 2' })
+    second.add({ key: file('second.ts'), source: 'const b = 2' })
     await second.write()
 
     const third = await createLockfile({ storage, root })
 
-    expect(third.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(true)
-    expect(third.isUpToDate({ key: file('second.ts'), source: 'const b = 2', disk: 'const b = 2;\n' })).toBe(true)
+    expect(third.matches({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(true)
+    expect(third.matches({ key: file('second.ts'), source: 'const b = 2', disk: 'const b = 2;\n' })).toBe(true)
   })
 
   it.each([
@@ -115,7 +115,7 @@ describe('createLockfile', () => {
     const lockfile = await createLockfile({ storage, root })
 
     expect(lockfile.exists).toBe(false)
-    expect(lockfile.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(false)
+    expect(lockfile.matches({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
   it('keeps the inputs of each config, and drops a record that cannot be made', async () => {
@@ -145,19 +145,19 @@ describe('createLockfile', () => {
     const target = await recorded()
     change(target)
 
-    expect(await target.lockfile.matchesOutput({ cleanDir: join(target.root, 'gen') })).toBe(expected)
+    expect(await target.lockfile.verify({ cleanDir: join(target.root, 'gen') })).toBe(expected)
   })
 
-  it('is allFilesUpToDate only while every tracked file was up to date', async () => {
+  it('is unchanged only while every tracked file was up to date', async () => {
     const { lockfile, file } = await recorded()
-    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
-    lockfile.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })
+    lockfile.add({ key: file('a.ts'), source: 'const a = 1' })
+    lockfile.matches({ key: file('a.ts'), source: 'const a = 1', disk: formatted })
 
-    expect(lockfile.allFilesUpToDate).toBe(true)
+    expect(lockfile.unchanged).toBe(true)
 
-    lockfile.track({ key: file('b.ts'), source: 'const b = 2' })
+    lockfile.add({ key: file('b.ts'), source: 'const b = 2' })
 
-    expect(lockfile.allFilesUpToDate).toBe(false)
+    expect(lockfile.unchanged).toBe(false)
   })
 
   it('drops the inputs of the other configs when one of their files no longer holds its recorded output', async () => {
@@ -186,7 +186,7 @@ describe('createLockfile', () => {
     const staged = memoryStorage()
     await staged.writeItem(join(root, 'gen', 'a.ts'), formatted)
     const lockfile = await createLockfile({ storage: staged, root })
-    lockfile.track({ key: join(root, 'gen', 'a.ts'), source: 'const a = 1' })
+    lockfile.add({ key: join(root, 'gen', 'a.ts'), source: 'const a = 1' })
     await lockfile.write()
 
     expect(existsSync(lock)).toBe(false)
@@ -208,7 +208,7 @@ describe('createLockfile', () => {
   it('skips a file that disappeared before the write', async () => {
     const { root, file, readLock } = project()
     const lockfile = await createLockfile({ storage, root })
-    lockfile.track({ key: file('gone.ts'), source: 'const a = 1' })
+    lockfile.add({ key: file('gone.ts'), source: 'const a = 1' })
     await lockfile.write()
 
     expect(readLock()).toStrictEqual({ lockfileVersion: 1, files: {} })
@@ -220,7 +220,7 @@ describe('createLockfile', () => {
     mkdirSync(lock)
     await storage.writeItem(file('a.ts'), formatted)
     const lockfile = await createLockfile({ storage, root })
-    lockfile.track({ key: file('a.ts'), source: 'const a = 1' })
+    lockfile.add({ key: file('a.ts'), source: 'const a = 1' })
 
     await expect(lockfile.write()).resolves.toBeUndefined()
   })

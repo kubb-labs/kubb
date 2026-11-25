@@ -231,7 +231,7 @@ export function diffFile({
   path: string
   next: string
   previous: string | FileFingerprint | null
-  lockfile?: Pick<Lockfile, 'isUpToDate'>
+  lockfile?: Pick<Lockfile, 'matches'>
 }): FileChange | undefined {
   if (previous === null) return { status: 'A', path, added: splitLines(next.trimEnd()).length, removed: 0 }
   if (typeof previous !== 'string') {
@@ -239,7 +239,7 @@ export function diffFile({
     if (trimmed.length === previous.length && hash('sha1', trimmed) === previous.digest) return undefined
     return { status: 'M', path, ...countLineChanges({ before: previous.lines, after: hashLines(trimmed) }) }
   }
-  if (matchesStored({ stored: previous, source: next }) || lockfile?.isUpToDate({ key: path, source: next, disk: previous })) return undefined
+  if (matchesStored({ stored: previous, source: next }) || lockfile?.matches({ key: path, source: next, disk: previous })) return undefined
   return { status: 'M', path, ...countLineChanges({ before: splitLines(previous.trim()), after: splitLines(next.trim()) }) }
 }
 
@@ -281,7 +281,7 @@ export async function diffOutput({
   storage: Storage
   paths: ReadonlySet<string>
   clean: boolean
-  lockfile?: Pick<Lockfile, 'isUpToDate'>
+  lockfile?: Pick<Lockfile, 'matches'>
   /**
    * The output captured before a real run, including files removed by cleaning.
    */

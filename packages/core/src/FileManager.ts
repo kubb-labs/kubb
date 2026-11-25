@@ -25,7 +25,7 @@ export type WriteOptions = ParseOptions & {
    * Consulted before each write so a file the output passes already normalized is recognized as
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
    */
-  lockfile?: Pick<Lockfile, 'isUpToDate' | 'track'>
+  lockfile?: Pick<Lockfile, 'matches' | 'add'>
   /**
    * Directories the storage emptied right before this write. Files under them cannot exist yet, so they
    * are written without reading the previous value back.
@@ -128,9 +128,9 @@ async function writeChanged({
   signal?.throwIfAborted()
   const stored = cleaned?.some((dir) => isPathInside(file.path, dir)) ? null : await storage.readItem(file.path)
   // Every generated file goes into the lockfile, also one this run leaves as it is.
-  lockfile?.track({ key: file.path, source })
+  lockfile?.add({ key: file.path, source })
   // Asked for every stored file, so the lockfile knows when every file is already up to date.
-  const upToDate = stored !== null && lockfile?.isUpToDate({ key: file.path, source, disk: stored })
+  const upToDate = stored !== null && lockfile?.matches({ key: file.path, source, disk: stored })
   if (stored !== null && (upToDate || matchesStored({ stored, source }))) {
     return { written: false, stored }
   }

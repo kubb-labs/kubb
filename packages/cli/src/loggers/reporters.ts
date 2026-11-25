@@ -76,7 +76,7 @@ function setupReporters(
     /**
      * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
      */
-    outputCheck?: Pick<OutputCheck, 'compare' | 'userConfig'>
+    outputCheck?: Pick<OutputCheck, 'compare' | 'original'>
   },
 ): void {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
@@ -184,8 +184,8 @@ function setupReporters(
     return changes
   }
 
-  // A check reports on the config the user wrote, not on the one staged to write nothing.
-  const reportedConfig = (config: Config): Config => outputCheck?.userConfig(config) ?? config
+  // A check reports on the config the user wrote, not on the copy prepared to write nothing.
+  const reportedConfig = (config: Config): Config => outputCheck?.original(config) ?? config
   // A check writes nothing to the output either, and every reporter gets its file changes.
   const writesNothing = dryRun || Boolean(outputCheck)
   const changesForAll = fileChanges || Boolean(outputCheck)

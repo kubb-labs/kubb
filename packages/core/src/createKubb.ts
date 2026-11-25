@@ -51,7 +51,7 @@ function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Arr
 }
 
 /** Whether the config, the installed packages and the source files are the ones the lockfile recorded. */
-async function inputsMatchLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
+async function satisfiesLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
   const recorded = lockfile.inputs(lockfileKey(config))
   const configText = recorded && serializeConfig(config)
   if (!recorded || !configText) return false
@@ -205,9 +205,9 @@ export class Kubb {
     if (!writesOutputDirectory(config.storage) || config.output.postGenerate?.length) return false
 
     const lockfile = await createLockfile({ storage: config.storage, root: config.root })
-    if (!(await inputsMatchLockfile({ config, lockfile }))) return false
+    if (!(await satisfiesLockfile({ config, lockfile }))) return false
 
-    return lockfile.matchesOutput({ cleanDir: config.output.clean ? resolve(config.root, config.output.path) : undefined })
+    return lockfile.verify({ cleanDir: config.output.clean ? resolve(config.root, config.output.path) : undefined })
   }
 
   /**
@@ -410,7 +410,7 @@ export class Kubb {
   #passesConfig({ inputs, force }: { inputs: LockfileInputs | null; force?: boolean }): Config {
     const { config } = this
     const lockfile = this.#lockfile
-    if (force || !inputs || !lockfile?.allFilesUpToDate || inputs.hash !== lockfile.inputs(lockfileKey(config))?.hash) return config
+    if (force || !inputs || !lockfile?.unchanged || inputs.hash !== lockfile.inputs(lockfileKey(config))?.hash) return config
 
     return { ...config, output: { ...config.output, format: false, lint: false } }
   }

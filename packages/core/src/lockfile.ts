@@ -12,14 +12,15 @@ const LOCKFILE_VERSION = 1
 export const LOCKFILE_NAME = 'kubb.lock'
 
 /** How one generated file looked on either side of the output passes. */
-type LockfileEntry = {
+export type LockfileEntry = {
   /** Hash of the content Kubb handed to the storage. */
   source: string
   /** Hash of what the storage held once the output passes were done with it. */
   output: string
 }
 
-type LockfileObject = {
+/** What `kubb.lock` holds. */
+export type LockfileObject = {
   lockfileVersion: number
   /** What each config last generated from, keyed by the config's name. */
   inputs?: Record<string, LockfileInputs>
@@ -39,7 +40,7 @@ const isInputs = (value: unknown): value is LockfileInputs =>
   Array.isArray((value as LockfileInputs).sources) &&
   (value as LockfileInputs).sources.every((source) => typeof source === 'string')
 
-async function readLockfileObject(lockfilePath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
+async function readLockfile(lockfilePath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
   try {
     const stored = await readIfExists(lockfilePath)
     if (stored === null) return null
@@ -64,7 +65,7 @@ async function readLockfileObject(lockfilePath: string): Promise<Pick<LockfileOb
  * @example
  * ```ts
  * const lockfile = await createLockfile({ storage: config.storage, root: config.root })
- * if (!lockfile.isUpToDate({ key, source, disk })) await storage.writeItem(key, source)
+ * if (!lockfile.matches({ key, source, disk })) await storage.writeItem(key, source)
  * ```
  */
 export class Lockfile {
@@ -74,8 +75,8 @@ export class Lockfile {
   readonly #root: string
   readonly #entries: Record<string, LockfileEntry>
   readonly #inputs: Record<string, LockfileInputs>
-  readonly #tracked = new Map<string, string>()
-  readonly #upToDateKeys = new Set<string>()
+  readonly #added = new Map<string, string>()
+  readonly #matched = new Set<string>()
 
   /** `object` is what `kubb.lock` held, or `null` when it could not be read. `storage` holds the generated files. */
   constructor({ storage, root, object }: { storage: Storage; root: string; object: Pick<LockfileObject, 'files' | 'inputs'> | null }) {
@@ -91,23 +92,23 @@ export class Lockfile {
     return toPosixPath(relative(this.#root, resolve(this.#root, key)))
   }
 
-  /** `true` when every tracked file was up to date, so the output passes have nothing new to run over. */
-  get allFilesUpToDate(): boolean {
-    return [...this.#tracked.keys()].every((key) => this.#upToDateKeys.has(key))
+  /** `true` when every added file matched, so the output passes have nothing new to run over. */
+  get unchanged(): boolean {
+    return [...this.#added.keys()].every((key) => this.#matched.has(key))
   }
 
   /** `true` when `source` is known to come out of the output passes as exactly `disk`, so the write can be skipped. */
-  isUpToDate({ key, source, disk }: { key: string; source: string; disk: string }): boolean {
+  matches({ key, source, disk }: { key: string; source: string; disk: string }): boolean {
     const entry = this.#entries[this.#toKey(key)]
     if (!entry || entry.source !== digest(source) || entry.output !== digest(disk)) return false
-    this.#upToDateKeys.add(key)
+    this.#matched.add(key)
 
     return true
   }
 
   /** Records the source Kubb generated for `key`, so `write` adds the file to the lockfile. */
-  track({ key, source }: { key: string; source: string }): void {
-    this.#tracked.set(key, digest(source))
+  add({ key, source }: { key: string; source: string }): void {
+    this.#added.set(key, digest(source))
   }
 
   /** What the config called `name` last generated from, when the lockfile recorded it. */
@@ -116,7 +117,7 @@ export class Lockfile {
   }
 
   /** Whether every listed file still holds its recorded output, and `cleanDir` holds no file that is not listed. */
-  async matchesOutput({ cleanDir }: { cleanDir?: string } = {}): Promise<boolean> {
+  async verify({ cleanDir }: { cleanDir?: string } = {}): Promise<boolean> {
     const stale = new Set<string>()
     await inParallel({
       items: Object.entries(this.#entries),
@@ -142,7 +143,7 @@ export class Lockfile {
     const root = this.#root
     try {
       const next: Record<string, LockfileEntry> = {}
-      const written = new Set([...this.#tracked.keys()].map((key) => this.#toKey(key)))
+      const written = new Set([...this.#added.keys()].map((key) => this.#toKey(key)))
       let droppedEntry = false
 
       await inParallel({
@@ -156,7 +157,7 @@ export class Lockfile {
       })
       // Reads the tree back through the same pool that wrote it, rather than one file at a time.
       await inParallel({
-        items: [...this.#tracked],
+        items: [...this.#added],
         limit: FILE_CONCURRENCY,
         run: async ([key, source]) => {
           const stored = await storage.readItem(key)
@@ -193,5 +194,5 @@ export class Lockfile {
  * ```
  */
 export async function createLockfile({ storage, root }: { storage: Storage; root: string }): Promise<Lockfile> {
-  return new Lockfile({ storage, root, object: await readLockfileObject(resolve(root, LOCKFILE_NAME)) })
+  return new Lockfile({ storage, root, object: await readLockfile(resolve(root, LOCKFILE_NAME)) })
 }
