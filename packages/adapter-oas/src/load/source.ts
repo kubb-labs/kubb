@@ -5,7 +5,6 @@ import { isPublicAddress } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
 import { parse as parseFast } from '@visulima/yaml'
 import { CORE_SCHEMA, constructFromEvents, parseEvents } from 'js-yaml'
-import { parse } from 'yaml'
 import { rememberEvents } from '../sourceLocator.ts'
 
 export const urlRegExp = /^https?:\/+/i
@@ -154,9 +153,8 @@ export async function resolveSource(sourcePath: string, { remember, ...options }
  * through to YAML. Pass `json: false` for a source known to be YAML.
  *
  * `@visulima/yaml` parses YAML first, about a third faster than `js-yaml`. Anything it rejects
- * goes to `js-yaml`, which parses about ten times faster than `yaml`. Both reject duplicate keys
- * instead of keeping the last one, keep timestamps as strings, and keep `<<` as a plain key, as
- * `yaml` does for YAML 1.2.
+ * goes to `js-yaml`. Both reject duplicate keys instead of keeping the last one, keep timestamps
+ * as strings, and keep `<<` as a plain key.
  */
 export function parseYaml(
   data: string,
@@ -169,12 +167,15 @@ export function parseYaml(
       // Not JSON, so YAML parses it below.
     }
   }
+  let document: unknown
+  let failure: unknown
   try {
-    const document = parseFast(data, { merge: false, schema: 'core' })
+    document = parseFast(data, { merge: false, schema: 'core' })
     // The source locator reads `js-yaml` events, and parses the source itself when a diagnostic needs a location.
     if (typeof document === 'object' && document !== null) return document
-  } catch {
+  } catch (error) {
     // `js-yaml` accepts some documents this parser rejects, so it decides below.
+    failure = error
   }
   try {
     const events = parseEvents(data, {})
@@ -184,20 +185,18 @@ export function parseYaml(
       return documents[0] as object
     }
   } catch {
-    // `yaml` parses it again below to report the error with its line and column.
+    // The first parser's error is reported below, with its line and column.
   }
-  try {
-    return parse(data) as object
-  } catch (error) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidDocument,
-      severity: 'error',
-      message: `Cannot parse ${origin} as JSON or YAML: ${getErrorMessage(error)}`,
-      help,
-      location: { kind: 'config' },
-      cause: toError(error),
-    })
-  }
+  if (failure === undefined) return document as object
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidDocument,
+    severity: 'error',
+    message: `Cannot parse ${origin} as JSON or YAML: ${getErrorMessage(failure)}`,
+    help,
+    location: { kind: 'config' },
+    cause: toError(failure),
+  })
 }
 
 /**

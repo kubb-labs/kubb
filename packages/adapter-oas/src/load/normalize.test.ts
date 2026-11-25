@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
-import * as yaml from 'yaml'
+import * as yaml from '@visulima/yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, getBaseUri, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import { scanDocument } from './schemaIds.ts'
@@ -26,11 +26,6 @@ vi.mock('node:worker_threads', async (importOriginal) => {
 })
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-vi.mock('yaml', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('yaml')>()
-  return { ...actual, parse: vi.fn(actual.parse) }
-})
 
 vi.mock('js-yaml', async (importOriginal) => {
   const actual = await importOriginal<typeof import('js-yaml')>()
@@ -107,15 +102,12 @@ describe('parseFromConfig', () => {
     expect(response.content['application/json']!.schema.properties?.second).toStrictEqual({ type: 'string' })
   })
 
-  it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
-    const parse = vi.mocked(yaml.parse)
-    parse.mockClear()
+  it('parses inline JSON and inline YAML', async () => {
+    const fromJson = await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
+    const fromYaml = await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
 
-    await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
-    const doc = await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
-
-    expect(doc.info.title).toBe('Pets API')
-    expect(parse).not.toHaveBeenCalled()
+    expect(fromJson.info.title).toBe('Pets API')
+    expect(fromYaml.info.title).toBe('Pets API')
   })
 
   it('rejects duplicate keys in inline YAML instead of keeping the last one', async () => {

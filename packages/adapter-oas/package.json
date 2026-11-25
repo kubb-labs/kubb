@@ -78,8 +78,7 @@
     "@scalar/openapi-upgrader": "^0.5.1",
     "@visulima/yaml": "catalog:",
     "api-ref-bundler": "0.5.1",
-    "js-yaml": "catalog:",
-    "yaml": "catalog:"
+    "js-yaml": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",

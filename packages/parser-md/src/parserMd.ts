@@ -1,6 +1,6 @@
 import { ast } from '@kubb/ast'
 import { defineExtension } from '@kubb/core'
-import { stringify } from 'yaml'
+import { stringify } from '@visulima/yaml'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 

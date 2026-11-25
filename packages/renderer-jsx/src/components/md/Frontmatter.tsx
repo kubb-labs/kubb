@@ -1,4 +1,4 @@
-import { stringify } from 'yaml'
+import { stringify } from '@visulima/yaml'
 import type { Key, KubbReactElement } from '../../types.ts'
 
 export type FrontmatterProps = {

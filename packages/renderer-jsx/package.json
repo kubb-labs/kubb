@@ -99,7 +99,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "yaml": "catalog:"
+    "@visulima/yaml": "catalog:"
   },
   "devDependencies": {
     "@kubb/ast": "workspace:*"
