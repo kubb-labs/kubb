@@ -393,6 +393,7 @@ describe('check', () => {
 
     expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
     expect(lines.some((line) => line.includes('0 added · 0 modified · 0 deleted'))).toBe(true)
+    expect(lines.some((line) => line.includes('to update the files'))).toBe(false)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
     expect(snapshot()).toStrictEqual(before)
   })
@@ -407,6 +408,7 @@ describe('check', () => {
 
     expect(lines.some((line) => line.startsWith('✗ Generated code is out of date'))).toBe(true)
     expect(lines.some((line) => line.includes('modified: src/gen/pet.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('Run `kubb generate` to update the files.'))).toBe(true)
     expect(lines.some((line) => line.includes('added: src/gen/types/index.ts'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
     expect(snapshot()).toStrictEqual(before)

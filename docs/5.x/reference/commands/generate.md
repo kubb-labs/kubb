@@ -134,6 +134,8 @@ Planned file changes
   0 added · 1 modified · 0 deleted
   Lines  +2 −1
   modified: src/gen/types/Pet.ts
+
+Run `kubb generate` to update the files.
 ```
 
 | Status | What a run would do |

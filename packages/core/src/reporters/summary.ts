@@ -29,9 +29,11 @@ function countChangedFiles({ check, dryRun, filesCreated, filesUnchanged }: Repo
   return { count: Math.max(0, filesCreated - filesUnchanged), verb: dryRun ? 'planned' : 'generated' }
 }
 
-/** One `modified: src/gen/pet.ts` line per file a check found out of date. */
+/** One `modified: src/gen/pet.ts` line per file a check found out of date, then how to fix it, as prettier and oxfmt do. */
 function outOfDateLines({ check }: Report): Array<string> {
-  return (check?.files ?? []).map((file) => `  ${styleText('dim', `${file.status}:`)} ${file.path}`)
+  if (!check?.changed) return []
+
+  return [...check.files.map((file) => `  ${styleText('dim', `${file.status}:`)} ${file.path}`), '', 'Run `kubb generate` to update the files.']
 }
 
 /**

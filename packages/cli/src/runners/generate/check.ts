@@ -116,7 +116,6 @@ async function readDiskFiles({ stage: { userConfig, root }, paths }: { stage: St
  * `output.postGenerate` does not run: its commands name their own paths and would write to the real output.
  */
 export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
-  // One temporary folder per project root.
   const stageDirs = new Map<string, string>()
   const patches: Array<string> = []
   let changed = false
