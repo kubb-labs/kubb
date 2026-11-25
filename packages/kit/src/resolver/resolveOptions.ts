@@ -12,8 +12,9 @@ export type ResolveOptionsContext<TOptions> = {
 
 const patterns = memo.create<string, RegExp>()
 const methodPatterns = memo.create<string, RegExp>()
-// Keyed by options, then by the include list, so a call without `include` never reads a filtered result.
-const nodeCaches = memo.create<object, Map<unknown, WeakMap<Node, unknown>>>({ weak: true })
+const nodeCaches = memo.create<object, WeakMap<Node, unknown>>({ weak: true })
+// A call without `include` never reads an include-filtered result.
+const unfilteredNodeCaches = memo.create<object, WeakMap<Node, unknown>>({ weak: true })
 const mergedCaches = memo.create<object, WeakMap<object, unknown>>({ weak: true })
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
@@ -96,10 +97,6 @@ export function resolveOptions<TOptions>(node: Node, context: ResolveOptionsCont
     return computeOptions(node, context)
   }
 
-  const cache = memo(
-    memo(nodeCaches, options, () => new Map<unknown, WeakMap<Node, unknown>>()),
-    context.include,
-    () => new WeakMap<Node, unknown>(),
-  )
+  const cache = memo(context.include ? nodeCaches : unfilteredNodeCaches, options, () => new WeakMap<Node, unknown>())
   return memo(cache, node, () => computeOptions(node, context)) as TOptions | null
 }

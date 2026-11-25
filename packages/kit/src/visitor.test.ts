@@ -196,6 +196,29 @@ describe('generatorVisitor', () => {
     expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts'])
   })
 
+  it('follows a reference a macro adds to a kept schema', async () => {
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-macro-ref' },
+      setup(options) {
+        addMacro({
+          name: 'link',
+          schema: (node: SchemaNode) =>
+            node.name === 'Store' ? { ...node, properties: [ast.factory.createProperty({ name: 'unused', required: false, schema: ref('Unused') })] } : node,
+        })
+        addGenerator({
+          name: 'macro-ref',
+          schema: (node: SchemaNode) => [ast.factory.createFile({ path: `gen/${node.name}.ts`, baseName: 'x.ts', sources: [] })],
+        })
+        return { ...options, include: [{ type: 'schemaName', pattern: '^Pet$' }] }
+      },
+    })()
+
+    const { files } = await build([plugin])
+
+    expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts'])
+  })
+
   it('keeps one template per generator handler and the resolver in memo', async () => {
     const { driver } = await build([examplePlugin([])])
 

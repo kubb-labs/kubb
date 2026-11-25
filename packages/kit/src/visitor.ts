@@ -55,22 +55,38 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
+// Keeps a referenced schema without the include check. Returns its node after macros, or null when exclude leaves it out.
+function retainReferenced(ctx: PluginVisitContext, state: VisitState, node: SchemaNode): SchemaNode | null {
+  const { resolver } = state.context
+  const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude: true })
+  if (!resolved) return null
+  state.schemas.set(node, resolved)
+  const schemaName = resolved.transformedNode.name
+  if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
+  return resolved.transformedNode
+}
+
 // A schemaName include also keeps the schemas its matches reference, so their imports resolve.
+// References are read after the macros ran, since a macro can add one.
 function keepReferenced(ctx: PluginVisitContext, state: VisitState): void {
   if (!pluginOptions(ctx).include?.some(({ type }) => type === 'schemaName')) return
-  const { resolver } = state.context
-  const referenced = ast.graph.getUsedNames([...state.schemas.keys()], ctx.schemas)
-  for (const node of ctx.schemas) {
-    if (state.schemas.has(node) || !node.name || !referenced.has(node.name)) continue
-    try {
-      const resolved = resolveNode(ctx, resolver, state.macros, node, { skipInclude: true })
-      if (!resolved) continue
-      state.schemas.set(node, resolved)
-      const schemaName = resolved.transformedNode.name
-      if (schemaName) resolver.reserveNames([resolver.name(schemaName)])
-    } catch (caughtError) {
-      state.schemas.set(node, toError(caughtError))
-      return
+  const byName = new Map(ctx.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : [])))
+  const seen = new Set([...state.schemas.keys()].map((node) => node.name))
+  const queue = [...state.schemas.values()].flatMap((resolved) => (resolved instanceof Error ? [] : [resolved.transformedNode]))
+
+  // The queue grows while it is read, so the schemas kept here are followed too.
+  for (const current of queue) {
+    for (const name of ast.graph.getRefNames(current)) {
+      const node = byName.get(name)
+      if (!node || seen.has(name)) continue
+      seen.add(name)
+      try {
+        const kept = retainReferenced(ctx, state, node)
+        if (kept) queue.push(kept)
+      } catch (caughtError) {
+        state.schemas.set(node, toError(caughtError))
+        return
+      }
     }
   }
 }

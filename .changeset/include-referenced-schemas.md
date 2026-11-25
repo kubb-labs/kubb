@@ -1,5 +1,4 @@
 ---
-'@kubb/ast': patch
 '@kubb/kit': patch
 ---
 
