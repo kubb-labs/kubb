@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Configure generation - Common Kubb recipes
-description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check for out-of-date output, barrel files, git inputs, watch mode, and several specs in one run.
+description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check, barrel files, git inputs, watch mode, and several specs in one run.
 outline:
   - 2
   - 3
@@ -159,11 +159,7 @@ export default defineConfig({
 
 When you commit the generated files, [`kubb generate --check`](/docs/5.x/reference/commands/generate#check-mode) fails the pipeline if they no longer match the spec and the config. It writes nothing to `output.path`. `--diff` prints what would change.
 
-| Exit code | Meaning | Fix |
-| --- | --- | --- |
-| `0` | The files are up to date. | |
-| `1` | A file is out of date. | Run `npx kubb generate` and commit the result. |
-| `2` | The config or the generation failed. | Read the diagnostics in the job log. |
+When the job exits with code 1, run `npx kubb generate` and commit the result. Code 2 means the config or the generation failed. See [Exit codes](/docs/5.x/reference/commands/generate#exit-codes).
 
 Install the dependencies first, so the check runs the same formatter and linter as a local run.
 
@@ -200,7 +196,7 @@ kubb-check:
 
 ::
 
-To see how the generated files differ from the base branch, and not only whether they are current, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
+To see how the generated files differ from the base branch, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
 
 ## Add barrel files {#barrel-files}
 

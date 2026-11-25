@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: kubb generate - Generate code from your API spec
-description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, an out-of-date check for CI, and cli, json, file, and html reporters.
+description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, a CI check, and cli, json, file, and html reporters.
 outline:
   - 2
   - 3
@@ -43,6 +43,17 @@ kubb generate ./petStore.yaml  # this spec instead
 ### Watch mode
 
 `--watch` watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode details](#watch-mode-details).
+
+### Check mode {#check-mode}
+
+`--check` tells you whether a run would change the generated files on disk, and writes nothing to `output.path`. Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. `--diff` also prints what would change.
+
+```shell [Terminal]
+kubb generate --check          # exit 1 when a file is out of date
+kubb generate --check --diff   # also print what would change
+```
+
+[Check generated code in CI](/docs/5.x/how-to/recipes#check-generated-code-in-ci) has the workflows. See [Check mode details](#check-mode-details) and [Exit codes](#exit-codes).
 
 ## Reporters
 
@@ -87,14 +98,27 @@ See [Run summary](#run-summary).
 
 One failing config does not stop the others.
 
-## Check mode {#check-mode}
+## Less common cases {#less-common-cases}
 
-`kubb generate --check` answers one question: would a run change the generated files on disk? Use it in CI to fail a pipeline when someone changed the spec or the config and did not commit the new output. [Check generated code in CI](/docs/5.x/how-to/recipes#check-generated-code-in-ci) has the workflows.
+### Watch mode details {#watch-mode-details}
 
-```shell [Terminal]
-kubb generate --check          # exit 1 when a file is out of date
-kubb generate --check --diff   # also print what would change
-```
+With `kubb generate --watch`, Kubb watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. Kubb does not watch the files the input references with `$ref`, such as `schemas/Pet.yaml`. After you edit one, press `r` or run Kubb again.
+
+| Event | What happens |
+| --- | --- |
+| The first build fails | Kubb keeps watching, so you can fix the input. |
+| A rebuild ends | A line shows the duration and the schemas and operations the spec gained or lost. The summary below it lists the files the rebuild added, modified, or removed. |
+| You press `r` | Kubb rebuilds. Keys work in an interactive terminal. |
+| You press `q` | Kubb quits with exit code 0. |
+| You press Ctrl+C | Kubb quits with exit code 130. |
+
+To keep `clean` off during incremental runs, pass a function to `defineConfig` and read `watch`. See [Config function](/docs/5.x/reference/configuration#config-function).
+
+#### Adapter sources
+
+When you write an adapter, its `sources` member lists the files and URLs the last `parse()` read, even unreadable ones. A watcher can rebuild when one of them changes, but `kubb generate --watch` does not read them. See [Adapters](/docs/5.x/reference/kit/adapters).
+
+### Check mode details {#check-mode-details}
 
 Kubb generates into a temporary folder inside the project root, runs `output.format` and `output.lint` there, and compares the result with `output.path`. It then deletes the folder.
 
@@ -128,32 +152,14 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 | Runs `output.format` and `output.lint` | No | Yes, on the temporary folder |
 | Needs the cache in `node_modules/.cache/kubb` to recognize formatted output | Yes | No |
 
-Limits:
+`--check` has these limits:
 
-- `--check` cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
+- It cannot run with `--watch`. With `--dry-run`, it behaves like `--check` alone.
 - `output.postGenerate` does not run. Its commands name their own paths, so they would write to the real output.
 - `output.path` and `shared.path` must sit inside `root`, and the config must use the default `fs` storage.
-- A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. Use a pattern such as `**/gen/**` when the check reports formatting differences.
 
-## Less common cases {#less-common-cases}
-
-### Watch mode details {#watch-mode-details}
-
-With `kubb generate --watch`, Kubb watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. Kubb does not watch the files the input references with `$ref`, such as `schemas/Pet.yaml`. After you edit one, press `r` or run Kubb again.
-
-| Event | What happens |
-| --- | --- |
-| The first build fails | Kubb keeps watching, so you can fix the input. |
-| A rebuild ends | A line shows the duration and the schemas and operations the spec gained or lost. The summary below it lists the files the rebuild added, modified, or removed. |
-| You press `r` | Kubb rebuilds. Keys work in an interactive terminal. |
-| You press `q` | Kubb quits with exit code 0. |
-| You press Ctrl+C | Kubb quits with exit code 130. |
-
-To keep `clean` off during incremental runs, pass a function to `defineConfig` and read `watch`. See [Config function](/docs/5.x/reference/configuration#config-function).
-
-#### Adapter sources
-
-When you write an adapter, its `sources` member lists the files and URLs the last `parse()` read, even unreadable ones. A watcher can rebuild when one of them changes, but `kubb generate --watch` does not read them. See [Adapters](/docs/5.x/reference/kit/adapters).
+> [!WARNING]
+> A formatter or linter rule that names the output folder from the project root, such as an override for `src/gen/**`, does not apply to the temporary folder `.kubb-check-<random>/src/gen`. The check then reports formatting differences. Use a pattern such as `**/gen/**`.
 
 ### Run summary {#run-summary}
 
