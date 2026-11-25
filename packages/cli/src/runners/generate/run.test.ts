@@ -392,8 +392,9 @@ describe('check', () => {
     const lines = await bootstrap({ configs: [config], check: true })
 
     expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
-    expect(lines.some((line) => line.includes('0 added · 0 modified · 0 deleted'))).toBe(true)
-    expect(lines.some((line) => line.includes('to update the files'))).toBe(false)
+    expect(lines.some((line) => line.includes('4 files checked'))).toBe(true)
+    expect(lines.some((line) => line.includes('Out-of-date files'))).toBe(false)
+    expect(lines.some((line) => line.includes('to update them'))).toBe(false)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
     expect(snapshot()).toStrictEqual(before)
   })
@@ -407,9 +408,9 @@ describe('check', () => {
     const lines = await bootstrap({ configs: [config], check: true })
 
     expect(lines.some((line) => line.startsWith('✗ Generated code is out of date'))).toBe(true)
-    expect(lines.some((line) => line.includes('modified: src/gen/pet.ts'))).toBe(true)
-    expect(lines.some((line) => line.includes('Run `kubb generate` to update the files.'))).toBe(true)
-    expect(lines.some((line) => line.includes('added: src/gen/types/index.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('modified  src/gen/pet.ts          +1 −1'))).toBe(true)
+    expect(lines.some((line) => line.includes('Run `kubb generate` to update them.'))).toBe(true)
+    expect(lines.some((line) => line.includes('added     src/gen/types/index.ts  +1 −0'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
     expect(snapshot()).toStrictEqual(before)
   })
@@ -421,8 +422,8 @@ describe('check', () => {
     const lines = await bootstrap({ configs: [cleaned.config], check: true })
 
     expect(lines.some((line) => line.includes('1 file out of date'))).toBe(true)
-    expect(lines.some((line) => line.includes('deleted: src/gen/fixed.ts'))).toBe(false)
-    expect(lines.some((line) => line.includes('deleted: src/gen/extra.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('src/gen/fixed.ts  '))).toBe(false)
+    expect(lines.some((line) => line.includes('deleted   src/gen/extra.ts  +0 −1'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
 
     const kept = await generated()
@@ -451,7 +452,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.includes('added: src/client.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('added     src/client.ts  +1 −0'))).toBe(true)
     expect(snapshot()).toStrictEqual(before)
   })
 

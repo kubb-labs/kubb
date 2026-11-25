@@ -230,6 +230,21 @@ function printPatches({ outputCheck, json }: { outputCheck?: OutputCheck; json: 
   for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
 }
 
+/** A run that failed, or a check that found stale files, ends on what to fix, not on a tip. */
+function showsTip({
+  quiet,
+  watchMode,
+  succeeded,
+  outputCheck,
+}: {
+  quiet: boolean
+  watchMode: boolean
+  succeeded: boolean
+  outputCheck?: OutputCheck
+}): boolean {
+  return !quiet && !watchMode && succeeded && !outputCheck?.changed
+}
+
 /** Sets the exit code of a finished run. A check that succeeded exits with 1 when the output is out of date. */
 function setExitCode({ succeeded, failureExitCode, outputCheck }: { succeeded: boolean; failureExitCode: number; outputCheck?: OutputCheck }): void {
   if (!succeeded) {
@@ -345,7 +360,7 @@ export async function run({
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!quiet && !watchMode && succeeded) {
+    if (showsTip({ quiet, watchMode, succeeded, outputCheck })) {
       logTip()
     }
 

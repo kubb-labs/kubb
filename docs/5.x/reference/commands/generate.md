@@ -122,20 +122,30 @@ When you write an adapter, its `sources` member lists the files and URLs the las
 
 Kubb generates into a temporary folder inside the project root, runs `output.format` and `output.lint` there, and compares the result with `output.path`. It then deletes the folder.
 
-```text [Summary]
+```text [Out of date]
 ✗ Generated code is out of date  412ms
 
-  1 file out of date · 70 unchanged
+  3 files out of date · 70 unchanged
   Plugins  4 passed
   Target   ./src/gen
-  Nothing was written.
 
-Planned file changes
-  0 added · 1 modified · 0 deleted
-  Lines  +2 −1
-  modified: src/gen/types/Pet.ts
+Out-of-date files
+  modified  src/gen/types/Pet.ts    +2 −1
+  added     src/gen/types/Order.ts  +14 −0
+  deleted   src/gen/types/Tag.ts    +0 −3
 
-Run `kubb generate` to update the files.
+  1 added · 1 modified · 1 deleted
+  Run `kubb generate` to update them.
+```
+
+Each row shows the status, the path from `root`, and the lines a run would add and remove. When every file is up to date, the summary stays short:
+
+```text [Up to date]
+✓ Generated code is up to date  407ms
+
+  71 files checked
+  Plugins  4 passed
+  Target   ./src/gen
 ```
 
 | Status | What a run would do |
