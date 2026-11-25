@@ -335,6 +335,8 @@ describe('check', () => {
           ['types/index.ts', 'export type Pet = {name:string}'],
           // Not under `output.path`: a check must stage this one too, not write it.
           ['../client.ts', 'export const client = 1'],
+          // Named by its real path, not through `output.path`, the way a plugin with a hard-coded folder does.
+          [join(config.root, 'src/gen/fixed.ts'), 'export const fixed = 1'],
         ] as const) {
           await upsertFile(
             ast.factory.createFile({
@@ -417,6 +419,7 @@ describe('check', () => {
     const lines = await bootstrap({ configs: [cleaned.config], check: true })
 
     expect(lines.some((line) => line.includes('1 file out of date'))).toBe(true)
+    expect(lines.some((line) => line.includes('deleted: src/gen/fixed.ts'))).toBe(false)
     expect(lines.some((line) => line.includes('deleted: src/gen/extra.ts'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
 

@@ -94,18 +94,14 @@ function pathInRoot({ root, absolute, option }: { root: string; absolute: string
 }
 
 /**
- * The files on disk a check compares with, keyed by the temporary path of the file generated for each.
+ * The files on disk a check compares with, keyed by their real path: the output folder, plus each generated file outside it.
  */
-async function readDiskFiles({ target, paths }: { target: Target; paths: ReadonlySet<string> }): Promise<Map<string, string>> {
-  const { config, root, dir } = target
-  const files = new Map<string, string>()
-  for (const [filePath, source] of await readOutputFiles(resolve(root, config.output.path))) {
-    files.set(join(dir, relative(root, filePath)), source)
-  }
+async function readDiskFiles({ target: { config, root }, paths }: { target: Target; paths: ReadonlySet<string> }): Promise<Map<string, string>> {
+  const files = await readOutputFiles(resolve(root, config.output.path))
   // Generated files outside `output.path`, such as `shared.path` or a file a plugin writes elsewhere.
   for (const filePath of paths) {
     if (files.has(filePath)) continue
-    const source = await read(toDiskPath(target, filePath)).catch(() => null)
+    const source = await read(filePath).catch(() => null)
     if (source !== null) files.set(filePath, source)
   }
 
@@ -178,13 +174,15 @@ export function createOutputCheck({ diff }: { diff: boolean }): OutputCheck {
     async compare({ config, storage, paths }) {
       const target = targetOf(config)
       const { config: userConfig, root } = target
-      const previousFiles = await readDiskFiles({ target, paths })
+      // Both sides use the real path: a plugin can name a file by its staged path or by its real one, and the storage stages either.
+      const diskPaths = new Set(Array.from(paths, (filePath) => toDiskPath(target, filePath)))
+      const previousFiles = await readDiskFiles({ target, paths: diskPaths })
 
       // No manifest: both sides went through the same output passes, so the bytes compare directly.
-      const result = await diffOutput({ storage, paths, clean: Boolean(userConfig.output.clean), previousFiles })
+      const result = await diffOutput({ storage, paths: diskPaths, clean: Boolean(userConfig.output.clean), previousFiles })
       const files: NonNullable<GenerationResult['check']>['files'] = []
       for (const change of result.files.toSorted((a, b) => a.path.localeCompare(b.path))) {
-        const path = toPosixPath(relative(root, toDiskPath(target, change.path)))
+        const path = toPosixPath(relative(root, change.path))
         files.push({ path, status: statusKeys[change.status], linesAdded: change.added ?? 0, linesRemoved: change.removed ?? 0 })
         if (!diff) continue
         const after = change.status === 'D' ? '' : ((await storage.readItem(change.path)) ?? '')
