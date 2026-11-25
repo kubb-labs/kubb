@@ -31,29 +31,30 @@ export type LockfileObject = {
 /** Line endings are normalized, so a checkout that converts them still matches the lockfile. */
 const digest = (text: string): string => hash('sha256', text.replaceAll('\r\n', '\n'))
 
-const isEntry = (value: unknown): value is LockfileEntry =>
-  typeof value === 'object' && value !== null && typeof (value as LockfileEntry).source === 'string' && typeof (value as LockfileEntry).output === 'string'
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const isEntry = (value: unknown): value is LockfileEntry => isRecord(value) && typeof value.source === 'string' && typeof value.output === 'string'
 
 const isInputs = (value: unknown): value is LockfileInputs =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as LockfileInputs).hash === 'string' &&
-  Array.isArray((value as LockfileInputs).sources) &&
-  (value as LockfileInputs).sources.every((source) => typeof source === 'string')
+  isRecord(value) && typeof value.hash === 'string' && Array.isArray(value.sources) && value.sources.every((source) => typeof source === 'string')
+
+function pick<T>(record: unknown, isValid: (value: unknown) => value is T): Record<string, T> {
+  if (!isRecord(record)) return {}
+
+  return Object.fromEntries(Object.entries(record).filter((pair): pair is [string, T] => isValid(pair[1])))
+}
+
+function toLockfile(data: unknown): Pick<LockfileObject, 'files' | 'inputs'> | null {
+  if (!isRecord(data) || data.lockfileVersion !== LOCKFILE_VERSION || !isRecord(data.files)) return null
+
+  return { files: pick(data.files, isEntry), inputs: pick(data.inputs, isInputs) }
+}
 
 async function readLockfile(lockfilePath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
   try {
     const stored = await readIfExists(lockfilePath)
-    if (stored === null) return null
 
-    const data = parse(stored) as LockfileObject | null
-    if (typeof data !== 'object' || data === null) return null
-    if (data.lockfileVersion !== LOCKFILE_VERSION) return null
-    if (typeof data.files !== 'object' || data.files === null || Array.isArray(data.files)) return null
-
-    const inputs = Object.entries(typeof data.inputs === 'object' && data.inputs !== null ? data.inputs : {}).filter(([, value]) => isInputs(value))
-
-    return { files: Object.fromEntries(Object.entries(data.files).filter(([, entry]) => isEntry(entry))), inputs: Object.fromEntries(inputs) }
+    return stored === null ? null : toLockfile(parse(stored))
   } catch {
     return null
   }
