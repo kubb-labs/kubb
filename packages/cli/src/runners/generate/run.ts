@@ -32,7 +32,7 @@ import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import { getLatestVersion } from '../../utils/updateCheck.ts'
-import { createOutputCheck, type OutputCheck } from './check.ts'
+import { createOutputCheck, type OutputCheck } from './outputCheck.ts'
 import { type BuildDiff, type BuildSnapshot, createBuildTracker, diffBuilds, listenForKeys, startWatcher } from './utils.ts'
 
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */

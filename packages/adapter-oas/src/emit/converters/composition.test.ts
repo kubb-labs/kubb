@@ -1,7 +1,7 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it, test } from 'vitest'
 import { adapterOas } from '../../adapter.ts'
-import { createSchemaParser, type SchemaParserOptions } from '../../parser.ts'
+import { createSchemaParser, type SchemaParserOptions } from '../../schemaParser.ts'
 import { createRefs } from '../../refs.ts'
 import type { Document, SchemaObject } from '../../types.ts'
 

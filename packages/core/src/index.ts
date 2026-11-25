@@ -4,7 +4,7 @@ export type { KubbContext } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
 export { camelCase, pascalCase } from '@internals/utils'
-export { createKubb, hasOutputPasses, Kubb } from './createKubb.ts'
+export { createKubb, hasOutputPasses, Kubb } from './kubb.ts'
 export { createReporter, logLevel, type ReporterPluginFiles } from './createReporter.ts'
 export { cliReporter, createCliReporter } from './reporters/cliReporter.ts'
 export { fileReporter } from './reporters/fileReporter.ts'
@@ -41,7 +41,7 @@ export type {
   ProblemDiagnostic,
   UpdateDiagnostic,
 } from './Diagnostics.ts'
-export type { CreateKubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './createKubb.ts'
+export type { CreateKubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './kubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'

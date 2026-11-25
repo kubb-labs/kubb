@@ -27,7 +27,7 @@ import { readConfigFileView, toEntryView } from './configView.ts'
 import { signAgentPayload } from './agentKey.ts'
 import { pageHunks } from './diff.ts'
 import { type ExtensionCommandContext, installExtension, readInstalledExtensions, removeExtension, runKubb, updateExtensions } from './extensions.ts'
-import { createGenerationStream } from './generationEvents.ts'
+import { createGenerationStream } from './generationStream.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
   AGENT_INSTANCE_HEADER,

@@ -2,7 +2,7 @@ import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { camelCasePathParams, getOperationId, getOperations, getParameters, type Operation, parseOperation } from './operation.ts'
-import { createSchemaParser } from './parser.ts'
+import { createSchemaParser } from './schemaParser.ts'
 import { createRefs } from './refs.ts'
 import type { Document, ParameterObject } from './types.ts'
 

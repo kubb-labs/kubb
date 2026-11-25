@@ -7,7 +7,7 @@ import { createCliReporter, createLockfile, hasOutputPasses, logLevel as logLeve
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
-import type { OutputCheck } from '../runners/generate/check.ts'
+import type { OutputCheck } from '../runners/generate/outputCheck.ts'
 import {
   type ChangeTally,
   createChangeTally,
