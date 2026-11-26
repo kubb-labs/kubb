@@ -33,6 +33,6 @@ export const parserTsx = defineExtension<ParserTsOptions, object, string | TsNod
   build: (options) => ({
     ...parserTs(options),
     extNames: ['.tsx', '.jsx'],
-    inline: createInline('tsx', ['.tsx', '.jsx']),
+    inline: createInline({ lang: 'tsx', extNames: ['.tsx', '.jsx'] }),
   }),
 })

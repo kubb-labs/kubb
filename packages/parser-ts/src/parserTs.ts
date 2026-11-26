@@ -60,7 +60,7 @@ export const parserTs = defineExtension<ParserTsOptions, object, string | TsNode
     return {
       extNames: ['.ts', '.js'],
       print,
-      inline: createInline('ts', ['.ts', '.js']),
+      inline: createInline({ lang: 'ts', extNames: ['.ts', '.js'] }),
       parse(file) {
         const extname = extension[file.extname] || undefined
 

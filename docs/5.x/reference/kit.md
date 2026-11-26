@@ -84,3 +84,24 @@ import { text } from 'kubb/kit'
 
 const line = `method: ${text.quote("o'clock")}` // method: 'o\'clock'
 ```
+
+## Unique names {#renamer}
+
+`createRenamer()` hands out names that do not clash. When a name is taken, it adds 2, 3 and so on, as in `Options2`. Use it when one file or scope declares names from several sources, such as one name per content type.
+
+| Method                              | What it does                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `reserve(name)`                     | Keeps `name` from being assigned, such as a global the code uses.                                |
+| `bind({ name, owner })`             | Gives `name` to `owner` as it is, such as a name the file already imports.                       |
+| `assign({ name, owner?, emits? })`  | Returns the first free name from `name`. The same `owner` may take a name it already holds.      |
+
+`emits` returns the names one candidate claims, for a declaration that writes more than one, such as an enum value and its type. All of them must be free.
+
+```typescript [renamer.ts]
+import { createRenamer } from 'kubb/kit'
+
+const renamer = createRenamer()
+renamer.reserve('Response')
+renamer.assign({ name: 'Response' }) // 'Response2'
+renamer.assign({ name: 'Status', emits: (name) => [name, `${name}Key`] }) // claims 'Status' and 'StatusKey'
+```

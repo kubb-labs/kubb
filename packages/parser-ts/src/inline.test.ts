@@ -83,7 +83,7 @@ describe('createInline', () => {
   })
 
   it('inlines the files of its extensions when called as the hook', () => {
-    const { files, virtualPaths, problems } = createInline('ts', ['.ts'])([models, client])
+    const { files, virtualPaths, problems } = createInline({ lang: 'ts', extNames: ['.ts'] })([models, client])
 
     expect(virtualPaths).toEqual(['/gen/models/pet.ts'])
     expect(problems).toEqual([])
@@ -91,12 +91,12 @@ describe('createInline', () => {
   })
 
   it('still inlines when an older core reads it as an InlineLanguage object', () => {
-    const inline = createInline('tsx', ['.tsx'])
+    const inline = createInline({ lang: 'tsx', extNames: ['.tsx'] })
 
     expect(inline.replaceIdentifiers('<A>{Name}</A>', (name) => (name === 'Name' ? 'Pet' : undefined))).toBe('<A>{Pet}</A>')
     expect(inline.wrap('Pet | null')).toBe('(Pet | null)')
     // The call a @kubb/core before the hook makes.
-    const { files, problems } = ast.file.inline([models, client], { language: () => createInline('ts', ['.ts']) })
+    const { files, problems } = ast.file.inline([models, client], { language: () => createInline({ lang: 'ts', extNames: ['.ts'] }) })
     expect(problems).toEqual([])
     expect(files.map((file) => file.sources.map(printSource))).toEqual([['let pet: ({ id: number })']])
   })
@@ -122,7 +122,7 @@ describe('inlineFiles', () => {
       imports: [createImport({ name: ['Pet', 'petSchema'], path: '/gen/models/pet.ts', root: '/gen/clients/pet.ts' })],
       sources: [createSource({ nodes: [createText('export function check(pet: Pet): Pet {\n  return { petSchema }.petSchema.parse(pet)\n}')] })],
     })
-    const { files, problems } = inlineFiles([models, client], { lang: 'ts', extNames: ['.ts'] })
+    const { files, problems } = inlineFiles({ files: [models, client], lang: 'ts', extNames: ['.ts'] })
     const [file] = files
 
     expect(problems).toEqual([])

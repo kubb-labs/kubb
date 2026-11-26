@@ -30,25 +30,34 @@ export type Fragment = {
   unresolved: Array<string>
 }
 
+export type DefinitionsOptions = {
+  // The virtual files of the run, by path.
+  virtual: ReadonlyMap<string, FileNode>
+  lang: Lang
+}
+
+// Where a name a file binds comes from: the virtual module and the name it exports.
+type Binding = { path: string; name: string }
+
 /**
  * Every definition of the virtual files in one run, and the fragments that refer to them. Each is read on first use and
  * kept, because the same virtual bodies are read for every file that imports them.
  *
  * @example
  * ```ts
- * const definitions = createDefinitions(virtual, 'ts')
- * definitions.resolve(file, 'AddPetOptions') // the definition the name points at, or `undefined`
- * definitions.fragment(file, 'options: AddPetOptions', 'parameters')
+ * const definitions = createDefinitions({ virtual, lang: 'ts' })
+ * definitions.resolve({ file, name: 'AddPetOptions' }) // the definition the name points at, or `undefined`
+ * definitions.fragment({ file, text: 'options: AddPetOptions', kind: 'parameters' })
  * ```
  */
 export class Definitions {
   readonly lang: Lang
   readonly #virtual: ReadonlyMap<string, FileNode>
-  readonly #bindings = new WeakMap<FileNode, Map<string, { path: string; name: string }>>()
+  readonly #bindings = new WeakMap<FileNode, Map<string, Binding>>()
   readonly #definitions = new Map<string, Definition>()
   readonly #fragments = new Map<string, Fragment>()
 
-  constructor(virtual: ReadonlyMap<string, FileNode>, lang: Lang) {
+  constructor({ virtual, lang }: DefinitionsOptions) {
     this.#virtual = virtual
     this.lang = lang
   }
@@ -60,41 +69,41 @@ export class Definitions {
   /**
    * The virtual definition `name` points at in `file`, or `undefined` when it points at nothing virtual.
    */
-  resolve(file: FileNode, name: string): Definition | undefined {
-    const at = this.#bindingsOf(file).get(name)
-    return at && this.#definitionOf(at.path, at.name)
+  resolve({ file, name }: { file: FileNode; name: string }): Definition | undefined {
+    const binding = this.#bindingsOf(file).get(name)
+    return binding && this.#definitionOf(binding)
   }
 
-  fragment(file: FileNode, text: string, kind: InlineTextKind): Fragment {
+  fragment({ file, text, kind }: { file: FileNode; text: string; kind: InlineTextKind }): Fragment {
     const id = `${file.path}\0${kind}\0${text}`
     const known = this.#fragments.get(id)
     if (known) return known
 
     const names = referencesIn(text, this.lang, kind)
-    const references = names.map((name) => this.resolve(file, name))
+    const references = names.map((name) => this.resolve({ file, name }))
     const external = new Set(names.filter((_, index) => !references[index]))
     const fragment: Fragment = {
       file,
       text,
       kind,
       references,
-      imports: file.imports.flatMap((imp) => (this.isVirtual(imp.path) ? [] : pickNames(imp, external))),
-      unresolved: namesIn(text, this.lang, kind).filter((name) => !this.resolve(file, name) && !importsName(file, name)),
+      imports: file.imports.flatMap((imp) => (this.isVirtual(imp.path) ? [] : pickNames({ imp, used: external }))),
+      unresolved: namesIn(text, this.lang, kind).filter((name) => !this.resolve({ file, name }) && !importsName({ file, name })),
     }
     this.#fragments.set(id, fragment)
     return fragment
   }
 
   body(definition: Definition): Fragment {
-    return this.fragment(definition.file, definition.body ?? '', definition.space)
+    return this.fragment({ file: definition.file, text: definition.body ?? '', kind: definition.space })
   }
 
   // The names `file` binds to a virtual file. A virtual file's own declarations win over its imports.
-  #bindingsOf(file: FileNode) {
+  #bindingsOf(file: FileNode): Map<string, Binding> {
     const known = this.#bindings.get(file)
     if (known) return known
 
-    const bindings = new Map<string, { path: string; name: string }>()
+    const bindings = new Map<string, Binding>()
     for (const imp of file.imports) {
       if (!this.isVirtual(imp.path)) continue
       for (const item of ast.file.getNames(imp)) if (!bindings.has(localName(item))) bindings.set(localName(item), { path: imp.path, name: item.name })
@@ -104,8 +113,8 @@ export class Definitions {
     return bindings
   }
 
-  #definitionOf(path: string, name: string): Definition {
-    const id = idOf(path, name)
+  #definitionOf({ path, name }: Binding): Definition {
+    const id = idOf({ path, name })
     const known = this.#definitions.get(id)
     if (known) return known
 
@@ -121,7 +130,7 @@ export class Definitions {
       body,
       isPath: body !== undefined && wrap(body.trim()) === body.trim(),
       constant: node?.kind === ast.node.kinds.const ? node : undefined,
-      problem: problemOf(name, path, body, others.length > 0),
+      problem: problemOf({ name, path, body, duplicated: others.length > 0 }),
     }
     this.#definitions.set(id, definition)
     return definition
@@ -131,14 +140,14 @@ export class Definitions {
 /**
  * Creates the definition table for the virtual files of one run.
  */
-export function createDefinitions(virtual: ReadonlyMap<string, FileNode>, lang: Lang): Definitions {
-  return new Definitions(virtual, lang)
+export function createDefinitions(options: DefinitionsOptions): Definitions {
+  return new Definitions(options)
 }
 
 /**
  * The id of a name in a module: the module's path and the name it exports.
  */
-export function idOf(path: string, name: string): string {
+export function idOf({ path, name }: Binding): string {
   return `${path}\0${name}`
 }
 
@@ -149,12 +158,12 @@ export function localName(item: ModuleName): string {
   return item.alias ?? item.name
 }
 
-export function withNames(imp: ImportNode, names: Array<ModuleName>): ImportNode {
+export function withNames({ imp, names }: { imp: ImportNode; names: Array<ModuleName> }): ImportNode {
   return ast.factory.createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names })
 }
 
 // Why a use of `name` cannot be inlined: it has no body, or more than one declaration.
-function problemOf(name: string, path: string, body: string | undefined, duplicated: boolean): string | undefined {
+function problemOf({ name, path, body, duplicated }: Binding & { body: string | undefined; duplicated: boolean }): string | undefined {
   if (body === undefined) return `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`
   if (duplicated) return `"${name}" from "${path}" has more than one declaration, so its uses cannot be told apart.`
   return undefined
@@ -166,11 +175,11 @@ function declarationOf(source: SourceNode | undefined) {
   return node?.kind === ast.node.kinds.const || node?.kind === ast.node.kinds.type ? node : undefined
 }
 
-function importsName(file: FileNode, local: string): boolean {
-  return file.imports.some((imp) => ast.file.getNames(imp).some((item) => localName(item) === local))
+function importsName({ file, name }: { file: FileNode; name: string }): boolean {
+  return file.imports.some((imp) => ast.file.getNames(imp).some((item) => localName(item) === name))
 }
 
-function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
+function pickNames({ imp, used }: { imp: ImportNode; used: ReadonlySet<string> }): Array<ImportNode> {
   const names = ast.file.getNames(imp).filter((item) => used.has(localName(item)))
-  return names.length > 0 ? [withNames(imp, names)] : []
+  return names.length > 0 ? [withNames({ imp, names })] : []
 }

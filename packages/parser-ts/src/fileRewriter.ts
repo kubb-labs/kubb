@@ -1,9 +1,18 @@
+import type { Renamer } from '@internals/utils'
 import { ast, type FileNode, type ImportNode, type SourceNode } from '@kubb/ast'
 import type { InlineResult } from '@kubb/core'
 import { idOf, localName, withNames, type Definition, type Definitions, type Fragment } from './definitions.ts'
 import { namesIn, replaceIdentifiers, wrap } from './inline.ts'
 import { rewriteNodes } from './nodeText.ts'
-import { createRenamer, type Renamer } from './renamer.ts'
+import { createFileRenamer } from './renamer.ts'
+
+export type FileRewriterOptions = {
+  file: FileNode
+  definitions: Definitions
+}
+
+// A definition used in `from`, the file whose text is being written.
+type Use = { from: FileNode; definition: Definition }
 
 /**
  * Rewrites one file that imports from virtual files, in two passes. The first counts how often each definition is used and
@@ -12,7 +21,7 @@ import { createRenamer, type Renamer } from './renamer.ts'
  *
  * @example
  * ```ts
- * const { file, problems } = createFileRewriter(clientFile, definitions).rewrite()
+ * const { file, problems } = createFileRewriter({ file: clientFile, definitions }).rewrite()
  * ```
  */
 export class FileRewriter {
@@ -29,10 +38,10 @@ export class FileRewriter {
   readonly #carried: Array<ImportNode> = []
   readonly #problems: InlineResult['problems'] = []
 
-  constructor(file: FileNode, definitions: Definitions) {
+  constructor({ file, definitions }: FileRewriterOptions) {
     this.#file = file
     this.#definitions = definitions
-    this.#renamer = createRenamer(file)
+    this.#renamer = createFileRenamer(file)
   }
 
   rewrite(): { file: FileNode; problems: InlineResult['problems'] } {
@@ -41,14 +50,14 @@ export class FileRewriter {
     for (const source of file.sources) {
       rewriteNodes(source.nodes, (text, kind) => {
         for (const name of namesIn(text, lang, kind)) this.#renamer.reserve(name)
-        this.#count(this.#definitions.fragment(file, text, kind))
+        this.#count(this.#definitions.fragment({ file, text, kind }))
         return text
       })
     }
 
     const sources = file.sources.map((source) => ({
       ...source,
-      nodes: rewriteNodes(source.nodes, (text, kind) => replaceIdentifiers(text, (id) => this.#replacement(file, id), lang, kind)),
+      nodes: rewriteNodes(source.nodes, (text, kind) => replaceIdentifiers(text, (name) => this.#replacement({ from: file, name }), lang, kind)),
     }))
     // A carried import keeps its target; `root` moves to this file so the relative path is computed from here.
     const carried = this.#carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))
@@ -78,41 +87,43 @@ export class FileRewriter {
   }
 
   // What `name` in `from` is replaced with, or `undefined` to keep it as it is.
-  #replacement(from: FileNode, name: string): string | undefined {
-    const definition = this.#definitions.resolve(from, name)
-    const written = definition && this.#write(from, definition)
+  #replacement({ from, name }: { from: FileNode; name: string }): string | undefined {
+    const definition = this.#definitions.resolve({ file: from, name })
+    const written = definition && this.#write({ from, definition })
     return written === name ? undefined : written
   }
 
-  #write(from: FileNode, definition: Definition): string | undefined {
-    if (definition.problem) return this.#report(from, definition.problem)
-    return this.#locals.get(definition.id) ?? this.#writeOnce(from, definition)
+  #write({ from, definition }: Use): string | undefined {
+    if (definition.problem) return this.#report({ from, message: definition.problem })
+    return this.#locals.get(definition.id) ?? this.#writeOnce({ from, definition })
   }
 
-  #writeOnce(from: FileNode, definition: Definition): string | undefined {
+  #writeOnce({ from, definition }: Use): string | undefined {
     const { id, space } = definition
     const declare = !definition.isPath && (space === 'value' || (this.#uses.get(id) ?? 0) > 1)
     // A type claims its name before its body is written, so a type that refers to itself can use it. A value cannot.
     const early = declare && space === 'type' ? this.#claim(definition) : undefined
-    if (!early && this.#writing.has(id)) return this.#report(from, `"${definition.name}" from "${definition.file.path}" is defined in terms of itself.`)
+    if (!early && this.#writing.has(id)) {
+      return this.#report({ from, message: `"${definition.name}" from "${definition.file.path}" is defined in terms of itself.` })
+    }
 
     this.#writing.add(id)
     const body = this.#rewriteFragment(this.#definitions.body(definition))
     this.#writing.delete(id)
-    return declare ? this.#declare(definition, early ?? this.#claim(definition), body) : wrap(body)
+    return declare ? this.#declare({ definition, local: early ?? this.#claim(definition), body }) : wrap(body)
   }
 
   // The imports a fragment needs are carried first, so their aliases never rename a local the fragment resolves to.
   #rewriteFragment(fragment: Fragment): string {
     const aliases = this.#carry(fragment.imports)
     const { lang } = this.#definitions
-    return replaceIdentifiers(fragment.text, (name) => this.#replacement(fragment.file, name) ?? aliases.get(name), lang, fragment.kind)
+    return replaceIdentifiers(fragment.text, (name) => this.#replacement({ from: fragment.file, name }) ?? aliases.get(name), lang, fragment.kind)
   }
 
-  #declare(definition: Definition, local: string, body: string): string {
+  #declare({ definition, local, body }: { definition: Definition; local: string; body: string }): string {
     const { constant, space } = definition
     // A constant keeps its type annotation and `as const`, so its literal types do not widen.
-    const type = constant?.type ? this.#rewriteFragment(this.#definitions.fragment(definition.file, constant.type, 'type')) : undefined
+    const type = constant?.type ? this.#rewriteFragment(this.#definitions.fragment({ file: definition.file, text: constant.type, kind: 'type' })) : undefined
     const node =
       space === 'type'
         ? ast.factory.createType({ name: local, nodes: [ast.factory.createText(body)] })
@@ -127,7 +138,7 @@ export class FileRewriter {
   }
 
   #claim(definition: Definition): string {
-    const local = this.#renamer.assign(definition.id, definition.name)
+    const local = this.#renamer.assign({ name: definition.name, owner: definition.id })
     this.#locals.set(definition.id, local)
     return local
   }
@@ -139,17 +150,17 @@ export class FileRewriter {
       const before = aliases.size
       const names = ast.file.getNames(imp).map((item) => {
         const local = localName(item)
-        const name = this.#renamer.assign(idOf(imp.path, item.name), local)
+        const name = this.#renamer.assign({ name: local, owner: idOf({ path: imp.path, name: item.name }) })
         if (name === local) return item
         aliases.set(local, name)
         return { ...item, alias: name }
       })
-      this.#carried.push(aliases.size > before ? withNames(imp, names) : imp)
+      this.#carried.push(aliases.size > before ? withNames({ imp, names }) : imp)
     }
     return aliases
   }
 
-  #report(from: FileNode, message: string): undefined {
+  #report({ from, message }: { from: FileNode; message: string }): undefined {
     this.#problems.push({ path: from.path, message })
     return undefined
   }
@@ -158,6 +169,6 @@ export class FileRewriter {
 /**
  * Creates the rewriter for one file that imports from the virtual files in `definitions`.
  */
-export function createFileRewriter(file: FileNode, definitions: Definitions): FileRewriter {
-  return new FileRewriter(file, definitions)
+export function createFileRewriter(options: FileRewriterOptions): FileRewriter {
+  return new FileRewriter(options)
 }

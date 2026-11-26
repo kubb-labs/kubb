@@ -1,4 +1,4 @@
-import { uniqueName } from '@internals/utils'
+import { createRenamer } from '@internals/utils'
 import { camelCase } from '@kubb/core'
 
 /**
@@ -24,13 +24,6 @@ function transformPathParam(raw: string): string {
       return capitalize ? word.charAt(0).toUpperCase() + word.slice(1) : word.charAt(0).toLowerCase() + word.slice(1)
     })
     .join('')
-}
-
-function uniqueParamName(base: string, used: Set<string>): string {
-  const name = uniqueName(base, (candidate) => used.has(candidate))
-  used.add(name)
-
-  return name
 }
 
 /**
@@ -62,9 +55,9 @@ export class Url {
    * Url.toPath('/groups/{group-id}/{group.id}.json') // '/groups/:groupId/:groupId2.json'
    */
   static toPath(path: string): string {
-    const used = new Set<string>()
+    const renamer = createRenamer()
 
-    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${uniqueParamName(transformPathParam(param), used)}`)
+    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${renamer.assign({ name: transformPathParam(param) })}`)
   }
 
   /**
@@ -74,11 +67,11 @@ export class Url {
    * Url.toParamNames('/groups/{group_id}/{group.id}') // Map { 'group_id' => 'groupId', 'group.id' => 'groupId2' }
    */
   static toParamNames(path: string): Map<string, string> {
-    const used = new Set<string>()
+    const renamer = createRenamer()
     const names = new Map<string, string>()
 
     for (const [, param] of path.matchAll(/\{([^}]+)\}/g)) {
-      const name = uniqueParamName(camelCase(param!) || transformPathParam(param!), used)
+      const name = renamer.assign({ name: camelCase(param!) || transformPathParam(param!) })
       if (!names.has(param!)) names.set(param!, name)
     }
 

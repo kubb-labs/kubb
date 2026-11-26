@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { memo, uniqueName } from '@internals/utils'
+import { createRenamer, memo } from '@internals/utils'
 import { camelCase } from '@kubb/core'
 import { ast, type FileNode, type ImportNode, type InputMeta, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
@@ -75,10 +75,8 @@ export class Resolver {
   readonly fileName: (node: SchemaNode | OperationNode, exportName?: string) => string | undefined
   #options: ResolverBuildOptions
   #memo = memo.create<string, unknown>()
-  #usedNames = new Set<string>()
-  #stringNames = memo.create<string, string>()
-  #arrayNames = createNameNode()
-  #fileNames = { used: new Set<string>(), strings: memo.create<string, string>(), arrays: createNameNode() }
+  #names = { renamer: createRenamer(), strings: memo.create<string, string>(), arrays: createNameNode() }
+  #fileNames = { renamer: createRenamer(), strings: memo.create<string, string>(), arrays: createNameNode() }
   #outputDirs = memo.create<Output, Map<string, string>>({ weak: true })
   #importPaths = memo.create<Output, Map<string, Map<string, Map<string, string>>>>({ weak: true })
   #tagParents = new Map<string, string>()
@@ -123,7 +121,7 @@ export class Resolver {
 
   /** Reserves emitted identifiers before allocating other declarations. */
   reserveNames(names: Iterable<string>): void {
-    for (const name of names) this.#usedNames.add(name)
+    for (const name of names) this.#names.renamer.reserve(name)
   }
 
   setTags(tags: InputMeta['tags']): void {
@@ -132,25 +130,14 @@ export class Resolver {
   }
 
   /** Returns the same name for repeated declaration keys. */
-  resolveName({ key, name, normalize = (name: string) => name, scope = 'name' }: ResolveNameOptions): string {
-    const store = scope === 'file' ? this.#fileNames : { used: this.#usedNames, strings: this.#stringNames, arrays: this.#arrayNames }
-    if (typeof key === 'string') return memo(store.strings, key, () => this.#allocateName({ name, normalize, used: store.used }))
+  resolveName({ key, name, normalize, scope = 'name' }: ResolveNameOptions): string {
+    const store = scope === 'file' ? this.#fileNames : this.#names
+    const allocate = () => store.renamer.assign({ name, ...(normalize ? { emits: normalize } : {}) })
+    if (typeof key === 'string') return memo(store.strings, key, allocate)
 
     const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), store.arrays)
-    node.name ??= this.#allocateName({ name, normalize, used: store.used })
+    node.name ??= allocate()
     return node.name
-  }
-
-  #allocateName({ name, normalize, used }: Required<Pick<ResolveNameOptions, 'name' | 'normalize'>> & { used: Set<string> }): string {
-    // The names the last checked candidate emits, which are the winner's once `uniqueName` returns.
-    let emitted: ReadonlyArray<string> = []
-    const candidate = uniqueName(name, (next) => {
-      const normalized = normalize(next)
-      emitted = typeof normalized === 'string' ? [normalized] : normalized
-      return emitted.some((emittedName) => used.has(emittedName))
-    })
-    for (const emittedName of emitted) used.add(emittedName)
-    return candidate
   }
 
   file(options: ResolveFileOptions): FileNode {

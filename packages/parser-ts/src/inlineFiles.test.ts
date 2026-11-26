@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { inlineFiles as inlineFilesWith } from './inlineFiles.ts'
 
 const { createConst, createFunction, createFile, createImport, createSource, createText, createType } = ast.factory
-const inlineFiles = (files: Array<FileNode>) => inlineFilesWith(files, { lang: 'ts', extNames: ['.ts'] })
+const inlineFiles = (files: Array<FileNode>) => inlineFilesWith({ files, lang: 'ts', extNames: ['.ts'] })
 
 const operationFile = createFile({
   baseName: 'AddPet.ts',
