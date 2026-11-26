@@ -215,10 +215,20 @@ describe('inlineFiles', () => {
     expect(addPet?.nodes).toMatchObject([{ value: 'const pet: ({ first: Pet2; second: Pet2; pet: Pet }) = client()' }])
   })
 
-  it.each([
-    { kind: 'a type', isTypeOnly: true, body: '{ raw: Response }', text: 'let c: Envelope', written: 'let c: ({ raw: Response })' },
-    { kind: 'a value', isTypeOnly: false, body: '{} as Response', text: 'const c = Envelope', written: 'const c = ({} as Response)' },
-  ])('keeps a local declaration from shadowing a global used in $kind inlined elsewhere', ({ isTypeOnly, body, text, written }) => {
+  it.each(
+    [
+      { kind: 'a type', isTypeOnly: true, body: '{ raw: Response }', text: 'let c: Envelope', written: 'let c: ({ raw: Response })' },
+      { kind: 'a value', isTypeOnly: false, body: '{} as Response', text: 'const c = Envelope', written: 'const c = ({} as Response)' },
+    ].flatMap((item) => [
+      {
+        ...item,
+        order: 'before',
+        text: `${item.text}; let a: PetResponse; let b: PetResponse`,
+        written: `${item.written}; let a: Response2; let b: Response2`,
+      },
+      { ...item, order: 'after', text: `let a: PetResponse; let b: PetResponse; ${item.text}`, written: `let a: Response2; let b: Response2; ${item.written}` },
+    ]),
+  )('keeps a local declaration from shadowing a global used in $kind inlined $order the schema uses', ({ isTypeOnly, body, text, written }) => {
     const envelope = createFile({
       baseName: 'Envelope.ts',
       path: '/gen/models/Envelope.ts',
@@ -229,7 +239,7 @@ describe('inlineFiles', () => {
       imports: [],
       sources: [createSource({ name: 'Response', isTypeOnly: true, inline: { expression: '{ id: number }' }, nodes: [] })],
     })
-    const file = clientFile(`${text}; let a: PetResponse; let b: PetResponse`, {
+    const file = clientFile(text, {
       imports: [
         createImport({ name: [{ propertyName: 'Response', name: 'PetResponse' }], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts' }),
         createImport({ name: ['Envelope'], path: '/gen/models/Envelope.ts', root: '/gen/clients/addPet.ts' }),
@@ -238,7 +248,7 @@ describe('inlineFiles', () => {
     const [declaration, addPet] = inlineFiles([envelope, operation, file]).files[0]?.sources ?? []
 
     expect(declaration).toMatchObject({ name: 'Response2' })
-    expect(addPet?.nodes).toMatchObject([{ value: `${written}; let a: Response2; let b: Response2` }])
+    expect(addPet?.nodes).toMatchObject([{ value: written }])
   })
 
   it('rewrites the string fields of code nodes', () => {
