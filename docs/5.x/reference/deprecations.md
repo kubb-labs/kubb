@@ -22,6 +22,7 @@ Kubb v6 removes every API on this page. Each one still works in v5. Move to the 
 | `defineParser` | `defineExtension` with `kind: 'parser'` |
 | `createAdapter` | `defineExtension` with `kind: 'adapter'` |
 | `ctx.driver` in plugin hooks | `schemas`, `getPlugin` and `memo` |
+| `Parser.inline` as an `InlineLanguage` object | `Parser.inline` as a function, `(files) => InlineResult` |
 | `driver.getResolver(pluginName)` | `ctx.getResolver(pluginName)` in a template, or `getResolver(pluginName)` from `kubb/kit` |
 | `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `createResolver`, `defineResolver`, `defineGenerator`, `toFilePath`, `Resolver` from `@kubb/core` | The same names from `kubb/kit` |
 
@@ -70,6 +71,7 @@ Kubb v6 removes every API on this page. Each one still works in v5. Move to the 
 | `narrowSchema` | `ast.schema.narrow` |
 | `transform` | `ast.node.transform` |
 | `inlineFiles` | `ast.file.inline` |
+| `ast.file.inline`, `InlineLanguage` | The `Parser.inline(files)` hook, as in `parserTs` |
 | `ast.schema.isString` | `ast.schema.is(node, 'string')` |
 | `followRefs` option of `findSchema` | `follow: ['ref']` |
 | `ImportNode` `name` | `names` |

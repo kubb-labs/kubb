@@ -36,9 +36,37 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
    */
   print(...nodes: Array<TNode>): string
   /**
-   * How this language finds and replaces names so its files can absorb inline sources. Omit it when there is no support.
+   * Moves what this parser's files import from virtual files (marked `inline`, so never written) into them. Kubb calls it
+   * once with every file of the run, and it returns the files it rewrote. Omit it when the language has no inline support.
+   *
+   * An `InlineLanguage` object still works here, through the shared resolver in `@kubb/ast`. That form is deprecated and
+   * removed in v6.
    */
-  inline?: InlineLanguage
+  inline?: InlineHook | InlineLanguage
+}
+
+/**
+ * A parser's `inline` hook. `@kubb/parser-ts` also sets the `InlineLanguage` members on it, so a `@kubb/core` from before
+ * the hook, which reads `inline` as an object, still inlines its files.
+ */
+export type InlineHook = (files: ReadonlyArray<FileNode>) => InlineResult
+
+/**
+ * What a parser's `inline` hook returns.
+ */
+export type InlineResult = {
+  /**
+   * Files that imported an inline name, rewritten to hold its definition.
+   */
+  files: Array<FileNode>
+  /**
+   * Paths of every virtual file of the run, which are not written.
+   */
+  virtualPaths: Array<string>
+  /**
+   * One message per name that could not be inlined.
+   */
+  problems: Array<{ path: string; message: string }>
 }
 
 /**

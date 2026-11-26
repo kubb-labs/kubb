@@ -102,7 +102,7 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 | `banner?` | `string \| null` | Text before the source blocks |
 | `footer?` | `string \| null` | Text after the source blocks |
 | `copy?` | `string \| null` | An absolute path of a file to copy into the output |
-| `inline?` | `boolean \| null` | Never writes the file. Files that import from it get each declaration's body in place of its name. |
+| `inline?` | `boolean \| null` | Never writes the file. Files that import from it get its declarations. See [Inline sources](#inline-sources). |
 | `children?` | `KubbReactNode` | The file's sources, imports, and exports |
 
 ```tsx
@@ -416,7 +416,7 @@ Embeds a raw JSX string, fragments included, such as a component body in a `Func
 When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it instead of printing it.
 
 - `copy` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
-- `inline` means Kubb never writes the file. Each file that imports a name from it gets that declaration's body, from a `Const` or `Type`, together with the imports the body needs. Importing a `Function` or printed `Code` text from an inline file reports a problem, because neither has a body that works in place of the name.
+- `inline` means Kubb never writes the file. A file that imports from it gets the `Const` or `Type` and the imports its body needs. A type used once, or a bare name, goes in place of the name. Anything else becomes one local declaration, numbered on a clash, such as `Response2`. Importing a `Function` or printed `Code` reports a problem, because neither has a body.
 
 ```tsx
 <File baseName="AddPet.ts" path="src/gen/models/AddPet.ts" inline>
@@ -426,6 +426,6 @@ When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it
 </File>
 ```
 
-The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.
+The parser's `inline(files)` hook runs before barrels, and only its files absorb inline sources. `parserTs` and `parserTsx` have it. An `inline` set to an `InlineLanguage` object still works for older parsers, but it is deprecated.
 
 With the `kubb/jsx` [setup](#setup), `.tsx` files load `jsx-runtime` and `jsx-dev-runtime` from `kubb/jsx`.

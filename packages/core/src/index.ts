@@ -79,7 +79,7 @@ export type {
   RegistryIndex,
 } from './manifest.ts'
 export type { Memo, MemoKey, MemoValue } from './memo.ts'
-export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
+export type { InlineHook, InlineResult, Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {
   Exclude,
   Filter,
