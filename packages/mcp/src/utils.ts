@@ -97,6 +97,22 @@ export type DiffFileSummary = {
 const HUNK_HEADER = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@/
 
 /**
+ * Counts one line inside a hunk on `file`, and returns how many lines of the old and the new
+ * side it used: a context line uses one of each, and the `\ No newline at end of file` marker uses none.
+ */
+function countHunkLine(line: string, file: DiffFileSummary): { old: number; new: number } {
+  if (line.startsWith('+')) {
+    file.linesAdded++
+    return { old: 0, new: 1 }
+  }
+  if (line.startsWith('-')) {
+    file.linesRemoved++
+    return { old: 1, new: 0 }
+  }
+  return line.startsWith('\\') ? { old: 0, new: 0 } : { old: 1, new: 1 }
+}
+
+/**
  * Reads the files and their added and removed line counts from unified diff text, such as the
  * output of `kubb generate --diff`. Lines outside a diff are skipped.
  */
@@ -107,17 +123,10 @@ export function summarizeDiff(diff: string): Array<DiffFileSummary> {
   let oldLeft = 0
   let newLeft = 0
   for (const line of diff.split('\n')) {
-    if (current && (oldLeft > 0 || newLeft > 0)) {
-      if (line.startsWith('+')) {
-        current.linesAdded++
-        newLeft--
-      } else if (line.startsWith('-')) {
-        current.linesRemoved++
-        oldLeft--
-      } else if (!line.startsWith('\\')) {
-        oldLeft--
-        newLeft--
-      }
+    if (current && oldLeft + newLeft > 0) {
+      const used = countHunkLine(line, current)
+      oldLeft -= used.old
+      newLeft -= used.new
       continue
     }
     const hunk = HUNK_HEADER.exec(line)
