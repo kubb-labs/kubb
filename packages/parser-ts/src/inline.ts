@@ -1,52 +1,100 @@
 import type { ast } from '@kubb/ast'
-import { parse, TokenKind } from 'yuku'
+import { parse } from 'yuku'
 
-// A name followed by `:` or `?:` right after one of these is a key or parameter name (`{ Name: x }`, `(Name: x)`).
-const keyStarts = new Set<number>([TokenKind.LeftBrace, TokenKind.Comma, TokenKind.Semicolon, TokenKind.LeftParen])
+type Lang = 'ts' | 'tsx'
+type Analysis = { file: ReturnType<typeof parse>; offset: number }
+
+// A fragment such as `options: Options<Pet>` or `{ body: Pet }` is not a program, so it is parsed inside the code its kind
+// stands for. The prefix length is subtracted from every offset.
+const contexts: Record<ast.InlineTextKind, [before: string, after: string]> = {
+  code: ['', ''],
+  type: ['type __kubb = ', ''],
+  value: ['const __kubb = (', ')'],
+  parameters: ['function __kubb(', ') {}'],
+  typeParameters: ['function __kubb<', '>() {}'],
+}
+const kinds = Object.keys(contexts) as Array<ast.InlineTextKind>
+
+// The same fragment is read several times while one file is inlined.
+const cache = new Map<string, Analysis>()
+
+// Parses `text` as `kind`, or, when that fails or no kind is given, as the first kind it parses as without errors.
+function analyze(text: string, lang: Lang, kind: ast.InlineTextKind | undefined): Analysis {
+  const key = `${lang}\0${kind ?? ''}\0${text}`
+  const cached = cache.get(key)
+  if (cached) return cached
+
+  let first: Analysis | undefined
+  for (const candidate of kind ? [kind, ...kinds.filter((item) => item !== kind)] : kinds) {
+    const [before, after] = contexts[candidate]
+    const file = parse(before + text + after, { lang, sourceType: 'module', analyze: true })
+    const analysis = { file, offset: before.length }
+    first ??= analysis
+    if (!file.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
+      first = analysis
+      break
+    }
+  }
+
+  if (cache.size > 1000) cache.clear()
+  cache.set(key, first!)
+  return first!
+}
 
 /**
- * Calls `replace` for every identifier that references something, and swaps in what it returns.
- * yuku's tokens leave out strings, comments and template text; member access (`x.Name`) and keys are skipped here.
+ * Calls `replace` for every name in `text` that refers to something declared outside it, and swaps in what it returns.
+ * Bound names (parameters, type parameters, locals), keys, members, strings, comments and JSX tag names are left alone. A
+ * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`.
  */
-export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: 'ts' | 'tsx' = 'ts'): string {
-  // Generated fragments such as `options: Options<Pet>` are not whole programs; yuku still tokenizes them.
-  const tokens = parse(text, { lang, sourceType: 'module', tokens: true }).tokens!
-
-  // `TokenList` is indexed, not iterable; a plain array also makes the neighbours of a token `undefined` at the ends.
-  const kinds = Array.from({ length: tokens.length }, (_, i) => tokens.kind(i))
-
+export function replaceIdentifiers(
+  text: string,
+  replace: (name: string, use: ast.InlineUse) => string | undefined,
+  lang: 'ts' | 'tsx' = 'ts',
+  kind?: ast.InlineTextKind,
+): string {
+  const { file, offset } = analyze(text, lang, kind)
   let out = ''
   let last = 0
 
-  for (const [i, kind] of kinds.entries()) {
-    if (kind !== TokenKind.Identifier || kinds[i - 1] === TokenKind.Dot || kinds[i - 1] === TokenKind.OptionalChaining) continue
-    const isKey = kinds[i + 1] === TokenKind.Colon || (kinds[i + 1] === TokenKind.Question && kinds[i + 2] === TokenKind.Colon)
-    // `? Name :` in a conditional type is a reference.
-    if (isKey && (i === 0 || tokens.newlineBefore(i) || keyStarts.has(kinds[i - 1]!))) continue
+  for (const reference of file.references) {
+    if (reference.binding || reference.node.type === 'JSXIdentifier') continue
+    const start = reference.node.start - offset
+    const end = reference.node.end - offset
+    if (start < last || end > text.length) continue
 
-    const replacement = replace(tokens.text(i))
+    // Only a name fits in `typeof x`, `ns.T` or `export { x }`.
+    const replacement = replace(reference.name, { asName: reference.space !== 'value' && reference.space !== 'type' })
     if (replacement === undefined) continue
-    out += text.slice(last, tokens.start(i)) + replacement
-    last = tokens.end(i)
+    const parent = file.parentOf(reference.node)
+    const shorthand = parent?.type === 'Property' && parent.shorthand
+    out += text.slice(last, start) + (shorthand ? `${reference.name}: ${replacement}` : replacement)
+    last = end
   }
 
   return out + text.slice(last)
 }
 
-function createInline(lang: 'ts' | 'tsx'): ast.InlineLanguage {
+// Every name `text` declares or uses, so a name added next to it never shadows one of them.
+function names(text: string, lang: Lang = 'ts', kind?: ast.InlineTextKind): Array<string> {
+  const { file } = analyze(text, lang, kind)
+  return [...file.bindings.map((binding) => binding.name), ...file.references.map((reference) => reference.name)].filter((name) => name !== '__kubb')
+}
+
+function createInline(lang: Lang): ast.InlineLanguage {
   return {
-    replaceIdentifiers: (text, replace) => replaceIdentifiers(text, replace, lang),
+    replaceIdentifiers: (text, replace, kind) => replaceIdentifiers(text, replace, lang, kind),
+    names: (text, kind) => names(text, lang, kind),
     wrap: (expression) => (/^[\w$.]+$/.test(expression) ? expression : `(${expression})`),
   }
 }
 
 /**
- * Inline support for TypeScript and JavaScript files: identifiers are found with {@link replaceIdentifiers},
- * and a definition that is more than a name or a dotted path goes in parentheses.
+ * Inline support for TypeScript and JavaScript files: references are found with {@link replaceIdentifiers}, and a
+ * definition that is more than a name or a dotted path goes in parentheses.
  */
 export const inlineTs = createInline('ts')
 
 /**
- * {@link inlineTs} for `.tsx` and `.jsx` files, where JSX text and attribute names are not identifiers.
+ * {@link inlineTs} for `.tsx` and `.jsx` files.
  */
 export const inlineTsx = createInline('tsx')

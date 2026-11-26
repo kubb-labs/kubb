@@ -216,10 +216,7 @@ describe('inlineFiles', () => {
   })
 
   it.each(
-    [
-      { kind: 'a type', isTypeOnly: true, body: '{ raw: Response }', text: 'let c: Envelope', written: 'let c: ({ raw: Response })' },
-      { kind: 'a value', isTypeOnly: false, body: '{} as Response', text: 'const c = Envelope', written: 'const c = ({} as Response)' },
-    ].flatMap((item) => [
+    [{ kind: 'a type', isTypeOnly: true, body: '{ raw: Response }', text: 'let c: Envelope', written: 'let c: ({ raw: Response })' }].flatMap((item) => [
       {
         ...item,
         order: 'before',
@@ -271,22 +268,63 @@ describe('inlineFiles', () => {
     expect(code(inlineFiles([operationFile, file]).files[0])).toEqual(['const options: ({ body: Pet; path?: never }) = client()'])
   })
 
-  it('reports a cycle and keeps the name', () => {
+  it('declares a value once as a local constant and keeps a global its body uses free', () => {
+    const envelope = createFile({
+      baseName: 'Envelope.ts',
+      path: '/gen/models/Envelope.ts',
+      sources: [createSource({ name: 'Envelope', inline: { expression: '{} as Response' }, nodes: [] })],
+    })
+    const operation = createFile({
+      ...operationFile,
+      imports: [],
+      sources: [createSource({ name: 'Response', isTypeOnly: true, inline: { expression: '{ id: number }' }, nodes: [] })],
+    })
+    const file = clientFile('const c = Envelope; const d = Envelope; let a: PetResponse; let b: PetResponse', {
+      imports: [
+        createImport({ name: [{ propertyName: 'Response', name: 'PetResponse' }], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts' }),
+        createImport({ name: ['Envelope'], path: '/gen/models/Envelope.ts', root: '/gen/clients/addPet.ts' }),
+      ],
+    })
+    const sources = inlineFiles([envelope, operation, file]).files[0]?.sources ?? []
+
+    expect(sources.find((source) => source.name === 'Envelope')).toMatchObject({ nodes: [{ kind: 'Const', nodes: [{ value: '{} as Response' }] }] })
+    expect(sources.at(-1)?.nodes).toMatchObject([{ value: 'const c = Envelope; const d = Envelope; let a: Response2; let b: Response2' }])
+  })
+
+  it('declares a type a use needs by name, even when used once', () => {
+    // `#Name` stands for a use where only a name fits, such as `typeof Name` in TypeScript.
+    const language: InlineLanguage = {
+      replaceIdentifiers: (text, replace) =>
+        text.replace(/(#?)([A-Za-z_$][\w$]*)/g, (_match, hash: string, name: string) => hash + (replace(name, { asName: !!hash }) ?? name)),
+      wrap: words.wrap,
+    }
+    const file = clientFile('let pet: #AddPetStatus200')
+    const operation = createFile({
+      ...operationFile,
+      imports: [],
+      sources: [createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [] })],
+    })
+    const [declaration, addPet] = inlineFilesWith([operation, file], { language: () => language }).files[0]?.sources ?? []
+
+    expect(declaration).toMatchObject({ name: 'AddPetStatus200', nodes: [{ kind: 'Type' }] })
+    expect(addPet?.nodes).toMatchObject([{ value: 'let pet: #AddPetStatus200' }])
+  })
+
+  it('reports a value that refers to itself and keeps the name', () => {
     const cyclic = createFile({
       baseName: 'Tree.ts',
       path: '/gen/models/Tree.ts',
-      sources: [createSource({ name: 'TreeNode', inline: { expression: '{ children: Array<TreeNode> }' }, nodes: [createText('')] })],
+      sources: [createSource({ name: 'treeNode', inline: { expression: '{ children: [treeNode] }' }, nodes: [createText('')] })],
     })
     const file = createFile({
       baseName: 'tree.ts',
       path: '/gen/clients/tree.ts',
-      imports: [createImport({ name: ['TreeNode'], path: '/gen/models/Tree.ts', root: '/gen/clients/tree.ts' })],
-      sources: [createSource({ nodes: [createText('let tree: TreeNode')] })],
+      imports: [createImport({ name: ['treeNode'], path: '/gen/models/Tree.ts', root: '/gen/clients/tree.ts' })],
+      sources: [createSource({ nodes: [createText('const tree = treeNode')] })],
     })
-    const { files, problems } = inlineFiles([cyclic, file])
+    const { problems } = inlineFiles([cyclic, file])
 
-    expect(problems).toEqual([{ path: '/gen/models/Tree.ts', message: '"TreeNode" from "/gen/models/Tree.ts" is defined in terms of itself.' }])
-    expect(code(files[0])).toEqual(['let tree: ({ children: Array<TreeNode> })'])
+    expect(problems).toEqual([{ path: '/gen/models/Tree.ts', message: '"treeNode" from "/gen/models/Tree.ts" is defined in terms of itself.' }])
   })
 
   it('reports a name the virtual file does not define', () => {

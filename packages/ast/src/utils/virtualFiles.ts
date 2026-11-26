@@ -3,32 +3,48 @@ import { createImport } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { getNames, getSpace } from './moduleNames.ts'
 import { getNodeText } from './nodeText.ts'
+import type { InlineTextKind } from './nodeText.ts'
+
+/**
+ * How a name is used where a language finds it.
+ */
+export type InlineUse = {
+  /**
+   * Only a name fits here, such as `x` in TypeScript's `typeof x`, so the definition gets a local name instead of being
+   * written in place.
+   */
+  asName?: boolean
+}
 
 /**
  * The language-specific half of `inlineFiles`, supplied by the parser that prints the file.
  */
 export type InlineLanguage = {
   /**
-   * Swaps in what `replace` returns for every identifier in `text` that references a name, skipping strings and comments.
+   * Swaps in what `replace` returns for every name in `text` that refers to something declared outside it. `kind` says what
+   * the text holds, so a fragment such as a type or a parameter list can be read as one.
    */
-  replaceIdentifiers(text: string, replace: (name: string) => string | undefined): string
+  replaceIdentifiers(text: string, replace: (name: string, use?: InlineUse) => string | undefined, kind?: InlineTextKind): string
+  /**
+   * Every name `text` declares or uses, so a declaration added next to it never shadows one. Without it, the names
+   * `replaceIdentifiers` finds are used.
+   */
+  names?(text: string, kind?: InlineTextKind): Iterable<string>
   /**
    * Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript.
    */
   wrap(expression: string): string
 }
 
-export type Definition = { expression: string; imports: Array<ImportNode> }
-
 // A name imported from, or declared in, a virtual file. `key` is its module and exported name.
 export type Target = { key: string; name: string; path: string; file: FileNode; isType: boolean; expression: string | undefined }
 
-// The virtual files of one run, and the values defined from them, shared by every importing file.
+export type { InlineTextKind }
+
+// The virtual files of one run, shared by every importing file.
 export class VirtualFiles {
   readonly problems: Array<{ path: string; message: string }> = []
   readonly #files: Map<string, FileNode>
-  // `null` marks a definition that is being resolved, so a name that reaches itself is a cycle.
-  readonly #definitions = new Map<string, Definition | null>()
 
   constructor(files: ReadonlyArray<FileNode>) {
     this.#files = new Map(files.map((file) => [file.path, file]))
@@ -69,36 +85,6 @@ export class VirtualFiles {
   importsFor(file: FileNode, used: ReadonlySet<string>): Array<ImportNode> {
     return file.imports.flatMap((imp) => (this.#files.has(imp.path) ? [] : pickNames(imp, used)))
   }
-
-  // A value's body with every virtual name it uses replaced by its own body, and the imports that body needs.
-  define(target: Target, from: string, lang: InlineLanguage): Definition | undefined {
-    const { key, name, path, file, expression } = target
-    if (this.#definitions.has(key)) {
-      const definition = this.#definitions.get(key)
-      if (definition === null) this.report(from, `"${name}" from "${path}" is defined in terms of itself.`)
-      return definition ?? undefined
-    }
-    if (expression === undefined) return this.report(from, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
-
-    this.#definitions.set(key, null)
-    const imports: Array<ImportNode> = []
-    const used = new Set<string>()
-    const text = lang.replaceIdentifiers(expression, (local) => {
-      const inner = this.find(file, local)
-      const definition = inner && this.define(inner, file.path, lang)
-      if (!definition) {
-        used.add(local)
-        return undefined
-      }
-      imports.push(...definition.imports)
-      return lang.wrap(definition.expression)
-    })
-    imports.push(...this.importsFor(file, used))
-
-    const definition = { expression: text, imports }
-    this.#definitions.set(key, definition)
-    return definition
-  }
 }
 
 // The virtual files among `files`: each one marked `inline`, or holding only deprecated per-source `inline` sources.
@@ -114,9 +100,14 @@ function isInlineFile(file: FileNode): boolean {
 // The right-hand side of a `Const` or `Type`. A function body is not an expression, and printed text such as `Code` has none.
 function bodyOf(source: SourceNode | undefined): string | undefined {
   if (source?.inline) return source.inline.expression
+  const node = declarationOf(source)
+  return node ? getNodeText(node.nodes) || undefined : undefined
+}
+
+// The one `Const` or `Type` node a source holds.
+function declarationOf(source: SourceNode | undefined) {
   const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
-  if (node?.kind !== nodeKinds.const && node?.kind !== nodeKinds.type) return undefined
-  return getNodeText(node.nodes) || undefined
+  return node?.kind === nodeKinds.const || node?.kind === nodeKinds.type ? node : undefined
 }
 
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
