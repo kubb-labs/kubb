@@ -192,6 +192,17 @@ describe('inlineFiles', () => {
     )
   })
 
+  it('aliases a carried import that would shadow a global the file uses', () => {
+    const file = clientFile('const handler = (data: AddPetStatus200): Promise<Response> => client()')
+    const withResponse = createFile({
+      ...operationFile,
+      imports: [createImport({ name: ['Response'], path: '/gen/models/Response.ts', root: '/gen/models/pet/AddPet.ts', isTypeOnly: true })],
+      sources: [createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: 'Response' }, nodes: [] })],
+    })
+
+    expect(code(inlineFiles([withResponse, file]).files[0])).toEqual(['const handler = (data: Response2): Promise<Response> => client()'])
+  })
+
   it('rewrites the string fields of code nodes', () => {
     const file = clientFile('', {
       sources: [createSource({ name: 'addPet', nodes: [createFunction({ name: 'addPet', params: 'options: AddPetOptions', returnType: 'AddPetStatus200' })] })],
