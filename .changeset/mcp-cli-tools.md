@@ -1,5 +1,5 @@
 ---
-'@kubb/mcp': minor
+'@kubb/mcp': patch
 ---
 
 Add `kubb_diff`, `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list` tools to the MCP server, so an AI client can run every `kubb` command except `studio`.
