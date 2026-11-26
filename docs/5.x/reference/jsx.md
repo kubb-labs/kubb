@@ -426,6 +426,6 @@ When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it
 </File>
 ```
 
-The parser's `inlineFiles(files)` hook runs before barrels, and only its files absorb inline sources. `parserTs` and `parserTsx` have it. The `inline` member (`InlineLanguage`) still works for older parsers, but it is deprecated.
+The parser's `inline(files)` hook runs before barrels, and only its files absorb inline sources. `parserTs` and `parserTsx` have it. An `inline` set to an `InlineLanguage` object still works for older parsers, but it is deprecated.
 
 With the `kubb/jsx` [setup](#setup), `.tsx` files load `jsx-runtime` and `jsx-dev-runtime` from `kubb/jsx`.

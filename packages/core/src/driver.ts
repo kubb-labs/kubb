@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo as storeMemo, toError } from '@internals/utils'
-import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, type FileNode, type InlineLanguage, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
 import type { Diagnostic, DiagnosticError, DiagnosticLocation, ProblemDiagnostic } from './diagnostics.ts'
 import type { PluginVisitContext } from './definePlugin.ts'
@@ -496,11 +496,12 @@ export class Driver {
     }
 
     for (const parser of new Set(parsers.values())) {
-      if (parser.inlineFiles) add(parser.inlineFiles(all))
+      if (typeof parser.inline === 'function') add(parser.inline(all))
     }
-    // Deprecated: a file whose parser has no `inlineFiles` goes through the shared resolver, with the virtual files it reads.
-    const legacy = all.filter((file) => virtual.has(file.path) || !parsers.get(file.extname)?.inlineFiles)
-    add(ast.file.inline(legacy, { language: (file) => parsers.get(file.extname)?.inline }))
+    // Deprecated: a file whose parser's `inline` is an `InlineLanguage` object goes through the shared resolver, with the
+    // virtual files it reads.
+    const legacy = all.filter((file) => virtual.has(file.path) || typeof parsers.get(file.extname)?.inline !== 'function')
+    add(ast.file.inline(legacy, { language: (file) => languageOf(parsers.get(file.extname)) }))
 
     const virtualPaths = [...virtual]
     if (virtualPaths.length === 0) return
@@ -790,4 +791,11 @@ export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: st
     location: { kind: 'config' },
     ...(requiredBy ? { plugin: requiredBy } : {}),
   })
+}
+
+// The deprecated `InlineLanguage` members of a parser's `inline`, which an `inline` hook may also carry.
+function languageOf(parser: Parser | undefined): InlineLanguage | undefined {
+  const inline = parser?.inline
+  if (!inline || !('replaceIdentifiers' in inline)) return undefined
+  return inline as InlineLanguage
 }

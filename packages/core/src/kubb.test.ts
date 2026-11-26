@@ -158,7 +158,7 @@ describe('createKubb', () => {
     expect(inlineFailed).toEqual([expect.objectContaining({ severity: 'error', message: expect.stringMatching(/AddPetStatus404[\s\S]*AddPetStatus500/) })])
   })
 
-  test('lets a parser with inlineFiles rewrite its files, and drops the virtual files it reports', async () => {
+  test('lets a parser with an inline hook rewrite its files, and drops the virtual files it reports', async () => {
     const types = ast.factory.createFile({ path: '/gen/types/Pet.ts', baseName: 'Pet.ts', inline: true, sources: [] })
     const client = ast.factory.createFile({ path: '/gen/clients/pet.ts', baseName: 'pet.ts', sources: [] })
     const rewritten = ast.factory.createFile({ ...client, sources: [ast.factory.createSource({ nodes: [ast.factory.createText('type Pet = {}')] })] })
@@ -172,18 +172,18 @@ describe('createKubb', () => {
         },
       },
     })()
-    const inlineFiles = vi.fn(() => ({ files: [rewritten], virtualPaths: [types.path], problems: [] }))
+    const inline = vi.fn(() => ({ files: [rewritten], virtualPaths: [types.path], problems: [] }))
     const parser = defineExtension({
       kind: 'parser',
       meta: { name: 'own' },
-      build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '', inlineFiles }),
+      build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '', inline }),
     })()
 
     const { files } = await createKubb(makeConfig({ plugins: [injector] as unknown as Array<Plugin>, parsers: [parser] }), {
       hooks: new Hookable<KubbHooks>(),
     }).safeBuild()
 
-    expect(inlineFiles).toHaveBeenCalledOnce()
+    expect(inline).toHaveBeenCalledOnce()
     expect(files.filter(({ path }) => path.startsWith('/gen/')).map(({ path, sources }) => ({ path, code: sources[0]?.nodes }))).toEqual([
       { path: '/gen/clients/pet.ts', code: [{ kind: 'Text', value: 'type Pet = {}' }] },
     ])

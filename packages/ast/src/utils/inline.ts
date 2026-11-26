@@ -26,7 +26,7 @@ type Definition = { expression: string; imports: Array<ImportNode> }
 /**
  * The language-specific half of {@link inlineFiles}, supplied by the parser that prints the file.
  *
- * @deprecated Give the parser an `inlineFiles` hook instead, as `@kubb/parser-ts` does. Removed in v6.
+ * @deprecated Make the parser's `inline` a function, `(files) => InlineResult`, as `@kubb/parser-ts` does. Removed in v6.
  */
 export type InlineLanguage = {
   /**
@@ -50,7 +50,7 @@ export type InlineFilesOptions = {
  * Replaces every name a file imports from a virtual file (one marked `inline`, so it is never written) with the body of that name's
  * declaration, until no inline names are left. The definitions' own imports move to the importing file.
  *
- * @deprecated Give the parser an `inlineFiles` hook instead, as `@kubb/parser-ts` does. Removed in v6.
+ * @deprecated Make the parser's `inline` a function, `(files) => InlineResult`, as `@kubb/parser-ts` does. Removed in v6.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
   const virtualFiles = new Map(files.filter(isInlineFile).map((file) => [file.path, file]))

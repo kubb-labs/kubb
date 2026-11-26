@@ -1,7 +1,7 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { createInlineLanguage, replaceIdentifiers, wrap } from './inline.ts'
-import { inlineFiles } from './inlineFiles.ts'
+import { replaceIdentifiers, wrap } from './inline.ts'
+import { createInline, inlineFiles } from './inlineFiles.ts'
 import type { InlineTextKind } from './nodeText.ts'
 import { printSource } from './utils.ts'
 
@@ -67,12 +67,38 @@ describe('wrap', () => {
   })
 })
 
-describe('createInlineLanguage', () => {
-  it('gives an older core the replacer and wrap of the language', () => {
-    const lang = createInlineLanguage('tsx')
+describe('createInline', () => {
+  const { createFile, createImport, createSource, createText } = ast.factory
+  const models = createFile({
+    baseName: 'pet.ts',
+    path: '/gen/models/pet.ts',
+    inline: true,
+    sources: [createSource({ name: 'Pet', isTypeOnly: true, inline: { expression: '{ id: number }' }, nodes: [] })],
+  })
+  const client = createFile({
+    baseName: 'pet.ts',
+    path: '/gen/clients/pet.ts',
+    imports: [createImport({ name: ['Pet'], path: '/gen/models/pet.ts', root: '/gen/clients/pet.ts', isTypeOnly: true })],
+    sources: [createSource({ nodes: [createText('let pet: Pet')] })],
+  })
 
-    expect(lang.replaceIdentifiers('<A>{Name}</A>', (name) => (name === 'Name' ? 'Pet' : undefined))).toBe('<A>{Pet}</A>')
-    expect(lang.wrap('Pet | null')).toBe('(Pet | null)')
+  it('inlines the files of its extensions when called as the hook', () => {
+    const { files, virtualPaths, problems } = createInline('ts', ['.ts'])([models, client])
+
+    expect(virtualPaths).toEqual(['/gen/models/pet.ts'])
+    expect(problems).toEqual([])
+    expect(files.map((file) => file.sources.map(printSource))).toEqual([['let pet: ({ id: number })']])
+  })
+
+  it('still inlines when an older core reads it as an InlineLanguage object', () => {
+    const inline = createInline('tsx', ['.tsx'])
+
+    expect(inline.replaceIdentifiers('<A>{Name}</A>', (name) => (name === 'Name' ? 'Pet' : undefined))).toBe('<A>{Pet}</A>')
+    expect(inline.wrap('Pet | null')).toBe('(Pet | null)')
+    // The call a @kubb/core before the hook makes.
+    const { files, problems } = ast.file.inline([models, client], { language: () => createInline('ts', ['.ts']) })
+    expect(problems).toEqual([])
+    expect(files.map((file) => file.sources.map(printSource))).toEqual([['let pet: ({ id: number })']])
   })
 })
 

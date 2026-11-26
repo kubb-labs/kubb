@@ -1,8 +1,7 @@
 import { defineExtension } from '@kubb/core'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
-import { createInlineLanguage } from './inline.ts'
-import { inlineFiles } from './inlineFiles.ts'
+import { createInline } from './inlineFiles.ts'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
 import type { TsNode } from './utils.ts'
 
@@ -34,7 +33,6 @@ export const parserTsx = defineExtension<ParserTsOptions, object, string | TsNod
   build: (options) => ({
     ...parserTs(options),
     extNames: ['.tsx', '.jsx'],
-    inlineFiles: (files) => inlineFiles(files, { lang: 'tsx', extNames: ['.tsx', '.jsx'] }),
-    inline: createInlineLanguage('tsx'),
+    inline: createInline('tsx', ['.tsx', '.jsx']),
   }),
 })

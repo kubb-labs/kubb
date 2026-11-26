@@ -1,5 +1,4 @@
 import { memo } from '@internals/utils'
-import type { InlineLanguage } from '@kubb/ast'
 import type { InlineTextKind } from './nodeText.ts'
 import { parse } from 'yuku'
 
@@ -96,13 +95,4 @@ export function namesIn(text: string, lang: Lang, kind: InlineTextKind): Array<s
  */
 export function wrap(expression: string): string {
   return /^[\w$.]+$/.test(expression) ? expression : `(${expression})`
-}
-
-/**
- * The deprecated `inline` member, so a `@kubb/core` without the `inlineFiles` hook still inlines these files.
- *
- * @deprecated A `@kubb/core` with `inlineFiles` does not use it. Removed in v6.
- */
-export function createInlineLanguage(lang: Lang): InlineLanguage {
-  return { replaceIdentifiers: (text, replace) => replaceIdentifiers(text, replace, lang), wrap }
 }
