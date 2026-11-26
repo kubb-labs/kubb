@@ -8,5 +8,5 @@ export const listTool = defineTool(
     description: 'List the installed Kubb extensions, their versions, and available updates. Runs `kubb list`.',
     schema: v.object({}),
   },
-  () => runKubb(['list']),
+  () => runKubb({ args: ['list'] }),
 )

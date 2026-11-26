@@ -53,20 +53,14 @@ export const generateTool = defineTool(
       hooks.hook('kubb:warn', ({ message }) => notify('WARN', message))
       hooks.hook('kubb:diagnostic', ({ diagnostic }) => notify('DIAGNOSTIC', diagnostic.message, Diagnostics.serialize(diagnostic)))
 
-      // The AI client supplies the path, so it must carry a config extension and stay inside the working directory.
       const base = path.resolve(process.cwd())
-      let file: string | undefined
-      if (configPath) {
-        const checked = await checkConfigPath(configPath)
-        if ('error' in checked) return tool.error(checked.error)
-        file = checked.file
-      } else {
-        file = findConfigFile(base)
-        if (!file) {
-          return tool.error(
-            `No config file found. Please provide a config path or create one of: ${CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`).join(', ')}`,
-          )
-        }
+      const checked = configPath ? await checkConfigPath(configPath) : undefined
+      if (checked && 'error' in checked) return tool.error(checked.error)
+      const file = checked?.file ?? findConfigFile(base)
+      if (!file) {
+        return tool.error(
+          `No config file found. Please provide a config path or create one of: ${CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`).join(', ')}`,
+        )
       }
 
       let userConfig: Config
@@ -86,10 +80,10 @@ export const generateTool = defineTool(
       // The AI client also supplies these, and `output.clean` empties the output folder, so both stay inside the working directory too.
       // Core resolves them against `config.root`, which the loader already made absolute, so the check does as well.
       const root = userConfig.root ?? base
-      if (output && !(await isRealPathInside(path.resolve(root, output), base))) {
+      if (output && !(await isRealPathInside({ target: path.resolve(root, output), base }))) {
         return tool.error('Invalid output path: must be within the current working directory')
       }
-      if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside(path.resolve(root, input), base))) {
+      if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside({ target: path.resolve(root, input), base }))) {
         return tool.error('Invalid input path: must be a URL or within the current working directory')
       }
 

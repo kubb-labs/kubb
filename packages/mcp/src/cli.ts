@@ -4,16 +4,23 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
+import { getErrorMessage } from '@internals/utils'
 import { tool } from 'tmcp/utils'
 
-/** Packages that ship the `kubb` bin, in the order they are tried. */
 const CLI_PACKAGES = ['@kubb/cli', 'kubb'] as const
 
-/** An install can take minutes, but a hung child must not block the MCP server forever. */
+// An install can take minutes, but a hung child must not block the MCP server forever.
 const TIMEOUT_MS = 10 * 60 * 1000
 
-export type CliResult = {
-  exitCode: number
+type CliResult = {
+  /**
+   * The exit code, or `null` when a signal ended the run.
+   */
+  exitCode: number | null
+  /**
+   * The signal that ended the run, such as `SIGTERM` after the timeout.
+   */
+  signal: NodeJS.Signals | null
   output: string
 }
 
@@ -40,42 +47,61 @@ export async function resolveCliBin(cwd: string = process.cwd()): Promise<string
 
 /**
  * Runs the `kubb` bin with Node.js and an argument array, never through a shell. stdin is closed,
- * so a prompt the arguments did not skip ends the run instead of hanging it. Returns the exit code
- * and the combined stdout and stderr without ANSI styling.
+ * so the CLI cannot wait for an answer. Returns the exit code or signal and the combined stdout and
+ * stderr without ANSI styling.
  */
-export function runCli({ bin, args, cwd = process.cwd() }: { bin: string; args: ReadonlyArray<string>; cwd?: string }): Promise<CliResult> {
+export function runCli({
+  bin,
+  args,
+  cwd = process.cwd(),
+  timeout = TIMEOUT_MS,
+}: {
+  bin: string
+  args: ReadonlyArray<string>
+  cwd?: string
+  timeout?: number
+}): Promise<CliResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [bin, ...args], {
       cwd,
       env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' },
       stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: TIMEOUT_MS,
+      timeout,
     })
     const chunks: Array<Buffer> = []
     child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk))
     child.stderr.on('data', (chunk: Buffer) => chunks.push(chunk))
     child.on('error', reject)
-    child.on('close', (code, signal) => {
-      const output = stripVTControlCharacters(Buffer.concat(chunks).toString('utf8')).trim()
-      resolve({ exitCode: code ?? (signal ? 1 : 0), output: signal ? `${output}\n\nStopped by ${signal}` : output })
+    child.on('close', (exitCode, signal) => {
+      resolve({ exitCode, signal, output: stripVTControlCharacters(Buffer.concat(chunks).toString('utf8')).trim() })
     })
   })
 }
 
 /**
  * Runs `kubb <args>` in the working directory and turns the outcome into a tool result. A non-zero
- * exit is an error unless `isSuccess` accepts it, as `kubb generate --check` does for exit code 1.
+ * exit is an error unless `isSuccess` accepts it, as `kubb generate --diff` does for exit code 1.
+ * A run that a signal ended, such as the timeout, is always an error.
  */
-export async function runKubb(args: ReadonlyArray<string>, { isSuccess = (code: number) => code === 0 }: { isSuccess?: (code: number) => boolean } = {}) {
+export async function runKubb({
+  args,
+  isSuccess = (code) => code === 0,
+  timeout,
+}: {
+  args: ReadonlyArray<string>
+  isSuccess?: (code: number) => boolean
+  timeout?: number
+}) {
   const bin = await resolveCliBin()
   if (!bin) {
     return tool.error('The Kubb CLI is not installed. Install it in the project with `npm install -D kubb`, then try again.')
   }
   try {
-    const { exitCode, output } = await runCli({ bin, args })
-    const text = `$ kubb ${args.join(' ')}\nExit code: ${exitCode}\n\n${output || '(no output)'}`
-    return isSuccess(exitCode) ? tool.text(text) : tool.error(text)
+    const { exitCode, signal, output } = await runCli({ bin, args, timeout })
+    const status = signal ? `Stopped by ${signal}` : `Exit code: ${exitCode}`
+    const text = `$ kubb ${args.join(' ')}\n${status}\n\n${output || '(no output)'}`
+    return !signal && exitCode !== null && isSuccess(exitCode) ? tool.text(text) : tool.error(text)
   } catch (error) {
-    return tool.error(`Could not run kubb ${args.join(' ')}: ${(error as Error).message}`)
+    return tool.error(`Could not run kubb ${args.join(' ')}: ${getErrorMessage(error)}`)
   }
 }

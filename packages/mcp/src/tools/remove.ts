@@ -20,6 +20,6 @@ export const removeTool = defineTool(
   async ({ id, config, uninstall = true, dryRun = false }) => {
     const configArgs = await toConfigArgs(config)
     if ('error' in configArgs) return tool.error(configArgs.error)
-    return runKubb(['remove', id, ...configArgs.args, '--yes', ...(uninstall ? [] : ['--no-uninstall']), ...(dryRun ? ['--dry-run'] : [])])
+    return runKubb({ args: ['remove', id, ...configArgs.args, '--yes', ...(uninstall ? [] : ['--no-uninstall']), ...(dryRun ? ['--dry-run'] : [])] })
   },
 )

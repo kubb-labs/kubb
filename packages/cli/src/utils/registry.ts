@@ -1,12 +1,10 @@
 import process from 'node:process'
+import { REGISTRY_ID_PATTERN } from '@internals/shared'
 import { getErrorMessage, isSecureUrl, toError } from '@internals/utils'
 import { checkCompatibility, Diagnostics, type ExtensionManifest, isRegistryEntry, type RegistryArtifact, type RegistryEntry } from '@kubb/core'
 import { difference, isLessThan, isValid } from 'verkit'
 
 const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
-
-const SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*'
-const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)
 
 // The message ends up in console and CI logs, so a password in the URL must not.
 function withoutCredentials(value: string): string {
@@ -37,7 +35,7 @@ export function registryUrl(): string {
  * @throws when the id has another shape, so it never reaches a URL unchecked.
  */
 export function toRegistryId(input: string): string {
-  if (!ID.test(input))
+  if (!REGISTRY_ID_PATTERN.test(input))
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,
       severity: 'error',

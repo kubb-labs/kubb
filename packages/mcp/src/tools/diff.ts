@@ -19,7 +19,7 @@ export const diffTool = defineTool(
   async ({ config, lockfile = true }) => {
     const configArgs = await toConfigArgs(config)
     if ('error' in configArgs) return tool.error(configArgs.error)
-    // `--check` exits with 1 when files are out of date, which is the answer, not a failure. A failed run exits with 2.
-    return runKubb(['generate', ...configArgs.args, '--diff', ...(lockfile ? [] : ['--no-lockfile'])], { isSuccess: (code) => code === 0 || code === 1 })
+    // With `--diff`, exit code 1 means the files are out of date. That is the answer, not a failure. A failed run exits with 2.
+    return runKubb({ args: ['generate', ...configArgs.args, '--diff', ...(lockfile ? [] : ['--no-lockfile'])], isSuccess: (code) => code === 0 || code === 1 })
   },
 )

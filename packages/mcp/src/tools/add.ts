@@ -21,6 +21,6 @@ export const addTool = defineTool(
   async ({ id, config, install = true, dryRun = false }) => {
     const configArgs = await toConfigArgs(config)
     if ('error' in configArgs) return tool.error(configArgs.error)
-    return runKubb(['add', id, ...configArgs.args, '--yes', ...(install ? [] : ['--no-install']), ...(dryRun ? ['--dry-run'] : [])])
+    return runKubb({ args: ['add', id, ...configArgs.args, '--yes', ...(install ? [] : ['--no-install']), ...(dryRun ? ['--dry-run'] : [])] })
   },
 )

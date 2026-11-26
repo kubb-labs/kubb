@@ -16,3 +16,11 @@ export const initDefaults = {
   outputPath: './src/gen',
   plugins: ['plugin-ts'],
 } as const
+
+const REGISTRY_SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*'
+
+/**
+ * A Kubb registry id: `owner/slug`, or a bare `slug` for an official extension. A value that starts
+ * with `-` or holds a path segment never matches, so it cannot reach a URL or a CLI as a flag.
+ */
+export const REGISTRY_ID_PATTERN = new RegExp(`^${REGISTRY_SLUG}(\\/${REGISTRY_SLUG})?$`)

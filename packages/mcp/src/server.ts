@@ -12,8 +12,7 @@ import { updateTool } from './tools/update.ts'
 import { validateTool } from './tools/validate.ts'
 
 /**
- * Builds the Kubb MCP server with a tool for every `kubb` command except `studio` and `mcp`:
- * generate, diff, validate, init, add, update, remove, and list.
+ * Builds the Kubb MCP server with a tool for every `kubb` command except `studio` and `mcp`.
  *
  * @example
  * `const server = createMcpServer()`

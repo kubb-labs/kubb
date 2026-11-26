@@ -14,5 +14,5 @@ export const updateTool = defineTool(
     description: 'Update installed Kubb extensions to the versions the registry pins, regenerate, and summarize the file changes. Runs `kubb update --yes`.',
     schema: updateSchema,
   },
-  ({ ids = [], dryRun = false }) => runKubb(['update', ...ids, '--yes', ...(dryRun ? ['--dry-run'] : [])]),
+  ({ ids = [], dryRun = false }) => runKubb({ args: ['update', ...ids, '--yes', ...(dryRun ? ['--dry-run'] : [])] }),
 )

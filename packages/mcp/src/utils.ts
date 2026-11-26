@@ -39,8 +39,11 @@ async function realPath(target: string): Promise<string | undefined> {
   }
 }
 
-/** Whether `target`, after resolving symlinks, stays inside `base`. */
-export async function isRealPathInside(target: string, base: string): Promise<boolean> {
+/**
+ * Whether `target`, after resolving symlinks, stays inside `base`. Fails closed when either path
+ * cannot be resolved.
+ */
+export async function isRealPathInside({ target, base }: { target: string; base: string }): Promise<boolean> {
   const [real, realBase] = await Promise.all([realPath(target), realPath(base)])
   return real !== undefined && realBase !== undefined && isPathInside(real, realBase)
 }
@@ -56,7 +59,7 @@ export async function checkConfigPath(configPath: string): Promise<{ file: strin
   }
   const base = path.resolve(process.cwd())
   const file = path.resolve(base, configPath)
-  if (!(await isRealPathInside(file, base))) {
+  if (!(await isRealPathInside({ target: file, base }))) {
     return { error: 'Invalid config file path: must be within the current working directory' }
   }
   return { file }
