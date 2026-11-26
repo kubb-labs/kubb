@@ -2,7 +2,7 @@ import { memo } from '@internals/utils'
 import type { ast } from '@kubb/ast'
 import { parse } from 'yuku'
 
-type Lang = 'ts' | 'tsx'
+export type Lang = 'ts' | 'tsx'
 type Analysis = { file: ReturnType<typeof parse>; offset: number }
 
 // A fragment such as `options: Options<Pet>` or `{ body: Pet }` is not a program, so it is parsed inside the code its kind
@@ -25,9 +25,9 @@ function analyze(text: string, lang: Lang, kind: ast.InlineTextKind | undefined)
     const first = kind ?? 'code'
     const fallback = parseAs(text, lang, first)
     if (isClean(fallback)) return fallback
-    for (const candidate of kinds) {
-      const analysis = candidate === first ? undefined : parseAs(text, lang, candidate)
-      if (analysis && isClean(analysis)) return analysis
+    for (const candidate of kinds.filter((item) => item !== first)) {
+      const analysis = parseAs(text, lang, candidate)
+      if (isClean(analysis)) return analysis
     }
     return fallback
   })
@@ -47,7 +47,7 @@ function isClean({ file }: Analysis): boolean {
  * Bound names (parameters, type parameters, locals), keys, members, strings, comments and JSX tag names are left alone. A
  * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`.
  */
-export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: 'ts' | 'tsx' = 'ts', kind?: ast.InlineTextKind): string {
+export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: Lang = 'ts', kind?: ast.InlineTextKind): string {
   const { file, offset } = analyze(text, lang, kind)
   let out = ''
   let last = 0
@@ -56,8 +56,6 @@ export function replaceIdentifiers(text: string, replace: (name: string) => stri
     if (reference.binding || reference.node.type === 'JSXIdentifier') continue
     const start = reference.node.start - offset
     const end = reference.node.end - offset
-    if (start < last || end > text.length) continue
-
     const replacement = replace(reference.name)
     if (replacement === undefined) continue
     const parent = file.parentOf(reference.node)

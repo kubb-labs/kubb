@@ -58,8 +58,12 @@ class FileInliner {
     this.#lang = lang
     this.#virtual = virtual
     this.#problems = problems
-    for (const imp of file.imports) for (const item of getNames(imp)) this.#names.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
-    for (const source of file.sources) if (source.name) this.#names.set(source.name, file.path)
+    for (const imp of file.imports) {
+      for (const item of getNames(imp)) this.#names.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
+    }
+    for (const source of file.sources) {
+      if (source.name) this.#names.set(source.name, file.path)
+    }
   }
 
   inline(): FileNode {
