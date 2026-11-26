@@ -143,7 +143,6 @@
   "packages/parser-ts/src/inline.test.ts": "Identifier replacer skips strings, comments, member access, keys, JSX; many tokenizer branches.",
   "packages/parser-ts/src/inlineFiles.test.ts": "Inline-source resolver: nested replacement, local declarations, aliases, cycles and missing-name problems; drives rendered output.",
   "packages/parser-ts/src/nodeText.test.ts": "Pins the kind rewriteNodes passes for each text field; a wrong kind does not fail but makes the parser guess how to read the fragment.",
-  "packages/parser-ts/src/renamer.test.ts": "Pins that a file's own imports and declarations are seeded, so a carried import keeps or numbers its name correctly.",
   "packages/parser-ts/src/parserTs.test.ts": "Rendered TypeScript output, extension mapping and template copy import lifting with many cases.",
   "packages/parser-ts/src/utils.test.ts": "Printer branches per node kind (JSDoc, generics, async, imports, exports, dedent) beyond parserTs.test.ts.",
   "packages/plugin-barrel/src/plugin.test.ts": "Plugin lifecycle through createKubb: root and per-plugin barrels, namespaces, barrel false, path traversal.",

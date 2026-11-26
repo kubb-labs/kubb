@@ -1,12 +1,11 @@
-import type { Renamer } from '@internals/utils'
+import { createRenamer, type Renamer } from '@internals/utils'
 import { ast, type FileNode, type ImportNode, type SourceNode } from '@kubb/ast'
 import type { InlineResult } from '@kubb/core'
 import { idOf, localName, withNames, type Definition, type Definitions, type Fragment } from './definitions.ts'
 import { namesIn, replaceIdentifiers, wrap } from './inline.ts'
 import { rewriteNodes } from './nodeText.ts'
-import { createFileRenamer } from './renamer.ts'
 
-export type FileRewriterOptions = {
+export type RewriteFileOptions = {
   file: FileNode
   definitions: Definitions
 }
@@ -29,7 +28,7 @@ class FileRewriter {
   readonly #carried: Array<ImportNode> = []
   readonly #problems: InlineResult['problems'] = []
 
-  constructor({ file, definitions }: FileRewriterOptions) {
+  constructor({ file, definitions }: RewriteFileOptions) {
     this.#file = file
     this.#definitions = definitions
     this.#renamer = createFileRenamer(file)
@@ -177,6 +176,17 @@ class FileRewriter {
  * const { file, problems } = rewriteFile({ file: clientFile, definitions })
  * ```
  */
-export function rewriteFile(options: FileRewriterOptions): { file: FileNode; problems: InlineResult['problems'] } {
+export function rewriteFile(options: RewriteFileOptions): { file: FileNode; problems: InlineResult['problems'] } {
   return new FileRewriter(options).rewrite()
+}
+
+// A renamer holding the names the file's imports and sources already bind, so a carried import or a local declaration
+// never takes one of them.
+function createFileRenamer(file: FileNode): Renamer {
+  const renamer = createRenamer()
+  for (const imp of file.imports) {
+    for (const item of ast.file.getNames(imp)) renamer.bind({ name: localName(item), owner: idOf({ path: imp.path, name: item.name }) })
+  }
+  for (const source of file.sources) if (source.name) renamer.bind({ name: source.name, owner: file.path })
+  return renamer
 }

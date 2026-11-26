@@ -1,4 +1,4 @@
-import { ast, type ConstNode, type FileNode, type ImportNode, type ModuleName, type SourceNode, type Space } from '@kubb/ast'
+import { ast, type ConstNode, type FileNode, type ImportNode, type ModuleName, type SourceNode, type Space, type TypeNode } from '@kubb/ast'
 import { namesIn, referencesIn, wrap, type Lang } from './inline.ts'
 import type { InlineTextKind } from './nodeText.ts'
 
@@ -145,13 +145,12 @@ function readDefinition({ id, name, path, file }: Binding & { id: string; file: 
 
 // The right-hand side of a source: its deprecated `inline` expression, or the text of its `Const` or `Type`. A function
 // body is not an expression, and printed text such as `Code` has none.
-function bodyOf({ source, node }: { source: SourceNode | undefined; node: ReturnType<typeof declarationOf> }): string | undefined {
+function bodyOf({ source, node }: { source: SourceNode | undefined; node: ConstNode | TypeNode | undefined }): string | undefined {
   if (source?.inline) return source.inline.expression
   if (!node) return undefined
   return ast.node.getText(node.nodes) || undefined
 }
 
-// A body that is only a name or dotted path, such as `Error`.
 function isPath(body: string | undefined): boolean {
   if (body === undefined) return false
   const trimmed = body.trim()
@@ -191,7 +190,7 @@ function problemOf({ name, path, body, duplicated }: Binding & { body: string | 
 }
 
 // The one `Const` or `Type` node a source holds.
-function declarationOf(source: SourceNode | undefined) {
+function declarationOf(source: SourceNode | undefined): ConstNode | TypeNode | undefined {
   const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
   return node?.kind === ast.node.kinds.const || node?.kind === ast.node.kinds.type ? node : undefined
 }
