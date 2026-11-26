@@ -3,12 +3,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 // Prints its arguments as JSON in color and a line on stderr. `FAKE_KUBB_EXIT` sets the exit code,
-// and `FAKE_KUBB_HANG=1` keeps it running until it is killed.
+// and `FAKE_KUBB_SIGNAL=1` ends the run with SIGTERM, as the timeout does.
 const BIN = [
   'const args = process.argv.slice(2)',
   "console.log('\\u001b[32m' + JSON.stringify(args) + '\\u001b[39m')",
   "console.error('to stderr')",
-  "if (process.env.FAKE_KUBB_HANG === '1') setInterval(() => {}, 1000)",
+  "if (process.env.FAKE_KUBB_SIGNAL === '1') process.kill(process.pid, 'SIGTERM')",
   'process.exitCode = Number(process.env.FAKE_KUBB_EXIT ?? 0)',
 ].join('\n')
 

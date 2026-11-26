@@ -6,17 +6,10 @@ import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
 import { checkConfigPath, formatDiagnostics, isRealPathInside } from '../utils.ts'
+import { configSchema } from './shared.ts'
 
 const generateSchema = v.object({
-  config: v.optional(
-    v.pipe(
-      v.string(),
-      v.minLength(1),
-      v.description(
-        `Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* or .kubbrc.* in the current directory, its .config/ and configs/ folders, then each parent directory`,
-      ),
-    ),
-  ),
+  config: configSchema,
   input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI/Swagger spec file (overrides config)'))),
   output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory path (overrides config)'))),
   logLevel: v.optional(v.pipe(v.picklist(['silent', 'info', 'verbose']), v.description('Log level for build output')), 'info'),

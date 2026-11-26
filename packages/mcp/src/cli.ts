@@ -25,11 +25,11 @@ export type CliResult = {
 }
 
 /**
- * The `kubb` bin script, resolved from the project in `cwd` first so the tools run the project's
+ * The `kubb` bin script, resolved from the project in the working directory first so the tools run the project's
  * own Kubb version, then from this package. Returns `undefined` when neither has the CLI installed.
  */
-export async function resolveCliBin(cwd: string = process.cwd()): Promise<string | undefined> {
-  const requires = [createRequire(path.join(cwd, 'package.json')), createRequire(import.meta.url)]
+export async function resolveCliBin(): Promise<string | undefined> {
+  const requires = [createRequire(path.join(process.cwd(), 'package.json')), createRequire(import.meta.url)]
   for (const require of requires) {
     for (const name of CLI_PACKAGES) {
       try {
@@ -46,27 +46,18 @@ export async function resolveCliBin(cwd: string = process.cwd()): Promise<string
 }
 
 /**
- * Runs the `kubb` bin with Node.js and an argument array, never through a shell. stdin is closed,
+ * Runs the `kubb` bin in the working directory with Node.js and an argument array, never through a
+ * shell. stdin is closed,
  * so the CLI cannot wait for an answer. Returns the exit code or signal and the combined stdout and
  * stderr without ANSI styling.
  */
-export function runCli({
-  bin,
-  args,
-  cwd = process.cwd(),
-  timeout = TIMEOUT_MS,
-}: {
-  bin: string
-  args: ReadonlyArray<string>
-  cwd?: string
-  timeout?: number
-}): Promise<CliResult> {
+export function runCli({ bin, args }: { bin: string; args: ReadonlyArray<string> }): Promise<CliResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [bin, ...args], {
-      cwd,
+      cwd: process.cwd(),
       env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' },
       stdio: ['ignore', 'pipe', 'pipe'],
-      timeout,
+      timeout: TIMEOUT_MS,
     })
     const chunks: Array<Buffer> = []
     child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk))
@@ -83,21 +74,13 @@ export function runCli({
  * exit is an error unless `isSuccess` accepts it, as `kubb generate --diff` does for exit code 1.
  * A run that a signal ended, such as the timeout, is always an error.
  */
-export async function runKubb({
-  args,
-  isSuccess = (code) => code === 0,
-  timeout,
-}: {
-  args: ReadonlyArray<string>
-  isSuccess?: (code: number) => boolean
-  timeout?: number
-}) {
+export async function runKubb({ args, isSuccess = (code) => code === 0 }: { args: ReadonlyArray<string>; isSuccess?: (code: number) => boolean }) {
   const bin = await resolveCliBin()
   if (!bin) {
     return tool.error('The Kubb CLI is not installed. Install it in the project with `npm install -D kubb`, then try again.')
   }
   try {
-    const { exitCode, signal, output } = await runCli({ bin, args, timeout })
+    const { exitCode, signal, output } = await runCli({ bin, args })
     const status = signal ? `Stopped by ${signal}` : `Exit code: ${exitCode}`
     const text = `$ kubb ${args.join(' ')}\n${status}\n\n${output || '(no output)'}`
     return !signal && exitCode !== null && isSuccess(exitCode) ? tool.text(text) : tool.error(text)

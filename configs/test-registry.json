@@ -125,7 +125,7 @@
   "packages/kit/src/visitor.test.ts": "Only check of kit's defineExtension and memo-backed composables end to end: macros, a resolver patch, match, the operations batch, operation-include pruning, tags, and the error for a plugin defined with core.",
   "packages/kit/src/visitor.walk.test.ts": "Kit's visitor walk: node-outer plugin order, crash sites, shared memo, name reservations, shared schema placement and generator match filtering.",
   "packages/kubb/src/defineConfig.test.ts": "Golden path: config defaults for parsers, reporters, barrel plugin and every config shape, plus types.",
-  "packages/mcp/src/cli.test.ts": "MCP CLI runner: bin resolution, argument array without a shell, exit-code handling, and a killed run reported as an error.",
+  "packages/mcp/src/cli.test.ts": "MCP CLI runner: bin resolution, argument array without a shell, exit-code handling, and a run a signal ended reported as an error.",
   "packages/mcp/src/tools/add.test.ts": "MCP add tool: the kubb add arguments and a refused config path.",
   "packages/mcp/src/tools/diff.test.ts": "MCP diff tool: the kubb generate --diff arguments, and exit 1 as an answer versus exit 2 as an error.",
   "packages/mcp/src/tools/list.test.ts": "MCP list tool: runs kubb list and reports a failed run.",
