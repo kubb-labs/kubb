@@ -177,7 +177,6 @@ function findClashes(file: FileNode, carried: ReadonlyArray<ImportNode>, virtual
 }
 
 function aliasImport(imp: ImportNode, renames: ReadonlyMap<string, string>): ImportNode {
-  if (!renames.size) return imp
   const names = getNames(imp)
   if (!names.some((item) => renames.has(item.alias ?? item.name))) return imp
   return createImport({
