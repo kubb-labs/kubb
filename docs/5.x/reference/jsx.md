@@ -426,12 +426,6 @@ When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it
 </File>
 ```
 
-The parser's `inline` member (`InlineLanguage`) runs before barrels, and only its files absorb inline sources. Each text comes with a `kind`: `code`, `type`, `value`, `parameters` or `typeParameters`.
-
-| Member | Required | Returns |
-| --- | --- | --- |
-| `replaceIdentifiers(text, replace, kind?)` | Yes | `text`, with each free name replaced by what `replace` returns |
-| `names?(text, kind?)` | No | Every name in `text`, so no local shadows one. Defaults to the names `replaceIdentifiers` finds. |
-| `wrap(expression)` | Yes | `expression`, safe where a name was, such as `(A \| B)` |
+The parser's `inlineFiles(files)` hook runs before barrels, and only its files absorb inline sources. `parserTs` and `parserTsx` have it. The `inline` member (`InlineLanguage`) still works for older parsers, but it is deprecated.
 
 With the `kubb/jsx` [setup](#setup), `.tsx` files load `jsx-runtime` and `jsx-dev-runtime` from `kubb/jsx`.

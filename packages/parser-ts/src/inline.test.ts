@@ -1,10 +1,12 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { inlineTs, inlineTsx, replaceIdentifiers } from './inline.ts'
+import { createInlineLanguage, replaceIdentifiers, wrap } from './inline.ts'
+import { inlineFiles } from './inlineFiles.ts'
+import type { InlineTextKind } from './nodeText.ts'
 import { printSource } from './utils.ts'
 
 describe('replaceIdentifiers', () => {
-  const swap = (text: string, kind?: ast.InlineTextKind) => replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined), 'ts', kind)
+  const swap = (text: string, kind?: InlineTextKind) => replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined), 'ts', kind)
 
   it('replaces references', () => {
     expect(swap('Array<Name> | Name[]')).toBe('Array<Pet> | Pet[]')
@@ -52,20 +54,29 @@ describe('replaceIdentifiers', () => {
 
   it('leaves JSX text and attribute names alone in tsx', () => {
     const text = '<Name Name="x">Name {Name}</Name>'
-    expect(inlineTsx.replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined))).toBe('<Name Name="x">Name {Pet}</Name>')
+    expect(replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined), 'tsx')).toBe('<Name Name="x">Name {Pet}</Name>')
   })
 })
 
-describe('inlineTs.wrap', () => {
+describe('wrap', () => {
   it('keeps names and dotted paths bare and puts anything else in parentheses', () => {
-    expect(inlineTs.wrap('Pet')).toBe('Pet')
-    expect(inlineTs.wrap('models.Pet')).toBe('models.Pet')
-    expect(inlineTs.wrap('Pet | null')).toBe('(Pet | null)')
-    expect(inlineTs.wrap('{ body: Pet }')).toBe('({ body: Pet })')
+    expect(wrap('Pet')).toBe('Pet')
+    expect(wrap('models.Pet')).toBe('models.Pet')
+    expect(wrap('Pet | null')).toBe('(Pet | null)')
+    expect(wrap('{ body: Pet }')).toBe('({ body: Pet })')
   })
 })
 
-describe('ast.file.inline with inlineTs', () => {
+describe('createInlineLanguage', () => {
+  it('gives an older core the replacer and wrap of the language', () => {
+    const lang = createInlineLanguage('tsx')
+
+    expect(lang.replaceIdentifiers('<A>{Name}</A>', (name) => (name === 'Name' ? 'Pet' : undefined))).toBe('<A>{Pet}</A>')
+    expect(lang.wrap('Pet | null')).toBe('(Pet | null)')
+  })
+})
+
+describe('inlineFiles', () => {
   const { createConst, createFile, createImport, createSource, createText, createType } = ast.factory
   const models = createFile({
     baseName: 'pet.ts',
@@ -85,7 +96,7 @@ describe('ast.file.inline with inlineTs', () => {
       imports: [createImport({ name: ['Pet', 'petSchema'], path: '/gen/models/pet.ts', root: '/gen/clients/pet.ts' })],
       sources: [createSource({ nodes: [createText('export function check(pet: Pet): Pet {\n  return { petSchema }.petSchema.parse(pet)\n}')] })],
     })
-    const { files, problems } = ast.file.inline([models, client], { language: () => inlineTs })
+    const { files, problems } = inlineFiles([models, client], { lang: 'ts', extNames: ['.ts'] })
     const [file] = files
 
     expect(problems).toEqual([])

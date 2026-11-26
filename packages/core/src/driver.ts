@@ -4,7 +4,7 @@ import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode,
 import { Diagnostics } from './diagnostics.ts'
 import type { Diagnostic, DiagnosticError, DiagnosticLocation, ProblemDiagnostic } from './diagnostics.ts'
 import type { PluginVisitContext } from './definePlugin.ts'
-import type { Parser } from './defineParser.ts'
+import type { InlineResult, Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
@@ -485,7 +485,24 @@ export class Driver {
    * (`kubb:plugins:end`) and the write see them.
    */
   #inlineFiles(parsers: ReadonlyMap<FileNode['extname'], Parser>): void {
-    const { files, virtualPaths, problems } = ast.file.inline(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
+    const all = this.fileManager.files
+    const files: Array<FileNode> = []
+    const virtual = new Set<string>()
+    const problems: Array<{ path: string; message: string }> = []
+    const add = (result: InlineResult) => {
+      files.push(...result.files)
+      for (const path of result.virtualPaths) virtual.add(path)
+      problems.push(...result.problems)
+    }
+
+    for (const parser of new Set(parsers.values())) {
+      if (parser.inlineFiles) add(parser.inlineFiles(all))
+    }
+    // Deprecated: a file whose parser has no `inlineFiles` goes through the shared resolver, with the virtual files it reads.
+    const legacy = all.filter((file) => virtual.has(file.path) || !parsers.get(file.extname)?.inlineFiles)
+    add(ast.file.inline(legacy, { language: (file) => parsers.get(file.extname)?.inline }))
+
+    const virtualPaths = [...virtual]
     if (virtualPaths.length === 0) return
 
     this.fileManager.add(...files)

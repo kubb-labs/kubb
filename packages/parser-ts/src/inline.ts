@@ -1,5 +1,6 @@
 import { memo } from '@internals/utils'
-import type { ast } from '@kubb/ast'
+import type { InlineLanguage } from '@kubb/ast'
+import type { InlineTextKind } from './nodeText.ts'
 import { parse } from 'yuku'
 
 export type Lang = 'ts' | 'tsx'
@@ -16,20 +17,20 @@ const placeholder = '__kubb'
 // A fragment such as `options: Options<Pet>` or `{ body: Pet }` is not a program, so it is parsed inside the code its kind
 // stands for. The prefix length is subtracted from every offset, and each wrapper closes on its own line so a trailing `//`
 // comment cannot swallow it.
-const contexts: Record<ast.InlineTextKind, [before: string, after: string]> = {
+const contexts: Record<InlineTextKind, [before: string, after: string]> = {
   code: ['', ''],
   type: [`type ${placeholder} = `, ''],
   value: [`const ${placeholder} = (`, '\n)'],
   parameters: [`function ${placeholder}(`, '\n) {}'],
   typeParameters: [`function ${placeholder}<`, '\n>() {}'],
 }
-const kinds = Object.keys(contexts) as Array<ast.InlineTextKind>
+const kinds = Object.keys(contexts) as Array<InlineTextKind>
 
 // The same fragment is read several times while one file is inlined.
 const analyses = memo.create<string, Analysis>({ max: 1000 })
 
 // Reads `text` as `kind`, or, when that fails or no kind is given, as the first kind it parses as without errors.
-function analyze(text: string, lang: Lang, kind: ast.InlineTextKind | undefined): Analysis {
+function analyze(text: string, lang: Lang, kind: InlineTextKind | undefined): Analysis {
   return memo(analyses, `${lang}\0${kind ?? ''}\0${text}`, () => {
     const first = kind ?? 'code'
     const fallback = parseAs(text, lang, first)
@@ -42,7 +43,7 @@ function analyze(text: string, lang: Lang, kind: ast.InlineTextKind | undefined)
   })
 }
 
-function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): { analysis: Analysis; clean: boolean } {
+function parseAs(text: string, lang: Lang, kind: InlineTextKind): { analysis: Analysis; clean: boolean } {
   const [before, after] = contexts[kind]
   const file = parse(before + text + after, { lang, sourceType: 'module', analyze: true })
   const references = file.references
@@ -62,7 +63,7 @@ function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): { analysis
  * Bound names (parameters, type parameters, locals), keys, members, strings, comments and JSX tag names are left alone. A
  * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`, and `export { x }` keeps its export name.
  */
-export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: Lang = 'ts', kind?: ast.InlineTextKind): string {
+export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: Lang = 'ts', kind?: InlineTextKind): string {
   let out = ''
   let last = 0
 
@@ -76,21 +77,25 @@ export function replaceIdentifiers(text: string, replace: (name: string) => stri
   return out + text.slice(last)
 }
 
-function createInline(lang: Lang): ast.InlineLanguage {
-  return {
-    replaceIdentifiers: (text, replace, kind) => replaceIdentifiers(text, replace, lang, kind),
-    names: (text, kind) => analyze(text, lang, kind).names,
-    wrap: (expression) => (/^[\w$.]+$/.test(expression) ? expression : `(${expression})`),
-  }
+/**
+ * Every name `text` declares or uses, so a declaration added next to it never shadows one.
+ */
+export function namesIn(text: string, lang: Lang, kind: InlineTextKind): Array<string> {
+  return analyze(text, lang, kind).names
 }
 
 /**
- * Inline support for TypeScript and JavaScript files: references are found with {@link replaceIdentifiers}, and a
- * definition that is more than a name or a dotted path goes in parentheses.
+ * Makes `expression` safe to put where a name was: a name or dotted path stays bare, and anything else goes in parentheses.
  */
-export const inlineTs = createInline('ts')
+export function wrap(expression: string): string {
+  return /^[\w$.]+$/.test(expression) ? expression : `(${expression})`
+}
 
 /**
- * {@link inlineTs} for `.tsx` and `.jsx` files.
+ * The deprecated `inline` member, so a `@kubb/core` without the `inlineFiles` hook still inlines these files.
+ *
+ * @deprecated A `@kubb/core` with `inlineFiles` does not use it. Removed in v6.
  */
-export const inlineTsx = createInline('tsx')
+export function createInlineLanguage(lang: Lang): InlineLanguage {
+  return { replaceIdentifiers: (text, replace) => replaceIdentifiers(text, replace, lang), wrap }
+}

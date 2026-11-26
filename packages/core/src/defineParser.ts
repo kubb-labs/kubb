@@ -36,9 +36,34 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
    */
   print(...nodes: Array<TNode>): string
   /**
-   * How this language finds and replaces names so its files can absorb inline sources. Omit it when there is no support.
+   * Moves what this parser's files import from virtual files (marked `inline`, so never written) into them. It gets every
+   * file of the run and returns the files it rewrote. Omit it when the language has no inline support.
+   */
+  inlineFiles?(files: ReadonlyArray<FileNode>): InlineResult
+  /**
+   * How this language finds and replaces names so its files can absorb inline sources. Used only when `inlineFiles` is not set.
+   *
+   * @deprecated Use `inlineFiles`. Removed in v6.
    */
   inline?: InlineLanguage
+}
+
+/**
+ * What a parser's `inlineFiles` returns.
+ */
+export type InlineResult = {
+  /**
+   * Files that imported an inline name, rewritten to hold its definition.
+   */
+  files: Array<FileNode>
+  /**
+   * Paths of every virtual file of the run, which are not written.
+   */
+  virtualPaths: Array<string>
+  /**
+   * One message per name that could not be inlined.
+   */
+  problems: Array<{ path: string; message: string }>
 }
 
 /**

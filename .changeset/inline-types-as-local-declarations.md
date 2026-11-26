@@ -1,5 +1,5 @@
 ---
-'@kubb/ast': minor
+'@kubb/parser-ts': minor
 ---
 
-`inlineFiles` declares a type used more than once, and any value that is not a bare name, once per file instead of repeating it. A type that refers to itself now inlines too.
+`parserTs` and `parserTsx` inline sources themselves, through the new `inlineFiles` hook. A type used more than once, and any value that is not a bare name, becomes one local declaration per file instead of repeating it. A type that refers to itself now inlines too. Only free references are renamed, so parameters, locals and `{ petSchema }` keys stay as they are.

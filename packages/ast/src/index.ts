@@ -1,4 +1,4 @@
-export type { InlineLanguage, InlineTextKind } from './utils/inline.ts'
+export type { InlineLanguage } from './utils/inline.ts'
 export * from './deprecated.ts'
 
 export * as factory from './nodes/index.ts'

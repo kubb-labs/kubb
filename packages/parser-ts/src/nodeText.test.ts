@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { createArrowFunction, createConst, createFunction, createText, createType } from '../nodes/code.ts'
-import type { CodeNode } from '../nodes/code.ts'
+import { ast, type CodeNode } from '@kubb/ast'
 import { rewriteNodes } from './nodeText.ts'
 import type { InlineTextKind } from './nodeText.ts'
+
+const { createArrowFunction, createConst, createFunction, createText, createType } = ast.factory
 
 function kinds(nodes: Array<CodeNode>): Array<[string, InlineTextKind]> {
   const found: Array<[string, InlineTextKind]> = []

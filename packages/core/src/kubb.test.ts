@@ -102,9 +102,7 @@ describe('createKubb', () => {
     const types = ast.factory.createFile({
       path: '/gen/types/AddPet.ts',
       baseName: 'AddPet.ts',
-      sources: [
-        ast.factory.createSource({ name: 'AddPetBody', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [ast.factory.createText('')] }),
-      ],
+      sources: [ast.factory.createSource({ name: 'AddPetBody', inline: { expression: '{ name: string }' }, nodes: [ast.factory.createText('')] })],
     })
     const client = ast.factory.createFile({
       path: '/gen/clients/addPet.ts',
@@ -158,6 +156,37 @@ describe('createKubb', () => {
     // Both missing names survive `Diagnostics.dedupe`, in one diagnostic.
     const inlineFailed = diagnostics.filter((diagnostic) => 'code' in diagnostic && diagnostic.code === Diagnostics.code.inlineFailed)
     expect(inlineFailed).toEqual([expect.objectContaining({ severity: 'error', message: expect.stringMatching(/AddPetStatus404[\s\S]*AddPetStatus500/) })])
+  })
+
+  test('lets a parser with inlineFiles rewrite its files, and drops the virtual files it reports', async () => {
+    const types = ast.factory.createFile({ path: '/gen/types/Pet.ts', baseName: 'Pet.ts', inline: true, sources: [] })
+    const client = ast.factory.createFile({ path: '/gen/clients/pet.ts', baseName: 'pet.ts', sources: [] })
+    const rewritten = ast.factory.createFile({ ...client, sources: [ast.factory.createSource({ nodes: [ast.factory.createText('type Pet = {}')] })] })
+    const injector = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'injector' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(types)
+          ctx.injectFile(client)
+        },
+      },
+    })()
+    const inlineFiles = vi.fn(() => ({ files: [rewritten], virtualPaths: [types.path], problems: [] }))
+    const parser = defineExtension({
+      kind: 'parser',
+      meta: { name: 'own' },
+      build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '', inlineFiles }),
+    })()
+
+    const { files } = await createKubb(makeConfig({ plugins: [injector] as unknown as Array<Plugin>, parsers: [parser] }), {
+      hooks: new Hookable<KubbHooks>(),
+    }).safeBuild()
+
+    expect(inlineFiles).toHaveBeenCalledOnce()
+    expect(files.filter(({ path }) => path.startsWith('/gen/')).map(({ path, sources }) => ({ path, code: sources[0]?.nodes }))).toEqual([
+      { path: '/gen/clients/pet.ts', code: [{ kind: 'Text', value: 'type Pet = {}' }] },
+    ])
   })
 
   test('stops mid-build when its signal aborts during parsing', async () => {
