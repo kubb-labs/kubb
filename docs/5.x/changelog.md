@@ -9,6 +9,34 @@ outline: 2
 
 # Changelog
 
+## v5.27.0 — Nov 26, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- `enumSuffix` also applies to inline enums on operation parameters and response headers. ([#4792](https://github.com/kubb-labs/kubb/pull/4792))
+- An `enum` with a `format`, such as `int32`, becomes a named enum when it has `x-enumNames` or `x-enum-varnames`. With the `@kubb/plugin-ts` defaults, its type is now named `StatusKey` instead of `Status`. ([#4793](https://github.com/kubb-labs/kubb/pull/4793))
+- Spec validation uses less memory. ([#4800](https://github.com/kubb-labs/kubb/pull/4800))
+
+### @kubb/cli
+
+#### Features
+
+- `kubb generate` writes `kubb-lock.json` and skips the build when nothing changed. `--check` compares against it, and `--force` generates anyway. Commit the file with your generated code. ([#4791](https://github.com/kubb-labs/kubb/pull/4791))
+
+  ```shell
+  kubb generate --force
+  ```
+
+- Add `kubb generate --no-lockfile`, which generates without reading or writing `kubb-lock.json`. ([#4802](https://github.com/kubb-labs/kubb/pull/4802))
+
+### @kubb/core
+
+#### Features
+
+- Rename public types and classes to shorter names, such as `KubbOptions` for `CreateKubbOptions` and `Driver` for `KubbDriver`. The old names still work until v6. ([#4801](https://github.com/kubb-labs/kubb/pull/4801))
+
 ## v5.26.0 — Nov 25, 2026
 
 ### @kubb/adapter-oas
