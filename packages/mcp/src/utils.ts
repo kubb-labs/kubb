@@ -87,7 +87,7 @@ export function truncateOutput(text: string, hint?: () => string | undefined): s
   return `${kept}\n\n[Output cut: showing the first ${kept.length} of ${text.length} characters.${extra ? ` ${extra}` : ''}]`
 }
 
-type DiffFileSummary = {
+export type DiffFileSummary = {
   /**
    * The file path from the `+++` header, without the `b/` prefix.
    */
