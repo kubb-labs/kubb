@@ -412,6 +412,7 @@ type ProjectBuild = {
   source?: string
   processOutput?: (context: { config: Config }) => Promise<Array<Diagnostic>>
   force?: boolean
+  lockfile?: boolean
 }
 
 describe('Kubb#generate', () => {
@@ -556,8 +557,8 @@ describe('Kubb#generate', () => {
       // Without an adapter: the mocked one does not list the files it read, so its inputs are never recorded.
       return makeConfig({ root, output: { path: './gen', format, postGenerate }, storage, adapter: undefined, plugins: [plugin] })
     }
-    const generate = ({ source, processOutput = async () => [], force }: ProjectBuild = {}) =>
-      createKubb(config(source), { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force })
+    const generate = ({ source, processOutput = async () => [], force, lockfile }: ProjectBuild = {}) =>
+      createKubb(config(source), { hooks: new Hookable<KubbHooks>() }).generate({ processOutput, force, lockfile })
 
     return {
       filePath,
@@ -643,6 +644,33 @@ describe('Kubb#generate', () => {
 
     expect(JSON.parse(fs.readFileSync(path.join(root, 'kubb-lock.json'), 'utf8'))).toStrictEqual({ lockfileVersion: 1, files: {} })
     expect(await Kubb.isUpToDate(config)).toBe(false)
+  })
+
+  it('generates without writing kubb-lock.json when lockfile is false', async () => {
+    const project = createProject()
+
+    await project.generate({ lockfile: false })
+
+    expect(project.read()).toBe(`export const hello = 'world'\n`)
+    expect(project.hasLockfile()).toBe(false)
+  })
+
+  it('leaves an existing kubb-lock.json unread and as it was when lockfile is false', async () => {
+    const project = createProject()
+    const lockfilePath = path.join(path.dirname(path.dirname(project.filePath)), 'kubb-lock.json')
+    const formats: Array<Config['output']['format']> = []
+    const processOutput: ProjectBuild['processOutput'] = async ({ config }) => {
+      formats.push(config.output.format)
+      return []
+    }
+    await project.generate({ processOutput })
+    const recorded = fs.readFileSync(lockfilePath, 'utf8')
+
+    await project.generate({ processOutput, lockfile: false })
+
+    // Read, the lockfile would have turned the formatter off for this unchanged rebuild.
+    expect(formats).toStrictEqual(['oxfmt', 'oxfmt'])
+    expect(fs.readFileSync(lockfilePath, 'utf8')).toBe(recorded)
   })
 
   it('reports a project that was never generated as not up to date', async () => {

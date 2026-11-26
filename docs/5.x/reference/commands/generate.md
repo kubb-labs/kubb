@@ -40,6 +40,7 @@ kubb generate ./petStore.yaml  # this spec instead
 | `--check` | | `false` | Compare the output with the files on disk and write nothing. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
 | `--diff` | | `false` | Print a diff for each out-of-date file. Turns `--check` on. |
 | `--force` | | `false` | Generate, format, and lint even when the run is [up to date](#up-to-date-runs). |
+| `--no-lockfile` | | `false` | Generate without reading or writing [`kubb-lock.json`](#no-lockfile). |
 
 ### Watch mode
 
@@ -241,6 +242,19 @@ A run that still generates, such as one with `--reporter json`, skips `output.fo
 
 - Do not edit `kubb-lock.json`. After a merge conflict, run `kubb generate` and commit the result.
 - When `--check` finds formatted output and no `kubb-lock.json`, it exits with `1` and tells you to run `kubb generate`.
+
+#### Generate without `kubb-lock.json` {#no-lockfile}
+
+Pass `--no-lockfile` to generate without the lockfile, as `pnpm install --no-lockfile` does:
+
+```shell
+kubb generate --no-lockfile
+```
+
+- Kubb does not read `kubb-lock.json` and does not write it. An existing file stays as it is.
+- Every run generates, formats, and lints. No run is skipped as [up to date](#up-to-date-runs).
+- A formatted file is written again on each run, because Kubb cannot tell that the formatter produced it.
+- `--check` and `--dry-run` count a file as unchanged only when the file on disk holds the generated text. `--check --no-lockfile` exits with `1` when a file differs from that text, which `output.format`, `output.lint`, or `output.postGenerate` usually causes.
 
 ### Run summary {#run-summary}
 

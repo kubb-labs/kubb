@@ -57,12 +57,13 @@ export type GenerateOptions = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
   force?: boolean
+  lockfile?: boolean
 }
 
 /**
  * Generates the configs and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks, force }: GenerateOptions): Promise<boolean> {
+export async function generate({ configs, hooks, force, lockfile }: GenerateOptions): Promise<boolean> {
   // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime(), diagnostics }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -76,7 +77,7 @@ export async function generate({ configs, hooks, force }: GenerateOptions): Prom
   })
   let succeeded = true
   try {
-    for await (const { success, error } of Kubb.generate(configs, { hooks, force })) {
+    for await (const { success, error } of Kubb.generate(configs, { hooks, force, lockfile })) {
       if (error) await Diagnostics.emit(hooks, error)
       succeeded &&= success
     }
@@ -106,6 +107,8 @@ export type GenerateCommandOptions = {
    * Generates even when `kubb-lock.json` says the output is up to date.
    */
   force?: boolean
+  /** `false` leaves `kubb-lock.json` unread and unwritten. */
+  lockfile: boolean
 }
 
 /** Upper bound in milliseconds for the update check's cache read or write once generation is done. */
@@ -140,11 +143,11 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 /**
  * Generates the configs, then again whenever a local `input` file changes. Returns whether the build succeeded when there is no file to watch.
  */
-async function watch({ configs, hooks, quiet }: GenerateOptions & { quiet: boolean }): Promise<boolean> {
+async function watch({ configs, hooks, quiet, lockfile }: GenerateOptions & { quiet: boolean }): Promise<boolean> {
   const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
   if (!watchPaths.length) {
     if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
-    return generate({ configs, hooks })
+    return generate({ configs, hooks, lockfile })
   }
 
   const label = styleText('yellow', `Watching ${watchPaths.map((watchPath) => path.relative(process.cwd(), watchPath)).join(', ')}`)
@@ -156,7 +159,7 @@ async function watch({ configs, hooks, quiet }: GenerateOptions & { quiet: boole
   const build = async () => {
     const hrStart = process.hrtime()
     // Every config builds again, since an edited spec can change what the configs share.
-    const succeeded = await generate({ configs, hooks })
+    const succeeded = await generate({ configs, hooks, lockfile })
     const snapshot = tracker.take()
     if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
     previous = snapshot
@@ -199,7 +202,7 @@ async function watch({ configs, hooks, quiet }: GenerateOptions & { quiet: boole
  * Starts a check for `--check`, which cannot run with `--watch`. With a check, exit code 1 means
  * "out of date", so a failure moves to 2.
  */
-function startOutputCheck({ check = false, diff = false, watch }: Pick<GenerateCommandOptions, 'check' | 'diff' | 'watch'>): {
+function startOutputCheck({ check = false, diff = false, watch, lockfile }: Pick<GenerateCommandOptions, 'check' | 'diff' | 'watch' | 'lockfile'>): {
   outputCheck?: OutputCheck
   failureExitCode: number
 } {
@@ -209,7 +212,7 @@ function startOutputCheck({ check = false, diff = false, watch }: Pick<GenerateC
     process.exit(2)
   }
 
-  return { outputCheck: createOutputCheck({ diff }), failureExitCode: 2 }
+  return { outputCheck: createOutputCheck({ diff, lockfile }), failureExitCode: 2 }
 }
 
 // `--check` wins over `--dry-run`: it writes nothing either.
@@ -245,8 +248,10 @@ function showsTip({
 }
 
 // stdout belongs to the `json` report, so the warning goes to stderr there.
-function warnMissingLockfile({ json }: { json: boolean }): void {
-  const message = `No readable ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`
+function warnMissingLockfile({ json, lockfile }: { json: boolean; lockfile: boolean }): void {
+  const message = lockfile
+    ? `No readable ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`
+    : `--check cannot recognize formatted output with --no-lockfile. Remove --no-lockfile to compare through ${LOCKFILE_NAME}.`
   const warn = json ? console.error : logWarn
   warn(message)
 }
@@ -261,15 +266,17 @@ function reportOutcome({
   outputCheck,
   json,
   silent,
+  lockfile,
 }: {
   succeeded: boolean
   failureExitCode: number
   outputCheck?: OutputCheck
   json: boolean
   silent: boolean
+  lockfile: boolean
 }): void {
   for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
-  if (outputCheck?.missingLockfile && !silent) warnMissingLockfile({ json })
+  if (outputCheck?.missingLockfile && !silent) warnMissingLockfile({ json, lockfile })
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
     process.exitCode = failureExitCode
@@ -291,6 +298,7 @@ async function generateOrSkip({
   hooks,
   quiet,
   force,
+  lockfile,
   watchMode,
   canSkip,
 }: GenerateOptions & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
@@ -299,7 +307,7 @@ async function generateOrSkip({
     return true
   }
 
-  return watchMode ? watch({ configs, hooks, quiet }) : generate({ configs, hooks, force })
+  return watchMode ? watch({ configs, hooks, quiet, lockfile }) : generate({ configs, hooks, force, lockfile })
 }
 
 /**
@@ -317,8 +325,9 @@ export async function run({
   check,
   diff,
   force,
+  lockfile,
 }: GenerateCommandOptions): Promise<void> {
-  const { outputCheck, failureExitCode } = startOutputCheck({ check, diff, watch: watchMode })
+  const { outputCheck, failureExitCode } = startOutputCheck({ check, diff, watch: watchMode, lockfile })
 
   // Started first: the notice prints at the end only when the stored answer or the registry is there by then.
   const updateCheck = new AbortController()
@@ -387,7 +396,7 @@ export async function run({
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  installReporters({ hooks, logLevel, reporters, dryRun, outputCheck })
+  installReporters({ hooks, logLevel, reporters, dryRun, outputCheck, lockfile })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
@@ -396,15 +405,15 @@ export async function run({
   try {
     const runConfigs = toRunConfigs({ configs, input, dryRun, outputCheck })
     // Only the `cli` reporter can do without the results of a build. The others report on each config.
-    const canSkip = ![force, watchMode, dryRun, outputCheck].some(Boolean) && requestedNames.every((name) => name === 'cli')
-    const succeeded = await generateOrSkip({ configs: runConfigs, hooks, quiet, force, watchMode, canSkip })
+    const canSkip = ![force, watchMode, dryRun, outputCheck, !lockfile].some(Boolean) && requestedNames.every((name) => name === 'cli')
+    const succeeded = await generateOrSkip({ configs: runConfigs, hooks, quiet, force, lockfile, watchMode, canSkip })
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
     await checkForUpdate({ hooks, latestVersion: await withTimeout({ promise: latestVersion, ms: UPDATE_WAIT_MS }) })
 
     await hooks.callHook('kubb:lifecycle:end')
-    reportOutcome({ succeeded, failureExitCode, outputCheck, json, silent: logLevel <= logLevelMap.silent })
+    reportOutcome({ succeeded, failureExitCode, outputCheck, json, silent: logLevel <= logLevelMap.silent, lockfile })
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.

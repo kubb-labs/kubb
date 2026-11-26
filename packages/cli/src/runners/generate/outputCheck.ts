@@ -51,7 +51,11 @@ async function addDeletedFiles({
   }
 }
 
-export type OutputCheckOptions = { diff: boolean }
+export type OutputCheckOptions = {
+  diff: boolean
+  /** Set to `false` to compare without `kubb-lock.json`, so only a file holding the generated text is up to date. */
+  lockfile?: boolean
+}
 
 /**
  * One `kubb generate --check` run. Each config generates into memory and no formatter or linter runs.
@@ -66,11 +70,13 @@ export class OutputCheck {
    */
   readonly patches: Array<string> = []
   readonly #diff: boolean
+  readonly #lockfile: boolean
   #changed = false
   #missingLockfile = false
 
-  constructor({ diff }: OutputCheckOptions) {
+  constructor({ diff, lockfile = true }: OutputCheckOptions) {
     this.#diff = diff
+    this.#lockfile = lockfile
   }
 
   get changed(): boolean {
@@ -128,8 +134,8 @@ export class OutputCheck {
     const origin = originOf(config)
     const diff = this.#diff
     const disk = fsStorage()
-    const lockfile = await createLockfile({ storage: disk, root: origin.root })
-    this.#missingLockfile ||= !lockfile.exists && hasOutputPasses({ output: origin.config.output, storage: disk })
+    const lockfile = this.#lockfile ? await createLockfile({ storage: disk, root: origin.root }) : undefined
+    this.#missingLockfile ||= !lockfile?.exists && hasOutputPasses({ output: origin.config.output, storage: disk })
     const stale: Array<StaleFile> = []
     let unchanged = 0
 
