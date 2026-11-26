@@ -91,7 +91,7 @@ const line = `method: ${text.quote("o'clock")}` // method: 'o\'clock'
 
 | Method                              | What it does                                                                                     |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `reserve(name)`                     | Keeps `name` from being assigned, such as a global the code uses.                                |
+| `reserve({ name })`                 | Keeps `name` from being assigned, such as a global the code uses.                                |
 | `bind({ name, owner })`             | Gives `name` to `owner` as it is, such as a name the file already imports.                       |
 | `assign({ name, owner?, emits? })`  | Returns the first free name from `name`. The same `owner` may take a name it already holds.      |
 
@@ -101,7 +101,7 @@ const line = `method: ${text.quote("o'clock")}` // method: 'o\'clock'
 import { createRenamer } from 'kubb/kit'
 
 const renamer = createRenamer()
-renamer.reserve('Response')
+renamer.reserve({ name: 'Response' })
 renamer.assign({ name: 'Response' }) // 'Response2'
 renamer.assign({ name: 'Status', emits: (name) => [name, `${name}Key`] }) // claims 'Status' and 'StatusKey'
 ```

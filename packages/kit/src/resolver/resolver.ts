@@ -121,7 +121,7 @@ export class Resolver {
 
   /** Reserves emitted identifiers before allocating other declarations. */
   reserveNames(names: Iterable<string>): void {
-    for (const name of names) this.#names.renamer.reserve(name)
+    for (const name of names) this.#names.renamer.reserve({ name })
   }
 
   setTags(tags: InputMeta['tags']): void {

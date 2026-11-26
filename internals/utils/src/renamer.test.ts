@@ -14,7 +14,7 @@ describe('Renamer', () => {
 
   it('never assigns a reserved name', () => {
     const renamer = createRenamer()
-    renamer.reserve('Response')
+    renamer.reserve({ name: 'Response' })
 
     expect(renamer.assign({ name: 'Response', owner: 'models' })).toBe('Response2')
   })
@@ -30,14 +30,14 @@ describe('Renamer', () => {
   it('keeps a bound name when it is reserved later', () => {
     const renamer = createRenamer()
     renamer.bind({ name: 'Pet', owner: 'models' })
-    renamer.reserve('Pet')
+    renamer.reserve({ name: 'Pet' })
 
     expect(renamer.assign({ name: 'Pet', owner: 'models' })).toBe('Pet')
   })
 
   it('needs every emitted name free and claims them all', () => {
     const renamer = createRenamer()
-    renamer.reserve('StatusKey')
+    renamer.reserve({ name: 'StatusKey' })
     const emits = (name: string) => [name, `${name}Key`]
 
     expect(renamer.assign({ name: 'Status', emits })).toBe('Status2')

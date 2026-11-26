@@ -29,7 +29,7 @@ const reserved = Symbol('reserved')
  * @example
  * ```ts
  * const renamer = createRenamer()
- * renamer.reserve('Response') // a global the file uses
+ * renamer.reserve({ name: 'Response' }) // a global the file uses
  * renamer.assign({ name: 'Response' }) // 'Response2'
  * ```
  *
@@ -47,7 +47,7 @@ export class Renamer {
   /**
    * Keeps `name` from being assigned, unless something already holds it.
    */
-  reserve(name: string): void {
+  reserve({ name }: { name: string }): void {
     if (!this.#owners.has(name)) this.#owners.set(name, reserved)
   }
 

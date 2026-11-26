@@ -49,7 +49,7 @@ export class FileRewriter {
     const { lang } = this.#definitions
     for (const source of file.sources) {
       rewriteNodes(source.nodes, (text, kind) => {
-        for (const name of namesIn(text, lang, kind)) this.#renamer.reserve(name)
+        for (const name of namesIn(text, lang, kind)) this.#renamer.reserve({ name })
         this.#count(this.#definitions.fragment({ file, text, kind }))
         return text
       })
@@ -69,7 +69,7 @@ export class FileRewriter {
   // Counts the uses in a fragment and reserves the names nothing declares. A body is counted once, but a path is followed
   // at each use, so the count of what it names stays right.
   #count(fragment: Fragment): void {
-    for (const name of fragment.unresolved) this.#renamer.reserve(name)
+    for (const name of fragment.unresolved) this.#renamer.reserve({ name })
     for (const definition of fragment.references) if (definition?.body !== undefined) this.#countUse(definition)
   }
 
