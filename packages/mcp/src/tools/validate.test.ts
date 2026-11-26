@@ -14,10 +14,10 @@ const validSpec = JSON.stringify({
 })
 
 type ToolResult = { isError?: boolean; content: Array<{ type: string; text?: string }> }
-const execute = (validateTool as unknown as { execute: (input: { input: string }) => Promise<ToolResult> }).execute
+const execute = (validateTool as unknown as { execute: (input: { inputPath: string }) => Promise<ToolResult> }).execute
 
-async function run(input: string) {
-  const result = await execute({ input })
+async function run(inputPath: string) {
+  const result = await execute({ inputPath })
   return { isError: Boolean(result.isError), text: result.content.map((part) => part.text ?? '').join('\n') }
 }
 

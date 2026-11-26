@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { KILL_GRACE_MS, resolveCliBin, runCli, runKubb, TIMEOUT_MS } from './cli.ts'
+import { MAX_OUTPUT_CHARS } from './utils.ts'
 import { createFakeKubbProject, type ToolResult } from './mocks/fakeKubb.ts'
 
 const { root, bin } = await createFakeKubbProject()
@@ -88,5 +89,22 @@ describe('runKubb', () => {
 
     expect(result.isError).toBe(true)
     expect(textOf(result)).toContain('Stopped by SIGTERM')
+  })
+
+  it('cuts output over the limit and adds the hint to the notice', async () => {
+    vi.stubEnv('FAKE_KUBB_OUTPUT', 'line of output\n'.repeat(MAX_OUTPUT_CHARS / 10))
+
+    const result = (await runKubb({ args: ['list'], truncationHint: () => 'Ask for less.' })) as ToolResult
+    const text = textOf(result)
+
+    expect(result.isError).toBeFalsy()
+    expect(text.length).toBeLessThan(MAX_OUTPUT_CHARS + 200)
+    expect(text).toMatch(/\[Output cut: showing the first \d+ of \d+ characters\. Ask for less\.\]$/)
+  })
+
+  it('leaves output within the limit as is', async () => {
+    const result = (await runKubb({ args: ['list'] })) as ToolResult
+
+    expect(textOf(result)).not.toContain('Output cut')
   })
 })

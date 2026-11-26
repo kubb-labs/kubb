@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { checkConfigPath, formatDiagnostics } from './utils.ts'
+import { checkConfigPath, formatDiagnostics, MAX_OUTPUT_CHARS, summarizeDiff, truncateOutput } from './utils.ts'
 
 describe('formatDiagnostics', () => {
   it('renders the agent block from Diagnostics.format without ANSI styling', () => {
@@ -76,5 +76,59 @@ describe('checkConfigPath', async () => {
 
   it('refuses a symlink that points outside the working directory', async () => {
     expect(await checkConfigPath('escape/kubb.config.ts')).toEqual({ error: expect.stringContaining('must be within the current working directory') })
+  })
+})
+
+describe('truncateOutput', () => {
+  it('returns a text within the limit as is', () => {
+    expect(truncateOutput('short')).toBe('short')
+  })
+
+  it('cuts at the last line break before the limit and says how much is shown', () => {
+    const text = ['first line', 'second line', 'third line'].join('\n')
+
+    expect(truncateOutput(text, { limit: 25, hint: 'Ask for less.' })).toBe(
+      `first line\nsecond line\n\n[Output cut: showing the first 22 of ${text.length} characters. Ask for less.]`,
+    )
+  })
+
+  it('cuts a single long line at the limit', () => {
+    const cut = truncateOutput('x'.repeat(MAX_OUTPUT_CHARS + 1))
+
+    expect(cut).toContain(`[Output cut: showing the first ${MAX_OUTPUT_CHARS} of ${MAX_OUTPUT_CHARS + 1} characters.]`)
+  })
+})
+
+describe('summarizeDiff', () => {
+  it('counts the added and removed lines of each file', () => {
+    const diff = [
+      '--- a/src/gen/pet.ts',
+      '+++ b/src/gen/pet.ts',
+      '@@ -1,3 +1,4 @@',
+      ' export type Pet = {',
+      '-  id: string',
+      '+  id: number',
+      '+  name: string',
+      ' }',
+      '--- a/src/gen/order.ts',
+      '+++ b/src/gen/order.ts',
+      '@@ -1 +0,0 @@',
+      '-export type Order = {}',
+    ].join('\n')
+
+    expect(summarizeDiff(diff)).toEqual([
+      { file: 'src/gen/pet.ts', linesAdded: 2, linesRemoved: 1 },
+      { file: 'src/gen/order.ts', linesAdded: 0, linesRemoved: 1 },
+    ])
+  })
+
+  it('reads a changed line that looks like a file header as a change', () => {
+    const diff = ['--- a/notes.md', '+++ b/notes.md', '@@ -1,2 +1,2 @@', ' title', '--- old rule', '+++ new rule'].join('\n')
+
+    expect(summarizeDiff(diff)).toEqual([{ file: 'notes.md', linesAdded: 1, linesRemoved: 1 }])
+  })
+
+  it('returns no files for output without a diff', () => {
+    expect(summarizeDiff('Generated files are up to date')).toEqual([])
   })
 })

@@ -68,6 +68,6 @@ The `kubb-expert` agent handles "add Kubb to my project": it validates the spec,
 The plugin registers the Kubb MCP server (`npx kubb mcp`). Describe what you want, and Claude calls the server's [tools](/docs/5.x/reference/commands/mcp#tools) or runs the matching `/kubb:` command. Start Claude Code from your project root, so the server finds your `kubb.config.ts`.
 
 > [!NOTE]
-> When `kubb.config.ts` exports an array, the MCP [`generate`](/docs/5.x/reference/commands/mcp#generate) tool runs only its first config. The `/kubb:generate` command runs them all.
+> When `kubb.config.ts` exports an array, the MCP [`kubb_generate`](/docs/5.x/reference/commands/mcp#kubb-generate) tool runs only its first config. The `/kubb:generate` command runs them all.
 
 [Set up the MCP server](/docs/5.x/ai/mcp) covers other clients.

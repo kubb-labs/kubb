@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-// Prints its arguments as JSON in color and a line on stderr. `FAKE_KUBB_EXIT` sets the exit code,
+// Prints its arguments as JSON in color and a line on stderr, then `FAKE_KUBB_OUTPUT` when set. `FAKE_KUBB_EXIT` sets the exit code,
 // and `FAKE_KUBB_SIGNAL=1` ends the run with SIGTERM, as the timeout does. `FAKE_KUBB_STUCK=1`
 // keeps running after SIGTERM. It writes `ready` in the working directory once it listens, and
 // `sigterm` when the signal arrives.
@@ -10,6 +10,7 @@ const BIN = [
   'const args = process.argv.slice(2)',
   "console.log('\\u001b[32m' + JSON.stringify(args) + '\\u001b[39m')",
   "console.error('to stderr')",
+  'if (process.env.FAKE_KUBB_OUTPUT) console.log(process.env.FAKE_KUBB_OUTPUT)',
   "if (process.env.FAKE_KUBB_SIGNAL === '1') process.kill(process.pid, 'SIGTERM')",
   "if (process.env.FAKE_KUBB_STUCK === '1') {",
   "  process.on('SIGTERM', () => require('node:fs').writeFileSync('sigterm', ''))",

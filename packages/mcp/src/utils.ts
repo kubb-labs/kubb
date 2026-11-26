@@ -64,3 +64,70 @@ export async function checkConfigPath(configPath: string): Promise<{ file: strin
   }
   return { file }
 }
+
+/**
+ * The most characters a tool returns as text. Claude Code warns above 10,000 tokens and cuts a
+ * tool response at 25,000, and 30,000 characters of code or a diff stay under the first number.
+ */
+export const MAX_OUTPUT_CHARS = 30_000
+
+/**
+ * Cuts `text` at the last line break before `limit` and appends a notice with both sizes and `hint`,
+ * so the AI client knows the output is partial and what to call next. A text within the limit comes back as is.
+ *
+ * @example
+ * `truncateOutput(output, { hint: 'Call kubb_diff with format "summary" for the full file list.' })`
+ */
+export function truncateOutput(text: string, { limit = MAX_OUTPUT_CHARS, hint }: { limit?: number; hint?: string } = {}): string {
+  if (text.length <= limit) return text
+  const lineEnd = text.lastIndexOf('\n', limit)
+  const kept = text.slice(0, lineEnd > 0 ? lineEnd : limit)
+  return `${kept}\n\n[Output cut: showing the first ${kept.length} of ${text.length} characters.${hint ? ` ${hint}` : ''}]`
+}
+
+export type DiffFileSummary = {
+  /**
+   * The file path from the `+++` header, without the `b/` prefix.
+   */
+  file: string
+  linesAdded: number
+  linesRemoved: number
+}
+
+const HUNK_HEADER = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@/
+
+/**
+ * Reads the files and their added and removed line counts from unified diff text, such as the
+ * output of `kubb generate --diff`. Lines outside a diff are skipped.
+ */
+export function summarizeDiff(diff: string): Array<DiffFileSummary> {
+  const files: Array<DiffFileSummary> = []
+  let current: DiffFileSummary | undefined
+  // Lines left in the current hunk. Counting them keeps a changed line that starts with `++ ` or `@@` from reading as a header.
+  let oldLeft = 0
+  let newLeft = 0
+  for (const line of diff.split('\n')) {
+    if (current && (oldLeft > 0 || newLeft > 0)) {
+      if (line.startsWith('+')) {
+        current.linesAdded++
+        newLeft--
+      } else if (line.startsWith('-')) {
+        current.linesRemoved++
+        oldLeft--
+      } else if (!line.startsWith('\\')) {
+        oldLeft--
+        newLeft--
+      }
+      continue
+    }
+    const hunk = HUNK_HEADER.exec(line)
+    if (hunk && current) {
+      oldLeft = Number(hunk[1] ?? 1)
+      newLeft = Number(hunk[2] ?? 1)
+    } else if (line.startsWith('+++ ')) {
+      current = { file: line.slice(4).split('\t')[0]!.replace(/^b\//, ''), linesAdded: 0, linesRemoved: 0 }
+      files.push(current)
+    }
+  }
+  return files
+}

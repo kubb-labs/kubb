@@ -20,7 +20,7 @@ afterAll(async () => {
 })
 
 describe('update tool', () => {
-  it('updates every installed extension when no ids are given', async () => {
+  it('updates every installed extension when no extensionIds are given', async () => {
     const { isError, text } = await callTool(updateTool, {})
 
     expect(isError).toBe(false)
@@ -28,7 +28,7 @@ describe('update tool', () => {
   })
 
   it('passes each id as a positional argument, and --dry-run', async () => {
-    const { text } = await callTool(updateTool, { ids: ['plugin-zod', 'plugin-ts'], dryRun: true })
+    const { text } = await callTool(updateTool, { extensionIds: ['plugin-zod', 'plugin-ts'], dryRun: true })
 
     expect(echoedArgs(text)).toEqual(['update', 'plugin-zod', 'plugin-ts', '--yes', '--dry-run'])
   })

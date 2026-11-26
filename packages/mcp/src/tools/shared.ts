@@ -9,14 +9,16 @@ import { checkConfigPath } from '../utils.ts'
 export const registryIdSchema = v.pipe(
   v.string(),
   v.regex(REGISTRY_ID_PATTERN, 'Use owner/slug, such as kubb-labs/plugin-zod, or a slug, such as plugin-zod'),
-  v.description('Registry id: owner/slug, or a slug such as plugin-zod for an official extension'),
+  v.description('Registry id of the extension: owner/slug, such as kubb-labs/plugin-zod, or a slug such as plugin-zod for an official extension'),
 )
 
-export const configSchema = v.optional(
+export const configPathSchema = v.optional(
   v.pipe(
     v.string(),
     v.minLength(1),
-    v.description(`Path to the Kubb config inside the working directory (supports ${CONFIG_EXTENSIONS.join(', ')}). Found automatically when omitted`),
+    v.description(
+      `Path to the Kubb config file inside the working directory, such as ./kubb.config.ts (supports ${CONFIG_EXTENSIONS.join(', ')}). Found automatically when omitted`,
+    ),
   ),
 )
 

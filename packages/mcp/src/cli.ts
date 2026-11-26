@@ -6,6 +6,7 @@ import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { tool } from 'tmcp/utils'
+import { MAX_OUTPUT_CHARS, truncateOutput } from './utils.ts'
 
 const CLI_PACKAGES = ['@kubb/cli', 'kubb'] as const
 
@@ -80,18 +81,32 @@ export function runCli({ bin, args }: { bin: string; args: ReadonlyArray<string>
 /**
  * Runs `kubb <args>` in the working directory and turns the outcome into a tool result. A non-zero
  * exit is an error unless `isSuccess` accepts it, as `kubb generate --diff` does for exit code 1.
- * A run that a signal ended, such as the timeout, is always an error.
+ * A run that a signal ended, such as the timeout, is always an error. `formatOutput` rewrites the
+ * output of a successful run, and the text is cut at `MAX_OUTPUT_CHARS` with a notice that carries the text `truncationHint` returns.
  */
-export async function runKubb({ args, isSuccess = (code) => code === 0 }: { args: ReadonlyArray<string>; isSuccess?: (code: number) => boolean }) {
+export async function runKubb({
+  args,
+  isSuccess = (code) => code === 0,
+  formatOutput = (output) => output,
+  truncationHint,
+}: {
+  args: ReadonlyArray<string>
+  isSuccess?: (code: number) => boolean
+  formatOutput?: (output: string) => string
+  truncationHint?: (output: string) => string | undefined
+}) {
   const bin = await resolveCliBin()
   if (!bin) {
     return tool.error('The Kubb CLI is not installed. Install it in the project with `npm install -D kubb`, then try again.')
   }
   try {
     const { exitCode, signal, output } = await runCli({ bin, args })
+    const succeeded = !signal && exitCode !== null && isSuccess(exitCode)
     const status = signal ? `Stopped by ${signal}` : `Exit code: ${exitCode}`
-    const text = `$ kubb ${args.join(' ')}\n${status}\n\n${output || '(no output)'}`
-    return !signal && exitCode !== null && isSuccess(exitCode) ? tool.text(text) : tool.error(text)
+    const body = (succeeded ? formatOutput(output) : output) || '(no output)'
+    const full = `$ kubb ${args.join(' ')}\n${status}\n\n${body}`
+    const text = truncateOutput(full, { hint: full.length > MAX_OUTPUT_CHARS ? truncationHint?.(output) : undefined })
+    return succeeded ? tool.text(text) : tool.error(text)
   } catch (error) {
     return tool.error(`Could not run kubb ${args.join(' ')}: ${getErrorMessage(error)}`)
   }
