@@ -215,18 +215,21 @@ describe('inlineFiles', () => {
     expect(addPet?.nodes).toMatchObject([{ value: 'const pet: ({ first: Pet2; second: Pet2; pet: Pet }) = client()' }])
   })
 
-  it('keeps a local declaration from shadowing a global used in another inlined body', () => {
+  it.each([
+    { kind: 'a type', isTypeOnly: true, body: '{ raw: Response }', text: 'let c: Envelope', written: 'let c: ({ raw: Response })' },
+    { kind: 'a value', isTypeOnly: false, body: '{} as Response', text: 'const c = Envelope', written: 'const c = ({} as Response)' },
+  ])('keeps a local declaration from shadowing a global used in $kind inlined elsewhere', ({ isTypeOnly, body, text, written }) => {
     const envelope = createFile({
       baseName: 'Envelope.ts',
       path: '/gen/models/Envelope.ts',
-      sources: [createSource({ name: 'Envelope', isTypeOnly: true, inline: { expression: '{ raw: Response }' }, nodes: [] })],
+      sources: [createSource({ name: 'Envelope', isTypeOnly, inline: { expression: body }, nodes: [] })],
     })
     const operation = createFile({
       ...operationFile,
       imports: [],
       sources: [createSource({ name: 'Response', isTypeOnly: true, inline: { expression: '{ id: number }' }, nodes: [] })],
     })
-    const file = clientFile('let a: PetResponse; let b: PetResponse; let c: Envelope', {
+    const file = clientFile(`${text}; let a: PetResponse; let b: PetResponse`, {
       imports: [
         createImport({ name: [{ propertyName: 'Response', name: 'PetResponse' }], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts' }),
         createImport({ name: ['Envelope'], path: '/gen/models/Envelope.ts', root: '/gen/clients/addPet.ts' }),
@@ -235,7 +238,7 @@ describe('inlineFiles', () => {
     const [declaration, addPet] = inlineFiles([envelope, operation, file]).files[0]?.sources ?? []
 
     expect(declaration).toMatchObject({ name: 'Response2' })
-    expect(addPet?.nodes).toMatchObject([{ value: 'let a: Response2; let b: Response2; let c: ({ raw: Response })' }])
+    expect(addPet?.nodes).toMatchObject([{ value: `${written}; let a: Response2; let b: Response2` }])
   })
 
   it('rewrites the string fields of code nodes', () => {

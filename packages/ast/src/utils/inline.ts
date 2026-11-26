@@ -135,7 +135,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     function count(from: FileNode, text: string, aliases = new Set<string>()): void {
       lang.replaceIdentifiers(text, (id) => {
         const target = findTypeTarget(from, id)
-        if (!target) return reserveGlobal(from, id)
+        if (!target) return undefined
         const seen = uses.get(target.key) ?? 0
         uses.set(target.key, seen + 1)
         if (target.expression === undefined) return undefined
@@ -146,10 +146,24 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       })
     }
 
-    // A global in an inlined body, such as the fetch `Response`, stays free so no local declaration shadows it.
-    function reserveGlobal(from: FileNode, id: string): undefined {
-      if (from !== file && !findTarget(from, id) && !importsName(from, id)) reserve(id)
-      return undefined
+    // Keeps each global in a body the file inlines, type or value, such as the fetch `Response`, free so no local declaration
+    // shadows it. Runs before any local name is chosen.
+    const visited = new Set<string>()
+    function reserveGlobals(from: FileNode, text: string): void {
+      lang.replaceIdentifiers(text, (id) => {
+        const target = findTarget(from, id)
+        if (!target) {
+          if (from !== file && !importsName(from, id)) reserve(id)
+          return undefined
+        }
+        const key = `${target.path}\0${target.name}`
+        if (visited.has(key)) return undefined
+        visited.add(key)
+        const virtualFile = virtualFiles.get(target.path)!
+        const body = bodyOf(virtualFile.sources.find((item) => item.name === target.name))
+        if (body !== undefined) reserveGlobals(virtualFile, body)
+        return undefined
+      })
     }
 
     function findTypeTarget(from: FileNode, id: string) {
@@ -221,6 +235,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
     for (const source of file.sources) {
       rewriteNodes(source.nodes, (text) => {
+        reserveGlobals(file, text)
         count(file, text)
         return text
       })
