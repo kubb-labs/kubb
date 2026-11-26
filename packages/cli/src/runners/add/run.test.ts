@@ -72,7 +72,8 @@ describe('kubb add', () => {
     expect(output.join('\n')).toContain('✓ Plugin ready')
     expect(output.join('\n')).toContain('Packages  1 installed with pnpm')
     expect(output.join('\n')).toContain('Next     kubb generate')
-    const summary = output.join('\n').split('✓ Plugin ready')[1]!
+    // The details come before the verdict.
+    const summary = output.join('\n').split('✓ Plugin ready')[0]!
     expect(summary).toContain('+ pluginX()')
     expect(summary).not.toContain('export default')
     expect(output.join('\n')).toContain('Options  kubb.dev/extensions/acme/plugin-x')

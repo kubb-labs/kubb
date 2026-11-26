@@ -9,7 +9,7 @@ export function createSummary(hrStart: [number, number]): (title: string, status
 }
 
 /**
- * Finishes a command with its outcome and duration before the labeled details.
+ * Finishes a command with the labeled details, then its outcome and duration, so the outcome is the last thing printed.
  * A command with prompts closes its existing block; validation writes a standalone summary.
  */
 export function logCommandSummary({
@@ -27,7 +27,10 @@ export function logCommandSummary({
 }): void {
   const colors = { success: 'green', failed: 'red', warning: 'yellow', planned: 'cyan', canceled: 'dim' } as const
   const symbols = { success: '✓', failed: '✗', warning: '!', planned: '◇', canceled: '○' } as const
-  const summary = [`${styleText(colors[status], `${symbols[status]} ${title}`)}  ${styleText('dim', formatMs(getElapsedMs(hrStart)))}`, '', ...lines].join('\n')
+  // Details first and the verdict last, the way `oxlint` and `pnpm` end a run.
+  const details = lines.length ? [...lines, ''] : []
+  const verdict = styleText(colors[status], `${symbols[status]} ${title}`)
+  const summary = [...details, verdict, `  ${styleText('dim', `Finished in ${formatMs(getElapsedMs(hrStart))}`)}`].join('\n')
   if (block) {
     logOutro(summary)
     return

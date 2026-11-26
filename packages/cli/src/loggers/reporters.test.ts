@@ -167,9 +167,9 @@ describe('installReporters', () => {
       })
       await hooks.callHook('kubb:generation:end', { config, storage, filesCreated: files.length, status: 'success', hrStart: process.hrtime() })
       const text = stripVTControlCharacters(lines.join('\n'))
-      expect(text).toContain(`3 files ${dryRun ? 'planned' : 'generated'} · 1 unchanged`)
-      expect(text).toContain('1 added · 2 modified · 1 deleted')
-      expect(text).toContain('Lines  +3 −3')
+      // A deletion is a change too, so four files change.
+      expect(text).toContain(dryRun ? '◇ Dry run: 4 files would change · 1 unchanged' : '✓ Generated 4 files · 1 unchanged')
+      expect(text).toContain('1 added · 2 modified · 1 deleted · +3 −3')
       expect(reports).toHaveLength(1)
       expect(reports[0]).toMatchObject({ filesCreated: files.length, filesUnchanged: 0 })
       expect(reports[0]?.fileChanges).toBeUndefined()
@@ -197,13 +197,12 @@ describe('installReporters', () => {
       await summarize({ root, output, entries })
 
       const unchanged = await summarize({ root, output, entries })
-      expect(unchanged).toContain('0 files generated · 3 unchanged')
-      expect(unchanged).toContain('0 added · 0 modified · 0 deleted')
+      expect(unchanged).toContain('✓ Already up to date · 3 unchanged')
+      expect(unchanged).not.toContain('modified')
 
       await writeFile(pet, 'a\nb\nc\n// edited by hand\n')
       const edited = await summarize({ root, output, entries })
-      expect(edited).toContain('0 added · 1 modified · 0 deleted')
-      expect(edited).toContain('Lines  +0 −1')
+      expect(edited).toContain('  1 modified · +0 −1')
 
       const cleaned = await summarize({
         root,
@@ -214,9 +213,8 @@ describe('installReporters', () => {
           [tag, 'tag'],
         ],
       })
-      expect(cleaned).toContain('1 file generated · 1 unchanged')
-      expect(cleaned).toContain('0 added · 1 modified · 1 deleted')
-      expect(cleaned).toContain('Lines  +2 −3')
+      expect(cleaned).toContain('✓ Generated 2 files · 1 unchanged')
+      expect(cleaned).toContain('  1 modified · 1 deleted · +2 −3')
     } finally {
       await rm(root, { recursive: true, force: true })
     }

@@ -76,11 +76,14 @@ export type GenerationResult = {
   dryRun?: boolean
   /**
    * Set by `kubb generate --check`. `changed` is `true` when the output on disk is out of date, and
-   * `files` lists what a run would change, with `path` relative to `config.root`.
+   * `files` lists what a run would change, with `path` relative to `config.root`. `patch` holds the
+   * file's unified diff with `--diff`. `lockfile` is set when the output passes run but the check
+   * has no `kubb-lock.json` to compare through: `missing` when none is readable, `disabled` with `--no-lockfile`.
    */
   check?: {
     changed: boolean
-    files: Array<{ path: string; status: 'added' | 'modified' | 'deleted'; linesAdded: number; linesRemoved: number }>
+    files: Array<{ path: string; status: 'added' | 'modified' | 'deleted'; linesAdded: number; linesRemoved: number; patch?: string }>
+    lockfile?: 'missing' | 'disabled'
   }
   status: 'success' | 'failed'
   /**

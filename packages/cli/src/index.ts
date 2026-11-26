@@ -80,6 +80,11 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
     plugins: [dryrun({ name: 'dry-run' })],
     onErrorCommand: async (_ctx, error) => {
       process.exitCode = 1
+      // Gunshi already printed each argument error, so the stack trace adds nothing.
+      if (error instanceof AggregateError) {
+        console.error('Run the command with --help to see its arguments.')
+        return
+      }
       console.error(error)
     },
   })

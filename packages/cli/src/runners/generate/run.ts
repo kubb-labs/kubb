@@ -247,59 +247,21 @@ function showsTip({
   return !quiet && !watchMode && succeeded && !outputCheck?.changed
 }
 
-// stdout belongs to the `json` report, so the warning goes to stderr there.
-function warnMissingLockfile({ json, lockfile }: { json: boolean; lockfile: boolean }): void {
+// stdout belongs to the `json` report, so the warning goes to stderr.
+function warnMissingLockfile({ lockfile }: { lockfile: boolean }): void {
   const message = lockfile
     ? `No readable ${LOCKFILE_NAME} found, so a file the formatter or linter changed shows as out of date. Run \`kubb generate\` and commit ${LOCKFILE_NAME}.`
     : `--check cannot recognize formatted output with --no-lockfile. Remove --no-lockfile to compare through ${LOCKFILE_NAME}.`
-  const warn = json ? console.error : logWarn
-  warn(message)
-}
-
-const patchLineColors = [
-  ['+++', 'bold'],
-  ['---', 'bold'],
-  ['@@', 'cyan'],
-  ['+', 'green'],
-  ['-', 'red'],
-  ['\\', 'dim'],
-] as const
-
-/** A unified diff for the terminal: no `=====` separator, and colored lines when the terminal supports color. */
-function stylePatch(patch: string): string {
-  return patch
-    .split('\n')
-    .filter((line) => !/^=+$/.test(line))
-    .map((line) => {
-      const color = patchLineColors.find(([prefix]) => line.startsWith(prefix))?.[1]
-      return color ? styleText(color, line) : line
-    })
-    .join('\n')
+  console.error(message)
 }
 
 /**
- * Prints the diffs of `--diff`, or the hint to pass it. In `json` mode stdout belongs to the report,
- * so the plain diffs go to stderr for tools such as `kubb_diff` to read.
+ * The `cli` summary shows each diff under its file. Without it, the diffs go out raw: to stderr in
+ * `json` mode, where stdout belongs to the report and `kubb_diff` reads them, and to stdout with `--silent`.
  */
-function printDiffs({ outputCheck, diff, json, silent }: { outputCheck: OutputCheck; diff: boolean; json: boolean; silent: boolean }): void {
-  if (json) {
-    for (const patch of outputCheck.patches) console.error(patch)
-    return
-  }
-  if (silent) {
-    for (const patch of outputCheck.patches) console.log(patch)
-    return
-  }
-  if (!diff) {
-    if (outputCheck.changed) logInfo('Run `kubb generate --diff` to see the changes.')
-    return
-  }
-  // Without this line, `--diff` on up-to-date output prints no diff and reads as if the flag did nothing.
-  if (!outputCheck.changed) {
-    logInfo('No diff: the files on disk match the generated output.')
-    return
-  }
-  console.log(['', styleText('bold', 'Diff'), ...outputCheck.patches.map(stylePatch)].join('\n'))
+function printRawDiffs({ outputCheck, json, silent }: { outputCheck: OutputCheck; json: boolean; silent: boolean }): void {
+  if (!json && !silent) return
+  for (const patch of outputCheck.patches) (json ? console.error : console.log)(patch)
 }
 
 /**
@@ -310,7 +272,6 @@ function reportOutcome({
   succeeded,
   failureExitCode,
   outputCheck,
-  diff,
   json,
   silent,
   lockfile,
@@ -318,13 +279,13 @@ function reportOutcome({
   succeeded: boolean
   failureExitCode: number
   outputCheck?: OutputCheck
-  diff: boolean
   json: boolean
   silent: boolean
   lockfile: boolean
 }): void {
-  if (outputCheck && succeeded) printDiffs({ outputCheck, diff, json, silent })
-  if (outputCheck?.missingLockfile && !silent) warnMissingLockfile({ json, lockfile })
+  if (outputCheck && succeeded) printRawDiffs({ outputCheck, json, silent })
+  // The `cli` summary warns before its verdict, so only `json` mode needs the warning here.
+  if (outputCheck?.missingLockfile && json && !silent) warnMissingLockfile({ lockfile })
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
     process.exitCode = failureExitCode
@@ -351,7 +312,7 @@ async function generateOrSkip({
   canSkip,
 }: GenerateOptions & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
   if (canSkip && (await isUpToDate(configs))) {
-    if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
+    if (!quiet) logStep(`${LOCKFILE_NAME} is up to date, generation is skipped. Use --force to generate anyway.`)
     return true
   }
 
@@ -461,7 +422,7 @@ export async function run({
     await checkForUpdate({ hooks, latestVersion: await withTimeout({ promise: latestVersion, ms: UPDATE_WAIT_MS }) })
 
     await hooks.callHook('kubb:lifecycle:end')
-    reportOutcome({ succeeded, failureExitCode, outputCheck, diff: Boolean(diff), json, silent: logLevel <= logLevelMap.silent, lockfile })
+    reportOutcome({ succeeded, failureExitCode, outputCheck, json, silent: logLevel <= logLevelMap.silent, lockfile })
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
