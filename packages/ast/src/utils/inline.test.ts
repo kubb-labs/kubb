@@ -142,7 +142,7 @@ describe('inlineFiles', () => {
   })
 
   it('renames only the carried binding that clashes when two modules share a name', () => {
-    const virtual = (baseName: string, name: string, optionsPath: string) =>
+    const virtual = (baseName: `${string}.${string}`, name: string, optionsPath: string) =>
       createFile({
         baseName,
         path: `/gen/models/${baseName}`,

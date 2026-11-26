@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { memo } from '@internals/utils'
+import { memo, uniqueName } from '@internals/utils'
 import { camelCase } from '@kubb/core'
 import { ast, type FileNode, type ImportNode, type InputMeta, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
@@ -134,19 +134,22 @@ export class Resolver {
   /** Returns the same name for repeated declaration keys. */
   resolveName({ key, name, normalize = (name: string) => name, scope = 'name' }: ResolveNameOptions): string {
     const store = scope === 'file' ? this.#fileNames : { used: this.#usedNames, strings: this.#stringNames, arrays: this.#arrayNames }
-    if (typeof key === 'string') return memo(store.strings, key, () => this.#allocateName({ name, normalize, used: store.used, suffix: 1 }))
+    if (typeof key === 'string') return memo(store.strings, key, () => this.#allocateName({ name, normalize, used: store.used }))
 
     const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), store.arrays)
-    node.name ??= this.#allocateName({ name, normalize, used: store.used, suffix: 1 })
+    node.name ??= this.#allocateName({ name, normalize, used: store.used })
     return node.name
   }
 
-  #allocateName({ name, normalize, used, suffix }: Required<Pick<ResolveNameOptions, 'name' | 'normalize'>> & { used: Set<string>; suffix: number }): string {
-    const candidate = suffix === 1 ? name : `${name}${suffix}`
-    const normalized = normalize(candidate)
-    const names = typeof normalized === 'string' ? [normalized] : normalized
-    if (names.some((emittedName) => used.has(emittedName))) return this.#allocateName({ name, normalize, used, suffix: suffix + 1 })
-    for (const emittedName of names) used.add(emittedName)
+  #allocateName({ name, normalize, used }: Required<Pick<ResolveNameOptions, 'name' | 'normalize'>> & { used: Set<string> }): string {
+    // The names the last checked candidate emits, which are the winner's once `uniqueName` returns.
+    let emitted: ReadonlyArray<string> = []
+    const candidate = uniqueName(name, (next) => {
+      const normalized = normalize(next)
+      emitted = typeof normalized === 'string' ? [normalized] : normalized
+      return emitted.some((emittedName) => used.has(emittedName))
+    })
+    for (const emittedName of emitted) used.add(emittedName)
     return candidate
   }
 

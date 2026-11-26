@@ -1,3 +1,4 @@
+import { uniqueName } from '@internals/utils'
 import { camelCase } from '@kubb/core'
 
 /**
@@ -26,8 +27,7 @@ function transformPathParam(raw: string): string {
 }
 
 function uniqueParamName(base: string, used: Set<string>): string {
-  let name = base
-  for (let i = 2; used.has(name); i++) name = `${base}${i}`
+  const name = uniqueName(base, (candidate) => used.has(candidate))
   used.add(name)
 
   return name

@@ -2,6 +2,7 @@ import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
 import { createFile, createImport } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
+import { uniqueName } from '@internals/utils'
 import { getNames } from './moduleNames.ts'
 import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
 
@@ -72,7 +73,10 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
     definitions.set(key, null)
     const imports: Array<ImportNode> = []
-    const { text, used } = replaceNames(expression, file, lang, imports)
+    const { text, used } = replaceNames(expression, file, lang, (inner) => {
+      imports.push(...inner.imports)
+      return inner.expression
+    })
     imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
 
     const definition = { expression: text, imports }
@@ -80,9 +84,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     return definition
   }
 
-  // Pushes the imports the replaced definitions need onto `imports`; `used` holds the names left as they are.
-  // `renames` maps a carried import, keyed by {@link bindingKey}, to the alias it takes in the importing file.
-  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>, renames?: ReadonlyMap<string, string>) {
+  // `use` takes each replaced definition's imports and returns its text; `used` holds the names left as they are.
+  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, use: (definition: Definition) => string) {
     const used = new Set<string>()
     const text = lang.replaceIdentifiers(input, (local) => {
       const target = findTarget(file, local)
@@ -92,10 +95,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
         return undefined
       }
 
-      imports.push(...definition.imports)
-      const aliases = renames?.size ? localRenames(definition.imports, renames) : undefined
-      const expression = aliases?.size ? lang.replaceIdentifiers(definition.expression, (name) => aliases.get(name)) : definition.expression
-      return lang.wrap(expression)
+      return lang.wrap(use(definition))
     })
 
     return { text, used }
@@ -121,24 +121,12 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       continue
     }
 
-    const inline = (renames?: ReadonlyMap<string, string>) => {
-      const carried: Array<ImportNode> = []
-      const sources = file.sources.map((source) => ({
-        ...source,
-        nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carried, renames).text),
-      }))
-      return { sources, carried }
-    }
-    const firstPass = inline()
-    // A carried name the file already uses for something else, such as a schema `Options` next to the client's own `Options`, gets an alias.
-    const renames = findClashes(file, firstPass.carried, virtualFiles)
-    const { sources, carried } = renames.size ? inline(renames) : firstPass
+    const carried: Array<ImportNode> = []
+    const carry = carryImports(file, virtualFiles, lang, carried)
+    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carry).text) }))
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
-    const imports = [
-      ...file.imports.filter((imp) => !virtualFiles.has(imp.path)),
-      ...carried.map((imp) => aliasImport(imp.root ? { ...imp, root: file.path } : imp, renames)),
-    ]
+    const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
 
     result.files.push(createFile({ ...file, sources, imports }))
   }
@@ -146,69 +134,35 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   return result
 }
 
-// The local names a file declares or imports from a written file, each with the path it comes from.
-function takenNames(file: FileNode, virtualFiles: ReadonlyMap<string, FileNode>): Map<string, string> {
-  const taken = new Map<string, string>()
-  for (const source of file.sources) if (source.name) taken.set(source.name, file.path)
+// Moves each definition's imports into `carried` and returns the definition's text. A carried name the file already binds to
+// something else, such as a schema `Options` next to the client's own `Options`, gets an alias like `Options2`.
+function carryImports(file: FileNode, virtualFiles: ReadonlyMap<string, FileNode>, lang: InlineLanguage, carried: Array<ImportNode>) {
+  // Each local name in the file, to the declaration or the import (module and exported name) it stands for.
+  const bindings = new Map<string, string>()
+  for (const source of file.sources) if (source.name) bindings.set(source.name, file.path)
   for (const imp of file.imports) {
     if (virtualFiles.has(imp.path)) continue
-    for (const item of getNames(imp)) taken.set(item.alias ?? item.name, imp.path)
+    for (const item of getNames(imp)) bindings.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
   }
-  return taken
-}
 
-// One carried binding: the same local name from two modules is two bindings.
-function bindingKey(path: string, local: string): string {
-  return `${path}\0${local}`
-}
-
-// Picks an alias, such as `Options2`, for each carried binding whose name the file already takes from another module.
-// Every carried name is reserved too, so an alias never lands on another carried binding.
-function findClashes(file: FileNode, carried: ReadonlyArray<ImportNode>, virtualFiles: ReadonlyMap<string, FileNode>): Map<string, string> {
-  const taken = takenNames(file, virtualFiles)
-  const reserved = new Set([...taken.keys(), ...carried.flatMap((imp) => getNames(imp).map((item) => item.alias ?? item.name))])
-  const renames = new Map<string, string>()
-  for (const imp of carried) {
-    for (const item of getNames(imp)) {
-      const local = item.alias ?? item.name
-      const key = bindingKey(imp.path, local)
-      const owner = taken.get(local)
-      if (owner === undefined || owner === imp.path || renames.has(key)) continue
-
-      let index = 2
-      while (reserved.has(`${local}${index}`)) index++
-      const alias = `${local}${index}`
-      renames.set(key, alias)
-      reserved.add(alias)
+  return (definition: Definition): string => {
+    const aliases = new Map<string, string>()
+    for (const imp of definition.imports) {
+      const before = aliases.size
+      const names = getNames(imp).map((item) => {
+        const local = item.alias ?? item.name
+        const binding = `${imp.path}\0${item.name}`
+        const name = uniqueName(local, (candidate) => bindings.has(candidate) && bindings.get(candidate) !== binding)
+        bindings.set(name, binding)
+        if (name === local) return item
+        aliases.set(local, name)
+        return { ...item, alias: name }
+      })
+      carried.push(aliases.size > before ? createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names }) : imp)
     }
-  }
-  return renames
-}
 
-// The renames that apply inside one definition, by the local name its expression uses.
-function localRenames(imports: ReadonlyArray<ImportNode>, renames: ReadonlyMap<string, string>): Map<string, string> {
-  const local = new Map<string, string>()
-  for (const imp of imports) {
-    for (const item of getNames(imp)) {
-      const name = item.alias ?? item.name
-      const alias = renames.get(bindingKey(imp.path, name))
-      if (alias) local.set(name, alias)
-    }
+    return aliases.size ? lang.replaceIdentifiers(definition.expression, (name) => aliases.get(name)) : definition.expression
   }
-  return local
-}
-
-function aliasImport(imp: ImportNode, renames: ReadonlyMap<string, string>): ImportNode {
-  const names = getNames(imp)
-  if (!names.some((item) => renames.has(bindingKey(imp.path, item.alias ?? item.name)))) return imp
-  return createImport({
-    path: imp.path,
-    ...(imp.root != null ? { root: imp.root } : {}),
-    names: names.map((item) => {
-      const alias = renames.get(bindingKey(imp.path, item.alias ?? item.name))
-      return alias ? { ...item, alias } : item
-    }),
-  })
 }
 
 // A file of only deprecated per-source `inline` counts as inline too.
