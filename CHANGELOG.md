@@ -1,5 +1,46 @@
 # Changelog
 
+## v5.27.1 — Nov 26, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- An inlined import that clashes with a name in the importing file now gets an alias, such as `Options as Options2`, instead of declaring `Options` twice. ([#4807](https://github.com/kubb-labs/kubb/pull/4807), [`834e204`](https://github.com/kubb-labs/kubb/commit/834e20443acf795bf445b8753c2382a534886020))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Add `kubb_diff`, `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list` tools to the MCP server, so an AI client can run every `kubb` command except `studio`.
+  
+  - `kubb_diff` runs `kubb generate --diff` and returns a unified diff for each out-of-date file, without writing files.
+  - `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list` manage extensions from the Kubb registry. `kubb_add`, `kubb_update`, and `kubb_remove` pass `--yes` and accept `dryRun`.
+  
+  The new tools run the project's own `kubb` CLI, or the one that started the server when the project has none. ([#4804](https://github.com/kubb-labs/kubb/pull/4804), [`b61bada`](https://github.com/kubb-labs/kubb/commit/b61bada08db29a04fbb97ded2c2ecd572109a7e9))
+- Breaking: every MCP tool now has a `kubb_` prefix, so the names stay unique next to the tools of other MCP servers. `generate`, `validate`, and `init` are now `kubb_generate`, `kubb_validate`, and `kubb_init`. Update any allow list, hook, or prompt that names a tool, such as `mcp__kubb__generate` in Claude Code, which is now `mcp__kubb__kubb_generate`.
+  
+  Breaking: the parameters have specific names.
+  
+  | Before | After | Tools |
+  | --- | --- | --- |
+  | `config` | `configPath` | `kubb_generate`, `kubb_diff`, `kubb_add`, `kubb_remove` |
+  | `input` | `inputPath` | `kubb_generate`, `kubb_validate`, `kubb_init` |
+  | `output` | `outputPath` | `kubb_generate`, `kubb_init` |
+  | `id` | `extensionId` | `kubb_add`, `kubb_remove` |
+  | `ids` | `extensionIds` | `kubb_update` |
+  
+  - Each tool has a title, a description that says when to use it and what it returns, and MCP annotations. `kubb_validate`, `kubb_diff`, and `kubb_list` are read-only, and `kubb_generate`, `kubb_update`, and `kubb_remove` are destructive.
+  - `kubb_diff`, `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list` return 30,000 characters at most. Longer output is cut and ends with an `[Output cut: ...]` notice.
+  - `kubb_generate` refuses a config whose `output.path` is outside the working directory, and `kubb_init` refuses such an `outputPath`, because `output.clean` empties that folder.
+  - `kubb_diff` accepts `format: 'summary'`, which returns one line per out-of-date file with its added and removed line counts. ([#4808](https://github.com/kubb-labs/kubb/pull/4808), [`3c4176f`](https://github.com/kubb-labs/kubb/commit/3c4176ff5fbf2dc8ebcac3456d373c7b5ce25de5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.27.0 — Nov 26, 2026
 
 ### @kubb/adapter-oas
