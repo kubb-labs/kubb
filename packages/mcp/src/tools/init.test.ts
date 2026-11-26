@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -31,6 +32,14 @@ describe('init tool', () => {
     expect(text).toContain('kubb_add')
     expect(config).toContain('./specs/pets.yaml')
     expect(config).toContain('./src/api')
+  })
+
+  it.each(['../outside', '/tmp/kubb-mcp-outside'])('refuses the outputPath %s, outside the working directory, and writes nothing', async (outputPath) => {
+    const { isError, text } = await callTool(initTool, { outputPath })
+
+    expect(isError).toBe(true)
+    expect(text).toContain('Invalid outputPath')
+    expect(existsSync(join(root, 'kubb.config.ts'))).toBe(false)
   })
 
   it('returns an error, and keeps the file, when kubb.config.ts exists', async () => {

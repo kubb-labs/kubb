@@ -103,6 +103,21 @@ describe('truncateOutput', () => {
     expect(cut).toHaveLength(MAX_OUTPUT_CHARS)
     expect(cut).toMatch(/\[Output cut: showing the first \d+ of 30001 characters\.\]$/)
   })
+
+  it('keeps most of the room when the only line break is far before the limit', () => {
+    const cut = truncateOutput(`$ kubb generate --diff\n${'x'.repeat(MAX_OUTPUT_CHARS * 2)}`)
+
+    expect(cut).toHaveLength(MAX_OUTPUT_CHARS)
+    expect(cut.startsWith('$ kubb generate --diff\nxxx')).toBe(true)
+  })
+
+  it('does not cut inside a surrogate pair', () => {
+    const cut = truncateOutput('😀'.repeat(MAX_OUTPUT_CHARS))
+    const kept = cut.slice(0, cut.indexOf('\n\n[Output cut'))
+
+    expect(kept.length % 2).toBe(0)
+    expect(kept.isWellFormed()).toBe(true)
+  })
 })
 
 describe('summarizeDiff', () => {
@@ -122,7 +137,7 @@ describe('summarizeDiff', () => {
       '-export type Order = {}',
     ].join('\n')
 
-    expect(summarizeDiff(diff)).toEqual([
+    expect(summarizeDiff(diff).files).toEqual([
       { file: 'src/gen/pet.ts', linesAdded: 2, linesRemoved: 1 },
       { file: 'src/gen/order.ts', linesAdded: 0, linesRemoved: 1 },
     ])
@@ -131,10 +146,29 @@ describe('summarizeDiff', () => {
   it('reads a changed line that looks like a file header as a change', () => {
     const diff = ['--- a/notes.md', '+++ b/notes.md', '@@ -1,2 +1,2 @@', ' title', '--- old rule', '+++ new rule'].join('\n')
 
-    expect(summarizeDiff(diff)).toEqual([{ file: 'notes.md', linesAdded: 1, linesRemoved: 1 }])
+    expect(summarizeDiff(diff).files).toEqual([{ file: 'notes.md', linesAdded: 1, linesRemoved: 1 }])
   })
 
   it('returns no files for output without a diff', () => {
-    expect(summarizeDiff('Generated files are up to date')).toEqual([])
+    expect(summarizeDiff('Generated files are up to date')).toEqual({ files: [], rest: 'Generated files are up to date' })
+  })
+
+  it('keeps the lines outside a diff, without the file headers', () => {
+    const diff = [
+      'Loading config',
+      '===================================================================',
+      '--- a/src/gen/pet.ts',
+      '+++ b/src/gen/pet.ts',
+      '@@ -1 +1 @@',
+      '-export type Pet = {}',
+      '+export type Pet = { id: string }',
+      '\\ No newline at end of file',
+      'Warning: kubb-lock.json is missing',
+    ].join('\n')
+
+    expect(summarizeDiff(diff)).toEqual({
+      files: [{ file: 'src/gen/pet.ts', linesAdded: 1, linesRemoved: 1 }],
+      rest: 'Loading config\nWarning: kubb-lock.json is missing',
+    })
   })
 })

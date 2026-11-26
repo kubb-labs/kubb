@@ -27,7 +27,7 @@ describe('tools', () => {
 
   it.each(definitions)('describes $name in three sentences or more, with a title', ({ title, description }) => {
     expect(title).toBeTruthy()
-    expect(description.split(/[.:] /).length).toBeGreaterThanOrEqual(3)
+    expect(description.split(/\.(?:\s|$)/).filter(Boolean).length).toBeGreaterThanOrEqual(3)
   })
 
   it.each(['kubb_validate', 'kubb_diff', 'kubb_list'])('marks %s as read-only', (name) => {
@@ -42,5 +42,9 @@ describe('tools', () => {
     ['kubb_add', false],
   ])('sets destructiveHint of %s to %s', (name, destructiveHint) => {
     expect(byName(name)?.annotations).toMatchObject({ destructiveHint })
+  })
+
+  it.each(['kubb_add', 'kubb_update', 'kubb_remove', 'kubb_list'])('marks %s, which reads the registry, as open world', (name) => {
+    expect(byName(name)?.annotations).toMatchObject({ openWorldHint: true })
   })
 })

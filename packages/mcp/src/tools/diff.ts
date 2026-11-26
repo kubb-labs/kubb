@@ -2,7 +2,7 @@ import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
 import { runKubb } from '../cli.ts'
-import { summarizeDiff } from '../utils.ts'
+import { type DiffFileSummary, summarizeDiff } from '../utils.ts'
 import { configPathSchema, toConfigArgs } from './shared.ts'
 
 const diffSchema = v.object({
@@ -19,19 +19,34 @@ const diffSchema = v.object({
   lockfile: v.optional(v.pipe(v.boolean(), v.description('Read kubb-lock.json. Set to false to compare with the generated text alone')), true),
 })
 
-// The file list under a cut diff stays short, so the notice does not bring the output back over the limit.
-const MAX_FILES_IN_NOTICE = 100
+// The most characters of file list under a cut diff, so the list cannot push the diff out of the response.
+const MAX_NOTICE_LIST_CHARS = 5_000
 
 /**
- * One line per out-of-date file with its line counts, under a count of the files. Lists `maxFiles`
- * files at most, then the number left out. Returns `undefined` when `output` holds no diff.
+ * One line per out-of-date file with its line counts, under a count of the files. Lists files until
+ * `maxChars` is used, then the number left out.
  */
-function formatSummary(output: string, maxFiles = Number.POSITIVE_INFINITY): string | undefined {
-  const files = summarizeDiff(output)
-  if (!files.length) return undefined
-  const lines = files.slice(0, maxFiles).map(({ file, linesAdded, linesRemoved }) => `${file} (+${linesAdded} -${linesRemoved})`)
-  if (files.length > maxFiles) lines.push(`and ${files.length - maxFiles} more. Call kubb_diff with format "summary" for the full list.`)
+function formatSummary(files: ReadonlyArray<DiffFileSummary>, maxChars = Number.POSITIVE_INFINITY): string {
+  const lines: Array<string> = []
+  let used = 0
+  for (const { file, linesAdded, linesRemoved } of files) {
+    const line = `${file} (+${linesAdded} -${linesRemoved})`
+    if (used + line.length + 1 > maxChars) break
+    lines.push(line)
+    used += line.length + 1
+  }
+  if (files.length > lines.length) lines.push(`and ${files.length - lines.length} more. Call kubb_diff with format "summary" for the full list.`)
   return `${files.length} generated ${files.length === 1 ? 'file is' : 'files are'} out of date:\n${lines.join('\n')}`
+}
+
+/**
+ * The CLI output with each diff replaced by one line in the file list. The lines outside a diff, such
+ * as warnings, stay above the list. Output without a diff comes back as is.
+ */
+function toSummary(output: string): string {
+  const { files, rest } = summarizeDiff(output)
+  if (!files.length) return output
+  return [rest, formatSummary(files)].filter(Boolean).join('\n\n')
 }
 
 export const diffTool = defineTool(
@@ -49,11 +64,12 @@ export const diffTool = defineTool(
     return runKubb({
       args: ['generate', ...configArgs.args, '--diff', ...(lockfile ? [] : ['--no-lockfile'])],
       isSuccess: (code) => code === 0 || code === 1,
-      formatOutput: (output) => (format === 'summary' ? (formatSummary(output) ?? output) : output),
+      formatOutput: (output) => (format === 'summary' ? toSummary(output) : output),
       truncationHint: (output) => {
         if (format === 'summary') return 'The end of the file list is missing.'
-        const summary = formatSummary(output, MAX_FILES_IN_NOTICE)
-        return summary ? `The diffs of the later files are missing. The out-of-date files are listed below.\n\n${summary}` : undefined
+        const { files } = summarizeDiff(output)
+        if (!files.length) return undefined
+        return `The diffs of the later files are missing. The out-of-date files are listed below.\n\n${formatSummary(files, MAX_NOTICE_LIST_CHARS)}`
       },
     })
   },

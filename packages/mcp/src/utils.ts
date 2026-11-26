@@ -74,8 +74,8 @@ export const MAX_OUTPUT_CHARS = 30_000
 /**
  * Cuts `text` so that it fits in `MAX_OUTPUT_CHARS` together with a notice that gives both sizes and
  * the text `hint` returns, so the AI client knows the output is partial and what to call next. The cut
- * falls on a line break when there is one. `hint` is called only for a text that is cut. A text within
- * the limit comes back as is.
+ * falls on a line break when one is close to the limit, and never inside a surrogate pair. `hint` is
+ * called only for a text that is cut. A text within the limit comes back as is.
  *
  * @example
  * `truncateOutput(output, () => 'Call kubb_diff with format "summary" for the full file list.')`
@@ -86,8 +86,12 @@ export function truncateOutput(text: string, hint?: () => string | undefined): s
   const notice = (shown: number) => `\n\n[Output cut: showing the first ${shown} of ${text.length} characters.${extra ? ` ${extra}` : ''}]`
   // The notice is sized with the full length, which has at least as many digits as the shown length.
   const room = Math.max(0, MAX_OUTPUT_CHARS - notice(text.length).length)
+  // A line break far before the limit, as one very long line leaves, would drop most of the room.
   const lineEnd = text.lastIndexOf('\n', room)
-  const kept = text.slice(0, lineEnd > 0 ? lineEnd : room)
+  let end = lineEnd >= room * 0.75 ? lineEnd : room
+  const last = text.charCodeAt(end - 1)
+  if (last >= 0xd800 && last <= 0xdbff) end--
+  const kept = text.slice(0, end)
   return `${kept}${notice(kept.length)}`
 }
 
@@ -118,12 +122,24 @@ function countHunkLine(line: string, file: DiffFileSummary): { old: number; new:
   return line.startsWith('\\') ? { old: 0, new: 0 } : { old: 1, new: 1 }
 }
 
+const FILE_HEADER_LINES = [/^--- /, /^=+$/, /^Index: /]
+
 /**
- * Reads the files and their added and removed line counts from unified diff text, such as the
- * output of `kubb generate --diff`. Lines outside a diff are skipped.
+ * Removes the lines a patch prints above its `+++` line from the end of `lines`.
  */
-export function summarizeDiff(diff: string): Array<DiffFileSummary> {
+function dropFileHeader(lines: Array<string>): void {
+  for (const pattern of FILE_HEADER_LINES) {
+    if (pattern.test(lines.at(-1) ?? '')) lines.pop()
+  }
+}
+
+/**
+ * Reads unified diff text, such as the output of `kubb generate --diff`. Returns the files with their
+ * added and removed line counts, and `rest`: the lines outside a diff, such as the log and the warnings of the CLI.
+ */
+export function summarizeDiff(diff: string): { files: Array<DiffFileSummary>; rest: string } {
   const files: Array<DiffFileSummary> = []
+  const rest: Array<string> = []
   let current: DiffFileSummary | undefined
   // Lines left in the current hunk. Counting them keeps a changed line that starts with `++ ` or `@@` from reading as a header.
   let oldLeft = 0
@@ -142,9 +158,12 @@ export function summarizeDiff(diff: string): Array<DiffFileSummary> {
       continue
     }
     if (line.startsWith('+++ ')) {
+      dropFileHeader(rest)
       current = { file: line.slice(4).split('\t')[0]!.replace(/^b\//, ''), linesAdded: 0, linesRemoved: 0 }
       files.push(current)
+      continue
     }
+    if (!line.startsWith('\\ No newline')) rest.push(line)
   }
-  return files
+  return { files, rest: rest.join('\n').trim() }
 }

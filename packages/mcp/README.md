@@ -169,7 +169,7 @@ Writes a `kubb.config.ts` in the working directory without prompts. It does not 
 Parameters:
 
 - `inputPath` (string, optional): Path to the OpenAPI spec (default: `./openapi.yaml`)
-- `outputPath` (string, optional): Output directory (default: `./src/gen`)
+- `outputPath` (string, optional): Output directory inside the working directory (default: `./src/gen`)
 
 #### `kubb_diff`, `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list`
 

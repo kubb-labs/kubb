@@ -29,6 +29,34 @@ const generateSchema = v.object({
   ),
 })
 
+/**
+ * Checks the spec and the output folder against the working directory, and returns the reason when one is refused.
+ * The AI client supplies them or wrote them to the config with `kubb_init`, and `output.clean` empties the output folder.
+ * Core resolves both against `config.root`, which the loader already made absolute, so the check does as well.
+ * `file` is the config that holds `output` when the AI client did not pass it.
+ */
+async function checkPaths({
+  root,
+  base,
+  input,
+  output,
+  file,
+}: {
+  root: string
+  base: string
+  input?: string
+  output?: string
+  file?: string
+}): Promise<string | undefined> {
+  if (output && !(await isRealPathInside({ target: path.resolve(root, output), base }))) {
+    return `Invalid ${file ? `output.path in ${file}` : 'outputPath'}: must be within the current working directory`
+  }
+  if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside({ target: path.resolve(root, input), base }))) {
+    return 'Invalid inputPath: must be a URL or within the current working directory'
+  }
+  return undefined
+}
+
 export const generateTool = defineTool(
   {
     name: 'kubb_generate',
@@ -87,15 +115,14 @@ export const generateTool = defineTool(
         return failure(`Failed to load config ${file}`, [Diagnostics.from(error)])
       }
 
-      // The AI client also supplies these, and `output.clean` empties the output folder, so both stay inside the working directory too.
-      // Core resolves them against `config.root`, which the loader already made absolute, so the check does as well.
-      const root = userConfig.root ?? base
-      if (output && !(await isRealPathInside({ target: path.resolve(root, output), base }))) {
-        return tool.error('Invalid outputPath: must be within the current working directory')
-      }
-      if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside({ target: path.resolve(root, input), base }))) {
-        return tool.error('Invalid inputPath: must be a URL or within the current working directory')
-      }
+      const refusal = await checkPaths({
+        root: userConfig.root ?? base,
+        base,
+        input,
+        output: output ?? userConfig.output?.path,
+        file: output ? undefined : file,
+      })
+      if (refusal) return tool.error(refusal)
 
       const config: Config = {
         ...userConfig,

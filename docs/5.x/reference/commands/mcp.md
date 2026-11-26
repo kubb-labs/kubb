@@ -58,7 +58,7 @@ Every tool sets the MCP [tool annotations](https://modelcontextprotocol.io/speci
 | `kubb_init` | `false` | `false` | `true` | `false` |
 | `kubb_add` | `false` | `false` | `true` | `true` |
 | `kubb_update` | `false` | `true` | `true` | `true` |
-| `kubb_remove` | `false` | `true` | `true` | `false` |
+| `kubb_remove` | `false` | `true` | `true` | `true` |
 | `kubb_list` | `true` | | `true` | `true` |
 
 `kubb_generate` is destructive because it overwrites generated files and, with `output.clean`, empties the output folder first. `openWorldHint` is `true` for a tool that can fetch a spec URL or reach the registry.
@@ -75,7 +75,7 @@ src/gen/types/Pet.ts (+4120 -3980)
 src/gen/types/Order.ts (+12 -3)]
 ```
 
-For `kubb_diff`, the notice lists the out-of-date files with their line counts. Set `format` to `summary` to get only that list.
+For `kubb_diff`, the notice lists the out-of-date files with their line counts, up to 5,000 characters of list. Set `format` to `summary` to get the whole list without the diffs.
 
 ### `kubb_generate` {#kubb-generate}
 
@@ -112,7 +112,7 @@ Path to a config file inside the [working directory](#working-directory). Withou
 :::
 
 :::field{name="format" type="'full' | 'summary'"}
-`full` returns the unified diffs, cut at the [output limit](#output-size). `summary` returns one line per out-of-date file with its added and removed line counts, such as `src/gen/pet.ts (+12 -3)`. Default: `full`.
+`full` returns the unified diffs, cut at the [output limit](#output-size). `summary` returns one line per out-of-date file with its added and removed line counts, such as `src/gen/pet.ts (+12 -3)`, under the warnings the CLI printed. Default: `full`.
 :::
 
 :::field{name="lockfile" type="boolean"}
@@ -144,7 +144,7 @@ Spec path written to the config. Default: `./openapi.yaml`.
 :::
 
 :::field{name="outputPath" type="string"}
-Output folder written to the config. Default: `./src/gen`.
+Output folder inside the [working directory](#working-directory), written to the config. Default: `./src/gen`.
 :::
 
 ::
@@ -223,8 +223,9 @@ The server runs in the folder the client starts it in:
 
 - `kubb_generate` looks for the config there, then in each parent folder.
 - `kubb_generate` rejects a `configPath` or `outputPath` outside that folder, and an `inputPath` outside it unless `inputPath` is an `http:` or `https:` URL. The check follows symlinks, and resolves `outputPath` and `inputPath` from the config's `root`.
+- `kubb_generate` also rejects a config whose own `output.path` is outside that folder, since `output.clean` empties it.
 - `kubb_diff`, `kubb_add`, and `kubb_remove` reject a `configPath` outside that folder too.
 - Every tool that runs the CLI runs it there.
-- `kubb_init` writes `kubb.config.ts` there.
+- `kubb_init` writes `kubb.config.ts` there, and rejects an `outputPath` outside that folder.
 
 When the server cannot find your config, see [Start it in your project](/docs/5.x/ai/mcp#working-directory).

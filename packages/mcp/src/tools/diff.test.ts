@@ -73,6 +73,31 @@ describe('diff tool', () => {
     expect(text).not.toContain('@@')
   })
 
+  it('keeps the CLI warnings above the summary', async () => {
+    vi.stubEnv('FAKE_KUBB_EXIT', '1')
+    vi.stubEnv('FAKE_KUBB_OUTPUT', [patch('src/gen/pet.ts'), 'Warning: kubb-lock.json is missing'].join('\n'))
+
+    const { text } = await callTool(diffTool, { format: 'summary' })
+
+    // stdout and stderr arrive in either order, so the two parts are checked apart.
+    expect(text).toContain('Warning: kubb-lock.json is missing')
+    expect(text).toContain('1 generated file is out of date:\nsrc/gen/pet.ts (+1 -1)')
+    expect(text).not.toContain('@@')
+  })
+
+  it('caps the file list under a cut diff by size', async () => {
+    vi.stubEnv('FAKE_KUBB_EXIT', '1')
+    const files = Array.from({ length: 120 }, (_, index) => `src/gen/${'deep/'.repeat(50)}file${index}.ts`)
+    vi.stubEnv('FAKE_KUBB_OUTPUT', files.map((file) => patch(file, 3)).join('\n'))
+
+    const { text } = await callTool(diffTool, {})
+
+    expect(text.length).toBeLessThanOrEqual(MAX_OUTPUT_CHARS)
+    expect(text).toContain('120 generated files are out of date:')
+    expect(text).toMatch(/and \d+ more\. Call kubb_diff with format "summary" for the full list\.\]$/)
+    expect(text).toContain('@@ -1,1 +1,3 @@')
+  })
+
   it('returns the CLI output for the summary format when nothing is out of date', async () => {
     const { text } = await callTool(diffTool, { format: 'summary' })
 

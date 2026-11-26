@@ -70,6 +70,16 @@ describe('generate tool', () => {
     expect(text).toContain(message)
   })
 
+  it('refuses a config whose own output.path is outside the working directory', async () => {
+    const configPath = join(dir, 'kubb.outside.config.ts')
+    await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, output: { path: '../../outside-gen', clean: true } }\n`)
+
+    const { isError, text } = await run({ configPath })
+
+    expect(isError).toBe(true)
+    expect(text).toContain(`Invalid output.path in ${configPath}`)
+  })
+
   it('resolves the output against the config root, as core does', async () => {
     const configPath = join(dir, 'kubb.root.config.ts')
     await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, root: '../..' }\n`)
