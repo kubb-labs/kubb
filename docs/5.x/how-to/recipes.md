@@ -209,21 +209,21 @@ src/gen/** linguist-generated=true
 kubb-lock.json linguist-generated=true
 ```
 
-Replace `src/gen` with your `output.path`. Keep committing both: `--check` needs `kubb-lock.json` to recognize formatted output.
+Replace `src/gen` with your `output.path`, without a leading `./`: git matches these patterns against paths from the repository root. Keep committing both: `--check` needs `kubb-lock.json` to recognize formatted output.
 
 For a large spec, group the files by tag. A rename then stays inside one folder, and the reviewer sees which part of the API changed:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { pluginFetch } from '@kubb/plugin-fetch'
 
 export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen' },
   plugins: [
     pluginTs({ group: { type: 'tag' } }), // src/gen/types/pet/, src/gen/types/store/
-    pluginClient({ group: { type: 'tag' } }),
+    pluginFetch({ group: { type: 'tag' } }),
   ],
 })
 ```
