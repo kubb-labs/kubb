@@ -18,7 +18,7 @@ function summary(overrides: Partial<GenerationResult> = {}): Array<string> {
 }
 
 const changes = { added: 1, modified: 2, deleted: 1, linesAdded: 5, linesRemoved: 3 }
-const staleFile = { path: 'src/gen/pet.ts', status: 'modified', linesAdded: 1, linesRemoved: 1 } as const
+const staleFile = { path: 'src/gen/pet.ts', status: 'modified' as const, linesAdded: 1, linesRemoved: 1 }
 
 describe('formatSummary', () => {
   it('ends a run with the verdict, the kinds of change, and the Finished line', () => {
@@ -36,7 +36,7 @@ describe('formatSummary', () => {
     ['a dry run changes nothing', { dryRun: true, filesUnchanged: 4 }, '◇ Dry run: no files would change · 4 unchanged'],
     ['a check finds everything up to date', { check: { changed: false, files: [] }, filesFromLockfile: 2 }, '✓ 4 files up to date · 2 via kubb-lock.json'],
     ['a check finds stale files', { check: { changed: true, files: [staleFile] }, filesUnchanged: 3 }, '✗ 1 file out of date · 3 up to date'],
-  ] as const)('names the outcome when %s', (_name, overrides, expected) => {
+  ] satisfies Array<[string, Partial<GenerationResult>, string]>)('names the outcome when %s', (_name, overrides, expected) => {
     expect(summary(overrides)).toContain(expected)
   })
 
