@@ -62,8 +62,8 @@ describe('unpluginFactory', () => {
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
 
     const lines = log.mock.calls.map(([line]) => stripVTControlCharacters(String(line)).trim())
-    expect(lines).toContain('Plugins  1 not run')
-    expect(lines).toContain('Issues   1 error')
+    expect(lines).toContain('✗ Generation failed · 1 error')
+    expect(lines.some((line) => line.startsWith('Finished in ') && line.includes('1 of 1 plugin not run'))).toBe(true)
   })
 
   test('fails the host build when the config is missing and no kubb.config.ts exists', async () => {
