@@ -156,39 +156,48 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
     // A type used more than once becomes one local declaration; one used once, or a bare alias, is written where it is used.
     function writeType(target: NonNullable<ReturnType<typeof findTypeTarget>>): string | undefined {
-      if (target.expression === undefined) {
-        result.problems.push({
-          path: file.path,
-          message: `"${target.name}" is imported from "${target.path}", which never writes it and has no inline definition for it.`,
-        })
-        return undefined
-      }
-      const existing = locals.get(target.key)
+      const { expression, key } = target
+      if (expression === undefined)
+        return report(`"${target.name}" is imported from "${target.path}", which never writes it and has no inline definition for it.`)
+      const existing = locals.get(key)
       if (existing) return existing
 
-      // A declared type gets its name before its body, so a type that refers to itself, such as a tree node, can use it.
-      const declare = (uses.get(target.key) ?? 0) >= 2 && !isBareName(target.expression)
-      const local = declare ? bind(target.key, target.name) : undefined
-      if (local) locals.set(target.key, local)
-      if (!local && writing.has(target.key)) {
-        result.problems.push({ path: file.path, message: `"${target.name}" from "${target.path}" is defined in terms of itself.` })
-        return undefined
-      }
+      const local = declareName(target, expression)
+      if (!local && writing.has(key)) return report(`"${target.name}" from "${target.path}" is defined in terms of itself.`)
 
-      writing.add(target.key)
-      const used = new Set<string>()
-      const text = lang.replaceIdentifiers(target.expression, (id) => {
-        const replaced = resolve(target.file, id)
-        if (replaced === undefined) used.add(id)
-        return replaced
-      })
-      writing.delete(target.key)
-      const imports = target.file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used)))
-      const body = carry({ expression: text, imports })
+      writing.add(key)
+      const body = writeBody(target.file, expression)
+      writing.delete(key)
       if (!local) return lang.wrap(body)
 
       declarations.push(createSource({ name: local, isTypeOnly: true, nodes: [createType({ name: local, nodes: [createText(body)] })] }))
       return local
+    }
+
+    // Reserves the local name of a type used more than once, before its body is written, so a type that refers to itself, such
+    // as a tree node, can use it. A type used once, or a bare alias, gets none and is written where it is used.
+    function declareName(target: { key: string; name: string }, expression: string): string | undefined {
+      if ((uses.get(target.key) ?? 0) < 2 || isBareName(expression)) return undefined
+      const local = bind(target.key, target.name)
+      locals.set(target.key, local)
+      return local
+    }
+
+    function report(message: string): undefined {
+      result.problems.push({ path: file.path, message })
+      return undefined
+    }
+
+    // A type's body with the names it uses resolved, and the imports it needs carried into the file.
+    function writeBody(from: FileNode, expression: string): string {
+      const used = new Set<string>()
+      const text = lang.replaceIdentifiers(expression, (id) => {
+        const replaced = resolve(from, id)
+        if (replaced === undefined) used.add(id)
+        return replaced
+      })
+      const imports = from.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used)))
+      return carry({ expression: text, imports })
     }
 
     // What `id` in `from` becomes: a type's local name or body, or a value's body. `undefined` keeps it as it is.
