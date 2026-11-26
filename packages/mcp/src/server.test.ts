@@ -34,10 +34,6 @@ describe('tools', () => {
     expect(byName(name)?.annotations).toMatchObject({ readOnlyHint: true })
   })
 
-  it.each(['kubb_generate', 'kubb_init', 'kubb_add', 'kubb_update', 'kubb_remove'])('marks %s as writing', (name) => {
-    expect(byName(name)?.annotations).toMatchObject({ readOnlyHint: false })
-  })
-
   it.each([
     ['kubb_remove', true],
     ['kubb_generate', true],

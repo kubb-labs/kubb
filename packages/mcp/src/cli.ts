@@ -6,7 +6,7 @@ import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { tool } from 'tmcp/utils'
-import { MAX_OUTPUT_CHARS, truncateOutput } from './utils.ts'
+import { truncateOutput } from './utils.ts'
 
 const CLI_PACKAGES = ['@kubb/cli', 'kubb'] as const
 
@@ -104,8 +104,7 @@ export async function runKubb({
     const succeeded = !signal && exitCode !== null && isSuccess(exitCode)
     const status = signal ? `Stopped by ${signal}` : `Exit code: ${exitCode}`
     const body = (succeeded ? formatOutput(output) : output) || '(no output)'
-    const full = `$ kubb ${args.join(' ')}\n${status}\n\n${body}`
-    const text = truncateOutput(full, { hint: full.length > MAX_OUTPUT_CHARS ? truncationHint?.(output) : undefined })
+    const text = truncateOutput(`$ kubb ${args.join(' ')}\n${status}\n\n${body}`, () => truncationHint?.(output))
     return succeeded ? tool.text(text) : tool.error(text)
   } catch (error) {
     return tool.error(`Could not run kubb ${args.join(' ')}: ${getErrorMessage(error)}`)

@@ -80,15 +80,19 @@ describe('checkConfigPath', async () => {
 })
 
 describe('truncateOutput', () => {
-  it('returns a text within the limit as is', () => {
-    expect(truncateOutput('short')).toBe('short')
+  it('returns a text within the limit as is, without calling the hint', () => {
+    const hint = vi.fn(() => 'Ask for less.')
+
+    expect(truncateOutput('short', hint)).toBe('short')
+    expect(hint).not.toHaveBeenCalled()
   })
 
   it('cuts at the last line break before the limit and says how much is shown', () => {
-    const text = ['first line', 'second line', 'third line'].join('\n')
+    const line = 'x'.repeat(99)
+    const text = Array.from({ length: 400 }, () => line).join('\n')
 
-    expect(truncateOutput(text, { limit: 25, hint: 'Ask for less.' })).toBe(
-      `first line\nsecond line\n\n[Output cut: showing the first 22 of ${text.length} characters. Ask for less.]`,
+    expect(truncateOutput(text, () => 'Ask for less.')).toBe(
+      `${text.slice(0, 29_999)}\n\n[Output cut: showing the first 29999 of ${text.length} characters. Ask for less.]`,
     )
   })
 

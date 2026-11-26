@@ -15,5 +15,5 @@ Breaking: the parameters have specific names.
 | `ids` | `extensionIds` | `kubb_update` |
 
 - Each tool has a title, a description that says when to use it and what it returns, and MCP annotations. `kubb_validate`, `kubb_diff`, and `kubb_list` are read-only, and `kubb_generate`, `kubb_update`, and `kubb_remove` are destructive.
-- A tool returns 30,000 characters at most. Longer output is cut and ends with an `[Output cut: ...]` notice.
+- `kubb_diff`, `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list` return 30,000 characters at most. Longer output is cut and ends with an `[Output cut: ...]` notice.
 - `kubb_diff` accepts `format: 'summary'`, which returns one line per out-of-date file with its added and removed line counts.

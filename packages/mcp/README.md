@@ -112,7 +112,7 @@ Clients such as Claude Code ignore a `cwd` key in this config. When a client sta
 
 ### Available tools
 
-Every tool sets the MCP annotations: `kubb_validate`, `kubb_diff`, and `kubb_list` are read-only, and `kubb_generate`, `kubb_update`, and `kubb_remove` are destructive. A tool returns 30,000 characters at most. Longer output is cut and ends with an `[Output cut: ...]` notice.
+Every tool sets the MCP annotations: `kubb_validate`, `kubb_diff`, and `kubb_list` are read-only, and `kubb_generate`, `kubb_update`, and `kubb_remove` are destructive. A tool that runs the `kubb` CLI returns 30,000 characters at most. Longer output is cut and ends with an `[Output cut: ...]` notice.
 
 #### `kubb_generate`
 

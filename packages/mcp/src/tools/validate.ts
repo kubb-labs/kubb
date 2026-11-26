@@ -4,7 +4,7 @@ import { Diagnostics } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
-import { formatDiagnostics, truncateOutput } from '../utils.ts'
+import { formatDiagnostics } from '../utils.ts'
 
 const validateSchema = v.object({
   inputPath: v.pipe(
@@ -31,7 +31,7 @@ export const validateTool = defineTool(
     } catch (err) {
       const diagnostic = Diagnostics.from(err)
       const serialized = Diagnostics.serialize(diagnostic)
-      return tool.error(truncateOutput(`Validation failed:\n${formatDiagnostics([diagnostic])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``))
+      return tool.error(`Validation failed:\n${formatDiagnostics([diagnostic])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
     }
   },
 )

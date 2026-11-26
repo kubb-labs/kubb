@@ -5,7 +5,7 @@ import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, 
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
-import { checkConfigPath, formatDiagnostics, isRealPathInside, truncateOutput } from '../utils.ts'
+import { checkConfigPath, formatDiagnostics, isRealPathInside } from '../utils.ts'
 import { configPathSchema } from './shared.ts'
 
 const generateSchema = v.object({
@@ -49,7 +49,7 @@ export const generateTool = defineTool(
     const failure = (title: string, diagnostics: ReadonlyArray<Diagnostic>) => {
       const serialized = diagnostics.map((diagnostic) => Diagnostics.serialize(diagnostic))
       const log = messages.length ? `\n\nMessages:\n${messages.join('\n')}` : ''
-      return tool.error(truncateOutput(`${title}:\n${formatDiagnostics(diagnostics)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\`${log}`))
+      return tool.error(`${title}:\n${formatDiagnostics(diagnostics)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\`${log}`)
     }
 
     try {
@@ -124,7 +124,7 @@ export const generateTool = defineTool(
 
       notify('BUILD_SUCCESS', `Build completed successfully - Generated ${result.files.length} files`)
 
-      return tool.text(truncateOutput(`Build completed successfully!\n\nGenerated ${result.files.length} files\n\n${messages.join('\n')}`))
+      return tool.text(`Build completed successfully!\n\nGenerated ${result.files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {
       return failure('Build error', [Diagnostics.from(caughtError)])
     }
