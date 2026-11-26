@@ -1,5 +1,74 @@
 # Changelog
 
+## v5.27.0 — Nov 26, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Apply `enumSuffix` to inline enums on operation parameters and response headers. With `enumSuffix: 'Marker'`, a query parameter `state` on `getPets` now generates `GetPetsStateMarker` instead of `GetPetsState`, the same as an inline enum on a model property. ([#4792](https://github.com/kubb-labs/kubb/pull/4792), [`3dcca10`](https://github.com/kubb-labs/kubb/commit/3dcca10af716c9d9a45e91d59e4ac458109aa243))
+- An `enum` with a `format`, such as `int32`, becomes a named enum when the schema has `x-enumNames` or `x-enum-varnames`, the same as an enum without a `format`. `@kubb/plugin-ts` then generates the runtime object with `enum: { type: 'asConst' }`. Before, the names were dropped and the enum generated as a union of its values. A formatted enum without names is unchanged, and so is one whose format prints as `bigint`, `Date`, or `Blob`. An `int64` enum needs `integerType: 'number'`.
+  
+  With the `@kubb/plugin-ts` defaults, the type of these enums is now named `StatusKey` instead of `Status`. Set `constCasing: 'pascalCase'` and `typeSuffix: ''` to keep `Status`.
+  
+  Each `x-enumNames` entry also stays with its own value when the enum repeats a value, such as `enum: [1, 1, 2]`. Before, the names shifted by one. An enum without a `type` takes its member type from its values. ([#4793](https://github.com/kubb-labs/kubb/pull/4793), [`1fafdb9`](https://github.com/kubb-labs/kubb/commit/1fafdb903bbc5319f2908be8ca23168c2f74fdcc))
+- Use less memory while validating a spec.
+  
+  The worker thread that validates the spec now keeps a small young-generation heap, so it frees short-lived objects sooner. On a 1.3 MB spec, peak memory of `kubb generate` drops from about 242 MB to 216 MB, and on the pet store spec from about 125 MB to 116 MB. Generation takes the same time. ([#4800](https://github.com/kubb-labs/kubb/pull/4800), [`2827e26`](https://github.com/kubb-labs/kubb/commit/2827e26823008848e579114787e45da53a4efd4e))
+
+### @kubb/cli
+
+#### Features
+
+- Add `kubb-lock.json`, and make `kubb generate --check` compare against it.
+  
+  `kubb generate` now writes `kubb-lock.json` to `root`. For every generated file it records a hash of the code Kubb wrote and a hash of the file after `output.format`, `output.lint`, and `output.postGenerate`. Commit it with the generated files.
+  
+  `--check` no longer generates into a temporary folder or runs the formatter and linter. It generates in memory and uses `kubb-lock.json` to recognize formatted output. This fixes `--check` exiting with 2 when an ignore rule skipped the temporary folder, such as `ignorePatterns` in `.oxlintrc.json`. `--dry-run` reads `kubb-lock.json` too, so it works on a fresh checkout.
+  
+  `kubb generate` skips the build when the config, the spec, the installed package versions, and the generated files all match `kubb-lock.json`. Pass the new `--force` flag to generate, format, and lint anyway.
+  
+  In `@kubb/core`, `Kubb.isUpToDate(config)` exposes the same check and `generate()` accepts `force`. The `Lockfile` class and its `createLockfile({ storage, root })` helper replace `createOutputManifest` and the `OutputManifest` type. ([#4791](https://github.com/kubb-labs/kubb/pull/4791), [`fe9cfe5`](https://github.com/kubb-labs/kubb/commit/fe9cfe5f9a2042396d071ac807b1ed1a8ee4cf55))
+- Add `kubb generate --no-lockfile`, which generates without reading or writing `kubb-lock.json`.
+  
+  ```shell
+  kubb generate --no-lockfile
+  ```
+  
+  Every run then generates, formats, and lints, and an existing `kubb-lock.json` stays as it is. `--check` and `--dry-run` accept the flag too, and compare each file with the generated text alone.
+  
+  In `@kubb/core`, `generate()` and `Kubb.generate()` accept `lockfile: false`. ([#4802](https://github.com/kubb-labs/kubb/pull/4802), [`08e67d2`](https://github.com/kubb-labs/kubb/commit/08e67d2b16efb356100181ebed6407fa96379c24))
+
+### @kubb/core
+
+#### Features
+
+- Rename public types and classes to shorter names. The old names still work and are deprecated until v6.
+  
+  | Package | Deprecated | Use instead |
+  | --- | --- | --- |
+  | `@kubb/core`, `kubb` | `CreateKubbOptions` | `KubbOptions` |
+  | `@kubb/core` | `KubbDriver` | `Driver` |
+  | `@kubb/core`, `@kubb/kit` | `Exclude`, `Include` | `Filter` |
+  | `@kubb/kit` | `GeneratorContext` | `TemplateContext` |
+  | `@kubb/renderer-jsx` | `JSDoc` | `JSDocNode` from `@kubb/ast` |
+  | `unplugin-kubb` | `Options` | `UnpluginKubbOptions` |
+  
+  `KubbDriver` is the same class as `Driver`, so `instanceof KubbDriver` keeps working.
+  
+  New exports:
+  
+  - `@kubb/core` exports the `DiagnosticError` class and the `AdapterParseOptions`, `AdapterValidateOptions`, `SourceRange`, `LockfileOptions` and `FileChanges` types.
+  - `@kubb/ast` exports the `CreateSchemaInput` type.
+  - `@kubb/kit` exports the `Filter` type.
+  - `@kubb/renderer-jsx` exports the `JsxRenderer` type. ([#4801](https://github.com/kubb-labs/kubb/pull/4801), [`d15a85a`](https://github.com/kubb-labs/kubb/commit/d15a85afcdcd93dad0da7e9f773e582f47fc1b41))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.26.0 — Nov 25, 2026
 
 ### @kubb/adapter-oas
