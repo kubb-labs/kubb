@@ -103,7 +103,7 @@ Passed to a config that exports a function. Default: `info`.
 
 ### `kubb_diff` {#kubb-diff}
 
-Runs [`kubb generate --diff`](/docs/5.x/reference/commands/generate) and returns the generated-file diff: a unified diff for each generated file that differs from what `kubb_generate` would write. It writes nothing, and it does not compare two versions of a spec. Exit code `0` means the files are up to date, and `1` means they are out of date. A failed run returns an error.
+Runs [`kubb generate --diff`](/docs/5.x/reference/commands/generate) with the `json` reporter and returns the run log and the generated-file diff: a unified diff for each generated file that differs from what `kubb_generate` would write. It writes nothing, and it does not compare two versions of a spec. Exit code `0` means the files are up to date, and `1` means they are out of date. A failed run returns an error.
 
 ::field-group
 
@@ -112,7 +112,7 @@ Path to a config file inside the [working directory](#working-directory). Withou
 :::
 
 :::field{name="format" type="'full' | 'summary'"}
-`full` returns the unified diffs, cut at the [output limit](#output-size). `summary` returns one line per out-of-date file with its added and removed line counts, such as `src/gen/pet.ts (+12 -3)`, under the warnings the CLI printed. Default: `full`.
+`full` returns the unified diffs, cut at the [output limit](#output-size). `summary` runs `kubb generate --check` and returns one line per out-of-date file with its added and removed line counts, such as `src/gen/pet.ts (+12 -3)`, under the run log and its warnings. Default: `full`.
 :::
 
 :::field{name="lockfile" type="boolean"}

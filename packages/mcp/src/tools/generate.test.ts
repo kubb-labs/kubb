@@ -3,20 +3,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import { afterAll, describe, expect, it } from 'vitest'
+import { callTool } from '../mocks/fakeKubb.ts'
 import { generateTool } from './generate.ts'
 
 // The generate tool only loads a config that lives inside the current working directory,
 // so the fixture dir is created under the package (cwd during the test run).
 const dir = await mkdtemp(join(process.cwd(), 'kubb-mcp-generate-'))
 
-type ToolResult = { isError?: boolean; content: Array<{ type: string; text?: string }> }
 type GenerateInput = { configPath?: string; inputPath?: string; outputPath?: string; logLevel?: string }
-const execute = (generateTool as unknown as { execute: (input: GenerateInput) => Promise<ToolResult> }).execute
-
-async function run(args: GenerateInput) {
-  const result = await execute({ logLevel: 'silent', ...args })
-  return { isError: Boolean(result.isError), text: result.content.map((part) => part.text ?? '').join('\n') }
-}
+const run = (args: GenerateInput) => callTool(generateTool, { logLevel: 'silent', ...args })
 
 // jiti resolves a fixture's `@kubb/adapter-oas` import to the package `dist`, which exists only after a build.
 // The fixtures read this config from `globalThis` instead, so the adapter comes from source.

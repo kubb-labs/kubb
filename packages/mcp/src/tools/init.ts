@@ -5,7 +5,7 @@ import { generateConfigFile, KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
-import { isRealPathInside } from '../utils.ts'
+import { checkOutputPath } from '../utils.ts'
 
 const initSchema = v.object({
   inputPath: v.optional(
@@ -32,9 +32,8 @@ export const initTool = defineTool(
   async ({ inputPath = './openapi.yaml', outputPath = './src/gen' }) => {
     const base = path.resolve(process.cwd())
     // The config sets `output.clean`, so a later generation empties this folder.
-    if (!(await isRealPathInside({ target: path.resolve(base, outputPath), base }))) {
-      return tool.error('Invalid outputPath: must be within the current working directory')
-    }
+    const refusal = await checkOutputPath({ outputPath, root: base, base })
+    if (refusal) return tool.error(refusal)
     const dest = path.join(base, KUBB_CONFIG_FILENAME)
     if (fs.existsSync(dest)) {
       return tool.error(`${KUBB_CONFIG_FILENAME} already exists at ${dest}. Edit that file, or delete it before calling kubb_init again.`)

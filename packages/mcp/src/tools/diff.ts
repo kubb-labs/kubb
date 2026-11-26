@@ -1,9 +1,7 @@
 import { defineTool } from 'tmcp/tool'
-import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
 import { runKubb } from '../cli.ts'
-import { type DiffFileSummary, summarizeDiff } from '../utils.ts'
-import { configPathSchema, toConfigArgs } from './shared.ts'
+import { configPathSchema } from './shared.ts'
 
 const diffSchema = v.object({
   configPath: configPathSchema,
@@ -22,15 +20,31 @@ const diffSchema = v.object({
 // The most characters of file list under a cut diff, so the list cannot push the diff out of the response.
 const MAX_NOTICE_LIST_CHARS = 5_000
 
+type CheckedFile = { path: string; linesAdded: number; linesRemoved: number }
+
+/**
+ * The out-of-date files of every config, from the JSON report `kubb generate --reporter json` prints on stdout.
+ * Returns `undefined` when stdout holds no report, as after a run that failed before it reported.
+ */
+function readCheckedFiles(stdout: string): Array<CheckedFile> | undefined {
+  try {
+    const reports: unknown = JSON.parse(stdout)
+    if (!Array.isArray(reports)) return undefined
+    return reports.flatMap((report: { check?: { files?: Array<CheckedFile> } } | null) => report?.check?.files ?? [])
+  } catch {
+    return undefined
+  }
+}
+
 /**
  * One line per out-of-date file with its line counts, under a count of the files. Lists files until
  * `maxChars` is used, then the number left out.
  */
-function formatSummary(files: ReadonlyArray<DiffFileSummary>, maxChars = Number.POSITIVE_INFINITY): string {
+function formatSummary(files: ReadonlyArray<CheckedFile>, maxChars = Number.POSITIVE_INFINITY): string {
   const lines: Array<string> = []
   let used = 0
-  for (const { file, linesAdded, linesRemoved } of files) {
-    const line = `${file} (+${linesAdded} -${linesRemoved})`
+  for (const { path, linesAdded, linesRemoved } of files) {
+    const line = `${path} (+${linesAdded} -${linesRemoved})`
     if (used + line.length + 1 > maxChars) break
     lines.push(line)
     used += line.length + 1
@@ -39,38 +53,32 @@ function formatSummary(files: ReadonlyArray<DiffFileSummary>, maxChars = Number.
   return `${files.length} generated ${files.length === 1 ? 'file is' : 'files are'} out of date:\n${lines.join('\n')}`
 }
 
-/**
- * The CLI output with each diff replaced by one line in the file list. The lines outside a diff, such
- * as warnings, stay above the list. Output without a diff comes back as is.
- */
-function toSummary(output: string): string {
-  const { files, rest } = summarizeDiff(output)
-  if (!files.length) return output
-  return [rest, formatSummary(files)].filter(Boolean).join('\n\n')
-}
-
 export const diffTool = defineTool(
   {
     name: 'kubb_diff',
     title: 'Diff the generated files',
     description:
-      'Show how the generated files on disk differ from what `kubb_generate` would write now: the generated-file diff. It writes nothing, so use it to preview a generation, or to check that the generated code is in sync with the spec and the config. It does not compare two versions of an OpenAPI spec, and it is not a git diff. Runs `kubb generate --diff` and returns the CLI output and exit code: 0 means the files are up to date, 1 means they are out of date. `full` returns a unified diff for each out-of-date file and cuts long output with a notice and the list of files, and `summary` returns only that list with the added and removed line counts.',
+      'Show how the generated files on disk differ from what `kubb_generate` would write now: the generated-file diff. It writes nothing, so use it to preview a generation, or to check that the generated code is in sync with the spec and the config. It does not compare two versions of an OpenAPI spec, and it is not a git diff. Runs `kubb generate --diff` with the JSON reporter and returns the run log, the diffs, and the exit code: 0 means the files are up to date, 1 means they are out of date. `full` returns a unified diff for each out-of-date file and cuts long output with a notice and the list of files, and `summary` returns only that list with the added and removed line counts.',
     schema: diffSchema,
     annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
   },
-  async ({ configPath, format = 'full', lockfile = true }) => {
-    const configArgs = await toConfigArgs(configPath)
-    if ('error' in configArgs) return tool.error(configArgs.error)
-    return runKubb({
-      args: ['generate', ...configArgs.args, '--diff', ...(lockfile ? [] : ['--no-lockfile'])],
+  ({ configPath, format = 'full', lockfile = true }) =>
+    // The JSON report owns stdout, so the run log, the warnings, and the diffs of `--diff` arrive on stderr.
+    runKubb({
+      args: ['generate', format === 'summary' ? '--check' : '--diff', '--reporter', 'json', ...(lockfile ? [] : ['--no-lockfile'])],
+      configPath,
       isSuccess: (code) => code === 0 || code === 1,
-      formatOutput: (output) => (format === 'summary' ? toSummary(output) : output),
-      truncationHint: (output) => {
+      formatOutput: ({ stdout, stderr, output }) => {
+        const files = readCheckedFiles(stdout)
+        if (!files) return output
+        if (format === 'full' || !files.length) return stderr
+        return [stderr, formatSummary(files)].filter(Boolean).join('\n\n')
+      },
+      truncationHint: ({ stdout }) => {
         if (format === 'summary') return 'The end of the file list is missing.'
-        const { files } = summarizeDiff(output)
-        if (!files.length) return undefined
+        const files = readCheckedFiles(stdout)
+        if (!files?.length) return undefined
         return `The diffs of the later files are missing. The out-of-date files are listed below.\n\n${formatSummary(files, MAX_NOTICE_LIST_CHARS)}`
       },
-    })
-  },
+    }),
 )

@@ -1,8 +1,7 @@
 import { defineTool } from 'tmcp/tool'
-import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
 import { runKubb } from '../cli.ts'
-import { configPathSchema, dryRunSchema, registryIdSchema, toConfigArgs } from './shared.ts'
+import { configPathSchema, dryRunSchema, registryIdSchema } from './shared.ts'
 
 const addSchema = v.object({
   extensionId: registryIdSchema,
@@ -20,9 +19,6 @@ export const addTool = defineTool(
     schema: addSchema,
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
   },
-  async ({ extensionId, configPath, install = true, dryRun = false }) => {
-    const configArgs = await toConfigArgs(configPath)
-    if ('error' in configArgs) return tool.error(configArgs.error)
-    return runKubb({ args: ['add', extensionId, ...configArgs.args, '--yes', ...(install ? [] : ['--no-install']), ...(dryRun ? ['--dry-run'] : [])] })
-  },
+  ({ extensionId, configPath, install = true, dryRun = false }) =>
+    runKubb({ args: ['add', extensionId, '--yes', ...(install ? [] : ['--no-install']), ...(dryRun ? ['--dry-run'] : [])], configPath }),
 )

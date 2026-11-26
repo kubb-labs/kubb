@@ -95,75 +95,22 @@ export function truncateOutput(text: string, hint?: () => string | undefined): s
   return `${kept}${notice(kept.length)}`
 }
 
-export type DiffFileSummary = {
-  /**
-   * The file path from the `+++` header, without the `b/` prefix.
-   */
-  file: string
-  linesAdded: number
-  linesRemoved: number
-}
-
-const HUNK_HEADER = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@/
-
 /**
- * Counts one line inside a hunk on `file`, and returns how many lines of the old and the new
- * side it used: a context line uses one of each, and the `\ No newline at end of file` marker uses none.
+ * Checks a folder Kubb writes to, and may empty with `output.clean`, against the working directory `base`.
+ * `outputPath` resolves from `root`, as core resolves it from the config's `root`. Returns the reason when
+ * the folder is outside `base`, naming `source` as where the path came from.
  */
-function countHunkLine(line: string, file: DiffFileSummary): { old: number; new: number } {
-  if (line.startsWith('+')) {
-    file.linesAdded++
-    return { old: 0, new: 1 }
-  }
-  if (line.startsWith('-')) {
-    file.linesRemoved++
-    return { old: 1, new: 0 }
-  }
-  return line.startsWith('\\') ? { old: 0, new: 0 } : { old: 1, new: 1 }
-}
-
-const FILE_HEADER_LINES = [/^--- /, /^=+$/, /^Index: /]
-
-/**
- * Removes the lines a patch prints above its `+++` line from the end of `lines`.
- */
-function dropFileHeader(lines: Array<string>): void {
-  for (const pattern of FILE_HEADER_LINES) {
-    if (pattern.test(lines.at(-1) ?? '')) lines.pop()
-  }
-}
-
-/**
- * Reads unified diff text, such as the output of `kubb generate --diff`. Returns the files with their
- * added and removed line counts, and `rest`: the lines outside a diff, such as the log and the warnings of the CLI.
- */
-export function summarizeDiff(diff: string): { files: Array<DiffFileSummary>; rest: string } {
-  const files: Array<DiffFileSummary> = []
-  const rest: Array<string> = []
-  let current: DiffFileSummary | undefined
-  // Lines left in the current hunk. Counting them keeps a changed line that starts with `++ ` or `@@` from reading as a header.
-  let oldLeft = 0
-  let newLeft = 0
-  for (const line of diff.split('\n')) {
-    if (current && oldLeft + newLeft > 0) {
-      const used = countHunkLine(line, current)
-      oldLeft -= used.old
-      newLeft -= used.new
-      continue
-    }
-    const hunk = HUNK_HEADER.exec(line)
-    if (hunk && current) {
-      oldLeft = Number(hunk[1] ?? 1)
-      newLeft = Number(hunk[2] ?? 1)
-      continue
-    }
-    if (line.startsWith('+++ ')) {
-      dropFileHeader(rest)
-      current = { file: line.slice(4).split('\t')[0]!.replace(/^b\//, ''), linesAdded: 0, linesRemoved: 0 }
-      files.push(current)
-      continue
-    }
-    if (!line.startsWith('\\ No newline')) rest.push(line)
-  }
-  return { files, rest: rest.join('\n').trim() }
+export async function checkOutputPath({
+  outputPath,
+  root,
+  base,
+  source = 'outputPath',
+}: {
+  outputPath: string
+  root: string
+  base: string
+  source?: string
+}): Promise<string | undefined> {
+  if (await isRealPathInside({ target: path.resolve(root, outputPath), base })) return undefined
+  return `Invalid ${source}: must be within the current working directory`
 }

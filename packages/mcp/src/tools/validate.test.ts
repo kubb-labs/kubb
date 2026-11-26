@@ -2,6 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
+import { callTool } from '../mocks/fakeKubb.ts'
 import { validateTool } from './validate.ts'
 
 const dir = await mkdtemp(join(tmpdir(), 'kubb-mcp-validate-'))
@@ -13,13 +14,7 @@ const validSpec = JSON.stringify({
   components: { schemas: { Pet: { type: 'object', properties: { id: { type: 'string' } } } } },
 })
 
-type ToolResult = { isError?: boolean; content: Array<{ type: string; text?: string }> }
-const execute = (validateTool as unknown as { execute: (input: { inputPath: string }) => Promise<ToolResult> }).execute
-
-async function run(inputPath: string) {
-  const result = await execute({ inputPath })
-  return { isError: Boolean(result.isError), text: result.content.map((part) => part.text ?? '').join('\n') }
-}
+const run = (inputPath: string) => callTool(validateTool, { inputPath })
 
 afterAll(async () => {
   await rm(dir, { recursive: true, force: true })

@@ -175,7 +175,7 @@ Parameters:
 
 These tools run the `kubb` CLI and return its output and exit code. They use the project's own `kubb`, or the one that started the server when the project has none. The standalone `npx @kubb/mcp` server ships no CLI, so install it in the project with `npm install -D kubb`. `kubb_add`, `kubb_update`, and `kubb_remove` pass `--yes`.
 
-- `kubb_diff` runs `kubb generate --diff` and writes nothing. Parameters: `configPath` (string, optional), `format` (`full` for the unified diffs or `summary` for one line per out-of-date file, default `full`), `lockfile` (boolean, default `true`)
+- `kubb_diff` runs `kubb generate --diff --reporter json` and writes nothing. Parameters: `configPath` (string, optional), `format` (`full` for the unified diffs or `summary` for one line per out-of-date file, default `full`), `lockfile` (boolean, default `true`)
 - `kubb_add` runs `kubb add <id> --yes`. Parameters: `extensionId` (string, required), `configPath` (string, optional), `install` (boolean, default `true`), `dryRun` (boolean, default `false`)
 - `kubb_update` runs `kubb update --yes`, which does not regenerate, so call `kubb_generate` afterwards. Parameters: `extensionIds` (string array, optional, default every installed extension. A major update is installed only for an extension named here), `dryRun` (boolean, default `false`)
 - `kubb_remove` runs `kubb remove <id> --yes`. Parameters: `extensionId` (string, required), `configPath` (string, optional), `uninstall` (boolean, default `true`), `dryRun` (boolean, default `false`)

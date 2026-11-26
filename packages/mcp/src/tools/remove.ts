@@ -1,8 +1,7 @@
 import { defineTool } from 'tmcp/tool'
-import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
 import { runKubb } from '../cli.ts'
-import { configPathSchema, dryRunSchema, registryIdSchema, toConfigArgs } from './shared.ts'
+import { configPathSchema, dryRunSchema, registryIdSchema } from './shared.ts'
 
 const removeSchema = v.object({
   extensionId: registryIdSchema,
@@ -20,9 +19,6 @@ export const removeTool = defineTool(
     schema: removeSchema,
     annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
   },
-  async ({ extensionId, configPath, uninstall = true, dryRun = false }) => {
-    const configArgs = await toConfigArgs(configPath)
-    if ('error' in configArgs) return tool.error(configArgs.error)
-    return runKubb({ args: ['remove', extensionId, ...configArgs.args, '--yes', ...(uninstall ? [] : ['--no-uninstall']), ...(dryRun ? ['--dry-run'] : [])] })
-  },
+  ({ extensionId, configPath, uninstall = true, dryRun = false }) =>
+    runKubb({ args: ['remove', extensionId, '--yes', ...(uninstall ? [] : ['--no-uninstall']), ...(dryRun ? ['--dry-run'] : [])], configPath }),
 )

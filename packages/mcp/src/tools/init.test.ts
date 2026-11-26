@@ -1,25 +1,14 @@
 import { existsSync } from 'node:fs'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import process from 'node:process'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { callTool } from '../mocks/fakeKubb.ts'
+import { afterEach, describe, expect, it } from 'vitest'
+import { callTool, useFakeKubbProject } from '../mocks/fakeKubb.ts'
 import { initTool } from './init.ts'
 
-const root = await mkdtemp(join(tmpdir(), 'kubb-mcp-init-'))
-
-beforeEach(() => {
-  vi.spyOn(process, 'cwd').mockReturnValue(root)
-})
+const { root } = await useFakeKubbProject()
 
 afterEach(async () => {
-  vi.restoreAllMocks()
   await rm(join(root, 'kubb.config.ts'), { force: true })
-})
-
-afterAll(async () => {
-  await rm(root, { recursive: true, force: true })
 })
 
 describe('init tool', () => {

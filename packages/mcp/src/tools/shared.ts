@@ -1,6 +1,5 @@
 import { CONFIG_EXTENSIONS, REGISTRY_ID_PATTERN } from '@internals/shared'
 import * as v from 'valibot'
-import { checkConfigPath } from '../utils.ts'
 
 /**
  * A registry id: `owner/slug`, or a bare `slug` for an official extension. It is the pattern the CLI
@@ -23,13 +22,3 @@ export const configPathSchema = v.optional(
 )
 
 export const dryRunSchema = v.optional(v.pipe(v.boolean(), v.description('Preview the change without installing packages or writing files')), false)
-
-/**
- * The `--config` arguments for a path the AI client supplied, or the reason the path was refused.
- * Returns no arguments when `configPath` is omitted, so the CLI finds the config itself.
- */
-export async function toConfigArgs(configPath: string | undefined): Promise<{ args: Array<string> } | { error: string }> {
-  if (!configPath) return { args: [] }
-  const checked = await checkConfigPath(configPath)
-  return 'error' in checked ? checked : { args: ['--config', checked.file] }
-}

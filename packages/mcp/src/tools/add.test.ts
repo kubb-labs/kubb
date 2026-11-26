@@ -1,23 +1,8 @@
-import { rm } from 'node:fs/promises'
-import process from 'node:process'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { callTool, createFakeKubbProject, echoedArgs } from '../mocks/fakeKubb.ts'
+import { describe, expect, it } from 'vitest'
+import { callTool, useFakeKubbProject, echoedArgs } from '../mocks/fakeKubb.ts'
 import { addTool } from './add.ts'
 
-const { root } = await createFakeKubbProject()
-
-beforeEach(() => {
-  vi.spyOn(process, 'cwd').mockReturnValue(root)
-})
-
-afterEach(() => {
-  vi.restoreAllMocks()
-  vi.unstubAllEnvs()
-})
-
-afterAll(async () => {
-  await rm(root, { recursive: true, force: true })
-})
+await useFakeKubbProject()
 
 describe('add tool', () => {
   it('runs kubb add with --yes', async () => {
@@ -33,11 +18,11 @@ describe('add tool', () => {
     expect(echoedArgs(text)).toEqual([
       'add',
       'kubb-labs/plugin-zod',
-      '--config',
-      expect.stringMatching(/kubb\.config\.ts$/),
       '--yes',
       '--no-install',
       '--dry-run',
+      '--config',
+      expect.stringMatching(/kubb\.config\.ts$/),
     ])
   })
 

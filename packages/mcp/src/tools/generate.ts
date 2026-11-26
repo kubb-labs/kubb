@@ -5,7 +5,7 @@ import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, 
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
-import { checkConfigPath, formatDiagnostics, isRealPathInside } from '../utils.ts'
+import { checkConfigPath, checkOutputPath, formatDiagnostics, isRealPathInside } from '../utils.ts'
 import { configPathSchema } from './shared.ts'
 
 const generateSchema = v.object({
@@ -48,9 +48,8 @@ async function checkPaths({
   output?: string
   file?: string
 }): Promise<string | undefined> {
-  if (output && !(await isRealPathInside({ target: path.resolve(root, output), base }))) {
-    return `Invalid ${file ? `output.path in ${file}` : 'outputPath'}: must be within the current working directory`
-  }
+  const refusal = output ? await checkOutputPath({ outputPath: output, root, base, source: file ? `output.path in ${file}` : undefined }) : undefined
+  if (refusal) return refusal
   if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside({ target: path.resolve(root, input), base }))) {
     return 'Invalid inputPath: must be a URL or within the current working directory'
   }

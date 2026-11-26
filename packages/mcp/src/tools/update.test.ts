@@ -1,23 +1,8 @@
-import { rm } from 'node:fs/promises'
-import process from 'node:process'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { callTool, createFakeKubbProject, echoedArgs } from '../mocks/fakeKubb.ts'
+import { describe, expect, it } from 'vitest'
+import { callTool, useFakeKubbProject, echoedArgs } from '../mocks/fakeKubb.ts'
 import { updateTool } from './update.ts'
 
-const { root } = await createFakeKubbProject()
-
-beforeEach(() => {
-  vi.spyOn(process, 'cwd').mockReturnValue(root)
-})
-
-afterEach(() => {
-  vi.restoreAllMocks()
-  vi.unstubAllEnvs()
-})
-
-afterAll(async () => {
-  await rm(root, { recursive: true, force: true })
-})
+await useFakeKubbProject()
 
 describe('update tool', () => {
   it('updates every installed extension when no extensionIds are given', async () => {

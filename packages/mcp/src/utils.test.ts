@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { checkConfigPath, formatDiagnostics, MAX_OUTPUT_CHARS, summarizeDiff, truncateOutput } from './utils.ts'
+import { checkConfigPath, formatDiagnostics, MAX_OUTPUT_CHARS, truncateOutput } from './utils.ts'
 
 describe('formatDiagnostics', () => {
   it('renders the agent block from Diagnostics.format without ANSI styling', () => {
@@ -117,58 +117,5 @@ describe('truncateOutput', () => {
 
     expect(kept.length % 2).toBe(0)
     expect(kept.isWellFormed()).toBe(true)
-  })
-})
-
-describe('summarizeDiff', () => {
-  it('counts the added and removed lines of each file', () => {
-    const diff = [
-      '--- a/src/gen/pet.ts',
-      '+++ b/src/gen/pet.ts',
-      '@@ -1,3 +1,4 @@',
-      ' export type Pet = {',
-      '-  id: string',
-      '+  id: number',
-      '+  name: string',
-      ' }',
-      '--- a/src/gen/order.ts',
-      '+++ b/src/gen/order.ts',
-      '@@ -1 +0,0 @@',
-      '-export type Order = {}',
-    ].join('\n')
-
-    expect(summarizeDiff(diff).files).toEqual([
-      { file: 'src/gen/pet.ts', linesAdded: 2, linesRemoved: 1 },
-      { file: 'src/gen/order.ts', linesAdded: 0, linesRemoved: 1 },
-    ])
-  })
-
-  it('reads a changed line that looks like a file header as a change', () => {
-    const diff = ['--- a/notes.md', '+++ b/notes.md', '@@ -1,2 +1,2 @@', ' title', '--- old rule', '+++ new rule'].join('\n')
-
-    expect(summarizeDiff(diff).files).toEqual([{ file: 'notes.md', linesAdded: 1, linesRemoved: 1 }])
-  })
-
-  it('returns no files for output without a diff', () => {
-    expect(summarizeDiff('Generated files are up to date')).toEqual({ files: [], rest: 'Generated files are up to date' })
-  })
-
-  it('keeps the lines outside a diff, without the file headers', () => {
-    const diff = [
-      'Loading config',
-      '===================================================================',
-      '--- a/src/gen/pet.ts',
-      '+++ b/src/gen/pet.ts',
-      '@@ -1 +1 @@',
-      '-export type Pet = {}',
-      '+export type Pet = { id: string }',
-      '\\ No newline at end of file',
-      'Warning: kubb-lock.json is missing',
-    ].join('\n')
-
-    expect(summarizeDiff(diff)).toEqual({
-      files: [{ file: 'src/gen/pet.ts', linesAdded: 1, linesRemoved: 1 }],
-      rest: 'Loading config\nWarning: kubb-lock.json is missing',
-    })
   })
 })
