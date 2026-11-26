@@ -84,11 +84,7 @@ export type ReportersOptions = {
    * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
    */
   outputCheck?: Pick<OutputCheck, 'compare' | 'original'>
-  /**
-   * Set to `false` to count the changes of a dry run without `kubb-lock.json`.
-   *
-   * @default true
-   */
+  /** Set to `false` to count the changes of a dry run without `kubb-lock.json`. */
   lockfile?: boolean
 }
 

@@ -53,11 +53,7 @@ async function addDeletedFiles({
 
 export type OutputCheckOptions = {
   diff: boolean
-  /**
-   * Set to `false` to compare without `kubb-lock.json`, so only a file holding the generated text is up to date.
-   *
-   * @default true
-   */
+  /** Set to `false` to compare without `kubb-lock.json`, so only a file holding the generated text is up to date. */
   lockfile?: boolean
 }
 

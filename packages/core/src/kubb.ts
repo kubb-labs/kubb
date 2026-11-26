@@ -140,8 +140,7 @@ export type GenerateOptions = {
    */
   force?: boolean
   /**
-   * Set to `false` to generate without `kubb-lock.json`: the run neither reads nor writes it, and
-   * writes every file whose stored text differs from the generated code.
+   * Set to `false` to generate without reading or writing `kubb-lock.json`.
    *
    * @default true
    */

@@ -107,11 +107,7 @@ export type GenerateCommandOptions = {
    * Generates even when `kubb-lock.json` says the output is up to date.
    */
   force?: boolean
-  /**
-   * Set to `false` to leave `kubb-lock.json` unread and unwritten.
-   *
-   * @default true
-   */
+  /** Set to `false` to leave `kubb-lock.json` unread and unwritten. */
   lockfile?: boolean
 }
 
