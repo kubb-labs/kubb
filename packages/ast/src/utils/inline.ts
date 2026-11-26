@@ -1,5 +1,5 @@
 import type { FileNode } from '../nodes/file.ts'
-import { inlineFile } from './fileInliner.ts'
+import { createFileInliner } from './fileInliner.ts'
 import type { InlineLanguage } from './fileInliner.ts'
 
 export type { InlineLanguage } from './fileInliner.ts'
@@ -44,7 +44,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
       continue
     }
-    result.files.push(inlineFile({ file, lang, virtual, problems: result.problems }))
+    result.files.push(createFileInliner({ file, lang, virtual, problems: result.problems }).inline())
   }
 
   return result

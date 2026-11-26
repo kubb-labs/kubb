@@ -252,9 +252,10 @@ class FileInliner {
   }
 }
 
-// Rewrites `file`, which imports from virtual files, with what it uses from them moved in.
-export function inlineFile(options: FileInlinerOptions): FileNode {
-  return new FileInliner(options).inline()
+export type { FileInliner }
+
+export function createFileInliner(options: FileInlinerOptions): FileInliner {
+  return new FileInliner(options)
 }
 
 function importsName(file: FileNode, local: string): boolean {
