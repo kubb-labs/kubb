@@ -12,7 +12,7 @@ const CLI_PACKAGES = ['@kubb/cli', 'kubb'] as const
 // An install can take minutes, but a hung child must not block the MCP server forever.
 const TIMEOUT_MS = 10 * 60 * 1000
 
-type CliResult = {
+export type CliResult = {
   /**
    * The exit code, or `null` when a signal ended the run.
    */
