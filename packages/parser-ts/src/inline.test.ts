@@ -31,16 +31,6 @@ describe('replaceIdentifiers', () => {
     expect(swap('{ Name, other: 1 }', 'value')).toBe('{ Name: Pet, other: 1 }')
   })
 
-  it('marks a use where only a name fits', () => {
-    const uses: Array<[string, boolean | undefined]> = []
-    replaceIdentifiers('z.infer<typeof Name> | Other', (name, use) => void uses.push([name, use.asName]), 'ts', 'type')
-    expect(uses).toEqual([
-      ['z', true],
-      ['Name', true],
-      ['Other', false],
-    ])
-  })
-
   it('reads a fragment as the kind it is given', () => {
     expect(swap('options: Name, x = Name', 'parameters')).toBe('options: Pet, x = Pet')
     expect(swap('TData = Name', 'typeParameters')).toBe('TData = Pet')

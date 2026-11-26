@@ -47,12 +47,7 @@ function isClean({ file }: Analysis): boolean {
  * Bound names (parameters, type parameters, locals), keys, members, strings, comments and JSX tag names are left alone. A
  * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`.
  */
-export function replaceIdentifiers(
-  text: string,
-  replace: (name: string, use: ast.InlineUse) => string | undefined,
-  lang: 'ts' | 'tsx' = 'ts',
-  kind?: ast.InlineTextKind,
-): string {
+export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: 'ts' | 'tsx' = 'ts', kind?: ast.InlineTextKind): string {
   const { file, offset } = analyze(text, lang, kind)
   let out = ''
   let last = 0
@@ -63,8 +58,7 @@ export function replaceIdentifiers(
     const end = reference.node.end - offset
     if (start < last || end > text.length) continue
 
-    // Only a name fits in `typeof x`, `ns.T` or `export { x }`.
-    const replacement = replace(reference.name, { asName: reference.space !== 'value' && reference.space !== 'type' })
+    const replacement = replace(reference.name)
     if (replacement === undefined) continue
     const parent = file.parentOf(reference.node)
     const shorthand = parent?.type === 'Property' && parent.shorthand

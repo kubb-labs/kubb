@@ -1,48 +1,73 @@
 import { uniqueName } from '@internals/utils'
+import { nodeKinds } from '../constants.ts'
 import { createConst, createText, createType } from '../nodes/code.ts'
 import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
-import { getNames } from './moduleNames.ts'
-import { rewriteNodes } from './nodeText.ts'
+import { getNames, getSpace } from './moduleNames.ts'
+import { getNodeText, rewriteNodes } from './nodeText.ts'
 import type { InlineTextKind } from './nodeText.ts'
-import type { InlineLanguage, Target, VirtualFiles } from './virtualFiles.ts'
 
-export type FileInlinerOptions = { file: FileNode; lang: InlineLanguage; virtual: VirtualFiles }
+/**
+ * The language-specific half of `inlineFiles`, supplied by the parser that prints the file.
+ */
+export type InlineLanguage = {
+  /**
+   * Swaps in what `replace` returns for every name in `text` that refers to something declared outside it. `kind` says what
+   * the text holds, so a fragment such as a type or a parameter list can be read as one.
+   */
+  replaceIdentifiers(text: string, replace: (name: string) => string | undefined, kind?: InlineTextKind): string
+  /**
+   * Every name `text` declares or uses, so a declaration added next to it never shadows one. Without it, the names
+   * `replaceIdentifiers` finds are used.
+   */
+  names?(text: string, kind?: InlineTextKind): Iterable<string>
+  /**
+   * Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript.
+   */
+  wrap(expression: string): string
+}
+
+export type FileInlinerOptions = {
+  file: FileNode
+  lang: InlineLanguage
+  // The virtual files of the run, by path.
+  virtual: ReadonlyMap<string, FileNode>
+  problems: Array<{ path: string; message: string }>
+}
+
+// A name imported from, or declared in, a virtual file. `key` is its module and exported name.
+type Target = { key: string; name: string; path: string; file: FileNode; isType: boolean; expression: string | undefined }
 
 // Rewrites one file that imports from virtual files.
 class FileInliner {
   readonly #file: FileNode
   readonly #lang: InlineLanguage
-  readonly #virtual: VirtualFiles
+  readonly #virtual: ReadonlyMap<string, FileNode>
+  readonly #problems: FileInlinerOptions['problems']
   // Each name the file binds, to the import (module and exported name) or declaration behind it, so a carried import or a local
   // declaration never takes a name already in use. `''` marks a global, such as the fetch `Response` next to a schema `Response`.
   readonly #names = new Map<string, string>()
   readonly #carried: Array<ImportNode> = []
   readonly #uses = new Map<string, number>()
-  // Definitions a use needs by name, such as `x` in TypeScript's `typeof x`.
-  readonly #asName = new Set<string>()
   readonly #locals = new Map<string, string>()
   readonly #writing = new Set<string>()
   readonly #declarations: Array<SourceNode> = []
 
-  constructor({ file, lang, virtual }: FileInlinerOptions) {
+  constructor({ file, lang, virtual, problems }: FileInlinerOptions) {
     this.#file = file
     this.#lang = lang
     this.#virtual = virtual
+    this.#problems = problems
     for (const imp of file.imports) for (const item of getNames(imp)) this.#names.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
-    for (const source of file.sources) {
-      if (source.name) this.#names.set(source.name, file.path)
-      rewriteNodes(source.nodes, (text, kind) => {
-        for (const name of this.#namesIn(text, kind)) this.#reserve(name)
-        return text
-      })
-    }
+    for (const source of file.sources) if (source.name) this.#names.set(source.name, file.path)
   }
 
   inline(): FileNode {
     const file = this.#file
+    // Every name is reserved and every use counted before the first local name is chosen.
     for (const source of file.sources) {
       rewriteNodes(source.nodes, (text, kind) => {
+        for (const name of this.#namesIn(text, kind)) this.#reserve(name)
         this.#scan(file, text, kind)
         return text
       })
@@ -59,25 +84,22 @@ class FileInliner {
     return createFile({ ...file, sources: [...this.#declarations, ...rewritten], imports })
   }
 
-  // Runs before any local name is chosen. Counts how often the file uses each name, and reserves each global an inlined body
-  // uses, such as the fetch `Response`, so no local declaration shadows it. A body is read once, but a bare alias is followed
-  // at each use so its target's count stays right; `following` stops a loop between two of them.
+  // Counts how often the file uses each name, and reserves each global an inlined body uses, such as the fetch `Response`, so
+  // no local declaration shadows it. A body is read once, but a bare alias is followed at each use so its target's count stays
+  // right; `following` stops a loop between two of them.
   #scan(from: FileNode, text: string, kind: InlineTextKind, following = new Set<string>()): void {
     this.#reserveGlobals(from, text, kind)
     this.#lang.replaceIdentifiers(
       text,
-      (id, use) => {
-        const target = this.#virtual.find(from, id)
-        if (!target) return undefined
+      (id) => {
+        const target = this.#find(from, id)
+        if (target?.expression === undefined) return undefined
 
         const seen = this.#uses.get(target.key) ?? 0
         this.#uses.set(target.key, seen + 1)
-        if (use?.asName) this.#asName.add(target.key)
         const { expression, key } = target
-        if (expression === undefined) return undefined
-        const bodyKind = kindOf(target)
-        if (this.#isBareName(expression) && !following.has(key)) this.#scan(target.file, expression, bodyKind, new Set([...following, key]))
-        else if (seen === 0) this.#scan(target.file, expression, bodyKind)
+        if (this.#isBareName(expression) && !following.has(key)) this.#scan(target.file, expression, kindOf(target), new Set([...following, key]))
+        else if (seen === 0) this.#scan(target.file, expression, kindOf(target))
         return undefined
       },
       kind,
@@ -88,44 +110,37 @@ class FileInliner {
   #reserveGlobals(from: FileNode, text: string, kind: InlineTextKind): void {
     if (from === this.#file) return
     for (const name of this.#namesIn(text, kind)) {
-      if (!this.#virtual.find(from, name) && !importsName(from, name)) this.#reserve(name)
+      if (!this.#find(from, name) && !importsName(from, name)) this.#reserve(name)
     }
   }
 
-  // What `id` in `from` becomes: a type's local name, or the body of a type or value. `undefined` keeps it as it is.
+  // What `id` in `from` becomes: a declaration's local name, or a body written in place. `undefined` keeps it as it is.
   #resolve(from: FileNode, id: string): string | undefined {
-    const target = this.#virtual.find(from, id)
+    const target = this.#find(from, id)
     const written = target && this.#write(from, target)
     return written === id ? undefined : written
   }
 
   // A bare name is written where it is used. Any other value becomes one local constant, so it is built once. A type becomes
-  // one local declaration when it is used more than once or a use needs its name, and is written in place otherwise.
+  // one local declaration when it is used more than once, and is written in place otherwise.
   #write(from: FileNode, target: Target): string | undefined {
-    const { expression, key, name, path } = target
-    if (expression === undefined)
-      return this.#virtual.report(from.path, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
+    const { expression, key, name, path, isType } = target
+    if (expression === undefined) return this.#report(from, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
     const existing = this.#locals.get(key)
     if (existing) return existing
 
-    const declare = this.#declares(target, expression)
+    const declare = !this.#isBareName(expression) && (!isType || (this.#uses.get(key) ?? 0) > 1)
     // A type claims its name before its body is written, so a type that refers to itself, such as a tree node, can use it.
     // A value that refers to itself has no value yet, so it stays a cycle.
-    const early = declare && target.isType ? this.#claim(target) : undefined
-    if (!early && this.#writing.has(key)) return this.#virtual.report(from.path, `"${name}" from "${path}" is defined in terms of itself.`)
+    const early = declare && isType ? this.#claim(target) : undefined
+    if (!early && this.#writing.has(key)) return this.#report(from, `"${name}" from "${path}" is defined in terms of itself.`)
 
     this.#writing.add(key)
     const body = this.#writeBody(target.file, expression, kindOf(target))
     this.#writing.delete(key)
-    return declare ? this.#declare(target, early ?? this.#claim(target), body) : this.#lang.wrap(body)
-  }
+    if (!declare) return this.#lang.wrap(body)
 
-  #declares({ key, isType }: Target, expression: string): boolean {
-    if (this.#isBareName(expression)) return false
-    return !isType || this.#asName.has(key) || (this.#uses.get(key) ?? 0) > 1
-  }
-
-  #declare({ isType }: Target, local: string, body: string): string {
+    const local = early ?? this.#claim(target)
     const node = isType ? createType({ name: local, nodes: [createText(body)] }) : createConst({ name: local, nodes: [createText(body)] })
     this.#declarations.push(createSource({ name: local, isTypeOnly: isType, nodes: [node] }))
     return local
@@ -144,13 +159,31 @@ class FileInliner {
     this.#lang.replaceIdentifiers(
       expression,
       (id) => {
-        if (!this.#virtual.find(from, id)) used.add(id)
+        if (!this.#find(from, id)) used.add(id)
         return undefined
       },
       kind,
     )
-    const aliases = this.#carry(this.#virtual.importsFor(from, used))
+    const aliases = this.#carry(from.imports.flatMap((imp) => (this.#virtual.has(imp.path) ? [] : pickNames(imp, used))))
     return this.#lang.replaceIdentifiers(expression, (id) => this.#resolve(from, id) ?? aliases.get(id), kind)
+  }
+
+  // What `local` in `from` names in a virtual file, or `undefined` when it names nothing virtual.
+  #find(from: FileNode, local: string): Target | undefined {
+    const at = this.#locate(from, local)
+    const file = at && this.#virtual.get(at.path)
+    if (!at || !file) return undefined
+    const source = file.sources.find((item) => item.name === at.name)
+    return { ...at, key: `${at.path}\0${at.name}`, file, isType: !!source && getSpace(source) === 'type', expression: bodyOf(source) }
+  }
+
+  #locate(from: FileNode, local: string): { path: string; name: string } | undefined {
+    if (this.#virtual.has(from.path) && from.sources.some((source) => source.name === local)) return { path: from.path, name: local }
+    for (const imp of from.imports) {
+      const item = this.#virtual.has(imp.path) && getNames(imp).find((item) => (item.alias ?? item.name) === local)
+      if (item) return { path: imp.path, name: item.name }
+    }
+    return undefined
   }
 
   // Every name `text` declares or uses, from the language, or else the names it references.
@@ -168,9 +201,8 @@ class FileInliner {
     return found
   }
 
-  #reserve(name: string): undefined {
+  #reserve(name: string): void {
     if (!this.#names.has(name)) this.#names.set(name, '')
-    return undefined
   }
 
   // Claims a local name for `key` (module and exported name), adding a number when another binding has it, and returns it.
@@ -204,6 +236,11 @@ class FileInliner {
     const trimmed = expression.trim()
     return this.#lang.wrap(trimmed) === trimmed
   }
+
+  #report(from: FileNode, message: string): undefined {
+    this.#problems.push({ path: from.path, message })
+    return undefined
+  }
 }
 
 // Rewrites `file`, which imports from virtual files, with what it uses from them moved in.
@@ -217,4 +254,17 @@ function importsName(file: FileNode, local: string): boolean {
 
 function kindOf(target: Target): InlineTextKind {
   return target.isType ? 'type' : 'value'
+}
+
+// The right-hand side of a `Const` or `Type`. A function body is not an expression, and printed text such as `Code` has none.
+function bodyOf(source: SourceNode | undefined): string | undefined {
+  if (source?.inline) return source.inline.expression
+  const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
+  const isDeclaration = node?.kind === nodeKinds.const || node?.kind === nodeKinds.type
+  return isDeclaration ? getNodeText(node.nodes) || undefined : undefined
+}
+
+function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
+  const names = getNames(imp).filter((item) => used.has(item.alias ?? item.name))
+  return names.length > 0 ? [createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names })] : []
 }

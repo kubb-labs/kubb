@@ -1,10 +1,9 @@
 import type { FileNode } from '../nodes/file.ts'
 import { inlineFile } from './fileInliner.ts'
-import { createVirtualFiles } from './virtualFiles.ts'
-import type { InlineLanguage } from './virtualFiles.ts'
+import type { InlineLanguage } from './fileInliner.ts'
 
+export type { InlineLanguage } from './fileInliner.ts'
 export type { InlineTextKind } from './nodeText.ts'
-export type { InlineLanguage, InlineUse } from './virtualFiles.ts'
 
 export type InlineFilesResult = {
   /**
@@ -29,25 +28,29 @@ export type InlineFilesOptions = {
 }
 
 /**
- * Moves what a file imports from a virtual file (one marked `inline`, so it is never written) into that file. A type used more
- * than once becomes one local, non-exported declaration. A type used once, a bare alias, and a value are written at each use.
+ * Moves what a file imports from a virtual file (one marked `inline`, so it is never written) into that file. A value, and a
+ * type used more than once, becomes one local, non-exported declaration. A type used once or a bare name is written in place.
  * The moved declarations' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
-  const virtual = createVirtualFiles(files)
-  const result: InlineFilesResult = { files: [], virtualPaths: virtual.paths, problems: virtual.problems }
-  if (virtual.paths.length === 0) return result
+  const virtual = new Map(files.filter(isInlineFile).map((file) => [file.path, file]))
+  const result: InlineFilesResult = { files: [], virtualPaths: [...virtual.keys()], problems: [] }
 
   for (const file of files) {
     if (virtual.has(file.path) || !file.imports.some((imp) => virtual.has(imp.path))) continue
 
     const lang = language(file)
     if (!lang) {
-      virtual.report(file.path, `No parser for "${file.extname}" files supports inline sources.`)
+      result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
       continue
     }
-    result.files.push(inlineFile({ file, lang, virtual }))
+    result.files.push(inlineFile({ file, lang, virtual, problems: result.problems }))
   }
 
   return result
+}
+
+// A file of only deprecated per-source `inline` counts as inline too.
+function isInlineFile(file: FileNode): boolean {
+  return !!file.inline || (file.sources.length > 0 && file.sources.every((source) => source.inline))
 }

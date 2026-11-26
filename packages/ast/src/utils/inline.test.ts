@@ -291,25 +291,6 @@ describe('inlineFiles', () => {
     expect(sources.at(-1)?.nodes).toMatchObject([{ value: 'const c = Envelope; const d = Envelope; let a: Response2; let b: Response2' }])
   })
 
-  it('declares a type a use needs by name, even when used once', () => {
-    // `#Name` stands for a use where only a name fits, such as `typeof Name` in TypeScript.
-    const language: InlineLanguage = {
-      replaceIdentifiers: (text, replace) =>
-        text.replace(/(#?)([A-Za-z_$][\w$]*)/g, (_match, hash: string, name: string) => hash + (replace(name, { asName: !!hash }) ?? name)),
-      wrap: words.wrap,
-    }
-    const file = clientFile('let pet: #AddPetStatus200')
-    const operation = createFile({
-      ...operationFile,
-      imports: [],
-      sources: [createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [] })],
-    })
-    const [declaration, addPet] = inlineFilesWith([operation, file], { language: () => language }).files[0]?.sources ?? []
-
-    expect(declaration).toMatchObject({ name: 'AddPetStatus200', nodes: [{ kind: 'Type' }] })
-    expect(addPet?.nodes).toMatchObject([{ value: 'let pet: #AddPetStatus200' }])
-  })
-
   it('reports a value that refers to itself and keeps the name', () => {
     const cyclic = createFile({
       baseName: 'Tree.ts',
