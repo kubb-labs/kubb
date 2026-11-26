@@ -102,7 +102,9 @@ describe('createKubb', () => {
     const types = ast.factory.createFile({
       path: '/gen/types/AddPet.ts',
       baseName: 'AddPet.ts',
-      sources: [ast.factory.createSource({ name: 'AddPetBody', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [ast.factory.createText('')] })],
+      sources: [
+        ast.factory.createSource({ name: 'AddPetBody', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [ast.factory.createText('')] }),
+      ],
     })
     const client = ast.factory.createFile({
       path: '/gen/clients/addPet.ts',
