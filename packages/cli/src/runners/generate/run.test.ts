@@ -38,7 +38,7 @@ type BootstrapOptions = {
  * Runs the command with no configs to generate, so only the bootstrap Configuration group renders.
  * Non-rich, so the group is plain text an assertion can read.
  */
-async function bootstrap({ fail = false, reporters, configs = [], check, diff, force, lockfile, dryRun }: BootstrapOptions = {}) {
+async function bootstrap({ fail = false, reporters, configs = [], check, diff, force, lockfile = true, dryRun }: BootstrapOptions = {}) {
   const lines: Array<string> = []
   // What reached stdout alone, since `json` keeps it for the report.
   const stdout: Array<string> = []
@@ -611,6 +611,6 @@ describe('check', () => {
     using _exit = vi.spyOn(process, 'exit').mockImplementation(((code?: number) => {
       throw new Error(`exit ${code}`)
     }) as never)
-    await expect(run({ logLevel: 'info', watch: true, check: true })).rejects.toThrow('exit 2')
+    await expect(run({ logLevel: 'info', watch: true, check: true, lockfile: true })).rejects.toThrow('exit 2')
   })
 })

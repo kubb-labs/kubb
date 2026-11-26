@@ -51,6 +51,13 @@ function readSources({ adapter, input }: Pick<Config, 'adapter' | 'input'>): Arr
   return adapter.sources
 }
 
+// `undefined` for a run without `kubb-lock.json`, or a storage that writes no output directory.
+async function openLockfile({ config, enabled = true }: { config: Config; enabled?: boolean }): Promise<Lockfile | undefined> {
+  if (!enabled || !writesOutputDirectory(config.storage)) return undefined
+
+  return createLockfile({ storage: config.storage, root: config.root })
+}
+
 async function satisfiesLockfile({ config, lockfile }: { config: Config; lockfile: Lockfile }): Promise<boolean> {
   const recorded = lockfile.inputs(lockfileKey(config))
   const configText = recorded && serializeConfig(config)
@@ -260,13 +267,13 @@ export class Kubb {
   /**
    * Initializes the driver and storage. `build()` calls this automatically. `lockfile: false` leaves `kubb-lock.json` unread.
    */
-  async setup({ lockfile: usesLockfile = true }: Pick<GenerateOptions, 'lockfile'> = {}): Promise<void> {
+  async setup({ lockfile: usesLockfile }: Pick<GenerateOptions, 'lockfile'> = {}): Promise<void> {
     const signal = this.#signal
     signal?.throwIfAborted()
     // A second setup replaces the driver, so the old one's plugin listeners must go first.
     this.dispose()
     const config = this.config
-    const lockfile = usesLockfile && writesOutputDirectory(config.storage) ? await createLockfile({ storage: config.storage, root: config.root }) : undefined
+    const lockfile = await openLockfile({ config, enabled: usesLockfile })
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])

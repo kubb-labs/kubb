@@ -107,8 +107,8 @@ export type GenerateCommandOptions = {
    * Generates even when `kubb-lock.json` says the output is up to date.
    */
   force?: boolean
-  /** Set to `false` to leave `kubb-lock.json` unread and unwritten. */
-  lockfile?: boolean
+  /** `false` leaves `kubb-lock.json` unread and unwritten. */
+  lockfile: boolean
 }
 
 /** Upper bound in milliseconds for the update check's cache read or write once generation is done. */
@@ -202,7 +202,7 @@ async function watch({ configs, hooks, quiet, lockfile }: GenerateOptions & { qu
  * Starts a check for `--check`, which cannot run with `--watch`. With a check, exit code 1 means
  * "out of date", so a failure moves to 2.
  */
-function startOutputCheck({ check = false, diff = false, watch, lockfile = true }: Pick<GenerateCommandOptions, 'check' | 'diff' | 'watch' | 'lockfile'>): {
+function startOutputCheck({ check = false, diff = false, watch, lockfile }: Pick<GenerateCommandOptions, 'check' | 'diff' | 'watch' | 'lockfile'>): {
   outputCheck?: OutputCheck
   failureExitCode: number
 } {
@@ -325,7 +325,7 @@ export async function run({
   check,
   diff,
   force,
-  lockfile = true,
+  lockfile,
 }: GenerateCommandOptions): Promise<void> {
   const { outputCheck, failureExitCode } = startOutputCheck({ check, diff, watch: watchMode, lockfile })
 
@@ -405,7 +405,7 @@ export async function run({
   try {
     const runConfigs = toRunConfigs({ configs, input, dryRun, outputCheck })
     // Only the `cli` reporter can do without the results of a build. The others report on each config.
-    const canSkip = lockfile && ![force, watchMode, dryRun, outputCheck].some(Boolean) && requestedNames.every((name) => name === 'cli')
+    const canSkip = ![force, watchMode, dryRun, outputCheck, !lockfile].some(Boolean) && requestedNames.every((name) => name === 'cli')
     const succeeded = await generateOrSkip({ configs: runConfigs, hooks, quiet, force, lockfile, watchMode, canSkip })
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
