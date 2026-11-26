@@ -125,6 +125,7 @@
   "packages/kit/src/visitor.test.ts": "Only check of kit's defineExtension and memo-backed composables end to end: macros, a resolver patch, match, the operations batch, operation-include pruning, tags, and the error for a plugin defined with core.",
   "packages/kit/src/visitor.walk.test.ts": "Kit's visitor walk: node-outer plugin order, crash sites, shared memo, name reservations, shared schema placement and generator match filtering.",
   "packages/kubb/src/defineConfig.test.ts": "Golden path: config defaults for parsers, reporters, barrel plugin and every config shape, plus types.",
+  "packages/mcp/src/cli.test.ts": "MCP CLI runner: bin resolution, argument array without a shell, exit-code handling, and registry id validation.",
   "packages/mcp/src/tools/generate.test.ts": "MCP generate tool: coded diagnostics, array config, broken config load.",
   "packages/mcp/src/tools/validate.test.ts": "MCP validate tool: success and missing-file diagnostic payload.",
   "packages/mcp/src/utils.test.ts": "Only test of formatDiagnostics joining two diagnostics with a blank line for the MCP agent audience.",

@@ -1,42 +1,11 @@
-import { lstat, realpath } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/shared'
-import { isPathInside } from '@internals/utils'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
-import { formatDiagnostics } from '../utils.ts'
-
-/**
- * The path with every symlink resolved. A path that does not exist yet resolves through its nearest existing parent.
- * Returns `undefined`, so the check fails closed, for a dangling symlink or any error other than a missing path.
- */
-async function realPath(target: string): Promise<string | undefined> {
-  const missing: Array<string> = []
-  for (let current = target; ; current = path.dirname(current)) {
-    try {
-      return path.join(await realpath(current), ...missing)
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return undefined
-      // `realpath` also reports ENOENT for a symlink whose target is gone; that link could later point anywhere.
-      const isDanglingLink = await lstat(current).then(
-        (stats) => stats.isSymbolicLink(),
-        () => false,
-      )
-      if (isDanglingLink) return undefined
-      if (path.dirname(current) === current) return undefined
-      missing.unshift(path.basename(current))
-    }
-  }
-}
-
-/** Whether `target`, after resolving symlinks, stays inside `base`. */
-async function isRealPathInside(target: string, base: string): Promise<boolean> {
-  const [real, realBase] = await Promise.all([realPath(target), realPath(base)])
-  return real !== undefined && realBase !== undefined && isPathInside(real, realBase)
-}
+import { checkConfigPath, formatDiagnostics, isRealPathInside } from '../utils.ts'
 
 const generateSchema = v.object({
   config: v.optional(
@@ -88,14 +57,9 @@ export const generateTool = defineTool(
       const base = path.resolve(process.cwd())
       let file: string | undefined
       if (configPath) {
-        const ext = path.extname(configPath)
-        if (!CONFIG_EXTENSIONS.some((extension) => extension === ext)) {
-          return tool.error(`Invalid config file extension "${ext}". Allowed: ${CONFIG_EXTENSIONS.join(', ')}`)
-        }
-        file = path.resolve(base, configPath)
-        if (!(await isRealPathInside(file, base))) {
-          return tool.error('Invalid config file path: must be within the current working directory')
-        }
+        const checked = await checkConfigPath(configPath)
+        if ('error' in checked) return tool.error(checked.error)
+        file = checked.file
       } else {
         file = findConfigFile(base)
         if (!file) {

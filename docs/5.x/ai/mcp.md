@@ -13,7 +13,7 @@ navigation:
 
 # Set up the MCP server
 
-[`kubb mcp`](/docs/5.x/reference/commands/mcp), the Kubb [Model Context Protocol](https://modelcontextprotocol.io/) server, lets your editor or agent validate a spec, scaffold a `kubb.config.ts`, and run Kubb from the chat. [Tools](/docs/5.x/reference/commands/mcp#tools) lists each tool.
+[`kubb mcp`](/docs/5.x/reference/commands/mcp), the Kubb [Model Context Protocol](https://modelcontextprotocol.io/) server, lets your editor or agent validate a spec, scaffold a `kubb.config.ts`, add and update extensions, preview changes with `diff`, and run Kubb from the chat. [Tools](/docs/5.x/reference/commands/mcp#tools) lists each tool.
 
 > [!NOTE]
 > This server runs Kubb inside your editor. To generate an MCP server from your own OpenAPI spec, use [`@kubb/plugin-mcp`](/extensions/kubb-labs/plugin-mcp) instead.
