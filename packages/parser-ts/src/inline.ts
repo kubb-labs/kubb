@@ -3,43 +3,55 @@ import type { ast } from '@kubb/ast'
 import { parse } from 'yuku'
 
 export type Lang = 'ts' | 'tsx'
-type Analysis = { file: ReturnType<typeof parse>; offset: number }
+
+// A name in the text that refers to something declared outside it, by its offsets in the text.
+type Reference = { name: string; start: number; end: number; shorthand: boolean }
+// What one read of a fragment keeps: its free references and every name it declares or uses.
+type Analysis = { references: Array<Reference>; names: Array<string> }
+
+// The name of the declaration a fragment is wrapped in. It is left out of the names the fragment uses.
+const placeholder = '__kubb'
 
 // A fragment such as `options: Options<Pet>` or `{ body: Pet }` is not a program, so it is parsed inside the code its kind
 // stands for. The prefix length is subtracted from every offset.
 const contexts: Record<ast.InlineTextKind, [before: string, after: string]> = {
   code: ['', ''],
-  type: ['type __kubb = ', ''],
-  value: ['const __kubb = (', ')'],
-  parameters: ['function __kubb(', ') {}'],
-  typeParameters: ['function __kubb<', '>() {}'],
+  type: [`type ${placeholder} = `, ''],
+  value: [`const ${placeholder} = (`, ')'],
+  parameters: [`function ${placeholder}(`, ') {}'],
+  typeParameters: [`function ${placeholder}<`, '>() {}'],
 }
 const kinds = Object.keys(contexts) as Array<ast.InlineTextKind>
 
 // The same fragment is read several times while one file is inlined.
 const analyses = memo.create<string, Analysis>({ max: 1000 })
 
-// Parses `text` as `kind`, or, when that fails or no kind is given, as the first kind it parses as without errors.
+// Reads `text` as `kind`, or, when that fails or no kind is given, as the first kind it parses as without errors.
 function analyze(text: string, lang: Lang, kind: ast.InlineTextKind | undefined): Analysis {
   return memo(analyses, `${lang}\0${kind ?? ''}\0${text}`, () => {
     const first = kind ?? 'code'
     const fallback = parseAs(text, lang, first)
-    if (isClean(fallback)) return fallback
+    if (fallback.clean) return fallback.analysis
     for (const candidate of kinds.filter((item) => item !== first)) {
-      const analysis = parseAs(text, lang, candidate)
-      if (isClean(analysis)) return analysis
+      const parsed = parseAs(text, lang, candidate)
+      if (parsed.clean) return parsed.analysis
     }
-    return fallback
+    return fallback.analysis
   })
 }
 
-function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): Analysis {
+function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): { analysis: Analysis; clean: boolean } {
   const [before, after] = contexts[kind]
-  return { file: parse(before + text + after, { lang, sourceType: 'module', analyze: true }), offset: before.length }
-}
-
-function isClean({ file }: Analysis): boolean {
-  return !file.diagnostics.some((diagnostic) => diagnostic.severity === 'error')
+  const file = parse(before + text + after, { lang, sourceType: 'module', analyze: true })
+  const references = file.references
+    .filter((reference) => !reference.binding && reference.node.type !== 'JSXIdentifier')
+    .map((reference): Reference => {
+      const parent = file.parentOf(reference.node)
+      const shorthand = parent?.type === 'Property' && parent.shorthand
+      return { name: reference.name, start: reference.node.start - before.length, end: reference.node.end - before.length, shorthand }
+    })
+  const names = [...file.bindings.map((binding) => binding.name), ...file.references.map((reference) => reference.name)].filter((name) => name !== placeholder)
+  return { analysis: { references, names }, clean: !file.diagnostics.some((diagnostic) => diagnostic.severity === 'error') }
 }
 
 /**
@@ -48,35 +60,23 @@ function isClean({ file }: Analysis): boolean {
  * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`.
  */
 export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: Lang = 'ts', kind?: ast.InlineTextKind): string {
-  const { file, offset } = analyze(text, lang, kind)
   let out = ''
   let last = 0
 
-  for (const reference of file.references) {
-    if (reference.binding || reference.node.type === 'JSXIdentifier') continue
-    const start = reference.node.start - offset
-    const end = reference.node.end - offset
-    const replacement = replace(reference.name)
+  for (const { name, start, end, shorthand } of analyze(text, lang, kind).references) {
+    const replacement = replace(name)
     if (replacement === undefined) continue
-    const parent = file.parentOf(reference.node)
-    const shorthand = parent?.type === 'Property' && parent.shorthand
-    out += text.slice(last, start) + (shorthand ? `${reference.name}: ${replacement}` : replacement)
+    out += text.slice(last, start) + (shorthand ? `${name}: ${replacement}` : replacement)
     last = end
   }
 
   return out + text.slice(last)
 }
 
-// Every name `text` declares or uses, so a name added next to it never shadows one of them.
-function names(text: string, lang: Lang = 'ts', kind?: ast.InlineTextKind): Array<string> {
-  const { file } = analyze(text, lang, kind)
-  return [...file.bindings.map((binding) => binding.name), ...file.references.map((reference) => reference.name)].filter((name) => name !== '__kubb')
-}
-
 function createInline(lang: Lang): ast.InlineLanguage {
   return {
     replaceIdentifiers: (text, replace, kind) => replaceIdentifiers(text, replace, lang, kind),
-    names: (text, kind) => names(text, lang, kind),
+    names: (text, kind) => analyze(text, lang, kind).names,
     wrap: (expression) => (/^[\w$.]+$/.test(expression) ? expression : `(${expression})`),
   }
 }

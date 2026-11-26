@@ -4,6 +4,13 @@ import type { ExportNode, ImportNode, ModuleName, SourceNode, Space } from '../n
  * Returns the names an import or export brings across. A node built with the deprecated fields gets them from
  * those, each with an explicit `space`, so it prints exactly as before.
  */
+/**
+ * The name an import or export entry binds in its file: its alias, or else its name.
+ */
+export function localName(item: ModuleName): string {
+  return item.alias ?? item.name
+}
+
 export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
   if (node.names) return node.names
   return node.kind === 'Import' ? fromDeprecatedImport(node) : fromDeprecatedExport(node)
@@ -65,5 +72,5 @@ export function toDeprecatedExport(names: ReadonlyArray<ModuleName>): Deprecated
   if (names.length === 1 && first?.name === '*') {
     return first.alias ? { name: first.alias, isTypeOnly, asAlias: true } : { isTypeOnly, asAlias: false }
   }
-  return { name: names.map((item) => item.alias ?? item.name), isTypeOnly, asAlias: false }
+  return { name: names.map(localName), isTypeOnly, asAlias: false }
 }

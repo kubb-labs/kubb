@@ -64,7 +64,7 @@ export default defineConfig({
 | `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                     | The file extensions this parser handles. With `undefined`, `parse` never runs.                                                                |
 | `parse`    | `(file: FileNode) => string`                       | Yes      | After every plugin, once per file   | Prints the file's sources. Must be synchronous.                                                                                                 |
 | `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate     | Prints compiler AST nodes, such as `ts.Node` for `parserTs`.                                                                                    |
-| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. See [Inline sources](/docs/5.x/reference/jsx#inline-sources). |
+| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. [Inline sources](/docs/5.x/reference/jsx#inline-sources) lists its members. |
 | `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                | Describes a copied template as nodes, such as its imports as `ImportNode`s, for `parse` to print. Without it, Kubb copies the file as is. |
 
 [Parser selection](#parser-selection) and [Parser fallback](#parser-fallback) cover duplicate extensions and files no parser handles.

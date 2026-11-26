@@ -1,6 +1,7 @@
-import type { ast } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { inlineTs, inlineTsx, replaceIdentifiers } from './inline.ts'
+import { printSource } from './utils.ts'
 
 describe('replaceIdentifiers', () => {
   const swap = (text: string, kind?: ast.InlineTextKind) => replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined), 'ts', kind)
@@ -52,5 +53,38 @@ describe('inlineTs.wrap', () => {
     expect(inlineTs.wrap('models.Pet')).toBe('models.Pet')
     expect(inlineTs.wrap('Pet | null')).toBe('(Pet | null)')
     expect(inlineTs.wrap('{ body: Pet }')).toBe('({ body: Pet })')
+  })
+})
+
+describe('ast.file.inline with inlineTs', () => {
+  const { createConst, createFile, createImport, createSource, createText, createType } = ast.factory
+  const models = createFile({
+    baseName: 'pet.ts',
+    path: '/gen/models/pet.ts',
+    inline: true,
+    sources: [
+      createSource({ name: 'Pet', isTypeOnly: true, nodes: [createType({ name: 'Pet', nodes: [createText('{ id: number }')] })] }),
+      createSource({ name: 'petSchema', nodes: [createConst({ name: 'petSchema', nodes: [createText('z.object({ id: z.number() })')] })] }),
+    ],
+    imports: [createImport({ name: ['z'], path: 'zod', root: '/gen/models/pet.ts' })],
+  })
+
+  it('declares a type used twice and a value once, and carries the imports they need', () => {
+    const client = createFile({
+      baseName: 'pet.ts',
+      path: '/gen/clients/pet.ts',
+      imports: [createImport({ name: ['Pet', 'petSchema'], path: '/gen/models/pet.ts', root: '/gen/clients/pet.ts' })],
+      sources: [createSource({ nodes: [createText('export function check(pet: Pet): Pet {\n  return { petSchema }.petSchema.parse(pet)\n}')] })],
+    })
+    const { files, problems } = ast.file.inline([models, client], { language: () => inlineTs })
+    const [file] = files
+
+    expect(problems).toEqual([])
+    expect(file?.imports.map((imp) => imp.path)).toEqual(['zod'])
+    expect(file?.sources.map(printSource)).toEqual([
+      'type Pet = { id: number }',
+      'const petSchema = z.object({ id: z.number() })',
+      'export function check(pet: Pet): Pet {\n  return { petSchema }.petSchema.parse(pet)\n}',
+    ])
   })
 })
