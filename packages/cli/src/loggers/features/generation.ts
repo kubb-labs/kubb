@@ -79,7 +79,9 @@ class Generation {
 
     spinner.stop()
     progress.stop()
-    ctx.writer.groupEnd(status === 'failed' ? styleText('red', printer.failedTitle()) : styleText('green', '✓ Generation succeeded'))
+    // A check builds in memory, so its group says so instead of claiming the generation succeeded before the verdict.
+    const done = progress.state.inMemory ? '✓ Built in memory' : '✓ Generation succeeded'
+    ctx.writer.groupEnd(status === 'failed' ? styleText('red', printer.failedTitle()) : styleText('green', done))
   }
 
   // An arrow function, because the `cli` reporter calls it without the instance.

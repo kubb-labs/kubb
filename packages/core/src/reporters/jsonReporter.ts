@@ -12,7 +12,11 @@ import { buildReport } from './report.ts'
 export const jsonReporter = createReporter({
   name: 'json',
   report(result) {
-    return buildReport(result)
+    const report = buildReport(result)
+    if (!report.check) return report
+    // The diffs go to stderr in `json` mode, so the report keeps only the file list.
+    const files = report.check.files.map(({ patch: _patch, ...file }) => file)
+    return { ...report, check: { ...report.check, files } }
   },
   drain(_context, reports) {
     process.stdout.write(`${JSON.stringify(reports, null, 2)}\n`)

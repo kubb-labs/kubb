@@ -130,14 +130,16 @@ export class OutputCheck {
     config: Config
     storage: Storage
     paths: ReadonlySet<string>
-  }): Promise<NonNullable<GenerationResult['check']> & { unchanged: number }> {
+  }): Promise<NonNullable<GenerationResult['check']> & { unchanged: number; fromLockfile: number }> {
     const origin = originOf(config)
     const diff = this.#diff
     const disk = fsStorage()
     const lockfile = this.#lockfile ? await createLockfile({ storage: disk, root: origin.root }) : undefined
-    this.#missingLockfile ||= !lockfile?.exists && hasOutputPasses({ output: origin.config.output, storage: disk })
+    const noLockfile = !lockfile?.exists && hasOutputPasses({ output: origin.config.output, storage: disk })
+    this.#missingLockfile ||= noLockfile
     const stale: Array<StaleFile> = []
     let unchanged = 0
+    let fromLockfile = 0
 
     // One pass: each file is read from both sides, compared and dropped, so only the stale ones stay in memory.
     await inParallel({
@@ -147,8 +149,9 @@ export class OutputCheck {
         const [after, before] = await Promise.all([storage.readItem(filePath), read(filePath).catch(() => null)])
         if (after === null) return
         const change = diffFile({ path: filePath, next: after, previous: before, lockfile })
-        if (!change) {
+        if (change === undefined || change === 'lockfile') {
           unchanged++
+          if (change === 'lockfile') fromLockfile++
           return
         }
         stale.push(toStaleFile({ change, root: origin.root, texts: diff ? { before: before ?? '', after } : undefined }))
@@ -159,12 +162,14 @@ export class OutputCheck {
     stale.sort((a, b) => a.file.path.localeCompare(b.file.path))
     const files: Array<CheckedFile> = []
     for (const { file, patch } of stale) {
-      files.push(file)
+      files.push(patch ? { ...file, patch } : file)
       if (patch) this.patches.push(patch)
     }
     this.#changed ||= files.length > 0
 
-    return { changed: files.length > 0, files, unchanged }
+    const lockfileState = noLockfile ? (this.#lockfile ? 'missing' : 'disabled') : undefined
+
+    return { changed: files.length > 0, files, unchanged, fromLockfile, ...(lockfileState && { lockfile: lockfileState }) }
   }
 }
 

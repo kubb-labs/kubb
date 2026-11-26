@@ -138,6 +138,7 @@ describe('diffOutput', () => {
           { status: 'D', path: join(dir, 'gen/legacy.ts'), added: 0, removed: 1 },
         ],
         unchanged: 1,
+        fromLockfile: 0,
       })
       expect((await diffOutput({ storage, paths, clean: false, previousFiles })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
     } finally {

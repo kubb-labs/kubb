@@ -103,6 +103,7 @@
   "packages/core/src/publicAddress.test.ts": "Security range table; gitInput and studio publicFetch tests only hit loopback, 10.x and 169.254.",
   "packages/core/src/reporters/htmlReporter.test.ts": "Only test of the HTML report output and its escaping of spec data into data.js.",
   "packages/core/src/reporters/report.test.ts": "buildReport aggregation (passed and failed plugins, sorted timings, docsUrl) is not asserted by the CLI reporter tests.",
+  "packages/core/src/reporters/summary.test.ts": "Each verdict of the cli summary (generate, dry run, check, failure), the diff under its file, and the lockfile warnings, without running a build.",
   "packages/core/src/storages/cacheStorage.test.ts": "resolveCacheDir fallback and per-root hashing branches; createKubb only checks file existence.",
   "packages/core/src/storages/fsStorage.test.ts": "Pins the formatter mtime skip and the move-aside-then-delete empty with stale trash cleanup.",
   "packages/core/src/storages/kubbStorage.test.ts": "0700 mode, KUBB_HOME, key traversal rejection and unstorage file-format compatibility.",

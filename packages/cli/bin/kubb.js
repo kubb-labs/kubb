@@ -8,6 +8,7 @@ try {
   const { run } = await import('../dist/index.js')
   await run(process.argv.slice(2))
 } catch (err) {
-  console.error(err)
+  // The `onErrorCommand` hook already printed an argument error, which arrives as an AggregateError.
+  if (!(err instanceof AggregateError)) console.error(err)
   process.exit(1)
 }

@@ -55,6 +55,8 @@ export type Report = {
    * Generated files whose content matches the previous output.
    */
   filesUnchanged: number
+  /** Unchanged files that match only through `kubb-lock.json`. */
+  filesFromLockfile: number
   fileChanges?: GenerationResult['fileChanges']
   dryRun?: boolean
   check?: GenerationResult['check']
@@ -82,7 +84,7 @@ export type Report = {
  * counts, so every reporter renders the same data.
  */
 export function buildReport(result: GenerationResult): Report {
-  const { config, diagnostics, filesCreated, filesUnchanged = 0, status, hrStart } = result
+  const { config, diagnostics, filesCreated, filesUnchanged = 0, filesFromLockfile = 0, status, hrStart } = result
 
   const failed = Diagnostics.failedPlugins(diagnostics)
   const total = config.plugins?.length ?? 0
@@ -101,6 +103,7 @@ export function buildReport(result: GenerationResult): Report {
     counts,
     filesCreated,
     filesUnchanged,
+    filesFromLockfile,
     fileChanges: result.fileChanges,
     dryRun: result.dryRun,
     check: result.check,

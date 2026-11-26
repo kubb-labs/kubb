@@ -247,13 +247,18 @@ function showsTip({
   return !quiet && !watchMode && succeeded && !outputCheck?.changed
 }
 
-// stdout belongs to the `json` report, so the warning goes to stderr there.
-function warnMissingLockfile({ json, lockfile }: { json: boolean; lockfile: boolean }): void {
+// stdout belongs to the `json` report, so the warning goes to stderr.
+function warnMissingLockfile({ lockfile }: { lockfile: boolean }): void {
   const message = lockfile
-    ? `No readable ${LOCKFILE_NAME} found. Run \`kubb generate\` and commit ${LOCKFILE_NAME}, so --check can recognize formatted output.`
+    ? `No readable ${LOCKFILE_NAME} found, so a file the formatter or linter changed shows as out of date. Run \`kubb generate\` and commit ${LOCKFILE_NAME}.`
     : `--check cannot recognize formatted output with --no-lockfile. Remove --no-lockfile to compare through ${LOCKFILE_NAME}.`
-  const warn = json ? console.error : logWarn
-  warn(message)
+  console.error(message)
+}
+
+/** Without the `cli` summary, the diffs go out raw: to stderr in `json` mode, to stdout with `--silent`. */
+function printRawDiffs({ outputCheck, json, silent }: { outputCheck: OutputCheck; json: boolean; silent: boolean }): void {
+  if (!json && !silent) return
+  for (const patch of outputCheck.patches) (json ? console.error : console.log)(patch)
 }
 
 /**
@@ -275,8 +280,8 @@ function reportOutcome({
   silent: boolean
   lockfile: boolean
 }): void {
-  for (const patch of outputCheck?.patches ?? []) (json ? console.error : console.log)(patch)
-  if (outputCheck?.missingLockfile && !silent) warnMissingLockfile({ json, lockfile })
+  if (outputCheck && succeeded) printRawDiffs({ outputCheck, json, silent })
+  if (outputCheck?.missingLockfile && json && !silent) warnMissingLockfile({ lockfile })
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {
     process.exitCode = failureExitCode
@@ -303,7 +308,7 @@ async function generateOrSkip({
   canSkip,
 }: GenerateOptions & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
   if (canSkip && (await isUpToDate(configs))) {
-    if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
+    if (!quiet) logStep(`${LOCKFILE_NAME} is up to date, generation is skipped. Use --force to generate anyway.`)
     return true
   }
 

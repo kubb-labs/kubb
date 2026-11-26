@@ -185,7 +185,7 @@ describe('reporters', () => {
     // `getConfigs` hands the exported object through as a `Config`, without `reporters`.
     const lines = await bootstrap({ configs: [config as unknown as Config] })
 
-    expect(lines.some((line) => line.startsWith('✗ Generation failed') && line.includes('1 error'))).toBe(true)
+    expect(lines.some((line) => line.includes('✗ Generation failed · 1 error'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
@@ -292,7 +292,7 @@ describe('output passes', () => {
 
     expect(lines.some((line) => line.startsWith('✓ types in '))).toBe(true)
     expect(lines.some((line) => line.startsWith('Post-generate hooks completed in '))).toBe(true)
-    expect(lines.some((line) => line.startsWith('✓ Generation complete'))).toBe(true)
+    expect(lines.some((line) => line.includes('✓ Generated ') || line.includes('✓ Already up to date'))).toBe(true)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
@@ -301,7 +301,7 @@ describe('output passes', () => {
 
     expect(lines.some((line) => line.startsWith('✗ types failed (Hook execute failed: '))).toBe(true)
     expect(lines.some((line) => line.startsWith('error KUBB_POST_GENERATE_FAILED: Post-generate command failed: '))).toBe(true)
-    expect(lines.some((line) => line.startsWith('✗ Generation failed') && line.includes('1 error'))).toBe(true)
+    expect(lines.some((line) => line.includes('✗ Generation failed · 1 error'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 })
@@ -381,9 +381,10 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
-    expect(lines.some((line) => line.includes('4 files checked'))).toBe(true)
-    expect(lines.some((line) => line.includes('Out-of-date files'))).toBe(false)
+    expect(lines.some((line) => line.includes('✓ 4 files up to date'))).toBe(true)
+    // oxfmt rewrote three of the four files, so only the lockfile recognizes them.
+    expect(lines.some((line) => line.includes('✓ 4 files up to date · 3 via kubb-lock.json'))).toBe(true)
+    expect(lines.some((line) => line.includes('out of date'))).toBe(false)
     expect(lines.some((line) => line.includes('to update them'))).toBe(false)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
     expect(snapshot()).toStrictEqual(before)
@@ -395,7 +396,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], dryRun: true })
 
-    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged'))).toBe(true)
+    expect(lines.some((line) => line.includes('◇ Dry run: no files would change · 4 unchanged (3 via kubb-lock.json)'))).toBe(true)
     expect(snapshot()).toStrictEqual(before)
   })
 
@@ -407,9 +408,9 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.startsWith('✗ Generated code is out of date'))).toBe(true)
+    expect(lines.some((line) => line.includes('✗ 2 files out of date'))).toBe(true)
     expect(lines.some((line) => line.includes('modified  src/gen/pet.ts          +1 −1'))).toBe(true)
-    expect(lines.some((line) => line.includes('Run `kubb generate` to update them.'))).toBe(true)
+    expect(lines.some((line) => line.includes('Run `kubb generate` to update them'))).toBe(true)
     expect(lines.some((line) => line.includes('added     src/gen/types/index.ts  +1 −0'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
     expect(snapshot()).toStrictEqual(before)
@@ -421,7 +422,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [cleaned.config], check: true })
 
-    expect(lines.some((line) => line.includes('1 file out of date'))).toBe(true)
+    expect(lines.some((line) => line.includes('✗ 1 file out of date'))).toBe(true)
     expect(lines.some((line) => line.includes('src/gen/fixed.ts  '))).toBe(false)
     expect(lines.some((line) => line.includes('deleted   src/gen/extra.ts  +0 −1'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
@@ -442,7 +443,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
+    expect(lines.some((line) => line.includes('✓ 4 files up to date'))).toBe(true)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
     expect(target.snapshot()).toStrictEqual(before)
   })
@@ -453,7 +454,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.includes('No readable kubb-lock.json found. Run `kubb generate` and commit kubb-lock.json'))).toBe(true)
+    expect(lines.some((line) => line.includes('⚠ No readable kubb-lock.json, so a file the formatter or linter changed shows as out of date.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
@@ -482,8 +483,8 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true, lockfile: false })
 
-    expect(lines.some((line) => line.includes('--check cannot recognize formatted output with --no-lockfile'))).toBe(true)
-    expect(lines.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(false)
+    expect(lines.some((line) => line.includes('⚠ --no-lockfile is set, so a file the formatter or linter changed shows as out of date.'))).toBe(true)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json'))).toBe(false)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
@@ -492,12 +493,11 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], dryRun: true, lockfile: false })
 
-    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged'))).toBe(false)
+    expect(lines.some((line) => line.includes('◇ Dry run: no files would change'))).toBe(false)
   })
 
   describe('reuse', () => {
-    const upToDate = (lines: Array<string>) =>
-      lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.json'))
+    const upToDate = (lines: Array<string>) => lines.some((line) => line.includes('kubb-lock.json is up to date, generation is skipped.'))
 
     async function fromSpecFile() {
       const target = project()
@@ -547,13 +547,36 @@ describe('check', () => {
     writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
 
     const lines = await bootstrap({ configs: [config], check: true, diff: true })
-    const patch = lines.find((line) => line.includes('--- a/src/gen/pet.ts'))
+    const summary = lines.find((line) => line.includes('modified  src/gen/pet.ts'))
 
-    expect(patch).toContain('@@ -1,1 +1,1 @@')
-    expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')
+    // The hunk sits under its file, without the `=====`, `---`, and `+++` header lines.
+    expect(summary).toContain('modified  src/gen/pet.ts  +1 −1\n    @@ -1,1 +1,1 @@')
+    expect(summary).not.toContain('=====')
+    expect(summary).not.toContain('--- a/src/gen/pet.ts')
+    expect(summary).toContain('    -export const pet = { name: "dog", tags: [1, 2] };')
     // No formatter runs in a check, so the new side is the code as Kubb generates it.
-    expect(patch).toContain('+export const pet = {name:"cat",   tags:[1,2]}')
+    expect(summary).toContain('    +export const pet = {name:"cat",   tags:[1,2]}')
+    expect(summary).toContain('Run `kubb generate` to update them.')
     expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('points to --diff when --check finds stale files', async () => {
+    const { config, file } = await generated()
+    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.includes('Run `kubb generate` to update them, or `kubb generate --diff` to see the changes.'))).toBe(true)
+    expect(lines.some((line) => line.includes('@@ '))).toBe(false)
+  })
+
+  it('ends --diff on up-to-date output with the verdict', async () => {
+    const { config } = await generated()
+
+    const lines = await bootstrap({ configs: [config], check: true, diff: true })
+
+    expect(lines.some((line) => line.includes('✓ 4 files up to date'))).toBe(true)
+    expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
   it('compares a file a plugin writes outside output.path instead of writing it', async () => {

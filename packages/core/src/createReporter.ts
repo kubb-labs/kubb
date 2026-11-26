@@ -60,6 +60,8 @@ export type GenerationResult = {
    * Number of generated files whose content matches the previous output.
    */
   filesUnchanged?: number
+  /** Unchanged files that match only through `kubb-lock.json`, such as formatted files. */
+  filesFromLockfile?: number
   /**
    * Changes compared with the output before this run, when the host collected them.
    * Line totals include added and deleted files.
@@ -71,11 +73,13 @@ export type GenerationResult = {
   dryRun?: boolean
   /**
    * Set by `kubb generate --check`. `changed` is `true` when the output on disk is out of date, and
-   * `files` lists what a run would change, with `path` relative to `config.root`.
+   * `files` lists what a run would change, with `path` relative to `config.root` and `patch` with `--diff`.
+   * `lockfile` says why formatted files cannot be compared: `missing`, or `disabled` by `--no-lockfile`.
    */
   check?: {
     changed: boolean
-    files: Array<{ path: string; status: 'added' | 'modified' | 'deleted'; linesAdded: number; linesRemoved: number }>
+    files: Array<{ path: string; status: 'added' | 'modified' | 'deleted'; linesAdded: number; linesRemoved: number; patch?: string }>
+    lockfile?: 'missing' | 'disabled'
   }
   status: 'success' | 'failed'
   /**

@@ -22,25 +22,25 @@ kubb generate ./petStore.yaml  # this spec instead
 
 ## Arguments
 
-| Argument | What it does |
-| --- | --- |
+| Argument  | What it does                                                                                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `[input]` | Path, URL, or git input (`git+<repo>#<ref>:<path>`) of a Swagger or OpenAPI document. Overrides the config's [`input`](/docs/5.x/reference/configuration#input). |
 
 ## Options
 
-| Flag | Alias | Default | What it does |
-| --- | --- | --- | --- |
-| `--config <path>` | `-c` | | Path to a config file, such as `./kubb.staging.ts`. |
-| `--log-level <level>` | `-l` | `info` | `silent`, `info`, or `verbose`. `verbose` shows plugin timings. |
-| `--silent` | `-s` | `false` | Same as `--log-level silent`. |
-| `--verbose` | | `false` | Same as `--log-level verbose`. |
-| `--reporter <names>` | | `cli` | Comma-separated [reporters](#reporters) to run: `cli`, `json`, `file`, `html`. |
-| `--watch` | `-w` | `false` | Generate again when the local `input` file changes. |
-| `--dry-run` | | `false` | Preview the run. Writes no files and skips formatting, linting, and `output.postGenerate`. |
-| `--check` | | `false` | Compare the output with the files on disk and write nothing. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
-| `--diff` | | `false` | Print a diff for each out-of-date file. Turns `--check` on. |
-| `--force` | | `false` | Generate, format, and lint even when the run is [up to date](#up-to-date-runs). |
-| `--no-lockfile` | | `false` | Generate without reading or writing [`kubb-lock.json`](#no-lockfile). |
+| Flag                  | Alias | Default | What it does                                                                                                                           |
+| --------------------- | ----- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `--config <path>`     | `-c`  |         | Path to a config file, such as `./kubb.staging.ts`.                                                                                    |
+| `--log-level <level>` | `-l`  | `info`  | `silent`, `info`, or `verbose`. `verbose` shows plugin timings.                                                                        |
+| `--silent`            | `-s`  | `false` | Same as `--log-level silent`.                                                                                                          |
+| `--verbose`           |       | `false` | Same as `--log-level verbose`.                                                                                                         |
+| `--reporter <names>`  |       | `cli`   | Comma-separated [reporters](#reporters) to run: `cli`, `json`, `file`, `html`.                                                         |
+| `--watch`             | `-w`  | `false` | Generate again when the local `input` file changes.                                                                                    |
+| `--dry-run`           |       | `false` | Preview the run. Writes no files and skips formatting, linting, and `output.postGenerate`.                                             |
+| `--check`             |       | `false` | Compare the output with the files on disk and write nothing. Exits with `1` when a file is out of date. See [Check mode](#check-mode). |
+| `--diff`              |       | `false` | Print a diff for each out-of-date file. Turns `--check` on.                                                                            |
+| `--force`             |       | `false` | Generate, format, and lint even when the run is [up to date](#up-to-date-runs).                                                        |
+| `--no-lockfile`       |       | `false` | Generate without reading or writing [`kubb-lock.json`](#no-lockfile).                                                                  |
 
 ### Watch mode
 
@@ -61,12 +61,12 @@ kubb generate --check --diff   # also print what would change
 
 A reporter decides how you see a run. The config's [`reporters`](/docs/5.x/reference/configuration#reporters) registers all four by default, and `--reporter` picks which ones run.
 
-| Reporter | Output |
-| --- | --- |
-| `cli` | The end-of-run summary in the terminal. Plain text in non-interactive terminals and AI agent sessions. |
-| `json` | A machine-readable report on stdout for CI. The run log goes to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output) for the shape. |
-| `file` | The summary, plugin timings, and problems in `.kubb/kubb[-<name>]-<timestamp>.log`. `<name>` is the config's `name`, if set. |
-| `html` | A browsable report of the generated files and diagnostics in `.kubb/kubb[-<name>]-<timestamp>/index.html`. |
+| Reporter | Output                                                                                                                                                                        |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cli`    | The end-of-run summary in the terminal. Plain text in non-interactive terminals and AI agent sessions.                                                                        |
+| `json`   | A machine-readable report on stdout for CI. The run log goes to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output) for the shape. |
+| `file`   | The summary, plugin timings, and problems in `.kubb/kubb[-<name>]-<timestamp>.log`. `<name>` is the config's `name`, if set.                                                  |
+| `html`   | A browsable report of the generated files and diagnostics in `.kubb/kubb[-<name>]-<timestamp>/index.html`.                                                                    |
 
 ```shell [Terminal]
 kubb generate --reporter file       # write a log file
@@ -74,29 +74,23 @@ kubb generate --reporter json       # print a JSON report for CI
 kubb generate --reporter cli,html   # run two reporters
 ```
 
-The `cli` summary shows the outcome and duration, the plugin results, the output path, and the file changes:
+The `cli` summary ends like `oxlint` or `pnpm`: the details first, then a verdict line with the file counts, the kinds of change, and a `Finished in` line with the duration, the output path, and the plugins:
 
 ```text [Summary]
-✓ Generation complete  466ms
-
-  17 files generated · 54 unchanged
-  Plugins  4 passed
-  Output   ./src/gen
-
-File changes
-  14 added · 3 modified · 1 deleted
-  Lines  +312 −47
+✓ Generated 18 files · 54 unchanged (12 via kubb-lock.json)
+  14 added · 3 modified · 1 deleted · +312 −47
+  Finished in 466ms · ./src/gen · 4 plugins
 ```
 
 See [Run summary](#run-summary).
 
 ## Exit codes
 
-| Code | Without `--check` | With `--check` or `--diff` |
-| --- | --- | --- |
-| `0` | The run succeeds. | The files on disk are up to date. |
-| `1` | The config fails to load, or any config fails to generate. | A file would be added, modified, or deleted. |
-| `2` | | The config fails to load, or any config fails to generate. |
+| Code | Without `--check`                                          | With `--check` or `--diff`                                 |
+| ---- | ---------------------------------------------------------- | ---------------------------------------------------------- |
+| `0`  | The run succeeds.                                          | The files on disk are up to date.                          |
+| `1`  | The config fails to load, or any config fails to generate. | A file would be added, modified, or deleted.               |
+| `2`  |                                                            | The config fails to load, or any config fails to generate. |
 
 One failing config does not stop the others.
 
@@ -106,13 +100,13 @@ One failing config does not stop the others.
 
 With `kubb generate --watch`, Kubb watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. Kubb does not watch the files the input references with `$ref`, such as `schemas/Pet.yaml`. After you edit one, press `r` or run Kubb again.
 
-| Event | What happens |
-| --- | --- |
-| The first build fails | Kubb keeps watching, so you can fix the input. |
-| A rebuild ends | A line shows the duration and the schemas and operations the spec gained or lost. The summary below it lists the files the rebuild added, modified, or removed. |
-| You press `r` | Kubb rebuilds. Keys work in an interactive terminal. |
-| You press `q` | Kubb quits with exit code 0. |
-| You press Ctrl+C | Kubb quits with exit code 130. |
+| Event                 | What happens                                                                                                                                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The first build fails | Kubb keeps watching, so you can fix the input.                                                                                                                  |
+| A rebuild ends        | A line shows the duration and the schemas and operations the spec gained or lost. The summary below it lists the files the rebuild added, modified, or removed. |
+| You press `r`         | Kubb rebuilds. Keys work in an interactive terminal.                                                                                                            |
+| You press `q`         | Kubb quits with exit code 0.                                                                                                                                    |
+| You press Ctrl+C      | Kubb quits with exit code 130.                                                                                                                                  |
 
 To keep `clean` off during incremental runs, pass a function to `defineConfig` and read `watch`. See [Config function](/docs/5.x/reference/configuration#config-function).
 
@@ -132,46 +126,38 @@ A formatter rewrites what Kubb generates, so the generated text and the file on 
 Without `output.format`, `output.lint`, and `output.postGenerate`, the check needs no `kubb-lock.json`.
 
 ```text [Out of date]
-✗ Generated code is out of date  412ms
-
-  3 files out of date · 70 unchanged
-  Plugins  4 passed
-  Target   ./src/gen
-
-Out-of-date files
   modified  src/gen/types/Pet.ts    +2 −1
   added     src/gen/types/Order.ts  +14 −0
   deleted   src/gen/types/Tag.ts    +0 −3
 
-  1 added · 1 modified · 1 deleted
-  Run `kubb generate` to update them.
+✗ 3 files out of date · 70 up to date (68 via kubb-lock.json)
+  1 added · 1 modified · 1 deleted · +16 −4
+  Run `kubb generate` to update them, or `kubb generate --diff` to see the changes.
+  Finished in 412ms · ./src/gen · 4 plugins
 ```
 
-Each row shows the status, the path from `root`, and the lines a run would add and remove. When every file is up to date, the summary stays short:
+Each row shows the status, the path from `root`, and the lines a run would add and remove. With `--diff`, the hunks of each file follow its row. Warnings, such as a missing `kubb-lock.json`, come before the verdict. When every file is up to date, the summary is two lines:
 
 ```text [Up to date]
-✓ Generated code is up to date  407ms
-
-  71 files checked
-  Plugins  4 passed
-  Target   ./src/gen
+✓ 71 files up to date · 68 via kubb-lock.json
+  Finished in 407ms · ./src/gen · 4 plugins
 ```
 
-| Status | What a run would do |
-| --- | --- |
-| `added` | Create the file. It is missing on disk. |
-| `modified` | Rewrite the file. Its content on disk differs. |
-| `deleted` | Remove the file. Only listed with [`output.clean`](/docs/5.x/reference/configuration#outputclean), which removes files Kubb no longer generates. |
+| Status     | What a run would do                                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `added`    | Create the file. It is missing on disk.                                                                                                          |
+| `modified` | Rewrite the file. Its content on disk differs.                                                                                                   |
+| `deleted`  | Remove the file. Only listed with [`output.clean`](/docs/5.x/reference/configuration#outputclean), which removes files Kubb no longer generates. |
 
-With `--reporter json`, each report holds `check.changed` and `check.files`. `--diff` then prints to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output).
+With `--reporter json`, each report holds `check.changed`, `check.files`, and `check.lockfile`. `--diff` then prints the diffs to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output).
 
 `--check` differs from `--dry-run`:
 
-| | `--dry-run` | `--check` |
-| --- | --- | --- |
-| Exit code when files would change | `0` | `1` |
-| Lists each out-of-date file with its path | No | Yes |
-| Prints a diff with `--diff` | No | Yes |
+|                                           | `--dry-run` | `--check` |
+| ----------------------------------------- | ----------- | --------- |
+| Exit code when files would change         | `0`         | `1`       |
+| Lists each out-of-date file with its path | No          | Yes       |
+| Prints a diff with `--diff`               | No          | Yes       |
 
 `--dry-run` and `--check` run no formatter or linter. Each reads `kubb-lock.json` to recognize formatted output.
 
@@ -184,7 +170,7 @@ With `--reporter json`, each report holds `check.changed` and `check.files`. `--
 
 ### Up-to-date runs {#up-to-date-runs}
 
-`kubb generate` skips the build when nothing it reads has changed since the last run. It prints "Up to date" and exits with `0`. Pass `--force` to generate anyway.
+`kubb generate` skips the build when nothing it reads has changed since the last run. Like `pnpm`, it prints "kubb-lock.json is up to date, generation is skipped" and exits with `0`. Pass `--force` to generate anyway.
 
 A run is up to date when all of these match [`kubb-lock.json`](#kubb-lock):
 
@@ -230,15 +216,15 @@ A run that still generates, such as one with `--reporter json`, skips `output.fo
 }
 ```
 
-| Field | Value |
-| --- | --- |
-| `lockfileVersion` | The format version. Kubb ignores a file with another version. |
-| `inputs` | What each config last generated from, keyed by the config's `name`, or its `output.path` without one. Left out for an input Kubb cannot compare, such as a URL. |
-| `hash` | SHA-256 hash of the config, the package versions, and the content of the `sources`. Line endings count as `\n`. |
-| `sources` | The spec and the local files it references, as paths from `root`. |
-| `files` | One entry per generated file, keyed by its path from `root`. |
-| `source` | SHA-256 hash of the code Kubb generated. |
-| `output` | SHA-256 hash of the file on disk after `output.format`, `output.lint`, and `output.postGenerate`. Line endings count as `\n`. |
+| Field             | Value                                                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lockfileVersion` | The format version. Kubb ignores a file with another version.                                                                                                   |
+| `inputs`          | What each config last generated from, keyed by the config's `name`, or its `output.path` without one. Left out for an input Kubb cannot compare, such as a URL. |
+| `hash`            | SHA-256 hash of the config, the package versions, and the content of the `sources`. Line endings count as `\n`.                                                 |
+| `sources`         | The spec and the local files it references, as paths from `root`.                                                                                               |
+| `files`           | One entry per generated file, keyed by its path from `root`.                                                                                                    |
+| `source`          | SHA-256 hash of the code Kubb generated.                                                                                                                        |
+| `output`          | SHA-256 hash of the file on disk after `output.format`, `output.lint`, and `output.postGenerate`. Line endings count as `\n`.                                   |
 
 - Do not edit `kubb-lock.json`. After a merge conflict, run `kubb generate` and commit the result.
 - When `--check` finds formatted output and no `kubb-lock.json`, it exits with `1` and tells you to run `kubb generate`.
@@ -258,24 +244,19 @@ kubb generate --no-lockfile
 
 ### Run summary {#run-summary}
 
-When a run ends, the `cli` reporter prints a summary. It starts with the outcome and duration, then the plugin results and the output path.
+When a run ends, the `cli` reporter prints a summary. Warnings come first, then a verdict line, the kinds of change, what to run next, and a `Finished in` line.
 
 ```text [Summary]
-✓ Generation complete  466ms
-
-  17 files generated · 54 unchanged
-  Plugins  4 passed
-  Output   ./src/gen
-
-File changes
-  14 added · 3 modified · 1 deleted
-  Lines  +312 −47
+✓ Generated 18 files · 54 unchanged (12 via kubb-lock.json)
+  14 added · 3 modified · 1 deleted · +312 −47
+  Finished in 466ms · ./src/gen · 4 plugins
 ```
 
-| Entry | What it counts |
-| --- | --- |
-| `unchanged` | Files whose content did not change, also when `output.clean` rewrites the folder. |
-| `File changes` | The output on disk compared with its content before the run. Custom storage drivers leave this section out. |
-| `Lines` | The count of each line, so moving a line inside a file is not a removal plus an addition. |
+| Entry                          | What it counts                                                                                                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unchanged`                    | Files whose content did not change, also when `output.clean` rewrites the folder.                                                                                            |
+| `via kubb-lock.json`           | Unchanged files that differ from the generated text but match through [`kubb-lock.json`](#kubb-lock), such as formatted files. Like the "reused" count of a package manager. |
+| `added`, `modified`, `deleted` | The output on disk compared with its content before the run. Only the kinds that happened are listed. Custom storage drivers leave this line out.                            |
+| `+312 −47`                     | The count of each line, so moving a line inside a file is not a removal plus an addition.                                                                                    |
 
-With `--dry-run`, the summary shows the planned file changes. It says "planned" and "Nothing was written."
+With `--dry-run`, the verdict starts with `◇ Dry run:` and says how many files would change, followed by "Nothing was written."
