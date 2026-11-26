@@ -200,35 +200,14 @@ To see which generated files changed against the base branch, publish a [Studio 
 
 ## Keep generated diffs reviewable {#reviewable-diffs}
 
-A small spec change can touch many generated files. When you rename an operation, Kubb renames its files, and git shows each one as deleted and re-added. Review the spec change instead, and let [`--check`](#check-generated-code-in-ci) confirm the output matches it.
-
-Mark the output and the lockfile as generated in `.gitattributes`. GitHub then collapses them in pull requests and leaves them out of the repository's language stats:
+Mark the output and the lockfile as generated, so GitHub collapses them in pull requests. Use your `output.path` without a leading `./`:
 
 ```text [.gitattributes]
 src/gen/** linguist-generated=true
 kubb-lock.json linguist-generated=true
 ```
 
-Replace `src/gen` with your `output.path`, without a leading `./`: git matches these patterns against paths from the repository root. Keep committing both: `--check` needs `kubb-lock.json` to recognize formatted output.
-
-For a large spec, group the files by tag. A rename then stays inside one folder, and the reviewer sees which part of the API changed:
-
-```typescript [kubb.config.ts]
-import { defineConfig } from 'kubb/config'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginFetch } from '@kubb/plugin-fetch'
-
-export default defineConfig({
-  input: './petStore.yaml',
-  output: { path: './src/gen' },
-  plugins: [
-    pluginTs({ group: { type: 'tag' } }), // src/gen/types/pet/, src/gen/types/store/
-    pluginFetch({ group: { type: 'tag' } }),
-  ],
-})
-```
-
-To write one file per plugin instead, give `output.path` a file extension, such as `pluginTs({ output: { path: 'types.ts' } })`. See [`output.mode`](/docs/5.x/reference/plugin-options#output-mode) and [`group`](/docs/5.x/reference/plugin-options#group).
+For a large spec, add [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) to each plugin so a change stays in one folder. For one file per plugin, give `output.path` an extension, such as `pluginTs({ output: { path: 'types.ts' } })`.
 
 ## Add barrel files {#barrel-files}
 
