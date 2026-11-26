@@ -254,7 +254,7 @@ kubb generate --no-lockfile
 - Kubb does not read `kubb-lock.json` and does not write it. An existing file stays as it is.
 - Every run generates, formats, and lints. No run is skipped as [up to date](#up-to-date-runs).
 - A formatted file is written again on each run, because Kubb cannot tell that the formatter produced it.
-- `--check` and `--dry-run` count a file as unchanged only when the file on disk holds the generated text. With `output.format`, `output.lint`, or `output.postGenerate`, `--check --no-lockfile` exits with `1`.
+- `--check` and `--dry-run` count a file as unchanged only when the file on disk holds the generated text. `--check --no-lockfile` exits with `1` when a file differs from that text, which `output.format`, `output.lint`, or `output.postGenerate` usually causes.
 
 ### Run summary {#run-summary}
 
