@@ -141,6 +141,57 @@ describe('inlineFiles', () => {
     )
   })
 
+  it('renames only the carried binding that clashes when two modules share a name', () => {
+    const virtual = (baseName: string, name: string, optionsPath: string) =>
+      createFile({
+        baseName,
+        path: `/gen/models/${baseName}`,
+        inline: true,
+        imports: [createImport({ name: ['Options'], path: optionsPath, isTypeOnly: true })],
+        sources: [createSource({ name, isTypeOnly: true, inline: { expression: 'Options' }, nodes: [] })],
+      })
+    const file = clientFile('const a: FromClient = client<Options>(); const b: FromSchema = client()', {
+      imports: [
+        createImport({ name: ['FromClient'], path: '/gen/models/A.ts', isTypeOnly: true }),
+        createImport({ name: ['FromSchema'], path: '/gen/models/B.ts', isTypeOnly: true }),
+        createImport({ name: ['client', 'Options'], path: '@kubb/client' }),
+      ],
+    })
+    const { files } = inlineFiles([virtual('A.ts', 'FromClient', '@kubb/client'), virtual('B.ts', 'FromSchema', '/gen/models/Options.ts'), file])
+
+    expect(code(files[0])).toEqual(['const a: Options = client<Options>(); const b: Options2 = client()'])
+    expect(files[0]?.imports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: '/gen/models/Options.ts', names: [expect.objectContaining({ name: 'Options', alias: 'Options2' })] }),
+      ]),
+    )
+  })
+
+  it('skips an alias that another carried import already uses', () => {
+    const file = clientFile('const a: AddPetOptions = client()', {
+      imports: [
+        createImport({ name: ['AddPetOptions'], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts', isTypeOnly: true }),
+        createImport({ name: ['client', 'Options'], path: '@kubb/client' }),
+      ],
+    })
+    const withOptions2 = createFile({
+      ...operationFile,
+      imports: [createImport({ name: ['Options2', 'Options'], path: '/gen/models/Options.ts', root: '/gen/models/pet/AddPet.ts', isTypeOnly: true })],
+      sources: [createSource({ name: 'AddPetOptions', isTypeOnly: true, inline: { expression: '{ a: Options2; b: Options }' }, nodes: [] })],
+    })
+    const { files } = inlineFiles([withOptions2, file])
+
+    expect(code(files[0])).toEqual(['const a: ({ a: Options2; b: Options3 }) = client()'])
+    expect(files[0]?.imports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '/gen/models/Options.ts',
+          names: [expect.objectContaining({ name: 'Options2' }), expect.objectContaining({ name: 'Options', alias: 'Options3' })],
+        }),
+      ]),
+    )
+  })
+
   it('rewrites the string fields of code nodes', () => {
     const file = clientFile('', {
       sources: [createSource({ name: 'addPet', nodes: [createFunction({ name: 'addPet', params: 'options: AddPetOptions', returnType: 'AddPetStatus200' })] })],
