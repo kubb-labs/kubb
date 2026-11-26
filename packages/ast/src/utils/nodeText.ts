@@ -2,7 +2,7 @@ import { nodeKinds } from '../constants.ts'
 import type { NodeKind } from '../nodes/base.ts'
 import type { CodeNode } from '../nodes/code.ts'
 
-export const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
+const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Text: ['value'],
   Jsx: ['value'],
   Function: ['params', 'generics', 'returnType'],
@@ -43,4 +43,23 @@ export function getNodeText(nodes: Array<CodeNode> | undefined): string {
   }
 
   return collected.join('\n')
+}
+
+// Rewrites the string fields `getNodeText` reads; JSDoc stays as written.
+export function rewriteNodes(nodes: Array<CodeNode> | undefined, rewrite: (text: string) => string): Array<CodeNode> | undefined {
+  return nodes?.map((node): CodeNode => {
+    // Backward-compat: compiled plugins may still pass bare strings at runtime
+    if (typeof node === 'string') return rewrite(node) as unknown as CodeNode
+    if (node.kind === nodeKinds.break) return node
+
+    const next = { ...node } as unknown as Record<string, unknown>
+    for (const field of CODE_NODE_TEXT_FIELDS[node.kind] ?? []) next[field] = rewriteField(next[field], rewrite)
+    if ('nodes' in node && node.nodes) next.nodes = rewriteNodes(node.nodes, rewrite)
+    return next as unknown as CodeNode
+  })
+}
+
+function rewriteField(value: unknown, rewrite: (text: string) => string): unknown {
+  if (Array.isArray(value)) return value.map(rewrite)
+  return typeof value === 'string' && value ? rewrite(value) : value
 }
