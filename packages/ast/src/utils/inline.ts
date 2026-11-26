@@ -2,6 +2,7 @@ import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
 import { createFile, createImport } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
+import { uniqueName } from '@internals/utils'
 import { getNames } from './moduleNames.ts'
 import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
 
@@ -72,7 +73,10 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
     definitions.set(key, null)
     const imports: Array<ImportNode> = []
-    const { text, used } = replaceNames(expression, file, lang, imports)
+    const { text, used } = replaceNames(expression, file, lang, (inner) => {
+      imports.push(...inner.imports)
+      return inner.expression
+    })
     imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
 
     const definition = { expression: text, imports }
@@ -80,8 +84,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     return definition
   }
 
-  // Pushes the imports the replaced definitions need onto `imports`; `used` holds the names left as they are.
-  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>) {
+  // `use` takes each replaced definition's imports and returns its text; `used` holds the names left as they are.
+  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, use: (definition: Definition) => string) {
     const used = new Set<string>()
     const text = lang.replaceIdentifiers(input, (local) => {
       const target = findTarget(file, local)
@@ -91,8 +95,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
         return undefined
       }
 
-      imports.push(...definition.imports)
-      return lang.wrap(definition.expression)
+      return lang.wrap(use(definition))
     })
 
     return { text, used }
@@ -119,7 +122,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     }
 
     const carried: Array<ImportNode> = []
-    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carried).text) }))
+    const carry = carryImports(file, lang, carried)
+    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carry).text) }))
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
     const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
@@ -128,6 +132,43 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   }
 
   return result
+}
+
+// Moves each definition's imports into `carried` and returns the definition's text. A carried name the file already binds to
+// something else, such as a schema `Options` next to the client's own `Options`, gets an alias like `Options2`.
+function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<ImportNode>) {
+  // Each name the file uses, to the import (module and exported name) or declaration behind it. `''` marks a global, such as
+  // the fetch `Response` next to a schema `Response`.
+  const bindings = new Map<string, string>()
+  for (const imp of file.imports) for (const item of getNames(imp)) bindings.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
+  for (const source of file.sources) {
+    if (source.name) bindings.set(source.name, file.path)
+    rewriteNodes(source.nodes, (text) =>
+      lang.replaceIdentifiers(text, (name) => {
+        if (!bindings.has(name)) bindings.set(name, '')
+        return undefined
+      }),
+    )
+  }
+
+  return (definition: Definition): string => {
+    const aliases = new Map<string, string>()
+    for (const imp of definition.imports) {
+      const before = aliases.size
+      const names = getNames(imp).map((item) => {
+        const local = item.alias ?? item.name
+        const binding = `${imp.path}\0${item.name}`
+        const name = uniqueName(local, (candidate) => bindings.has(candidate) && bindings.get(candidate) !== binding)
+        bindings.set(name, binding)
+        if (name === local) return item
+        aliases.set(local, name)
+        return { ...item, alias: name }
+      })
+      carried.push(aliases.size > before ? createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names }) : imp)
+    }
+
+    return aliases.size ? lang.replaceIdentifiers(definition.expression, (name) => aliases.get(name)) : definition.expression
+  }
 }
 
 // A file of only deprecated per-source `inline` counts as inline too.

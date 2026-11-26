@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dedent, indent, unquote } from './text.ts'
+import { dedent, indent, uniqueName, unquote } from './text.ts'
 
 describe('text', () => {
   it('indents non-empty lines and keeps blank lines empty', () => {
@@ -15,5 +15,12 @@ describe('text', () => {
     expect(unquote('"a"')).toBe('a')
     expect(unquote('\'a"')).toBe('\'a"')
     expect(unquote('`a`')).toBe('a')
+  })
+
+  it('adds the first free numeric suffix to a taken name', () => {
+    const taken = new Set(['Options', 'Options2'])
+
+    expect(uniqueName('Pet', (name) => taken.has(name))).toBe('Pet')
+    expect(uniqueName('Options', (name) => taken.has(name))).toBe('Options3')
   })
 })

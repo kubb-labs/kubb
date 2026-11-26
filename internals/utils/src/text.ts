@@ -46,3 +46,14 @@ export function unquote(text: string): string {
   const first = text[0]
   return (first === '"' || first === "'" || first === '`') && text.at(-1) === first ? text.slice(1, -1) : text
 }
+
+/**
+ * Returns `name` when it is free, otherwise the first free `name2`, `name3`, and so on.
+ * @example
+ * `uniqueName('Options', (name) => name === 'Options') // 'Options2'`
+ */
+export function uniqueName(name: string, isTaken: (candidate: string) => boolean): string {
+  let candidate = name
+  for (let suffix = 2; isTaken(candidate); suffix++) candidate = `${name}${suffix}`
+  return candidate
+}

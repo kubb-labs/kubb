@@ -115,6 +115,58 @@ describe('inlineFiles', () => {
     ])
   })
 
+  it('aliases a carried import whose name the file already imports from another module', () => {
+    const file = clientFile('const status: AddPetStatus200 = client<Options>()', {
+      imports: [
+        createImport({ name: ['AddPetStatus200'], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts', isTypeOnly: true }),
+        createImport({ name: ['client', 'Options'], path: '@kubb/client' }),
+      ],
+    })
+    const withOptions = createFile({
+      ...operationFile,
+      imports: [createImport({ name: ['Options'], path: '/gen/models/Options.ts', root: '/gen/models/pet/AddPet.ts', isTypeOnly: true })],
+      sources: [createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: 'Options' }, nodes: [] })],
+    })
+    const { files } = inlineFiles([withOptions, file])
+
+    expect(code(files[0])).toEqual(['const status: Options2 = client<Options>()'])
+    expect(files[0]?.imports).toContainEqual(
+      expect.objectContaining({ path: '/gen/models/Options.ts', names: [expect.objectContaining({ alias: 'Options2' })] }),
+    )
+  })
+
+  it('aliases only the carried import from the other module when two modules share a name', () => {
+    const inlineOptions = (path: `${string}.${string}`, from: string) =>
+      createFile({
+        baseName: path,
+        path: `/gen/models/${path}`,
+        inline: true,
+        imports: [createImport({ name: ['Options'], path: from, isTypeOnly: true })],
+        sources: [createSource({ name: path.replace('.ts', ''), isTypeOnly: true, inline: { expression: 'Options' }, nodes: [] })],
+      })
+    const file = clientFile('const a: A = client<Options>(); const b: B = client()', {
+      imports: [
+        createImport({ name: ['A'], path: '/gen/models/A.ts', isTypeOnly: true }),
+        createImport({ name: ['B'], path: '/gen/models/B.ts', isTypeOnly: true }),
+        createImport({ name: ['client', 'Options'], path: '@kubb/client' }),
+      ],
+    })
+    const { files } = inlineFiles([inlineOptions('A.ts', '@kubb/client'), inlineOptions('B.ts', '/gen/models/Options.ts'), file])
+
+    expect(code(files[0])).toEqual(['const a: Options = client<Options>(); const b: Options2 = client()'])
+  })
+
+  it('aliases a carried import that would shadow a global the file uses', () => {
+    const file = clientFile('const handler = (data: AddPetStatus200): Promise<Response> => client()')
+    const withResponse = createFile({
+      ...operationFile,
+      imports: [createImport({ name: ['Response'], path: '/gen/models/Response.ts', root: '/gen/models/pet/AddPet.ts', isTypeOnly: true })],
+      sources: [createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: 'Response' }, nodes: [] })],
+    })
+
+    expect(code(inlineFiles([withResponse, file]).files[0])).toEqual(['const handler = (data: Response2): Promise<Response> => client()'])
+  })
+
   it('rewrites the string fields of code nodes', () => {
     const file = clientFile('', {
       sources: [createSource({ name: 'addPet', nodes: [createFunction({ name: 'addPet', params: 'options: AddPetOptions', returnType: 'AddPetStatus200' })] })],
