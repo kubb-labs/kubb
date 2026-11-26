@@ -11,7 +11,8 @@ const updateSchema = v.object({
 export const updateTool = defineTool(
   {
     name: 'update',
-    description: 'Update installed Kubb extensions to the versions the registry pins, regenerate, and summarize the file changes. Runs `kubb update --yes`.',
+    description:
+      'Update installed Kubb extensions to the versions the registry pins and summarize the install. Runs `kubb update --yes`, which does not regenerate: call `generate` afterwards to update the generated files.',
     schema: updateSchema,
   },
   ({ ids = [], dryRun = false }) => runKubb({ args: ['update', ...ids, '--yes', ...(dryRun ? ['--dry-run'] : [])] }),

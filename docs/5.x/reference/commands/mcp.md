@@ -38,7 +38,7 @@ The server uses the stdio transport, so the client starts it as a local process.
 | [`diff`](#diff) | Shows what `generate` would change, without writing files. |
 | [`init`](#init) | Writes a `kubb.config.ts` without prompts. |
 | [`add`](#add) | Installs an extension from the registry and adds it to the config. |
-| [`update`](#update) | Updates installed extensions and regenerates. |
+| [`update`](#update) | Updates installed extensions. |
 | [`remove`](#remove) | Removes an extension from the config and uninstalls it. |
 | [`list`](#list) | Lists installed extensions and available updates. |
 
@@ -138,7 +138,7 @@ Preview the change without installing or writing. Default: `false`.
 
 ### `update` {#update}
 
-Runs [`kubb update --yes`](/docs/5.x/reference/commands/update). It updates extensions to the versions the registry pins, regenerates, and summarizes the file changes.
+Runs [`kubb update --yes`](/docs/5.x/reference/commands/update). It updates extensions to the versions the registry pins and summarizes the install. It does not regenerate, so call [`generate`](#generate) afterwards to update the generated files.
 
 ::field-group
 

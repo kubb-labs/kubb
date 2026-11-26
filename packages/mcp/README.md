@@ -176,7 +176,7 @@ These tools run the `kubb` CLI and return its output and exit code. They use the
 
 - `diff` runs `kubb generate --diff`. Parameters: `config` (string, optional), `lockfile` (boolean, default `true`)
 - `add` runs `kubb add <id> --yes`. Parameters: `id` (string, required), `config` (string, optional), `install` (boolean, default `true`), `dryRun` (boolean, default `false`)
-- `update` runs `kubb update --yes`. Parameters: `ids` (string array, optional, default every installed extension), `dryRun` (boolean, default `false`)
+- `update` runs `kubb update --yes`, which does not regenerate, so call `generate` afterwards. Parameters: `ids` (string array, optional, default every installed extension), `dryRun` (boolean, default `false`)
 - `remove` runs `kubb remove <id> --yes`. Parameters: `id` (string, required), `config` (string, optional), `uninstall` (boolean, default `true`), `dryRun` (boolean, default `false`)
 - `list` runs `kubb list`. No parameters
 

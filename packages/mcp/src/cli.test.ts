@@ -1,4 +1,4 @@
-import { rm } from 'node:fs/promises'
+import { realpath, rm } from 'node:fs/promises'
 import process from 'node:process'
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 import { resolveCliBin, runCli, runKubb } from './cli.ts'
@@ -17,7 +17,8 @@ afterAll(async () => {
 
 describe('resolveCliBin', () => {
   it('finds the kubb bin installed in the project', async () => {
-    expect(await resolveCliBin(root)).toBe(bin)
+    // Module resolution returns the real path, and tmpdir() is a symlink on macOS.
+    expect(await resolveCliBin(root)).toBe(await realpath(bin))
   })
 })
 
