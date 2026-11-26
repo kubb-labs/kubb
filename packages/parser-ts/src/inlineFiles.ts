@@ -1,8 +1,8 @@
 import type { FileNode } from '@kubb/ast'
 import type { InlineResult } from '@kubb/core'
 import type { Lang } from './inline.ts'
-import { inlineFile } from './inlineFile.ts'
-import { createRegistry } from './registry.ts'
+import { createFileRewriter } from './fileRewriter.ts'
+import { createDefinitions } from './definitions.ts'
 
 export type InlineFilesResult = InlineResult
 
@@ -15,12 +15,12 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { lang, extNames }: 
   const virtual = new Map(files.filter(isInlineFile).map((file) => [file.path, file]))
   const result: InlineFilesResult = { files: [], virtualPaths: [...virtual.keys()], problems: [] }
   // Shared by every file, so each virtual body is read once per run.
-  const registry = createRegistry(virtual, lang)
+  const definitions = createDefinitions(virtual, lang)
 
   for (const file of files) {
     if (!extNames.includes(file.extname) || virtual.has(file.path) || !file.imports.some((imp) => virtual.has(imp.path))) continue
 
-    const inlined = inlineFile(file, registry)
+    const inlined = createFileRewriter(file, definitions).rewrite()
     result.files.push(inlined.file)
     result.problems.push(...inlined.problems)
   }
