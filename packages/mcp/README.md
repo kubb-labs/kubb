@@ -26,7 +26,7 @@
 
 `@kubb/mcp` is the MCP server for Kubb. It exposes Kubb code generation as tools over the [Model Context Protocol](https://modelcontextprotocol.io), so AI assistants such as [Claude](https://claude.ai) and [Cursor](https://cursor.sh) can validate a spec and generate TypeScript types and API clients from the chat.
 
-The server has a tool for every `kubb` command except `studio`. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build succeeds. A failed build returns its diagnostics instead. `diff` shows what `generate` would change, `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`. `add`, `update`, `remove`, and `list` manage extensions from the Kubb registry.
+The server has a tool for every `kubb` command except `studio` and `mcp`. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build succeeds. A failed build returns its diagnostics instead. `diff` shows what `generate` would change, `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`. `add`, `update`, `remove`, and `list` manage extensions from the Kubb registry.
 
 ## Installation
 
@@ -172,11 +172,11 @@ Parameters:
 
 #### `diff`, `add`, `update`, `remove`, and `list`
 
-These tools run the project's own `kubb` CLI with `--yes` and return its output and exit code, so `kubb` must be installed in the project.
+These tools run the `kubb` CLI and return its output and exit code. They use the project's own `kubb`, or the one that started the server when the project has none. `add`, `update`, and `remove` pass `--yes`.
 
 - `diff` runs `kubb generate --diff`. Parameters: `config` (string, optional), `lockfile` (boolean, default `true`)
 - `add` runs `kubb add <id> --yes`. Parameters: `id` (string, required), `config` (string, optional), `install` (boolean, default `true`), `dryRun` (boolean, default `false`)
-- `update` runs `kubb update --yes`. Parameters: `ids` (string array, optional; every installed extension when omitted), `dryRun` (boolean, default `false`)
+- `update` runs `kubb update --yes`. Parameters: `ids` (string array, optional, default every installed extension), `dryRun` (boolean, default `false`)
 - `remove` runs `kubb remove <id> --yes`. Parameters: `id` (string, required), `config` (string, optional), `uninstall` (boolean, default `true`), `dryRun` (boolean, default `false`)
 - `list` runs `kubb list`. No parameters
 

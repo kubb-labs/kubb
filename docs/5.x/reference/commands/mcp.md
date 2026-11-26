@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: kubb mcp - Start the Kubb MCP server
-description: The mcp command starts a stdio Model Context Protocol server with a tool for each Kubb command, such as generate, diff, add, and update, with each tool's parameters.
+description: The mcp command starts a stdio Model Context Protocol server with a tool for every Kubb command except studio and mcp, such as generate, diff, add, and update, with each tool's parameters.
 outline:
   - 2
   - 3
@@ -13,40 +13,36 @@ navigation:
 
 # kubb mcp
 
-`kubb mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io/) server, so your AI client can run every `kubb` command except `studio`: validate a spec, write a `kubb.config.ts`, manage extensions, and generate code. It takes no options. [Set up the MCP server](/docs/5.x/ai/mcp) shows how to add it to Claude Code, Cursor, VS Code, and other clients.
+`kubb mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io/) server, so your AI client can run every `kubb` command except `studio` and `mcp`: validate a spec, write a `kubb.config.ts`, manage extensions, and generate code. It takes no options. [Set up the MCP server](/docs/5.x/ai/mcp) shows how to add it to Claude Code, Cursor, VS Code, and other clients.
 
 > [!WARNING]
 > This feature is under active development. Use it with caution and expect breaking changes.
 
 ::terminal
 ---
-
 command: kubb mcp
 output:
-
-- ⏳ Starting MCP server...
-- This feature is still under development, use with caution
-
+  - ⏳ Starting MCP server...
+  - This feature is still under development, use with caution
 ---
-
 ::
 
 The server uses the stdio transport, so the client starts it as a local process. Its own messages go to stderr, since stdout carries the protocol.
 
 ## Tools
 
-| Tool                    | What it does                                                       |
-| ----------------------- | ------------------------------------------------------------------ |
-| [`generate`](#generate) | Runs the Kubb pipeline from the project's config.                  |
-| [`validate`](#validate) | Validates an OpenAPI or Swagger document.                          |
-| [`diff`](#diff)         | Shows what `generate` would change, without writing files.         |
-| [`init`](#init)         | Writes a `kubb.config.ts` without prompts.                         |
-| [`add`](#add)           | Installs an extension from the registry and adds it to the config. |
-| [`update`](#update)     | Updates installed extensions and regenerates.                      |
-| [`remove`](#remove)     | Removes an extension from the config and uninstalls it.            |
-| [`list`](#list)         | Lists installed extensions and available updates.                  |
+| Tool | What it does |
+| --- | --- |
+| [`generate`](#generate) | Runs the Kubb pipeline from the project's config. |
+| [`validate`](#validate) | Validates an OpenAPI or Swagger document. |
+| [`diff`](#diff) | Shows what `generate` would change, without writing files. |
+| [`init`](#init) | Writes a `kubb.config.ts` without prompts. |
+| [`add`](#add) | Installs an extension from the registry and adds it to the config. |
+| [`update`](#update) | Updates installed extensions and regenerates. |
+| [`remove`](#remove) | Removes an extension from the config and uninstalls it. |
+| [`list`](#list) | Lists installed extensions and available updates. |
 
-`diff`, `add`, `update`, `remove`, and `list` run the project's own `kubb` CLI with `--yes` and return its output and exit code. They need `kubb` installed in the project. `kubb studio` has no tool, since its login needs a browser.
+`diff`, `add`, `update`, `remove`, and `list` run the `kubb` CLI and return its output and exit code. They use the project's own `kubb`, or the one that started the server when the project has none. `add`, `update`, and `remove` pass `--yes` and accept `dryRun`. `kubb studio` has no tool, since its login needs a browser.
 
 ### `generate` {#generate}
 
@@ -79,7 +75,7 @@ Runs [`kubb generate --diff`](/docs/5.x/reference/commands/generate) and returns
 ::field-group
 
 :::field{name="config" type="string"}
-Path to a config file inside the [working directory](#working-directory). Without it, the CLI searches the way `kubb generate` does.
+Path to a config file inside the [working directory](#working-directory). Without it, the CLI finds the config the way [`kubb generate`](/docs/5.x/reference/commands/generate) does.
 :::
 
 :::field{name="lockfile" type="boolean"}
@@ -118,7 +114,7 @@ Output folder written to the config. Default: `./src/gen`.
 
 ### `add` {#add}
 
-Runs [`kubb add <id> --yes`](/docs/5.x/reference/commands/add). It installs the extension at the version the registry pins, and adds a plugin or parser to the config with the plugins it needs.
+Runs [`kubb add <id> --yes`](/docs/5.x/reference/commands/add). It installs a plugin, adapter, or parser at the version the registry pins. A plugin or parser is added to the config with the plugins it needs, and an adapter comes back as a snippet to add by hand.
 
 ::field-group
 
@@ -190,7 +186,8 @@ The server runs in the folder the client starts it in:
 
 - `generate` looks for the config there, then in each parent folder.
 - `generate` rejects a `config` or `output` path outside that folder, and an `input` path outside it unless `input` is an `http:` or `https:` URL. The check follows symlinks, and resolves `output` and `input` from the config's `root`.
-- `diff`, `add`, `update`, and `remove` reject a `config` path outside that folder too, and run the CLI there.
+- `diff`, `add`, and `remove` reject a `config` path outside that folder too.
+- Every tool that runs the CLI runs it there.
 - `init` writes `kubb.config.ts` there.
 
 When the server cannot find your config, see [Start it in your project](/docs/5.x/ai/mcp#working-directory).
