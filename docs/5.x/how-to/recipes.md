@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Configure generation - Common Kubb recipes
-description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check, barrel files, git inputs, watch mode, and several specs in one run.
+description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check, reviewable diffs, barrel files, git inputs, watch mode, and several specs in one run.
 outline:
   - 2
   - 3
@@ -197,6 +197,17 @@ kubb-check:
 ::
 
 To see which generated files changed against the base branch, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
+
+## Keep generated diffs reviewable {#reviewable-diffs}
+
+Mark the output and the lockfile as generated, so GitHub collapses them in pull requests. Use your `output.path` without a leading `./`:
+
+```text [.gitattributes]
+src/gen/** linguist-generated=true
+kubb-lock.json linguist-generated=true
+```
+
+For a large spec, add [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) to each plugin so a change stays in one folder. For one file per plugin, give `output.path` an extension, such as `pluginTs({ output: { path: 'types.ts' } })`.
 
 ## Add barrel files {#barrel-files}
 
