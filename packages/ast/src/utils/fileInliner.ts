@@ -4,7 +4,8 @@ import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { getNames } from './moduleNames.ts'
 import { rewriteNodes } from './nodeText.ts'
-import type { InlineLanguage, InlineTextKind, InlineUse, Target, VirtualFiles } from './virtualFiles.ts'
+import type { InlineTextKind } from './nodeText.ts'
+import type { InlineLanguage, Target, VirtualFiles } from './virtualFiles.ts'
 
 export type FileInlinerOptions = { file: FileNode; lang: InlineLanguage; virtual: VirtualFiles }
 
@@ -62,10 +63,10 @@ class FileInliner {
   // uses, such as the fetch `Response`, so no local declaration shadows it. A body is read once, but a bare alias is followed
   // at each use so its target's count stays right; `following` stops a loop between two of them.
   #scan(from: FileNode, text: string, kind: InlineTextKind, following = new Set<string>()): void {
-    if (from !== this.#file) for (const name of this.#namesIn(text, kind)) if (!this.#virtual.find(from, name) && !importsName(from, name)) this.#reserve(name)
+    this.#reserveGlobals(from, text, kind)
     this.#lang.replaceIdentifiers(
       text,
-      (id, use?: InlineUse) => {
+      (id, use) => {
         const target = this.#virtual.find(from, id)
         if (!target) return undefined
 
@@ -83,6 +84,14 @@ class FileInliner {
     )
   }
 
+  // The names an inlined body uses that it neither imports nor gets from a virtual file are globals.
+  #reserveGlobals(from: FileNode, text: string, kind: InlineTextKind): void {
+    if (from === this.#file) return
+    for (const name of this.#namesIn(text, kind)) {
+      if (!this.#virtual.find(from, name) && !importsName(from, name)) this.#reserve(name)
+    }
+  }
+
   // What `id` in `from` becomes: a type's local name, or the body of a type or value. `undefined` keeps it as it is.
   #resolve(from: FileNode, id: string): string | undefined {
     const target = this.#virtual.find(from, id)
@@ -94,7 +103,8 @@ class FileInliner {
   // one local declaration when it is used more than once or a use needs its name, and is written in place otherwise.
   #write(from: FileNode, target: Target): string | undefined {
     const { expression, key, name, path } = target
-    if (expression === undefined) return this.#report(from, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
+    if (expression === undefined)
+      return this.#virtual.report(from.path, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
     const existing = this.#locals.get(key)
     if (existing) return existing
 
@@ -102,7 +112,7 @@ class FileInliner {
     // A type claims its name before its body is written, so a type that refers to itself, such as a tree node, can use it.
     // A value that refers to itself has no value yet, so it stays a cycle.
     const early = declare && target.isType ? this.#claim(target) : undefined
-    if (!early && this.#writing.has(key)) return this.#report(from, `"${name}" from "${path}" is defined in terms of itself.`)
+    if (!early && this.#writing.has(key)) return this.#virtual.report(from.path, `"${name}" from "${path}" is defined in terms of itself.`)
 
     this.#writing.add(key)
     const body = this.#writeBody(target.file, expression, kindOf(target))
@@ -193,10 +203,6 @@ class FileInliner {
   #isBareName(expression: string): boolean {
     const trimmed = expression.trim()
     return this.#lang.wrap(trimmed) === trimmed
-  }
-
-  #report(from: FileNode, message: string): undefined {
-    return this.#virtual.report(from.path, message)
   }
 }
 

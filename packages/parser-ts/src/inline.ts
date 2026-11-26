@@ -1,3 +1,4 @@
+import { memo } from '@internals/utils'
 import type { ast } from '@kubb/ast'
 import { parse } from 'yuku'
 
@@ -16,29 +17,29 @@ const contexts: Record<ast.InlineTextKind, [before: string, after: string]> = {
 const kinds = Object.keys(contexts) as Array<ast.InlineTextKind>
 
 // The same fragment is read several times while one file is inlined.
-const cache = new Map<string, Analysis>()
+const analyses = memo.create<string, Analysis>({ max: 1000 })
 
 // Parses `text` as `kind`, or, when that fails or no kind is given, as the first kind it parses as without errors.
 function analyze(text: string, lang: Lang, kind: ast.InlineTextKind | undefined): Analysis {
-  const key = `${lang}\0${kind ?? ''}\0${text}`
-  const cached = cache.get(key)
-  if (cached) return cached
-
-  let first: Analysis | undefined
-  for (const candidate of kind ? [kind, ...kinds.filter((item) => item !== kind)] : kinds) {
-    const [before, after] = contexts[candidate]
-    const file = parse(before + text + after, { lang, sourceType: 'module', analyze: true })
-    const analysis = { file, offset: before.length }
-    first ??= analysis
-    if (!file.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
-      first = analysis
-      break
+  return memo(analyses, `${lang}\0${kind ?? ''}\0${text}`, () => {
+    const first = kind ?? 'code'
+    const fallback = parseAs(text, lang, first)
+    if (isClean(fallback)) return fallback
+    for (const candidate of kinds) {
+      const analysis = candidate === first ? undefined : parseAs(text, lang, candidate)
+      if (analysis && isClean(analysis)) return analysis
     }
-  }
+    return fallback
+  })
+}
 
-  if (cache.size > 1000) cache.clear()
-  cache.set(key, first!)
-  return first!
+function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): Analysis {
+  const [before, after] = contexts[kind]
+  return { file: parse(before + text + after, { lang, sourceType: 'module', analyze: true }), offset: before.length }
+}
+
+function isClean({ file }: Analysis): boolean {
+  return !file.diagnostics.some((diagnostic) => diagnostic.severity === 'error')
 }
 
 /**

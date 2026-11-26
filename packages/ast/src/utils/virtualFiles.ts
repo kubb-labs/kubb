@@ -39,8 +39,6 @@ export type InlineLanguage = {
 // A name imported from, or declared in, a virtual file. `key` is its module and exported name.
 export type Target = { key: string; name: string; path: string; file: FileNode; isType: boolean; expression: string | undefined }
 
-export type { InlineTextKind }
-
 // The virtual files of one run, shared by every importing file.
 export class VirtualFiles {
   readonly problems: Array<{ path: string; message: string }> = []

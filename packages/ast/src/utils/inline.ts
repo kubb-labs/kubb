@@ -3,7 +3,8 @@ import { inlineFile } from './fileInliner.ts'
 import { createVirtualFiles } from './virtualFiles.ts'
 import type { InlineLanguage } from './virtualFiles.ts'
 
-export type { InlineLanguage, InlineTextKind, InlineUse } from './virtualFiles.ts'
+export type { InlineTextKind } from './nodeText.ts'
+export type { InlineLanguage, InlineUse } from './virtualFiles.ts'
 
 export type InlineFilesResult = {
   /**
