@@ -46,8 +46,8 @@ export type InlineFilesOptions = {
 }
 
 /**
- * Moves what a file imports from a virtual file (one marked `inline`, so it is never written) into that file. A type becomes a
- * local, non-exported declaration, written once however often the file uses it. A value is replaced by its body at each use.
+ * Moves what a file imports from a virtual file (one marked `inline`, so it is never written) into that file. A type used more
+ * than once becomes one local, non-exported declaration. A type used once, a bare alias, and a value are written at each use.
  * The moved declarations' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
@@ -215,7 +215,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
         return written === id ? undefined : written
       }
       const target = findTarget(from, id)
-      const definition = target && define(target.path, target.name, file.path, lang)
+      const definition = target && define(target.path, target.name, from.path, lang)
       return definition ? lang.wrap(carry(definition)) : undefined
     }
 
