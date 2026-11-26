@@ -55,9 +55,7 @@ export type Report = {
    * Generated files whose content matches the previous output.
    */
   filesUnchanged: number
-  /**
-   * Unchanged files that match only through `kubb-lock.json`.
-   */
+  /** Unchanged files that match only through `kubb-lock.json`. */
   filesFromLockfile: number
   fileChanges?: GenerationResult['fileChanges']
   dryRun?: boolean

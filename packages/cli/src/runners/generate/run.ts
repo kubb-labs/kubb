@@ -255,10 +255,7 @@ function warnMissingLockfile({ lockfile }: { lockfile: boolean }): void {
   console.error(message)
 }
 
-/**
- * The `cli` summary shows each diff under its file. Without it, the diffs go out raw: to stderr in
- * `json` mode, where stdout belongs to the report and `kubb_diff` reads them, and to stdout with `--silent`.
- */
+/** Without the `cli` summary, the diffs go out raw: to stderr in `json` mode, to stdout with `--silent`. */
 function printRawDiffs({ outputCheck, json, silent }: { outputCheck: OutputCheck; json: boolean; silent: boolean }): void {
   if (!json && !silent) return
   for (const patch of outputCheck.patches) (json ? console.error : console.log)(patch)
@@ -284,7 +281,6 @@ function reportOutcome({
   lockfile: boolean
 }): void {
   if (outputCheck && succeeded) printRawDiffs({ outputCheck, json, silent })
-  // The `cli` summary warns before its verdict, so only `json` mode needs the warning here.
   if (outputCheck?.missingLockfile && json && !silent) warnMissingLockfile({ lockfile })
   // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
   if (!succeeded) {

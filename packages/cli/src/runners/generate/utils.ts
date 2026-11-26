@@ -220,10 +220,7 @@ export async function readOutputFingerprints(outputPath: string): Promise<Map<st
   return fingerprints
 }
 
-/**
- * A file that came out the same: `'lockfile'` when only `kubb-lock.json` recognized it as the formatted
- * output of the generated text, `undefined` when both sides hold the same text.
- */
+/** An unchanged file: `'lockfile'` when only `kubb-lock.json` matched it, `undefined` when the text is the same. */
 export type Unchanged = 'lockfile' | undefined
 
 /**
