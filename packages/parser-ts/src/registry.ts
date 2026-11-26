@@ -1,5 +1,5 @@
 import { ast, type ConstNode, type FileNode, type ImportNode, type ModuleName, type SourceNode } from '@kubb/ast'
-import { namesIn, replaceIdentifiers, wrap, type Lang } from './inline.ts'
+import { namesIn, referencesIn, wrap, type Lang } from './inline.ts'
 import type { InlineTextKind } from './nodeText.ts'
 
 /**
@@ -72,12 +72,7 @@ export function createRegistry(virtual: ReadonlyMap<string, FileNode>, lang: Lan
       body,
       bare: body !== undefined && wrap(body.trim()) === body.trim(),
       constant: node?.kind === ast.node.kinds.const ? node : undefined,
-      problem:
-        body === undefined
-          ? `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`
-          : others.length > 0
-            ? `"${name}" from "${path}" has more than one declaration, so its uses cannot be told apart.`
-            : undefined,
+      problem: problemOf(name, path, body, others.length > 0),
     }
     definitions.set(key, definition)
     return definition
@@ -94,14 +89,14 @@ export function createRegistry(virtual: ReadonlyMap<string, FileNode>, lang: Lan
     const known = fragments.get(id)
     if (known) return known
 
-    const names: Array<string> = []
-    replaceIdentifiers(text, (name) => void names.push(name), lang, kind)
-    const external = new Set(names.filter((name) => !find(file, name)))
+    const names = referencesIn(text, lang, kind)
+    const references = names.map((name) => find(file, name))
+    const external = new Set(names.filter((_, index) => !references[index]))
     const result: Fragment = {
       file,
       text,
       kind,
-      references: names.map((name) => find(file, name)),
+      references,
       imports: file.imports.flatMap((imp) => (virtual.has(imp.path) ? [] : pickNames(imp, external))),
       globals: namesIn(text, lang, kind).filter((name) => !find(file, name) && !importsName(file, name)),
     }
@@ -114,7 +109,6 @@ export function createRegistry(virtual: ReadonlyMap<string, FileNode>, lang: Lan
     isVirtual: (path: string) => virtual.has(path),
     find,
     fragment,
-    // The body of a definition as a fragment of its own file.
     body: (definition: Definition) => fragment(definition.file, definition.body ?? '', definition.isType ? 'type' : 'value'),
   }
 }
@@ -135,6 +129,13 @@ export function localName(item: ModuleName): string {
 
 export function withNames(imp: ImportNode, names: Array<ModuleName>): ImportNode {
   return ast.factory.createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names })
+}
+
+// Why a use of `name` cannot be inlined: it has no body, or more than one declaration.
+function problemOf(name: string, path: string, body: string | undefined, duplicated: boolean): string | undefined {
+  if (body === undefined) return `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`
+  if (duplicated) return `"${name}" from "${path}" has more than one declaration, so its uses cannot be told apart.`
+  return undefined
 }
 
 // The one `Const` or `Type` node a source holds.

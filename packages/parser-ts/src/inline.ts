@@ -78,6 +78,13 @@ export function replaceIdentifiers(text: string, replace: (name: string) => stri
 }
 
 /**
+ * The free names in `text`, in order, the same ones `replaceIdentifiers` would offer to replace.
+ */
+export function referencesIn(text: string, lang: Lang, kind: InlineTextKind): Array<string> {
+  return analyze(text, lang, kind).references.map((reference) => reference.name)
+}
+
+/**
  * Every name `text` declares or uses, so a declaration added next to it never shadows one.
  */
 export function namesIn(text: string, lang: Lang, kind: InlineTextKind): Array<string> {

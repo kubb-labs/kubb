@@ -121,7 +121,9 @@ function countUses(file: FileNode, registry: Registry, reserve: (name: string) =
       following.add(definition.key)
       scan(registry.body(definition))
       following.delete(definition.key)
-    } else if (seen === 0) scan(registry.body(definition))
+      return
+    }
+    if (seen === 0) scan(registry.body(definition))
   }
 
   for (const source of file.sources) {
