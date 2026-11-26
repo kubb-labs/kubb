@@ -1,5 +1,5 @@
 ---
-'@kubb/mcp': minor
+'@kubb/mcp': patch
 ---
 
 Breaking: every MCP tool now has a `kubb_` prefix, so the names stay unique next to the tools of other MCP servers. `generate`, `validate`, and `init` are now `kubb_generate`, `kubb_validate`, and `kubb_init`. Update any allow list, hook, or prompt that names a tool, such as `mcp__kubb__generate` in Claude Code, which is now `mcp__kubb__kubb_generate`.
