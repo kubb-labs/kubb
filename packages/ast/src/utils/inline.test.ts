@@ -167,6 +167,32 @@ describe('inlineFiles', () => {
     expect(code(inlineFiles([withResponse, file]).files[0])).toEqual(['const handler = (data: Response2): Promise<Response> => client()'])
   })
 
+  it('declares a type used twice once as a local type, and writes a bare alias where it is used', () => {
+    const file = clientFile('function addPet(): AddPetStatus200 { return client<AddPetStatus200>() }')
+    const twice = createFile({
+      ...operationFile,
+      sources: [
+        createSource({ name: 'AddPetBody', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [] }),
+        createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: 'AddPetBody' }, nodes: [] }),
+      ],
+    })
+    const [declaration, addPet] = inlineFiles([twice, file]).files[0]?.sources ?? []
+
+    expect(declaration).toMatchObject({ name: 'AddPetBody', nodes: [{ kind: 'Type', name: 'AddPetBody', nodes: [{ value: '{ name: string }' }] }] })
+    expect(code({ ...file, sources: [addPet!] })).toEqual(['function addPet(): AddPetBody { return client<AddPetBody>() }'])
+  })
+
+  it('declares a type that refers to itself under its own name', () => {
+    const file = clientFile('const tree: AddPetStatus200 = client()')
+    const recursive = createFile({
+      ...operationFile,
+      sources: [createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: '{ children: AddPetStatus200[] }' }, nodes: [] })],
+    })
+    const [declaration] = inlineFiles([recursive, file]).files[0]?.sources ?? []
+
+    expect(declaration).toMatchObject({ name: 'AddPetStatus200', nodes: [{ nodes: [{ value: '{ children: AddPetStatus200[] }' }] }] })
+  })
+
   it('rewrites the string fields of code nodes', () => {
     const file = clientFile('', {
       sources: [createSource({ name: 'addPet', nodes: [createFunction({ name: 'addPet', params: 'options: AddPetOptions', returnType: 'AddPetStatus200' })] })],

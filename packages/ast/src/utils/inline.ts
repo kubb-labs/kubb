@@ -1,9 +1,10 @@
 import { nodeKinds } from '../constants.ts'
+import { createText, createType } from '../nodes/code.ts'
 import type { CodeNode } from '../nodes/code.ts'
-import { createFile, createImport } from '../nodes/file.ts'
+import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { uniqueName } from '@internals/utils'
-import { getNames } from './moduleNames.ts'
+import { getNames, getSpace } from './moduleNames.ts'
 import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
 
 export type InlineFilesResult = {
@@ -45,8 +46,9 @@ export type InlineFilesOptions = {
 }
 
 /**
- * Replaces every name a file imports from a virtual file (one marked `inline`, so it is never written) with the body of that name's
- * declaration, until no inline names are left. The definitions' own imports move to the importing file.
+ * Moves what a file imports from a virtual file (one marked `inline`, so it is never written) into that file. A type becomes a
+ * local, non-exported declaration, written once however often the file uses it. A value is replaced by its body at each use.
+ * The moved declarations' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
   const virtualFiles = new Map(files.filter(isInlineFile).map((file) => [file.path, file]))
@@ -115,15 +117,103 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   for (const file of files) {
     if (virtualFiles.has(file.path) || !file.imports.some((imp) => virtualFiles.has(imp.path))) continue
 
-    const lang = language(file)
-    if (!lang) {
+    const fileLanguage = language(file)
+    if (!fileLanguage) {
       result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
       continue
     }
+    const lang = fileLanguage
 
     const carried: Array<ImportNode> = []
-    const carry = carryImports(file, lang, carried)
-    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carry).text) }))
+    const { carry, bind } = carryImports(file, lang, carried)
+    const declarations: Array<SourceNode> = []
+    const locals = new Map<string, string>()
+    const uses = new Map<string, number>()
+    const writing = new Set<string>()
+
+    // Counts how often the file references each type. A declared type's body is read once; a bare alias is written at each use.
+    function count(from: FileNode, text: string, aliases = new Set<string>()): void {
+      lang.replaceIdentifiers(text, (id) => {
+        const target = findTypeTarget(from, id)
+        if (!target) return undefined
+        const seen = uses.get(target.key) ?? 0
+        uses.set(target.key, seen + 1)
+        if (target.expression === undefined) return undefined
+        // A bare alias is followed at each use, so the aliases already being followed stop a loop between two of them.
+        if (isBareName(target.expression) && !aliases.has(target.key)) count(target.file, target.expression, new Set([...aliases, target.key]))
+        else if (seen === 0) count(target.file, target.expression)
+        return undefined
+      })
+    }
+
+    function findTypeTarget(from: FileNode, id: string) {
+      const target = findTarget(from, id)
+      const virtualFile = target && virtualFiles.get(target.path)!
+      const source = virtualFile?.sources.find((item) => item.name === target!.name)
+      if (!target || !virtualFile || !source || getSpace(source) !== 'type') return undefined
+      return { ...target, key: `${target.path}\0${target.name}`, file: virtualFile, expression: bodyOf(source) }
+    }
+
+    // A type used more than once becomes one local declaration; one used once, or a bare alias, is written where it is used.
+    function writeType(target: NonNullable<ReturnType<typeof findTypeTarget>>): string | undefined {
+      if (target.expression === undefined) {
+        result.problems.push({
+          path: file.path,
+          message: `"${target.name}" is imported from "${target.path}", which never writes it and has no inline definition for it.`,
+        })
+        return undefined
+      }
+      const existing = locals.get(target.key)
+      if (existing) return existing
+
+      // A declared type gets its name before its body, so a type that refers to itself, such as a tree node, can use it.
+      const declare = (uses.get(target.key) ?? 0) >= 2 && !isBareName(target.expression)
+      const local = declare ? bind(target.key, target.name) : undefined
+      if (local) locals.set(target.key, local)
+      if (!local && writing.has(target.key)) {
+        result.problems.push({ path: file.path, message: `"${target.name}" from "${target.path}" is defined in terms of itself.` })
+        return undefined
+      }
+
+      writing.add(target.key)
+      const used = new Set<string>()
+      const text = lang.replaceIdentifiers(target.expression, (id) => {
+        const replaced = resolve(target.file, id)
+        if (replaced === undefined) used.add(id)
+        return replaced
+      })
+      writing.delete(target.key)
+      const imports = target.file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used)))
+      const body = carry({ expression: text, imports })
+      if (!local) return lang.wrap(body)
+
+      declarations.push(createSource({ name: local, isTypeOnly: true, nodes: [createType({ name: local, nodes: [createText(body)] })] }))
+      return local
+    }
+
+    // What `id` in `from` becomes: a type's local name or body, or a value's body. `undefined` keeps it as it is.
+    function resolve(from: FileNode, id: string): string | undefined {
+      const typeTarget = findTypeTarget(from, id)
+      if (typeTarget) {
+        const written = writeType(typeTarget)
+        return written === id ? undefined : written
+      }
+      const target = findTarget(from, id)
+      const definition = target && define(target.path, target.name, file.path, lang)
+      return definition ? lang.wrap(carry(definition)) : undefined
+    }
+
+    for (const source of file.sources) {
+      rewriteNodes(source.nodes, (text) => {
+        count(file, text)
+        return text
+      })
+    }
+    const rewritten = file.sources.map((source) => ({
+      ...source,
+      nodes: rewriteNodes(source.nodes, (text) => lang.replaceIdentifiers(text, (id) => resolve(file, id))),
+    }))
+    const sources = [...declarations, ...rewritten]
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
     const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
@@ -151,7 +241,14 @@ function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<Impor
     )
   }
 
-  return (definition: Definition): string => {
+  // Reserves a local name for `key` (module and exported name), such as a hoisted type, and returns it.
+  const bind = (key: string, name: string): string => {
+    const local = uniqueName(name, (candidate) => bindings.has(candidate) && bindings.get(candidate) !== key)
+    bindings.set(local, key)
+    return local
+  }
+
+  const carry = (definition: Definition): string => {
     const aliases = new Map<string, string>()
     for (const imp of definition.imports) {
       const before = aliases.size
@@ -169,6 +266,13 @@ function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<Impor
 
     return aliases.size ? lang.replaceIdentifiers(definition.expression, (name) => aliases.get(name)) : definition.expression
   }
+
+  return { carry, bind }
+}
+
+// A type that only names another, such as `Error` or `ListPetsStatus200Headers`, costs less to repeat than to declare.
+function isBareName(expression: string): boolean {
+  return /^[\w$.]+$/.test(expression.trim())
 }
 
 // A file of only deprecated per-source `inline` counts as inline too.
