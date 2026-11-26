@@ -81,34 +81,41 @@ function unchangedText({ filesUnchanged, filesFromLockfile }: Report, word: stri
   return `${filesUnchanged} ${word}${via}`
 }
 
-/** The verdict: one line that says what happened, with the file counts. It is the line a reader looks for, so it comes last. */
-function verdict(report: Report): { text: string; tone: 'red' | 'yellow' | 'green' | 'cyan' } {
-  const { status, check, dryRun, counts, plugins, filesCreated, fileChanges } = report
+type Verdict = { text: string; tone: 'red' | 'yellow' | 'green' | 'cyan' }
+
+const joinParts = (...parts: Array<string | undefined>) => parts.filter(Boolean).join(separator)
+
+function failedVerdict({ counts, plugins }: Report): Verdict {
+  const failed = plugins.failed.length ? `${plugins.failed.join(', ')} failed` : undefined
+
+  return { text: joinParts('✗ Generation failed', counts.errors ? plural(counts.errors, 'error') : undefined, failed), tone: 'red' }
+}
+
+function checkVerdict(report: Report, check: NonNullable<Report['check']>): Verdict {
+  if (check.changed) return { text: joinParts(`✗ ${plural(check.files.length, 'file')} out of date`, unchangedText(report, 'up to date')), tone: 'red' }
+  const via = report.filesFromLockfile ? `${report.filesFromLockfile} via ${LOCKFILE_NAME}` : undefined
+
+  return { text: joinParts(`✓ ${plural(report.filesCreated, 'file')} up to date`, via), tone: report.counts.warnings ? 'yellow' : 'green' }
+}
+
+function runVerdict(report: Report): Verdict {
+  const { dryRun, counts, filesCreated, fileChanges } = report
   const tone = counts.warnings ? 'yellow' : 'green'
-  const join = (...parts: Array<string | undefined>) => parts.filter(Boolean).join(separator)
-
-  if (status === 'failed') {
-    const failed = plugins.failed.length ? `${plugins.failed.join(', ')} failed` : undefined
-    return { text: join('✗ Generation failed', counts.errors ? plural(counts.errors, 'error') : undefined, failed), tone: 'red' }
-  }
-  if (check?.changed) {
-    return { text: join(`✗ ${plural(check.files.length, 'file')} out of date`, unchangedText(report, 'up to date')), tone: 'red' }
-  }
-  if (check)
-    return {
-      text: join(`✓ ${plural(filesCreated, 'file')} up to date`, report.filesFromLockfile ? `${report.filesFromLockfile} via ${LOCKFILE_NAME}` : undefined),
-      tone,
-    }
-
   const changed = fileChanges ? fileChanges.added + fileChanges.modified + fileChanges.deleted : 0
-  if (dryRun) {
-    const planned = changed ? `◇ Dry run: ${plural(changed, 'file')} would change` : '◇ Dry run: no files would change'
-    return { text: join(planned, unchangedText(report, 'unchanged')), tone: 'cyan' }
-  }
+  const unchanged = unchangedText(report, 'unchanged')
+  if (dryRun)
+    return { text: joinParts(changed ? `◇ Dry run: ${plural(changed, 'file')} would change` : '◇ Dry run: no files would change', unchanged), tone: 'cyan' }
   if (!fileChanges) return { text: `✓ Generated ${plural(filesCreated, 'file')}`, tone }
-  if (!changed) return { text: join('✓ Already up to date', unchangedText(report, 'unchanged')), tone }
 
-  return { text: join(`✓ Generated ${plural(changed, 'file')}`, unchangedText(report, 'unchanged')), tone }
+  return { text: joinParts(changed ? `✓ Generated ${plural(changed, 'file')}` : '✓ Already up to date', unchanged), tone }
+}
+
+/** The verdict: one line that says what happened, with the file counts. It is the line a reader looks for, so it comes last. */
+function verdict(report: Report): Verdict {
+  if (report.status === 'failed') return failedVerdict(report)
+  if (report.check) return checkVerdict(report, report.check)
+
+  return runVerdict(report)
 }
 
 /** `1 added · 1 modified · 1 deleted · +2 −2`, only the kinds of change that happened. */
