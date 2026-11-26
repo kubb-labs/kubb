@@ -16,7 +16,17 @@ export type FileInlinerOptions = {
 }
 
 // A name imported from, or declared in, a virtual file. `key` is its module and exported name.
-type Target = { key: string; name: string; path: string; file: FileNode; isType: boolean; expression: string | undefined }
+// `ambiguous` marks a name the virtual file declares more than once, such as a type and a value.
+type Target = {
+  key: string
+  name: string
+  path: string
+  file: FileNode
+  isType: boolean
+  ambiguous: boolean
+  expression: string | undefined
+  declaration: ReturnType<typeof declarationOf>
+}
 
 // Rewrites one file that imports from virtual files.
 class FileInliner {
@@ -116,11 +126,12 @@ class FileInliner {
   // A bare name is written where it is used. Any other value becomes one local constant, so it is built once. A type becomes
   // one local declaration when it is used more than once, and is written in place otherwise.
   #write(from: FileNode, target: Target): string | undefined {
-    const { expression, key, name, path } = target
-    if (expression === undefined) return this.#report(from, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
-    const existing = this.#locals.get(key)
-    if (existing) return existing
+    if (target.expression === undefined || target.ambiguous) return this.#report(from, problemOf(target))
+    return this.#locals.get(target.key) ?? this.#writeOnce(from, target, target.expression)
+  }
 
+  #writeOnce(from: FileNode, target: Target, expression: string): string | undefined {
+    const { key, name, path } = target
     const declare = this.#declares(target, expression)
     // A type claims its name before its body is written, so a type that refers to itself, such as a tree node, can use it.
     // A value that refers to itself has no value yet, so it stays a cycle.
@@ -137,8 +148,14 @@ class FileInliner {
     return !this.#isBareName(expression) && (!isType || (this.#uses.get(key) ?? 0) > 1)
   }
 
-  #declare({ isType }: Target, local: string, body: string): string {
-    const node = isType ? createType({ name: local, nodes: [createText(body)] }) : createConst({ name: local, nodes: [createText(body)] })
+  #declare(target: Target, local: string, body: string): string {
+    const { isType, declaration } = target
+    // A constant keeps its type annotation and `as const`, so its literal types do not widen.
+    const constant = declaration?.kind === nodeKinds.const ? declaration : undefined
+    const type = constant?.type ? this.#writeBody(target.file, constant.type, 'type') : undefined
+    const node = isType
+      ? createType({ name: local, nodes: [createText(body)] })
+      : createConst({ name: local, ...(type ? { type } : {}), ...(constant?.asConst ? { asConst: true } : {}), nodes: [createText(body)] })
     this.#declarations.push(createSource({ name: local, isTypeOnly: isType, nodes: [node] }))
     return local
   }
@@ -170,8 +187,10 @@ class FileInliner {
     const at = this.#locate(from, local)
     const file = at && this.#virtual.get(at.path)
     if (!at || !file) return undefined
-    const source = file.sources.find((item) => item.name === at.name)
-    return { ...at, key: keyOf(at.path, at.name), file, isType: !!source && getSpace(source) === 'type', expression: bodyOf(source) }
+    const [source, ...others] = file.sources.filter((item) => item.name === at.name)
+    const declaration = declarationOf(source)
+    const isType = !!source && getSpace(source) === 'type'
+    return { ...at, key: keyOf(at.path, at.name), file, isType, ambiguous: others.length > 0, expression: bodyOf(source), declaration }
   }
 
   #locate(from: FileNode, local: string): { path: string; name: string } | undefined {
@@ -253,6 +272,12 @@ function keyOf(path: string, name: string): string {
 
 function importsName(file: FileNode, local: string): boolean {
   return file.imports.some((imp) => getNames(imp).some((item) => localName(item) === local))
+}
+
+// Why `target`, which has no body or more than one declaration, cannot be inlined.
+function problemOf({ expression, name, path }: Target): string {
+  if (expression === undefined) return `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`
+  return `"${name}" from "${path}" has more than one declaration, so its uses cannot be told apart.`
 }
 
 function kindOf(target: Target): InlineTextKind {

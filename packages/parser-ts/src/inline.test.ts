@@ -32,6 +32,15 @@ describe('replaceIdentifiers', () => {
     expect(swap('{ Name, other: 1 }', 'value')).toBe('{ Name: Pet, other: 1 }')
   })
 
+  it('keeps a shorthand key when the value ends in a line comment', () => {
+    expect(swap('{ Name } // note', 'value')).toBe('{ Name: Pet } // note')
+  })
+
+  it('keeps the export name of an exported reference', () => {
+    expect(swap('export { Name }', 'code')).toBe('export { Pet as Name }')
+    expect(swap('export { Name as Other }', 'code')).toBe('export { Pet as Other }')
+  })
+
   it('reads a fragment as the kind it is given', () => {
     expect(swap('options: Name, x = Name', 'parameters')).toBe('options: Pet, x = Pet')
     expect(swap('TData = Name', 'typeParameters')).toBe('TData = Pet')

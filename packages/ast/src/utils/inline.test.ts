@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createFunction, createText, createType } from '../nodes/code.ts'
+import { createConst, createFunction, createText, createType } from '../nodes/code.ts'
 import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode } from '../nodes/file.ts'
 import { type InlineLanguage, inlineFiles as inlineFilesWith } from './inline.ts'
@@ -289,6 +289,41 @@ describe('inlineFiles', () => {
 
     expect(sources.find((source) => source.name === 'Envelope')).toMatchObject({ nodes: [{ kind: 'Const', nodes: [{ value: '{} as Response' }] }] })
     expect(sources.at(-1)?.nodes).toMatchObject([{ value: 'const c = Envelope; const d = Envelope; let a: Response2; let b: Response2' }])
+  })
+
+  it('keeps the type annotation and as const of an inlined constant', () => {
+    const operation = createFile({
+      ...operationFile,
+      inline: true,
+      sources: [
+        createSource({
+          name: 'AddPetStatus200',
+          nodes: [createConst({ name: 'AddPetStatus200', type: 'ReadonlyArray<Pet>', asConst: true, nodes: [createText("['a']")] })],
+        }),
+      ],
+    })
+    const [declaration] = inlineFiles([operation, clientFile('const a = AddPetStatus200')]).files[0]?.sources ?? []
+
+    expect(declaration?.nodes).toMatchObject([{ kind: 'Const', type: 'ReadonlyArray<Pet>', asConst: true }])
+  })
+
+  it('reports a name the virtual file declares as both a type and a value', () => {
+    const operation = createFile({
+      ...operationFile,
+      inline: true,
+      sources: [
+        createSource({ name: 'AddPetStatus200', nodes: [createConst({ name: 'AddPetStatus200', nodes: [createText("{ a: 'a' }")] })] }),
+        createSource({ name: 'AddPetStatus200', isTypeOnly: true, nodes: [createType({ name: 'AddPetStatus200', nodes: [createText("'a'")] })] }),
+      ],
+    })
+    const { problems } = inlineFiles([operation, clientFile('let a: AddPetStatus200')])
+
+    expect(problems).toEqual([
+      {
+        path: '/gen/clients/addPet.ts',
+        message: '"AddPetStatus200" from "/gen/models/pet/AddPet.ts" has more than one declaration, so its uses cannot be told apart.',
+      },
+    ])
   })
 
   it('reports a value that refers to itself and keeps the name', () => {

@@ -5,7 +5,8 @@ import { parse } from 'yuku'
 export type Lang = 'ts' | 'tsx'
 
 // A name in the text that refers to something declared outside it, by its offsets in the text.
-type Reference = { name: string; start: number; end: number; shorthand: boolean }
+// `shorthand` is `{ x }`, and `exported` is `export { x }`, where a new name has to keep the old one as the key or export name.
+type Reference = { name: string; start: number; end: number; shorthand: boolean; exported: boolean }
 // What one read of a fragment keeps: its free references and every name it declares or uses.
 type Analysis = { references: Array<Reference>; names: Array<string> }
 
@@ -13,13 +14,14 @@ type Analysis = { references: Array<Reference>; names: Array<string> }
 const placeholder = '__kubb'
 
 // A fragment such as `options: Options<Pet>` or `{ body: Pet }` is not a program, so it is parsed inside the code its kind
-// stands for. The prefix length is subtracted from every offset.
+// stands for. The prefix length is subtracted from every offset, and each wrapper closes on its own line so a trailing `//`
+// comment cannot swallow it.
 const contexts: Record<ast.InlineTextKind, [before: string, after: string]> = {
   code: ['', ''],
   type: [`type ${placeholder} = `, ''],
-  value: [`const ${placeholder} = (`, ')'],
-  parameters: [`function ${placeholder}(`, ') {}'],
-  typeParameters: [`function ${placeholder}<`, '>() {}'],
+  value: [`const ${placeholder} = (`, '\n)'],
+  parameters: [`function ${placeholder}(`, '\n) {}'],
+  typeParameters: [`function ${placeholder}<`, '\n>() {}'],
 }
 const kinds = Object.keys(contexts) as Array<ast.InlineTextKind>
 
@@ -48,7 +50,8 @@ function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): { analysis
     .map((reference): Reference => {
       const parent = file.parentOf(reference.node)
       const shorthand = parent?.type === 'Property' && parent.shorthand
-      return { name: reference.name, start: reference.node.start - before.length, end: reference.node.end - before.length, shorthand }
+      const exported = parent?.type === 'ExportSpecifier' && parent.exported.start === parent.local.start
+      return { name: reference.name, start: reference.node.start - before.length, end: reference.node.end - before.length, shorthand, exported }
     })
   const names = [...file.bindings.map((binding) => binding.name), ...file.references.map((reference) => reference.name)].filter((name) => name !== placeholder)
   return { analysis: { references, names }, clean: !file.diagnostics.some((diagnostic) => diagnostic.severity === 'error') }
@@ -57,16 +60,16 @@ function parseAs(text: string, lang: Lang, kind: ast.InlineTextKind): { analysis
 /**
  * Calls `replace` for every name in `text` that refers to something declared outside it, and swaps in what it returns.
  * Bound names (parameters, type parameters, locals), keys, members, strings, comments and JSX tag names are left alone. A
- * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`.
+ * shorthand property `{ x }` keeps its key, so it becomes `{ x: replacement }`, and `export { x }` keeps its export name.
  */
 export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: Lang = 'ts', kind?: ast.InlineTextKind): string {
   let out = ''
   let last = 0
 
-  for (const { name, start, end, shorthand } of analyze(text, lang, kind).references) {
+  for (const { name, start, end, shorthand, exported } of analyze(text, lang, kind).references) {
     const replacement = replace(name)
     if (replacement === undefined) continue
-    out += text.slice(last, start) + (shorthand ? `${name}: ${replacement}` : replacement)
+    out += text.slice(last, start) + (shorthand ? `${name}: ${replacement}` : exported ? `${replacement} as ${name}` : replacement)
     last = end
   }
 
