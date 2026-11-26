@@ -6,7 +6,7 @@ import type { Credentials } from './credentials.ts'
 import { formatPermissionRows } from './permissions.ts'
 import type { WorkerState } from './run.ts'
 
-export type StatusInput = {
+export type FormatStatusOptions = {
   studioUrl: string
   credentials: Credentials | null
   worker: { running: boolean; state: WorkerState; pid?: number; startedAt?: number }
@@ -29,7 +29,7 @@ const tilde = (file: string) => (isPathInside(file, homedir()) ? `~${file.slice(
 /**
  * The `kubb studio status` table: one row per topic, each ending with the command that changes it.
  */
-export function formatStatus({ studioUrl, credentials, worker, project, logPath, now = Date.now() }: StatusInput): Array<string> {
+export function formatStatus({ studioUrl, credentials, worker, project, logPath, now = Date.now() }: FormatStatusOptions): Array<string> {
   const pairing = (() => {
     if (!credentials) return { value: `${styleText('red', '✖')} not paired`, command: 'kubb studio login' }
     const name = `${credentials.agentSlug || credentials.agentId}${credentials.organizationSlug ? ` · org ${credentials.organizationSlug}` : ''}`

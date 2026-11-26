@@ -8,7 +8,7 @@ import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
-import { trackRun } from '../../Telemetry.ts'
+import { trackRun } from '../../telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
 import installReporters from '../../loggers/reporters.ts'
 import { logIntro, logOutro, logTip } from '../../ui/intro.ts'
@@ -290,7 +290,8 @@ export async function connect(
     // The background worker writes to a log file, so it gets the plain logger rather than the
     // animated one. The logger also covers the `studio:*` events and each generation run.
     const hooks = new Hookable<KubbHooks>()
-    installReporters(hooks, {
+    installReporters({
+      hooks,
       logLevel: logLevelMap[options.logLevel ?? 'info'],
       reporters: [cliReporter],
       ...(context.onState ? { writer: plainWriter } : {}),

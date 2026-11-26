@@ -2,7 +2,7 @@ import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
-import type { DiagnosticLocation } from './Diagnostics.ts'
+import type { DiagnosticLocation } from './diagnostics.ts'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -13,6 +13,12 @@ import type { DiagnosticLocation } from './Diagnostics.ts'
  *   relative external `$ref`s in it resolve from.
  */
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown; root?: string }
+
+export type AdapterParseOptions = { signal?: AbortSignal; fileRefs?: Array<string> }
+
+export type AdapterValidateOptions = { throwOnError?: boolean; fileRefs?: Array<string> }
+
+export type SourceRange = { start: number; end: number }
 
 /**
  * Generic parameters used by `defineExtension` with `kind: 'adapter'` and the resulting `Adapter` type.
@@ -88,11 +94,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * With `fileRefs`, a `$ref` may only read local files inside those folders, for a host that does
    * not trust the spec. An empty list allows none. Unset, a `$ref` reads any file.
    */
-  parse: (source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: Array<string> }) => PossiblePromise<InputNode>
+  parse: (source: AdapterSource, options?: AdapterParseOptions) => PossiblePromise<InputNode>
   /**
    * Validate the document at the given path or URL. `fileRefs` limits the local files a `$ref` may read, as in `parse`.
    */
-  validate: (input: string, options?: { throwOnError?: boolean; fileRefs?: Array<string> }) => Promise<void>
+  validate: (input: string, options?: AdapterValidateOptions) => Promise<void>
   /**
    * Waits for work `parse` left running alongside generation, such as spec validation in a worker thread.
    * Kubb awaits it before `kubb:build:end`, inside the build's diagnostics scope. Must not reject.
@@ -101,7 +107,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   /**
    * Zero-based UTF-16 offsets of a diagnostic in `source` for a code frame, `end` exclusive; `undefined` when it cannot be found.
    */
-  locate?: (source: string, location: DiagnosticLocation) => { start: number; end: number } | undefined
+  locate?: (source: string, location: DiagnosticLocation) => SourceRange | undefined
 }
 
 /**

@@ -1,7 +1,10 @@
 import { ast } from '@kubb/ast'
+import type { Parser } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
+import type { ParserTsOptions } from './parserTs.ts'
 import { parserTsx } from './parserTsx.ts'
+import type { TsNode } from './utils.ts'
 
 describe('parserTs', () => {
   it('returns the declarations separated by blank lines when a source has several nodes', async () => {
@@ -167,7 +170,7 @@ describe('parserTs', () => {
       'export const client = (options: Options) => axios.create({ ...defaults, ...options })',
     ].join('\n')
 
-    function copy(parser: ReturnType<typeof parserTs>, source = template) {
+    function copy(parser: Parser<object, string | TsNode, ParserTsOptions>, source = template) {
       return parser.parse(ast.factory.createFile(parser.copy!(file, source)))
     }
 

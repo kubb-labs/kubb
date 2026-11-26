@@ -10,7 +10,7 @@ import { x } from 'tinyexec'
 import { getProjectKubbHome } from './credentials.ts'
 import type { PreparedConnection, StudioOptions, WorkerState } from './run.ts'
 
-type WorkerRecord = {
+export type WorkerRecord = {
   id: string
   pid: number
   port: number
@@ -129,7 +129,7 @@ export async function stopWorker(): Promise<void> {
 // Hash the project directory to choose its loopback port; fail on collisions.
 const controlPort = () => 20_000 + (Number.parseInt(hash('sha256', getProjectKubbHome()).slice(0, 8), 16) % 30_000)
 
-type WorkerServerOptions = { shutdown: AbortController }
+export type WorkerServerOptions = { shutdown: AbortController }
 
 class WorkerServer {
   readonly #record: WorkerRecord = { id: randomBytes(16).toString('hex'), pid: process.pid, port: 0, state: 'starting', startedAt: Date.now() }
@@ -216,9 +216,11 @@ class WorkerServer {
   }
 }
 
+export type WorkerServerResult = WorkerServer | { existing: WorkerRecord }
+
 /** The listening port is the project lock, so stale state never needs a PID-based takeover. */
-export async function serveWorker(shutdown: AbortController) {
-  const worker = new WorkerServer({ shutdown })
+export async function startWorkerServer(options: WorkerServerOptions): Promise<WorkerServerResult> {
+  const worker = new WorkerServer(options)
   const port = controlPort()
   if (await worker.listen(port)) return worker
   // Let a simultaneous starter finish writing its record before checking ownership.

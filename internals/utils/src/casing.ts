@@ -1,6 +1,6 @@
 import { memo } from './promise.ts'
 
-export type Options = {
+export type CasingOptions = {
   /** Text prepended before casing is applied. */
   prefix?: string
   /** Text appended before casing is applied. */
@@ -51,7 +51,7 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  * @example With a prefix
  * `camelCase('tag', { prefix: 'create' }) // 'createTag'`
  */
-export function camelCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
+export function camelCase(text: string, { prefix = '', suffix = '' }: CasingOptions = {}): string {
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, false)
 }
 
@@ -64,7 +64,7 @@ export function camelCase(text: string, { prefix = '', suffix = '' }: Options = 
  * @example With a suffix
  * `pascalCase('tag', { suffix: 'schema' }) // 'TagSchema'`
  */
-export function pascalCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
+export function pascalCase(text: string, { prefix = '', suffix = '' }: CasingOptions = {}): string {
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
 }
 
@@ -95,7 +95,7 @@ export function capitalize(text: string): string {
  * @example
  * `snakeCase('helloWorld') // 'hello_world'`
  */
-export function snakeCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
+export function snakeCase(text: string, { prefix = '', suffix = '' }: CasingOptions = {}): string {
   return words(`${prefix} ${text} ${suffix}`)
     .map((word) => word.replace(/[^a-zA-Z0-9]/g, '').toLowerCase())
     .filter(Boolean)
@@ -108,6 +108,6 @@ export function snakeCase(text: string, { prefix = '', suffix = '' }: Options = 
  * @example
  * `screamingSnakeCase('helloWorld') // 'HELLO_WORLD'`
  */
-export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
+export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: CasingOptions = {}): string {
   return snakeCase(text, { prefix, suffix }).toUpperCase()
 }

@@ -1,11 +1,12 @@
 import { ast, type FileNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { type Config, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, type PluginVisitContext, useKubb } from '@kubb/core'
+import type { Macro } from '@kubb/ast'
+import { type Config, Hookable, Driver, type KubbHooks, memoryStorage, type Plugin, type PluginVisitContext, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
-import { defineResolver, Resolver } from './resolver/Resolver.ts'
-import type { Generator, GeneratorContext } from './types.ts'
+import { defineResolver, Resolver } from './resolver/resolver.ts'
+import type { Generator, TemplateContext } from './types.ts'
 
 // Runs each plain test plugin through kit's `defineExtension`, so it gets kit's visitor.
 function kit(plugin: Plugin): Plugin {
@@ -27,8 +28,8 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
   }
 }
 
-function makeDriver(config: Config, hooks = new Hookable<KubbHooks>()): KubbDriver {
-  return new KubbDriver(config, { hooks })
+function makeDriver(config: Config, hooks = new Hookable<KubbHooks>()): Driver {
+  return new Driver(config, { hooks })
 }
 
 function fileNode(path: string): FileNode {
@@ -59,7 +60,7 @@ test.each([false, true])('reserves component names only for schema-generating pl
           name: 'names',
           ...(generatesSchemas
             ? {
-                schema(_node: SchemaNode, { resolver }: GeneratorContext) {
+                schema(_node: SchemaNode, { resolver }: TemplateContext) {
                   names.push(resolver.resolveName({ key: 'inline', name: 'ApiStore' }))
                 },
               }
@@ -188,17 +189,17 @@ test('preserves earlier schema output when preparation of a later schema fails',
 function recordingGenerator(pluginName: string, rec: Recorder): Generator {
   return {
     name: `${pluginName}-gen`,
-    schema(node: SchemaNode, ctx: GeneratorContext) {
+    schema(node: SchemaNode, ctx: TemplateContext) {
       rec.schema.push({ plugin: ctx.plugin.name, name: node.name })
       rec.pairs.push({ generator: pluginName, ctx: ctx.plugin.name })
       return [fileNode(`${pluginName}/schema-${node.name}.ts`)]
     },
-    operation(node: OperationNode, ctx: GeneratorContext) {
+    operation(node: OperationNode, ctx: TemplateContext) {
       rec.operation.push({ plugin: ctx.plugin.name, id: node.operationId })
       rec.pairs.push({ generator: pluginName, ctx: ctx.plugin.name })
       return [fileNode(`${pluginName}/op-${node.operationId}.ts`)]
     },
-    operations(nodes: Array<OperationNode>, ctx: GeneratorContext) {
+    operations(nodes: Array<OperationNode>, ctx: TemplateContext) {
       rec.operations.push({ plugin: ctx.plugin.name, ids: nodes.map((node) => node.operationId) })
       rec.pairs.push({ generator: pluginName, ctx: ctx.plugin.name })
       return [fileNode(`${pluginName}/operations.ts`)]
@@ -248,9 +249,9 @@ test('runs every visit hook of a kit plugin with this === ctx === useKubb()', as
   expect(seen).toStrictEqual(['start', 'schema', 'schema', 'operation', 'operation', 'end'])
 })
 
-describe('KubbDriver generator dispatch', () => {
+describe('Driver generator dispatch', () => {
   let rec: Recorder
-  let driver: KubbDriver
+  let driver: Driver
   let hooks: Hookable<KubbHooks>
 
   const build = async () => {
@@ -327,8 +328,8 @@ describe('KubbDriver generator dispatch', () => {
 
   it('runs added macros in order, isolated per plugin, before the generators see a node', async () => {
     rec = { schema: [], operation: [], operations: [], pairs: [] }
-    const rename = (suffix: string) => ({ name: suffix, schema: (node: SchemaNode) => ({ ...node, name: `${node.name}${suffix}` }) })
-    const macroPlugin = (name: string, macros: Array<ReturnType<typeof rename>>): Plugin => ({
+    const rename = (suffix: string): Macro => ({ name: suffix, schema: (node: SchemaNode) => ({ ...node, name: `${node.name}${suffix}` }) })
+    const macroPlugin = (name: string, macros: Array<Macro>): Plugin => ({
       name,
       hooks: {
         'kubb:plugin:setup'() {
@@ -418,7 +419,7 @@ describe('KubbDriver generator dispatch', () => {
         'kubb:plugin:setup'() {
           addGenerator({
             name: `${name}-cache`,
-            schema(node: SchemaNode, gctx: GeneratorContext) {
+            schema(node: SchemaNode, gctx: TemplateContext) {
               // The first plugin to reach a node fills the token, and the rest read the same value.
               const token = gctx.memo(`token:${node.name}`, () => ++counter)
               seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
@@ -454,7 +455,7 @@ describe('KubbDriver generator dispatch', () => {
         },
       },
     ] as unknown as Array<Plugin>
-    const sharedDriver = new KubbDriver(
+    const sharedDriver = new Driver(
       makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals' }, shared: { path: './gen/common' } }),
       { hooks: new Hookable<KubbHooks>(), sharedSchemas: { names: ['Pet'], clean: false, written: new Map() } },
     )
@@ -524,14 +525,14 @@ describe('KubbDriver generator dispatch', () => {
     const matched: Generator = {
       name: 'matched-gen',
       match: (node) => ('operationId' in node ? node.operationId === 'getPet' : true),
-      operation(node: OperationNode, ctx: GeneratorContext) {
+      operation(node: OperationNode, ctx: TemplateContext) {
         rec.operation.push({ plugin: ctx.plugin.name, id: node.operationId })
         return [fileNode(`matched/op-${node.operationId}.ts`)]
       },
     }
     const unmatched: Generator = {
       name: 'unmatched-gen',
-      operation(node: OperationNode, ctx: GeneratorContext) {
+      operation(node: OperationNode, ctx: TemplateContext) {
         rec.operation.push({ plugin: ctx.plugin.name, id: node.operationId })
         return [fileNode(`unmatched/op-${node.operationId}.ts`)]
       },
@@ -564,7 +565,7 @@ test('keeps one resolver for the walk when a visit hook replaces it in memo', as
       'kubb:plugin:setup'() {
         addGenerator({
           name: 'swap-gen',
-          schema(_node: SchemaNode, ctx: GeneratorContext) {
+          schema(_node: SchemaNode, ctx: TemplateContext) {
             seen.push(ctx.resolver)
             return []
           },

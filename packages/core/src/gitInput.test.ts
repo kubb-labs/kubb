@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import { checkoutGitInput, gitAuthEnv, parseGitInput, publicFetchConfig } from './gitInput.ts'
 
 describe('parseGitInput', () => {

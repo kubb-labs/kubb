@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { narrowSchema } from '../guards.ts'
 import { createInput } from '../nodes/input.ts'
+import type { InputNode } from '../nodes/input.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createSchema, type RefSchemaNode } from '../nodes/schema.ts'
 import { parse, stringify } from './index.ts'
@@ -17,7 +18,7 @@ function createPetInput() {
   return createInput({ schemas: [pet], operations: [], meta: { title: 'Pets', serverIndex: 1 } })
 }
 
-function refsOf(input: ReturnType<typeof parse>): Array<RefSchemaNode> {
+function refsOf(input: InputNode): Array<RefSchemaNode> {
   return narrowSchema(input.schemas[0], 'object')?.properties.flatMap((property) => narrowSchema(property.schema, 'ref') ?? []) ?? []
 }
 

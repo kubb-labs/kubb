@@ -1,9 +1,9 @@
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { DiagnosticFormatOptions } from './formatDiagnostic.ts'
-import { Hookable } from './Hookable.ts'
+import { Hookable } from './hookable.ts'
 import type { KubbHooks } from './types.ts'
 
 const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })

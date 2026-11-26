@@ -7,7 +7,7 @@ import { createCliReporter, createLockfile, hasOutputPasses, logLevel as logLeve
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
-import type { OutputCheck } from '../runners/generate/check.ts'
+import type { OutputCheck } from '../runners/generate/outputCheck.ts'
 import {
   type ChangeTally,
   createChangeTally,
@@ -66,6 +66,7 @@ async function tallyLive({
 }
 
 export type ReportersOptions = {
+  hooks: Hookable<KubbHooks>
   /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
   logLevel: number
   reporters: ReadonlyArray<Reporter>
@@ -109,20 +110,12 @@ class Reporters {
   // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
   #run: GenerationRun | undefined
 
-  constructor({
-    context,
-    logLevel,
-    reporters,
-    writer = defaultWriter(),
-    dryRun = false,
-    fileChanges = false,
-    outputCheck,
-  }: ReportersOptions & { context: Hookable<KubbHooks> }) {
+  constructor({ hooks, logLevel, reporters, writer = defaultWriter(), dryRun = false, fileChanges = false, outputCheck }: ReportersOptions) {
     const hasJson = reporters.some((reporter) => reporter.name === 'json')
     this.#selected = reporters.flatMap((reporter) => {
       if (reporter.name !== 'cli') return [reporter]
       if (hasJson) return []
-      return [createCliReporter({ render: installLogger({ hooks: context, writer, logLevel }).renderSummary })]
+      return [createCliReporter({ render: installLogger({ hooks, writer, logLevel }).renderSummary })]
     })
     this.#ctx = { logLevel }
     this.#dryRun = dryRun
@@ -130,7 +123,7 @@ class Reporters {
     const pluginFiles = this.#selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, Array<string>>() : undefined
     this.#pluginFiles = pluginFiles
     if (pluginFiles) {
-      context.hook('kubb:plugin:end', ({ plugin, files }) => {
+      hooks.hook('kubb:plugin:end', ({ plugin, files }) => {
         for (const file of files) {
           if (this.#seen.has(file.path)) continue
           this.#seen.add(file.path)
@@ -140,7 +133,7 @@ class Reporters {
     }
 
     this.#trackChanges = (fileChanges || this.#selected.some((reporter) => reporter.name === 'cli')) && logLevel > logLevelMap.silent
-    context.hook('kubb:generation:start', ({ config }) => {
+    hooks.hook('kubb:generation:start', ({ config }) => {
       this.#pluginFiles?.clear()
       this.#seen.clear()
       const outputPath = resolve(config.root, config.output.path)
@@ -159,14 +152,14 @@ class Reporters {
         reading: tracked && !live ? readOutputFiles(outputPath) : undefined,
       }
     })
-    context.hook('kubb:plugins:end', async ({ config }) => {
+    hooks.hook('kubb:plugins:end', async ({ config }) => {
       const run = this.#run
       if (!run) return
       if (run.reading) run.previous = await run.reading
       // The last moment the old files exist: the storage empties the folder right after this hook.
       if (run.live && config.output.clean) run.live.fingerprints = await readOutputFingerprints(run.outputPath)
     })
-    context.hook('kubb:files:processing:start', async ({ files }) => {
+    hooks.hook('kubb:files:processing:start', async ({ files }) => {
       const run = this.#run
       if (!run?.previous) return
       const { previous, outputPath } = run
@@ -177,7 +170,7 @@ class Reporters {
         if (source !== null) previous.set(file.path, source)
       }
     })
-    context.hook('kubb:file:processed', ({ file, source, stored = null }) => {
+    hooks.hook('kubb:file:processed', ({ file, source, stored = null }) => {
       const live = this.#run?.live
       if (!live) return
       // The storage writes the trimmed source and skips a blank one, which leaves the stored file as it was.
@@ -186,7 +179,7 @@ class Reporters {
       live.processed.add(file.path)
       tallyChange({ tally: live.tally, change: diffFile({ path: file.path, next, previous: stored ?? live.fingerprints.get(file.path) ?? null }) })
     })
-    context.hook('kubb:files:processing:end', ({ files, unchanged }) => {
+    hooks.hook('kubb:files:processing:end', ({ files, unchanged }) => {
       const run = this.#run
       if (!run) return
       run.filesUnchanged = unchanged.length
@@ -199,7 +192,7 @@ class Reporters {
     const writesNothing = dryRun || Boolean(outputCheck)
     const changesForAll = fileChanges || Boolean(outputCheck)
 
-    context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+    hooks.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
       const current = this.#run
       this.#run = undefined
       const result: GenerationResult = {
@@ -215,7 +208,7 @@ class Reporters {
       await this.#report({ result, cliResult: withChanges({ result, counted }), changesForAll })
     })
 
-    context.hook('kubb:lifecycle:end', async () => {
+    hooks.hook('kubb:lifecycle:end', async () => {
       for (const reporter of this.#selected) await reporter.drain?.(this.#ctx)
     })
   }
@@ -254,8 +247,8 @@ class Reporters {
 }
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
-function installReporters(context: Hookable<KubbHooks>, options: ReportersOptions): void {
-  new Reporters({ ...options, context })
+function installReporters(options: ReportersOptions): Reporters {
+  return new Reporters(options)
 }
 
 export default installReporters

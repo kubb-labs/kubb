@@ -1,7 +1,7 @@
 import { relative, resolve } from 'node:path'
 import { inParallel, isPathInside, readIfExists, toPosixPath } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
-import { FILE_CONCURRENCY } from './FileManager.ts'
+import { FILE_CONCURRENCY } from './fileManager.ts'
 import { digest, type LockfileInputs } from './lockfileInputs.ts'
 
 // Bumped when the stored shape changes, so an older lockfile is discarded instead of misread.
@@ -26,6 +26,8 @@ export type LockfileObject = {
   inputs?: Record<string, LockfileInputs>
   files: Record<string, LockfileEntry>
 }
+
+export type LockfileOptions = { storage: Storage; root: string }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 
@@ -73,7 +75,7 @@ export class Lockfile {
   readonly #added = new Map<string, string>()
   readonly #matched = new Set<string>()
 
-  constructor({ storage, root, object }: { storage: Storage; root: string; object: Pick<LockfileObject, 'files' | 'inputs'> | null }) {
+  constructor({ storage, root, object }: LockfileOptions & { object: Pick<LockfileObject, 'files' | 'inputs'> | null }) {
     this.exists = object !== null
     this.#storage = storage
     this.#root = root
@@ -201,6 +203,6 @@ export class Lockfile {
  * const lockfile = await createLockfile({ storage: config.storage, root: config.root })
  * ```
  */
-export async function createLockfile({ storage, root }: { storage: Storage; root: string }): Promise<Lockfile> {
+export async function createLockfile({ storage, root }: LockfileOptions): Promise<Lockfile> {
   return new Lockfile({ storage, root, object: await readLockfile(resolve(root, LOCKFILE_NAME)) })
 }

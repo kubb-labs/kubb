@@ -1,6 +1,6 @@
-import type { Hookable, KubbHooks, SummaryRenderer } from '@kubb/core'
-import type { LoggerWriter } from '../types.ts'
+import type { SummaryRenderer } from '@kubb/core'
 import { createLoggerContext } from './context.ts'
+import type { LoggerContextOptions } from './context.ts'
 import { createGeneration } from './generation.ts'
 import { createPhases } from './phases.ts'
 import { createPrinter } from './printer.ts'
@@ -16,15 +16,14 @@ import { createWalk } from './walk.ts'
  * It hands back `renderSummary`, which writes the `cli` reporter's summary inside the group opened
  * for that config and closes the group.
  */
-export function installLogger({ hooks, writer, logLevel }: { hooks: Hookable<KubbHooks>; writer: LoggerWriter; logLevel: number }): {
-  renderSummary: SummaryRenderer
-} {
-  const ctx = createLoggerContext({ hooks, writer, logLevel })
+export function installLogger(options: LoggerContextOptions): { renderSummary: SummaryRenderer } {
+  const ctx = createLoggerContext(options)
   const spinner = createSpinner(ctx)
   const progress = createProgress({ ctx, spinner })
   const walk = createWalk({ ctx, spinner, progress })
   const phases = createPhases({ ctx, spinner })
   const printer = createPrinter({ ctx, spinner, progress, phases })
   createSession({ ctx, spinner })
-  return createGeneration({ ctx, spinner, progress, walk, phases, printer })
+  const generation = createGeneration({ ctx, spinner, progress, walk, phases, printer })
+  return { renderSummary: generation.renderSummary }
 }

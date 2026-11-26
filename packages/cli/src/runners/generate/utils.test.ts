@@ -6,7 +6,17 @@ import { stripVTControlCharacters } from 'node:util'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { diffBuilds, diffFile, diffOutput, fingerprintFile, listenForKeys, readOutputFiles, readOutputFingerprints, startWatcher, trackBuild } from './utils.ts'
+import {
+  createBuildTracker,
+  diffBuilds,
+  diffFile,
+  diffOutput,
+  fingerprintFile,
+  listenForKeys,
+  readOutputFiles,
+  readOutputFingerprints,
+  startWatcher,
+} from './utils.ts'
 
 describe('startWatcher', () => {
   let dir: string
@@ -50,7 +60,7 @@ describe('startWatcher', () => {
   })
 })
 
-describe('trackBuild and diffBuilds', () => {
+describe('createBuildTracker and diffBuilds', () => {
   const ctx = {} as KubbHooks['kubb:generate:schema'][1]
 
   async function build(hooks: Hookable<KubbHooks>, { schemas, operations }: { schemas: Array<string>; operations: Array<string> }) {
@@ -60,7 +70,7 @@ describe('trackBuild and diffBuilds', () => {
 
   it('reports the schema and operation names added and removed since the last build', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const tracker = trackBuild(hooks)
+    const tracker = createBuildTracker(hooks)
 
     await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'] })
     const previous = tracker.take()

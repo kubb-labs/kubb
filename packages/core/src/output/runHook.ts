@@ -4,7 +4,7 @@ import { createInterface } from 'node:readline'
 import { toError } from '@internals/utils'
 import { type Result, x } from 'tinyexec'
 import { host } from '../host.ts'
-import type { Hookable } from '../Hookable.ts'
+import type { Hookable } from '../hookable.ts'
 import type { KubbHooks } from '../types.ts'
 
 /**

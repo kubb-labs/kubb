@@ -70,7 +70,7 @@ async function summarize({
   const config = createKubb({ root, input: './openapi.yaml', output: { path: output, clean }, storage }).config
   const hooks = new Hookable<KubbHooks>()
   const lines: Array<string> = []
-  installReporters(hooks, { logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+  installReporters({ hooks, logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
   await hooks.callHook('kubb:generation:start', { config })
   await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
   if (clean) await storage.empty(output)
@@ -96,7 +96,7 @@ describe('installReporters', () => {
         },
       }),
     )
-    installReporters(hooks, { logLevel: logLevel.info, reporters })
+    installReporters({ hooks, logLevel: logLevel.info, reporters })
     const file = ast.factory.createFile({ path: '/gen/shared.ts', baseName: 'shared.ts' })
     for (const name of ['one', 'two']) {
       const kubb = createKubb({ name, root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() })
@@ -144,7 +144,8 @@ describe('installReporters', () => {
       const hooks = new Hookable<KubbHooks>()
       const lines: Array<string> = []
       const reports: Array<GenerationResult> = []
-      installReporters(hooks, {
+      installReporters({
+        hooks,
         logLevel: logLevel.info,
         reporters: [cliReporter, createReporter({ name: 'custom', report: (result) => void reports.push(result) })],
         dryRun,
@@ -227,7 +228,7 @@ describe('installReporters', () => {
   ])('names each written file in plain output only at the verbose level (log level %s)', async (level, named) => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
-    installReporters(hooks, { logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+    installReporters({ hooks, logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
     const config = createKubb({ root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() }).config
     const files = (['a.ts', 'b.ts'] as const).map((name) => ast.factory.createFile({ path: `/tmp/gen/${name}`, baseName: name }))
     await hooks.callHook('kubb:generation:start', { config })
@@ -244,25 +245,25 @@ describe('installReporters', () => {
   })
 
   it('lets json own stdout without installing the live logger when json is selected', async () => {
-    const context = new Hookable<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
 
-    installReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    installReporters({ hooks, logLevel: logLevel.info, reporters: [jsonReporter] })
 
-    expect(context.listenerCount('kubb:hook:line')).toBe(0)
-    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+    expect(hooks.listenerCount('kubb:hook:line')).toBe(0)
+    expect(hooks.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
   it('holds the json output until lifecycle end, then writes one array for every config', async () => {
-    const context = new Hookable<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const writes: Array<string> = []
     using _write = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
       writes.push(String(chunk))
       return true
     })
 
-    installReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    installReporters({ hooks, logLevel: logLevel.info, reporters: [jsonReporter] })
 
-    await context.callHook('kubb:generation:end', {
+    await hooks.callHook('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
       storage: {} as Storage,
       diagnostics: [{ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing Pet', plugin: '@kubb/plugin-zod' }],
@@ -270,7 +271,7 @@ describe('installReporters', () => {
       status: 'failed',
       hrStart: process.hrtime(),
     })
-    await context.callHook('kubb:generation:end', {
+    await hooks.callHook('kubb:generation:end', {
       config: { name: 'orders', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
       storage: {} as Storage,
       diagnostics: [],
@@ -280,7 +281,7 @@ describe('installReporters', () => {
     })
     expect(writes).toStrictEqual([])
 
-    await context.callHook('kubb:lifecycle:end')
+    await hooks.callHook('kubb:lifecycle:end')
 
     expect(writes).toHaveLength(1)
     const reports = JSON.parse(writes[0]!)
@@ -311,12 +312,12 @@ describe('installReporters', () => {
    * straight to the stream. Colors are stripped, since the stubbed terminal makes `styleText` emit them.
    */
   async function renderGroup() {
-    const context = new Hookable<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(stripVTControlCharacters(String(line))))
 
-    installReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
-    await context.callHook('kubb:generation:start', {
+    installReporters({ hooks, logLevel: logLevel.info, reporters: [cliReporter] })
+    await hooks.callHook('kubb:generation:start', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [] } as unknown as Config,
     })
 
@@ -340,32 +341,32 @@ describe('studio session events', () => {
    * loggers `kubb generate` installs render the whole command. Non-TTY here, so `plainWriter`
    * answers and the output is plain text.
    */
-  async function render(emit: (context: Hookable<KubbHooks>) => Promise<void> | void, level: number = logLevel.info) {
+  async function render(emit: (hooks: Hookable<KubbHooks>) => Promise<void> | void, level: number = logLevel.info) {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
-    const context = new Hookable<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line) => void lines.push(String(line)))
 
-    installReporters(context, { logLevel: level, reporters: [cliReporter] })
-    await emit(context)
+    installReporters({ hooks, logLevel: level, reporters: [cliReporter] })
+    await emit(hooks)
 
     return lines
   }
 
   it('reports the connection, a command, a retry, a refused permission, and a takeover, in order', async () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 14, 5, 2) })
-    const lines = await render(async (context) => {
-      await context.callHook('studio:connected', {
+    const lines = await render(async (hooks) => {
+      await hooks.callHook('studio:connected', {
         url: 'http://localhost:3000',
         versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
         sandbox: false,
         agentSlug: 'brave-otter',
         studioVersion: '5.1.0',
       })
-      await context.callHook('studio:command', { command: 'saveConfig', info: 'applied 2/3 edits to kubb.config.ts' })
-      await context.callHook('studio:reconnecting', { delayMs: 30_000 })
-      await context.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted', permission: 'allowConfigEdit' })
-      await context.callHook('studio:disconnected', { code: 4002, reason: '' })
+      await hooks.callHook('studio:command', { command: 'saveConfig', info: 'applied 2/3 edits to kubb.config.ts' })
+      await hooks.callHook('studio:reconnecting', { delayMs: 30_000 })
+      await hooks.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted', permission: 'allowConfigEdit' })
+      await hooks.callHook('studio:disconnected', { code: 4002, reason: '' })
     })
 
     expect(lines).toStrictEqual([
@@ -382,8 +383,8 @@ describe('studio session events', () => {
 
   it('logs a generate job with who asked, its file count and duration, and a failed one with its errors', async () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 14, 9, 13) })
-    const lines = await render(async (context) => {
-      await context.callHook('studio:connected', {
+    const lines = await render(async (hooks) => {
+      await hooks.callHook('studio:connected', {
         url: 'http://localhost:3000',
         versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
         sandbox: false,
@@ -395,16 +396,16 @@ describe('studio session events', () => {
         storage: {} as Storage,
         hrStart: process.hrtime(),
       }
-      await context.callHook('kubb:generation:end', { ...generation, diagnostics: [], filesCreated: 122, status: 'success' })
-      await context.callHook('studio:command', { command: 'generate', info: '3 plugins, in memory', requestedBy: 'Stijn' })
-      await context.callHook('kubb:generation:end', {
+      await hooks.callHook('kubb:generation:end', { ...generation, diagnostics: [], filesCreated: 122, status: 'success' })
+      await hooks.callHook('studio:command', { command: 'generate', info: '3 plugins, in memory', requestedBy: 'Stijn' })
+      await hooks.callHook('kubb:generation:end', {
         ...generation,
         diagnostics: [{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'Broken spec' }],
         filesCreated: 0,
         status: 'failed',
       })
-      await context.callHook('studio:command', { command: 'generate', info: 'Broken spec', requestedBy: 'Ana', failed: true })
-      await context.callHook('studio:command', { command: 'saveConfig', info: 'applied 1/1 edits to kubb.config.ts', requestedBy: 'Stijn Van Hulle-Peeters' })
+      await hooks.callHook('studio:command', { command: 'generate', info: 'Broken spec', requestedBy: 'Ana', failed: true })
+      await hooks.callHook('studio:command', { command: 'saveConfig', info: 'applied 1/1 edits to kubb.config.ts', requestedBy: 'Stijn Van Hulle-Peeters' })
     })
     vi.useRealTimers()
 
@@ -414,11 +415,11 @@ describe('studio session events', () => {
   })
 
   it('drops everything but errors at silent', async () => {
-    const lines = await render(async (context) => {
-      await context.callHook('studio:disconnected', { code: 1006, reason: '' })
-      await context.callHook('studio:warn', { message: 'Ignored save' })
+    const lines = await render(async (hooks) => {
+      await hooks.callHook('studio:disconnected', { code: 1006, reason: '' })
+      await hooks.callHook('studio:warn', { message: 'Ignored save' })
       // A failure stays visible, or the command exits without saying why.
-      await context.callHook('studio:error', { error: new Error('token revoked') })
+      await hooks.callHook('studio:error', { error: new Error('token revoked') })
     }, logLevel.silent)
 
     expect(lines).toStrictEqual(['✗ token revoked'])

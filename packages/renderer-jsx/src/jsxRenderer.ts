@@ -1,6 +1,6 @@
 import { ast } from '@kubb/ast'
 import { Fragment, isKubbElement, type JSX } from './jsx-runtime.ts'
-import type { KubbReactElement } from './types.ts'
+import type { JsxRenderer, KubbReactElement } from './types.ts'
 
 type HostTag = keyof JSX.IntrinsicElements
 type HostProps = Record<string, unknown>
@@ -238,7 +238,7 @@ function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode
  * addTemplate(typesTemplate, { renderer: jsxRenderer })
  * ```
  */
-export const jsxRenderer = () => {
+export const jsxRenderer = (): JsxRenderer => {
   const files: Array<ast.FileNode> = []
 
   function collectFiles(element: unknown): void {

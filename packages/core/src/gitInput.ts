@@ -6,7 +6,8 @@ import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { getErrorMessage, toError } from '@internals/utils'
 import { x } from 'tinyexec'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
+import type { DiagnosticError } from './diagnostics.ts'
 import { isPublicAddress } from './publicAddress.ts'
 
 /**
@@ -24,7 +25,7 @@ export type GitInput = {
 /** Matches a git `input`: the `git+` prefix npm uses for git dependencies. */
 export const gitInputRegExp = /^git\+/i
 
-function gitError(message: string, cause?: unknown): InstanceType<typeof Diagnostics.Error> {
+function gitError(message: string, cause?: unknown): DiagnosticError {
   return new Diagnostics.Error({
     code: Diagnostics.code.gitInputFailed,
     severity: 'error',

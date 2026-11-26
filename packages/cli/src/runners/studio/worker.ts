@@ -1,6 +1,6 @@
 import { appendFileSync, statSync, writeFileSync } from 'node:fs'
 import { format } from 'node:util'
-import { getWorkerLogPath, serveWorker, type WorkerLaunch } from './background.ts'
+import { getWorkerLogPath, startWorkerServer, type WorkerLaunch } from './background.ts'
 import { type Credentials, redactSecrets } from './credentials.ts'
 import { connect } from './run.ts'
 
@@ -35,7 +35,7 @@ events.once('SIGTERM', stop)
 
 const launch = await new Promise<WorkerLaunch>((resolve) => process.once('message', (message) => resolve(message as WorkerLaunch)))
 credentials = launch.prepared.credentials
-const control = await serveWorker(shutdown).catch((error: unknown) => {
+const control = await startWorkerServer({ shutdown }).catch((error: unknown) => {
   log(error)
   process.exit(1)
 })

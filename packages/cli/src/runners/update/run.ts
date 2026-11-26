@@ -5,7 +5,8 @@ import * as clack from '@clack/prompts'
 import { defineWithTypes } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
 import { getErrorMessage, pascalCase } from '@internals/utils'
-import { type GenerationResult, Hookable, type KubbHooks, logLevel as logLevelMap, readInstalledPackages, type RegistryEntry, type Reporter } from '@kubb/core'
+import { Hookable, logLevel as logLevelMap, readInstalledPackages } from '@kubb/core'
+import type { FileChanges, KubbHooks, RegistryEntry, Reporter } from '@kubb/core'
 import { pluralize } from '../../ui/text.ts'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
@@ -28,8 +29,6 @@ export type UpdateOptions = {
   dryRun: boolean
   yes: boolean
 }
-
-type FileChanges = NonNullable<GenerationResult['fileChanges']>
 
 /**
  * Generates every config in this process, the way `kubb generate` does, and returns the counts of
@@ -55,7 +54,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
         for (const key of Object.keys(changes) as Array<keyof FileChanges>) changes[key] += fileChanges?.[key] ?? 0
       },
     }
-    installReporters(hooks, { logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
+    installReporters({ hooks, logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
     if (!(await generate({ configs, hooks }))) throw new Error('Generation failed')
     const changed = changes.added + changes.modified + changes.deleted
     spinner.stop(changed ? `Generated: ${pluralize(changed, 'file')} changed` : 'Generated: no files changed')

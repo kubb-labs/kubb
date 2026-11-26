@@ -1,11 +1,9 @@
 import { memo, unescapePointerToken } from '@internals/utils'
-import type { Adapter } from '@kubb/core'
+import type { Adapter, SourceRange } from '@kubb/core'
 import { COLLECTION_STYLE, CORE_SCHEMA, EVENT_ID, load, parseEvents, SCALAR_STYLE } from 'js-yaml'
 import type { Event } from 'js-yaml'
 
-type Range = ReturnType<NonNullable<Adapter['locate']>>
-
-type Child = { index: number; range: NonNullable<Range> }
+type Child = { index: number; range: SourceRange }
 
 // One entry per event in typed arrays: an event object per value takes ten times the memory.
 type EventIndex = {
@@ -14,7 +12,7 @@ type EventIndex = {
   starts: Int32Array
   ends: Int32Array
   collections: Map<number, { keys: Map<string, Child>; items: Array<Child> }>
-  refs?: Map<string, NonNullable<Range>>
+  refs?: Map<string, SourceRange>
 }
 
 const flowGap = /(?:[\s,]|#[^\n]*)*/y
@@ -62,6 +60,8 @@ function indexEvents(events: ReadonlyArray<Event>): EventIndex {
   return { types, styles, starts, ends, collections: new Map() }
 }
 
+type SourceLocatorOptions = { index: EventIndex; source: string }
+
 class SourceLocator {
   readonly #index: EventIndex
   readonly #source: string
@@ -70,7 +70,7 @@ class SourceLocator {
   readonly #starts: Int32Array
   readonly #ends: Int32Array
 
-  constructor({ index, source }: { index: EventIndex; source: string }) {
+  constructor({ index, source }: SourceLocatorOptions) {
     this.#index = index
     this.#source = source
     this.#types = index.types
@@ -79,20 +79,20 @@ class SourceLocator {
     this.#ends = index.ends
   }
 
-  find(pointer: string): Range {
+  find(pointer: string): SourceRange | undefined {
     // The first event opens the document, the second is its root.
     return this.#walk({ at: 1, tokens: pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken), range: undefined })
   }
 
-  findRef(ref: string): Range {
+  findRef(ref: string): SourceRange | undefined {
     this.#index.refs ??= this.#indexRefs()
     return this.#index.refs.get(ref)
   }
 
   // Every `$ref` value in the document, mapped to the range of its first occurrence.
-  #indexRefs(): Map<string, NonNullable<Range>> {
+  #indexRefs(): Map<string, SourceRange> {
     const types = this.#types
-    const refs = new Map<string, NonNullable<Range>>()
+    const refs = new Map<string, SourceRange>()
     // -1 in a sequence. In a mapping, 0 before a key and 1 before its value.
     const frames: Array<number> = []
     for (let at = 1; at + 1 < types.length; at++) {
@@ -137,7 +137,7 @@ class SourceLocator {
     }
   }
 
-  #readNode(at: number): NonNullable<Range> & { next: number } {
+  #readNode(at: number): SourceRange & { next: number } {
     const starts = this.#starts
     if (!this.#isCollection(at)) return { start: starts[at]!, end: this.#ends[at]!, next: at + 1 }
     let next = at + 1
@@ -176,7 +176,7 @@ class SourceLocator {
   }
 
   // Follows `tokens` from the collection at `at`. The range is the last key or item it reached.
-  #walk({ at, tokens: [token, ...rest], range }: { at: number; tokens: Array<string>; range: Range }): Range {
+  #walk({ at, tokens: [token, ...rest], range }: { at: number; tokens: Array<string>; range: SourceRange | undefined }): SourceRange | undefined {
     if (token === undefined) return range
     if (!this.#isCollection(at)) return undefined
     const { keys, items } = memo(this.#index.collections, at, () => this.#readChildren(at))
@@ -185,8 +185,8 @@ class SourceLocator {
   }
 }
 
-function createLocator({ index, source }: { index: EventIndex; source: string }): SourceLocator {
-  return new SourceLocator({ index, source })
+function createSourceLocator(options: SourceLocatorOptions): SourceLocator {
+  return new SourceLocator(options)
 }
 
 function parse(source: string): EventIndex | undefined {
@@ -210,7 +210,7 @@ export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   const index = memo(indexes, source, () => parse(source))
   if (!index) return undefined
 
-  const locator = createLocator({ index, source })
+  const locator = createSourceLocator({ index, source })
   const ref = 'ref' in location ? location.ref : undefined
   return locator.find(location.pointer) ?? (ref ? locator.findRef(ref) : undefined)
 }

@@ -3,9 +3,9 @@ import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { injectFile, kubbContext, memo, setOptions, tryUseKubb, useConfig, useKubb, useOptions, requirePlugin, withContext } from './composables.ts'
 import type { KubbPluginSetupContext, Plugin, PluginVisitContext } from './definePlugin.ts'
-import { Diagnostics } from './Diagnostics.ts'
-import { Hookable } from './Hookable.ts'
-import { KubbDriver } from './KubbDriver.ts'
+import { Diagnostics } from './diagnostics.ts'
+import { Hookable } from './hookable.ts'
+import { Driver } from './driver.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config, KubbHooks } from './types.ts'
 
@@ -111,7 +111,7 @@ describe('withContext', () => {
   })
 })
 
-describe('KubbDriver#setupHooks with composables', () => {
+describe('Driver#setupHooks with composables', () => {
   it('passes the same context as this, ctx and useKubb() to setup and kubb:plugin:setup', async () => {
     const seen: Array<boolean> = []
     const plugin: Plugin = {
@@ -127,7 +127,7 @@ describe('KubbDriver#setupHooks with composables', () => {
       },
     }
 
-    const driver = new KubbDriver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
+    const driver = new Driver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
     await driver.setupHooks()
 
@@ -149,7 +149,7 @@ describe('KubbDriver#setupHooks with composables', () => {
       },
     })
 
-    const driver = new KubbDriver(makeConfig({ plugins: [makePlugin('first', 5), makePlugin('second', 0)] }), { hooks: new Hookable<KubbHooks>() })
+    const driver = new Driver(makeConfig({ plugins: [makePlugin('first', 5), makePlugin('second', 0)] }), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
     await driver.setupHooks()
 
@@ -173,7 +173,7 @@ describe('KubbDriver#setupHooks with composables', () => {
       },
     })
 
-    const driver = new KubbDriver(makeConfig({ plugins: [makePlugin('first'), makePlugin('second')] }), { hooks: new Hookable<KubbHooks>() })
+    const driver = new Driver(makeConfig({ plugins: [makePlugin('first'), makePlugin('second')] }), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
     await driver.setupHooks()
     expect(compute).toHaveBeenCalledTimes(1)
@@ -201,7 +201,7 @@ describe('KubbDriver#setupHooks with composables', () => {
       },
     }
 
-    const driver = new KubbDriver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
+    const driver = new Driver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
     await driver.setupHooks()
 

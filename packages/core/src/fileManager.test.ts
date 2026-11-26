@@ -4,10 +4,10 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
-import { Hookable } from './Hookable.ts'
+import { type Diagnostic, Diagnostics } from './diagnostics.ts'
+import { Hookable } from './hookable.ts'
 import type { Config, KubbHooks } from './types.ts'
-import { FileManager } from './FileManager.ts'
+import { FileManager } from './fileManager.ts'
 import type { Lockfile } from './lockfile.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -17,7 +17,7 @@ afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
-function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parameters<typeof ast.factory.createFile>[0]>) {
+function makeFile(filePath: string, sourceValue?: string, extra?: Partial<ast.UserFileNode>) {
   return ast.factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,

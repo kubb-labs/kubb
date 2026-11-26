@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import * as utils from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { logLevel } from '../createReporter.ts'
-import { Diagnostics } from '../Diagnostics.ts'
+import { Diagnostics } from '../diagnostics.ts'
 import type { Config } from '../types.ts'
 import { htmlReporter } from './htmlReporter.ts'
 

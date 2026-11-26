@@ -1,7 +1,7 @@
 import { ast, type ImportNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { PluginName } from '@kubb/core'
 import { type FileContext, resolveLocation, resolvePluginOptions, useFileContext } from './file.ts'
-import { isNamespace, type Resolver } from './resolver/Resolver.ts'
+import { isNamespace, type Resolver } from './resolver/resolver.ts'
 import { providedResolver } from './composables.ts'
 import type { ProvideName, ResolverFor } from './types.ts'
 

@@ -1,4 +1,5 @@
 import { escapePointerToken } from '@internals/utils'
+import type { OpenAPIV3_1 } from 'openapi-types'
 import { pascalCase } from '@kubb/core'
 import { ast, Diagnostics, macroEnumName, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
@@ -14,14 +15,11 @@ import type {
   Document,
   EncodingObject,
   ExampleObject,
-  HeaderObject,
-  LinkObject,
   MediaTypeObject,
   OperationObject,
   ParameterObject,
   PathItemObject,
   ReferenceObject,
-  RequestBodyObject,
   ResponseObject,
   SchemaObject,
 } from './types.ts'
@@ -109,8 +107,8 @@ function getResponseByStatusCode({ operation, refs, statusCode }: OperationConte
  * Resolves the operation's request body, dereferencing a `$ref` through `refs`. Returns `null`
  * when the operation has no request body or it cannot be resolved.
  */
-function getRequestBody({ operation, refs }: OperationContext): RequestBodyObject | null {
-  return refs.deref<RequestBodyObject>(operation.schema.requestBody)
+function getRequestBody({ operation, refs }: OperationContext): OpenAPIV3_1.RequestBodyObject | null {
+  return refs.deref<OpenAPIV3_1.RequestBodyObject>(operation.schema.requestBody)
 }
 
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
@@ -237,7 +235,7 @@ function getBodySchema({
 
 function getLinks(links: unknown, refs: Refs): Record<string, ast.ResponseLink> | undefined {
   const entries = Object.entries(links ?? {}).flatMap(([name, value]) => {
-    const link = refs.deref<LinkObject>(value)
+    const link = refs.deref<OpenAPIV3_1.LinkObject>(value)
     if (!link) return []
     const server = link.server ? toInputServers([link.server])[0] : undefined
     const node: ast.ResponseLink = {
@@ -537,7 +535,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const responsePointer = `${pointer}/responses/${key}`
     // The spec ignores a `Content-Type` header, since `content` already names the media type.
     const headers = Object.entries(response?.headers ?? {}).flatMap(([name, value]) => {
-      const header = name.toLowerCase() === 'content-type' ? null : refs.deref<HeaderObject>(value)
+      const header = name.toLowerCase() === 'content-type' ? null : refs.deref<OpenAPIV3_1.HeaderObject>(value)
       if (!header) return []
       const param: ParameterObject = { ...header, name, in: 'header' }
       return [

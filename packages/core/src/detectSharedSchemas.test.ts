@@ -6,7 +6,7 @@ const checkout = vi.hoisted(() => ({ path: '/tmp/kubb-git/spec.yaml', dispose: v
 vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<object>()), checkoutGitInput: vi.fn(async () => checkout) }))
 
 import { detectSharedSchemas } from './detectSharedSchemas.ts'
-import { Hookable } from './Hookable.ts'
+import { Hookable } from './hookable.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config, KubbHooks } from './types.ts'
 

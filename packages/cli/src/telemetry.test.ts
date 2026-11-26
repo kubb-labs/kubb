@@ -4,11 +4,10 @@ import process from 'node:process'
 import { runInNewContext } from 'node:vm'
 import { Diagnostics } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry, toOptionShape } from './Telemetry.ts'
+import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry, toOptionShape } from './telemetry.ts'
+import type { OtlpPayloadOptions, OtlpSpan } from './telemetry.ts'
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }))
-
-type Run = Parameters<typeof buildOtlpPayload>[0]
 
 afterEach(() => {
   vi.mocked(spawn).mockReset()
@@ -17,11 +16,11 @@ afterEach(() => {
 })
 
 /** A successful `generate` run, so a payload assertion only states what it varies. */
-function payload(overrides: Partial<Run> = {}) {
+function payload(overrides: Partial<OtlpPayloadOptions> = {}) {
   return buildOtlpPayload({ command: 'generate', duration: 1000, filesCreated: 5, status: 'success', ...overrides })
 }
 
-function getSpan(overrides: Partial<Run> = {}) {
+function getSpan(overrides: Partial<OtlpPayloadOptions> = {}) {
   return payload(overrides).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
 }
 
@@ -61,7 +60,7 @@ describe('buildOtlpPayload', () => {
   })
 
   it('adds the MCP client name only when one is given, capped at 64 characters', () => {
-    const find = (span: ReturnType<typeof getSpan>) => span.attributes.find((attribute) => attribute.key === 'kubb.mcp_client')
+    const find = (span: OtlpSpan) => span.attributes.find((attribute) => attribute.key === 'kubb.mcp_client')
 
     expect(find(getSpan())).toBeUndefined()
     expect(find(getSpan({ command: 'mcp', mcpClient: 'claude-code' }))).toStrictEqual({ key: 'kubb.mcp_client', value: { stringValue: 'claude-code' } })

@@ -3,7 +3,8 @@ import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
 import { createResolver } from './createResolver.ts'
-import { Resolver, toFilePath } from './Resolver.ts'
+import { Resolver, toFilePath } from './resolver.ts'
+import type { ResolvePathOptions } from './types.ts'
 import type { Config } from '@kubb/core'
 
 type TestResolver = Resolver & {
@@ -277,7 +278,7 @@ describe('default.path', () => {
       '/root/types/petsListController/petTypes.ts',
     ],
     ['the output directory for a path group with only a tag, such as an SDK class', { tag: 'pet', group: { type: 'path' } }, '/root/types/petTypes.ts'],
-  ] satisfies Array<[string, Partial<Parameters<typeof baseResolver.default.path>[0]>, string]>)('returns %s', (_name, params, expected) => {
+  ] satisfies Array<[string, Partial<ResolvePathOptions>, string]>)('returns %s', (_name, params, expected) => {
     expect(
       baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined, ...params }),
     ).toBe(expected)
@@ -329,7 +330,7 @@ describe('default.path', () => {
       { baseName: 'petTypes.ts', path: '/pets', group: { type: 'path', name: () => '../../secrets' } },
     ],
     ['baseName contains a traversal sequence', { baseName: '../../etc/passwd' }],
-  ] satisfies Array<[string, Pick<Parameters<typeof baseResolver.default.path>[0], 'baseName' | 'path' | 'group'>]>)('throws when %s', (_name, params) => {
+  ] satisfies Array<[string, Pick<ResolvePathOptions, 'baseName' | 'path' | 'group'>]>)('throws when %s', (_name, params) => {
     expect(() => baseResolver.default.path({ root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined, ...params })).toThrow(
       'outside the output directory',
     )

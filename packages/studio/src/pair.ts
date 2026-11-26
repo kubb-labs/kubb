@@ -151,7 +151,7 @@ export async function startPairing({
   }
 }
 
-export type PollOptions = {
+export type PollForPairingTokenOptions = {
   studioUrl?: string
   session: PairingSession
   /**
@@ -176,6 +176,62 @@ type PollResponse =
       error_description?: string
     }
 
+async function waitForNextPoll({ ms, signal }: { ms: number; signal?: AbortSignal }): Promise<void> {
+  if (signal?.aborted) throw new PairingCanceledError()
+  await delay(ms, undefined, { signal }).catch(() => {
+    throw new PairingCanceledError()
+  })
+}
+
+async function requestPairingToken({
+  studioUrl,
+  session,
+  signal,
+}: {
+  studioUrl: string
+  session: PairingSession
+  signal?: AbortSignal
+}): Promise<PollResponse> {
+  // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
+  const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
+    method: 'POST',
+    body: { device_code: session.device_code },
+    redirect: 'error',
+    signal,
+    ignoreResponseError: true,
+  })
+  if (status >= 500 || !_data || typeof _data !== 'object')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequestFailed,
+      severity: 'error',
+      message: `Kubb Studio answered with status ${status}`,
+      help: 'Try again later.',
+    })
+  return _data
+}
+
+// The wait before the next poll, or a throw when Studio's answer ends the pairing.
+function nextPollInterval({ response, intervalMs }: { response: PollResponse; intervalMs: number }): number {
+  if (!('error' in response) || typeof response.error !== 'string') {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'Kubb Studio returned an empty pairing response, pair again',
+    })
+  }
+  if (response.error === 'authorization_pending') return intervalMs
+  if (response.error === 'slow_down') return intervalMs + 5_000
+  if (response.error === 'access_denied') throw new PairingDeniedError(response.error_description)
+  if (response.error === 'expired_token' || response.error === 'invalid_grant') throw new PairingExpiredError(response.error_description)
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.unknown,
+    severity: 'error',
+    message: response.error_description ?? `Pairing failed (${response.error})`,
+    help: 'Pair again with `kubb studio login`.',
+  })
+}
+
 function isPairingResult(response: PollResponse): response is PairingResult {
   return 'token' in response && typeof response.token === 'string'
 }
@@ -190,7 +246,7 @@ function isPairingResult(response: PollResponse): response is PairingResult {
  * @throws {PairingDeniedError} when the pairing is denied in the browser.
  * @throws {PairingCanceledError} when `signal` aborts.
  */
-export async function pollForPairingToken({ studioUrl = defaultStudioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = defaultStudioUrl, session, signal, onRetry }: PollForPairingTokenOptions): Promise<PairingResult> {
   // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
   // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
   // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.
@@ -198,79 +254,16 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
   let intervalMs = (session.interval > 0 ? session.interval : 5) * 1000
 
   while (Date.now() < deadline) {
-    if (signal?.aborted) {
-      throw new PairingCanceledError()
-    }
-
-    try {
-      await delay(intervalMs, undefined, { signal })
-    } catch {
-      throw new PairingCanceledError()
-    }
-
-    let response: PollResponse
-    try {
-      // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
-      const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
-        method: 'POST',
-        body: { device_code: session.device_code },
-        redirect: 'error',
-        signal,
-        ignoreResponseError: true,
-      })
-      if (status >= 500 || !_data || typeof _data !== 'object')
-        throw new Diagnostics.Error({
-          code: Diagnostics.code.inputRequestFailed,
-          severity: 'error',
-          message: `Kubb Studio answered with status ${status}`,
-          help: 'Try again later.',
-        })
-      response = _data
-    } catch (error) {
-      if (signal?.aborted) {
-        throw new PairingCanceledError()
-      }
-
+    await waitForNextPoll({ ms: intervalMs, signal })
+    const response = await requestPairingToken({ studioUrl, session, signal }).catch((error: unknown) => {
+      if (signal?.aborted) throw new PairingCanceledError()
       // Studio can be briefly unreachable (a deploy) while the code is still valid, so retry.
       onRetry?.(toError(error))
-      continue
-    }
-
-    if (isPairingResult(response)) {
-      return response
-    }
-
-    if (!('error' in response) || typeof response.error !== 'string') {
-      throw new Diagnostics.Error({
-        code: Diagnostics.code.unknown,
-        severity: 'error',
-        message: 'Kubb Studio returned an empty pairing response, pair again',
-      })
-    }
-
-    if (response.error === 'authorization_pending') {
-      continue
-    }
-
-    if (response.error === 'slow_down') {
-      intervalMs += 5_000
-      continue
-    }
-
-    if (response.error === 'access_denied') {
-      throw new PairingDeniedError(response.error_description)
-    }
-
-    if (response.error === 'expired_token' || response.error === 'invalid_grant') {
-      throw new PairingExpiredError(response.error_description)
-    }
-
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.unknown,
-      severity: 'error',
-      message: response.error_description ?? `Pairing failed (${response.error})`,
-      help: 'Pair again with `kubb studio login`.',
+      return undefined
     })
+    if (!response) continue
+    if (isPairingResult(response)) return response
+    intervalMs = nextPollInterval({ response, intervalMs })
   }
 
   throw new PairingExpiredError()

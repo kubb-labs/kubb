@@ -21,7 +21,7 @@ import {
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
-import { trackRun } from '../../Telemetry.ts'
+import { trackRun } from '../../telemetry.ts'
 import { pluralize } from '../../ui/text.ts'
 import installReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'
@@ -32,8 +32,8 @@ import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import { getLatestVersion } from '../../utils/updateCheck.ts'
-import { createOutputCheck, type OutputCheck } from './check.ts'
-import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
+import { createOutputCheck, type OutputCheck } from './outputCheck.ts'
+import { type BuildDiff, type BuildSnapshot, createBuildTracker, diffBuilds, listenForKeys, startWatcher } from './utils.ts'
 
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
 type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
@@ -53,7 +53,7 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
   }
 }
 
-export type GenerateProps = {
+export type GenerateOptions = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
   force?: boolean
@@ -62,7 +62,7 @@ export type GenerateProps = {
 /**
  * Generates the configs and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks, force }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks, force }: GenerateOptions): Promise<boolean> {
   // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime(), diagnostics }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -140,7 +140,7 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 /**
  * Generates the configs, then again whenever a local `input` file changes. Returns whether the build succeeded when there is no file to watch.
  */
-async function watch({ configs, hooks, quiet }: GenerateProps & { quiet: boolean }): Promise<boolean> {
+async function watch({ configs, hooks, quiet }: GenerateOptions & { quiet: boolean }): Promise<boolean> {
   const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
   if (!watchPaths.length) {
     if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
@@ -148,7 +148,7 @@ async function watch({ configs, hooks, quiet }: GenerateProps & { quiet: boolean
   }
 
   const label = styleText('yellow', `Watching ${watchPaths.map((watchPath) => path.relative(process.cwd(), watchPath)).join(', ')}`)
-  const tracker = trackBuild(hooks)
+  const tracker = createBuildTracker(hooks)
   let previous: BuildSnapshot | undefined
   // Don't removeAll() between builds, that would also drop logger and lifecycle
   // listeners. Plugin listeners are already disposed by safeBuild's dispose()
@@ -293,7 +293,7 @@ async function generateOrSkip({
   force,
   watchMode,
   canSkip,
-}: GenerateProps & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
+}: GenerateOptions & { quiet: boolean; watchMode: boolean; canSkip: boolean }): Promise<boolean> {
   if (canSkip && (await isUpToDate(configs))) {
     if (!quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     return true
@@ -335,7 +335,7 @@ export async function run({
   const quiet = logLevel <= logLevelMap.silent || json
 
   // The run log goes to stderr in `json` mode, so an error with no report entry is never silent and stdout stays one JSON document.
-  if (json) installReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
+  if (json) installReporters({ hooks, logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
   // The config loads while the banner plays. Once it settles the banner jumps to its last frame, so
   // the build starts right away and no frame lands between log lines.
@@ -375,7 +375,7 @@ export async function run({
   } catch (error) {
     if (!quiet) configSpinner.error('Config failed loading')
 
-    if (!json) installReporters(hooks, { logLevel, reporters: [cliReporter] })
+    if (!json) installReporters({ hooks, logLevel, reporters: [cliReporter] })
     // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
     await Diagnostics.emit(hooks, error)
 
@@ -387,7 +387,7 @@ export async function run({
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  installReporters(hooks, { logLevel, reporters, dryRun, outputCheck })
+  installReporters({ hooks, logLevel, reporters, dryRun, outputCheck })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 

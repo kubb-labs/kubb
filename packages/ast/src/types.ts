@@ -12,6 +12,7 @@ export type { ResponseLink, ResponseNode, StatusCode } from './nodes/response.ts
 export type {
   ArraySchemaNode,
   BlobSchemaNode,
+  CreateSchemaInput,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,

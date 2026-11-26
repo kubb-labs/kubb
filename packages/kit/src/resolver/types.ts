@@ -1,7 +1,7 @@
 import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Config, Group, Output } from '@kubb/core'
 import type { ResolveOptionsContext } from './resolveOptions.ts'
-import type { Resolver } from './Resolver.ts'
+import type { Resolver } from './resolver.ts'
 
 /** The built-in resolution machinery exposed on every resolver as `resolver.default`. */
 export type ResolverDefault = {

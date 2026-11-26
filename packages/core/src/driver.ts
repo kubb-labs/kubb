@@ -1,14 +1,15 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo as storeMemo, toError } from '@internals/utils'
 import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
+import type { Diagnostic, DiagnosticError, DiagnosticLocation, ProblemDiagnostic } from './diagnostics.ts'
 import type { PluginVisitContext } from './definePlugin.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext, withContext } from './composables.ts'
-import { FileManager } from './FileManager.ts'
+import { FileManager } from './fileManager.ts'
 import { createMemo, type Memo } from './memo.ts'
 import type { Lockfile } from './lockfile.ts'
 import type { SharedSchemas } from './detectSharedSchemas.ts'
@@ -16,9 +17,9 @@ import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
-import type { Hookable } from './Hookable.ts'
+import type { Hookable } from './hookable.ts'
 
-export type Options = {
+export type DriverOptions = {
   hooks: Hookable<KubbHooks>
   signal?: AbortSignal
   fileRefs?: Array<string>
@@ -95,11 +96,13 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
   })
 }
 
+type CrashSite = { label: string; location?: DiagnosticLocation }
+
 /**
  * Where a generator crashed: a label naming the node and, when the adapter set one, the node's
  * pointer into the input.
  */
-function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
+function getCrashSite(node: SchemaNode | OperationNode): CrashSite {
   if (node.kind === ast.node.kinds.schema) {
     const label = node.name ? `schema "${node.name}"` : 'an inline schema'
     return { label, location: node.pointer ? { kind: 'schema', pointer: node.pointer } : undefined }
@@ -108,9 +111,9 @@ function getCrashSite(node: SchemaNode | OperationNode): { label: string; locati
   return { label, location: node.pointer ? { kind: 'operation', pointer: node.pointer } : undefined }
 }
 
-export class KubbDriver {
+export class Driver {
   readonly config: Config
-  readonly options: Options
+  readonly options: DriverOptions
 
   /**
    * The `InputNode` produced by the adapter. Set after adapter setup.
@@ -140,7 +143,7 @@ export class KubbDriver {
    */
   readonly #unhooks: Array<() => void> = []
 
-  constructor(config: Config, options: Options) {
+  constructor(config: Config, options: DriverOptions) {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
@@ -520,7 +523,7 @@ export class KubbDriver {
     plugin: NormalizedPlugin
     hrStart: ReturnType<typeof process.hrtime>
     error?: Error
-    crashSite?: ReturnType<typeof getCrashSite>
+    crashSite?: CrashSite
   }): Promise<Array<Diagnostic>> {
     const duration = getElapsedMs(hrStart)
     await this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success: !error, ...(error ? { error } : {}), config: this.config }))
@@ -570,7 +573,7 @@ export class KubbDriver {
       hooks: plugin.hooks ?? {},
       error: null as Error | null,
       // The node a hook crashed on, so the diagnostic can name it.
-      crashSite: undefined as ReturnType<typeof getCrashSite> | undefined,
+      crashSite: undefined as CrashSite | undefined,
     }))
 
     for (const state of states) {
@@ -748,8 +751,17 @@ export class KubbDriver {
   }
 }
 
+/**
+ * @deprecated Use `Driver` instead.
+ */
+export const KubbDriver = Driver
+/**
+ * @deprecated Use `Driver` instead.
+ */
+export type KubbDriver = Driver
+
 /** The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it. */
-export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): InstanceType<typeof Diagnostics.Error> {
+export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): DiagnosticError {
   const by = requiredBy ? ` by "${requiredBy}"` : ''
   const help = requiredBy ? ` (required by "${requiredBy}")` : ''
 

@@ -2,7 +2,7 @@ import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { adapterOas } from './adapter.ts'
-import { createSchemaParser, type OasParserContext } from './parser.ts'
+import { createSchemaParser, type SchemaParserOptions } from './schemaParser.ts'
 import { createRefs } from './refs.ts'
 import type { AdapterOasOptions, ContentType, Document, SchemaObject } from './types.ts'
 import type { ParserOptions } from './parserOptions.ts'
@@ -15,7 +15,7 @@ const emptyDocument: Document = {
 
 // A document without a component registry parses `$ref`s leniently: the target is expected to
 // live outside the fragment, so the node stays a `ref` instead of falling back to `unknown`.
-const emptyCtx: OasParserContext = { document: emptyDocument, refs: createRefs(emptyDocument) }
+const emptyCtx: SchemaParserOptions = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
 // OAS 3.0 document whose binary bodies lose their schema on the upgrade to 3.1.
 const binaryResponseDocument = {
@@ -107,7 +107,7 @@ type SchemaCase = {
  * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`, mirroring the
  * `createSchemaParser()` helper for single-schema test cases.
  */
-function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): ast.SchemaNode {
+function parseSchema(ctx: SchemaParserOptions, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): ast.SchemaNode {
   return createSchemaParser({ ...ctx, options }).parse({ schema, name })
 }
 

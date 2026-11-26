@@ -3,7 +3,7 @@ import type { FileNode, InputMeta, InputNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
-import type { Diagnostic, ProblemCode, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
+import type { Diagnostic, ProblemCode, ProblemDiagnostic, UpdateDiagnostic } from './diagnostics.ts'
 import type { Parser } from './defineParser.ts'
 import type {
   ExtractRegistryKey,
@@ -14,7 +14,7 @@ import type {
   PluginName,
   ResolvePluginOptions,
 } from './definePlugin.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import type { Driver } from './driver.ts'
 import type { HookResult } from './output/runHook.ts'
 
 /**
@@ -763,7 +763,7 @@ export type BuildOutput = {
   /**
    * The plugin driver that orchestrated this build.
    */
-  driver: KubbDriver
+  driver: Driver
   /**
    * The parsed spec the build generated from, `null` when there was none to parse.
    */

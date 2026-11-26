@@ -4,12 +4,13 @@ import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
 import type { Credentials } from './credentials.ts'
 import { formatStatus, formatUptime } from './status.ts'
+import type { FormatStatusOptions } from './status.ts'
 
 const studioUrl = 'https://studio.kubb.dev'
 const project = path.join(homedir(), 'code', 'petstore')
 const credentials: Credentials = { studioUrl, token: 'test-token', agentId: 'agent-1', agentSlug: 'laptop', organizationSlug: 'acme' }
 
-function rows(input: Partial<Parameters<typeof formatStatus>[0]>): Array<string> {
+function rows(input: Partial<FormatStatusOptions>): Array<string> {
   return formatStatus({
     studioUrl,
     credentials: null,

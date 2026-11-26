@@ -6,6 +6,7 @@ import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
 import { diffHunks, getErrorMessage, isPathInside, mkdtemp, read, rm, toError, writeRaw } from '@internals/utils'
+import type { DiffResult } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -27,7 +28,7 @@ import { readConfigFileView, toEntryView } from './configView.ts'
 import { signAgentPayload } from './agentKey.ts'
 import { pageHunks } from './diff.ts'
 import { type ExtensionCommandContext, installExtension, readInstalledExtensions, removeExtension, runKubb, updateExtensions } from './extensions.ts'
-import { createGenerationStream } from './generationEvents.ts'
+import { createGenerationStream } from './generationStream.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
   AGENT_INSTANCE_HEADER,
@@ -223,7 +224,7 @@ export type ConnectAgentOptions = {
   debug?: boolean
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' | 'privateKey'>> & {
+type ResolvedConnectAgentOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' | 'privateKey'>> & {
   signal?: AbortSignal
   kubbBin?: string
   privateKey?: string
@@ -278,12 +279,12 @@ function stagingStorage({ root, directory }: { root: string; directory: string }
   }
 }
 
-type RunHandle = { stream: ReadableStream<GenerationEvent>; result: Promise<GenerateResult>; stop: () => void }
+type GenerationRunTargetOptions = { stream: ReadableStream<GenerationEvent>; result: Promise<GenerateResult>; stop: () => void }
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
-  readonly #run: RunHandle
+  readonly #run: GenerationRunTargetOptions
 
-  constructor(run: RunHandle) {
+  constructor(run: GenerationRunTargetOptions) {
     super()
     this.#run = run
   }
@@ -306,17 +307,19 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
 /** A save's edit once a `set-input` document is named, or why it was refused. */
 type KeptEdit = (ConfigEdit & { document?: { fileName: string; text: string } }) | { reason: string }
 
+type AgentOptions = { options: ResolvedConnectAgentOptions; session: Session }
+
 // Cap'n Web exposes only prototype methods, so the public methods are exactly `AgentApi`.
 class Agent extends RpcTarget implements AgentApi {
-  readonly #options: ResolvedOptions
+  readonly #options: ResolvedConnectAgentOptions
   readonly #session: Session
   readonly #limits = resolveGenerationLimits()
   #store: GenerationStore | undefined
   readonly #sandboxCacheRoot = path.join(tmpdir(), `kubb-studio-${randomUUID()}`)
   // Kept sets never change, so a diff is computed once and its pages are cut from it.
-  readonly #diffs = new Map<string, ReturnType<typeof diffHunks>>()
+  readonly #diffs = new Map<string, DiffResult>()
 
-  constructor({ options, session }: { options: ResolvedOptions; session: Session }) {
+  constructor({ options, session }: AgentOptions) {
     super()
     this.#options = options
     this.#session = session
@@ -912,7 +915,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   }
 }
 
-async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
+async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedConnectAgentOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, studioUrl, version } = options
   const token = typeof options.token === 'function' ? await options.token() : options.token
   if (signal?.aborted) return { code: 1000, reason: '', connected: false }
@@ -999,7 +1002,7 @@ function isJson(text: string): boolean {
 
 export async function runAgent({ options, openRpc }: { options: ConnectAgentOptions; openRpc: OpenRpc }): Promise<void> {
   const root = options.root ?? process.cwd()
-  const resolved: ResolvedOptions = {
+  const resolved: ResolvedConnectAgentOptions = {
     ...options,
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,

@@ -4,10 +4,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createMockedAdapter } from '../mocks.ts'
-import { Hookable } from '../Hookable.ts'
+import { Hookable } from '../hookable.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
 import type { Config, KubbHooks, KubbHookStartContext } from '../types.ts'
-import type { Diagnostic } from '../Diagnostics.ts'
+import type { Diagnostic } from '../diagnostics.ts'
 import { runOutputPasses } from './runOutputPasses.ts'
 
 const node = process.execPath

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 import * as moved from './moved.ts'
 
 const calls: Record<string, () => unknown> = {

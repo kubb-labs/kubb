@@ -1,4 +1,4 @@
-import { Diagnostics } from './Diagnostics.ts'
+import { Diagnostics } from './diagnostics.ts'
 
 // Published @kubb/kit 5.23.1 still imports these from core; the stubs turn a missing export into a clear error.
 function movedToKit(name: string): never {

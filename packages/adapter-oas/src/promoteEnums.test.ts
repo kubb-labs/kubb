@@ -5,7 +5,7 @@ import { collectInlineEnums } from './promoteEnums.ts'
 const { createProperty, createSchema } = ast.factory
 
 function stringEnum(values: Array<string>, name?: string): ast.SchemaNode {
-  return createSchema({ type: 'enum', primitive: 'string', enumValues: values, name } as Parameters<typeof createSchema>[0])
+  return createSchema({ type: 'enum', primitive: 'string', enumValues: values, name } as ast.CreateSchemaInput)
 }
 
 function objectWith(name: string, propName: string, schema: ast.SchemaNode): ast.SchemaNode {

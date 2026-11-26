@@ -3,7 +3,7 @@ import { stripVTControlCharacters } from 'node:util'
 import { writeRaw } from '@internals/utils'
 import { host } from '../host.ts'
 import { createReporter } from '../createReporter.ts'
-import { type Diagnostic, Diagnostics } from '../Diagnostics.ts'
+import { type Diagnostic, Diagnostics } from '../diagnostics.ts'
 import { buildReport, reportTarget } from './report.ts'
 import { formatSummary } from './summary.ts'
 

@@ -1,7 +1,7 @@
 import { styleText } from 'node:util'
 import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
-import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
+import { isDisabled as isTelemetryDisabled } from './telemetry.ts'
 import { version } from '../package.json'
 import { getBanner, wantsMascot } from './ui/mascot.ts'
 import { command as generateCommand } from './commands/generate.ts'

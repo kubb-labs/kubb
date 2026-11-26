@@ -1,5 +1,5 @@
 import { defineExtension } from '@kubb/core'
-import type { Adapter as KubbAdapter } from '@kubb/core'
+import type { AdapterParseOptions, AdapterValidateOptions } from '@kubb/core'
 import { ast, Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
@@ -15,7 +15,7 @@ import { toInputTags } from './model/tag.ts'
 import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
 import { camelCasePathParams, getOperations, parseOperation } from './operation.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
-import { createSchemaParser } from './parser.ts'
+import { createSchemaParser } from './schemaParser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs, type Refs } from './refs.ts'
 import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
@@ -47,14 +47,6 @@ type ParsedSchemas = {
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
 }
 
-type PromotedEnums = ReturnType<typeof collectInlineEnums>
-
-type AuthSchemes = ReturnType<typeof toAuthSchemes>
-
-type ParseOptions = NonNullable<Parameters<KubbAdapter<AdapterOas>['parse']>[1]>
-
-type ValidateOptions = Parameters<KubbAdapter<AdapterOas>['validate']>[1]
-
 class Adapter {
   readonly locate = locate
   readonly #settings: AdapterSettings
@@ -83,7 +75,7 @@ class Adapter {
   }
 
   // Arrow properties, so an adapter that a user spreads or destructures keeps its methods.
-  validate = async (input: string, options?: ValidateOptions): Promise<void> => {
+  validate = async (input: string, options?: AdapterValidateOptions): Promise<void> => {
     const document = await parseFromConfig({ type: 'path', path: input }, [], { fileRefs: options?.fileRefs })
     assertDocument(document)
     await validateDocument(document, options)
@@ -93,7 +85,7 @@ class Adapter {
     await Promise.all(this.#pendingValidations.splice(0))
   }
 
-  parse = async (source: AdapterSource, { signal, fileRefs }: ParseOptions = {}): Promise<ast.InputNode> => {
+  parse = async (source: AdapterSource, { signal, fileRefs }: AdapterParseOptions = {}): Promise<ast.InputNode> => {
     signal?.throwIfAborted()
     const cached = this.#inputCache.get(source)
     if (cached) {
@@ -191,7 +183,7 @@ function resolveSchemaNodes({
 }: {
   names: Array<string>
   parsed: ParsedSchemas
-  promotedEnums: PromotedEnums | null
+  promotedEnums: Map<string, ast.SchemaNode> | null
 }): Array<ast.SchemaNode> {
   // A collapsed single-member `allOf` is named after the wrapper, so the target comes from `ref`.
   const aliasTargetOf = (name: string) => {
@@ -249,7 +241,7 @@ function toInfoMeta(info: Document['info']) {
   }
 }
 
-function toInputMeta({ document, server, authSchemes }: { document: Document; server: AdapterSettings['server']; authSchemes: AuthSchemes }) {
+function toInputMeta({ document, server, authSchemes }: { document: Document; server: AdapterSettings['server']; authSchemes: Array<ast.AuthScheme> }) {
   return {
     ...toInfoMeta(document.info),
     externalDocs: getExternalDocs(document.externalDocs),

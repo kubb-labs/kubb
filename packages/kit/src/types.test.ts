@@ -2,9 +2,9 @@ import type { OperationNode, OperationsNode } from '@kubb/ast'
 import { describe, expectTypeOf, it } from 'vitest'
 import type { getResolver, provide } from './composables.ts'
 import type { from, RefName } from './from.ts'
-import type { Resolver } from './resolver/Resolver.ts'
+import type { Resolver } from './resolver/resolver.ts'
 import type { defineTemplate } from './defineTemplate.ts'
-import type { GeneratorContext, PluginType, Template, TemplateNode } from './types.ts'
+import type { TemplateContext, PluginType, Template, TemplateNode } from './types.ts'
 
 type Options = { output?: string }
 type MyResolver = Resolver & { custom(): string }
@@ -20,8 +20,8 @@ describe('PluginType', () => {
   it('types ctx.resolver and ctx.printer from the 4th and 5th arguments', () => {
     type Plugin = PluginType<'plugin-a', Options, Options, MyResolver, MyPrinter>
 
-    expectTypeOf<GeneratorContext<Plugin>['resolver']>().toEqualTypeOf<MyResolver>()
-    expectTypeOf<GeneratorContext<Plugin>['printer']>().toEqualTypeOf<MyPrinter>()
+    expectTypeOf<TemplateContext<Plugin>['resolver']>().toEqualTypeOf<MyResolver>()
+    expectTypeOf<TemplateContext<Plugin>['printer']>().toEqualTypeOf<MyPrinter>()
   })
 })
 
@@ -62,7 +62,7 @@ describe('from', () => {
   })
 
   it("types ctx.from() without a source as the current plugin's resolver", () => {
-    const ctx = {} as GeneratorContext<Kubb.PluginRegistry['plugin-types-test']>
+    const ctx = {} as TemplateContext<Kubb.PluginRegistry['plugin-types-test']>
     expectTypeOf<ReturnType<typeof ctx.from<never>>['resolver']>().toEqualTypeOf<FromTypes>()
   })
 

@@ -2,7 +2,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
 import type * as McpModule from '@kubb/mcp'
-import { trackRun } from '../../Telemetry.ts'
+import { trackRun } from '../../telemetry.ts'
 
 /**
  * Starts the `@kubb/mcp` server over stdio and reports the outcome to telemetry.
