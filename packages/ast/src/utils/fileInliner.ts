@@ -124,23 +124,28 @@ class FileInliner {
   // A bare name is written where it is used. Any other value becomes one local constant, so it is built once. A type becomes
   // one local declaration when it is used more than once, and is written in place otherwise.
   #write(from: FileNode, target: Target): string | undefined {
-    const { expression, key, name, path, isType } = target
+    const { expression, key, name, path } = target
     if (expression === undefined) return this.#report(from, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
     const existing = this.#locals.get(key)
     if (existing) return existing
 
-    const declare = !this.#isBareName(expression) && (!isType || (this.#uses.get(key) ?? 0) > 1)
+    const declare = this.#declares(target, expression)
     // A type claims its name before its body is written, so a type that refers to itself, such as a tree node, can use it.
     // A value that refers to itself has no value yet, so it stays a cycle.
-    const early = declare && isType ? this.#claim(target) : undefined
+    const early = declare && target.isType ? this.#claim(target) : undefined
     if (!early && this.#writing.has(key)) return this.#report(from, `"${name}" from "${path}" is defined in terms of itself.`)
 
     this.#writing.add(key)
     const body = this.#writeBody(target.file, expression, kindOf(target))
     this.#writing.delete(key)
-    if (!declare) return this.#lang.wrap(body)
+    return declare ? this.#declare(target, early ?? this.#claim(target), body) : this.#lang.wrap(body)
+  }
 
-    const local = early ?? this.#claim(target)
+  #declares({ key, isType }: Target, expression: string): boolean {
+    return !this.#isBareName(expression) && (!isType || (this.#uses.get(key) ?? 0) > 1)
+  }
+
+  #declare({ isType }: Target, local: string, body: string): string {
     const node = isType ? createType({ name: local, nodes: [createText(body)] }) : createConst({ name: local, nodes: [createText(body)] })
     this.#declarations.push(createSource({ name: local, isTypeOnly: isType, nodes: [node] }))
     return local
@@ -259,9 +264,14 @@ function kindOf(target: Target): InlineTextKind {
 // The right-hand side of a `Const` or `Type`. A function body is not an expression, and printed text such as `Code` has none.
 function bodyOf(source: SourceNode | undefined): string | undefined {
   if (source?.inline) return source.inline.expression
+  const node = declarationOf(source)
+  return node ? getNodeText(node.nodes) || undefined : undefined
+}
+
+// The one `Const` or `Type` node a source holds.
+function declarationOf(source: SourceNode | undefined) {
   const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
-  const isDeclaration = node?.kind === nodeKinds.const || node?.kind === nodeKinds.type
-  return isDeclaration ? getNodeText(node.nodes) || undefined : undefined
+  return node?.kind === nodeKinds.const || node?.kind === nodeKinds.type ? node : undefined
 }
 
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
