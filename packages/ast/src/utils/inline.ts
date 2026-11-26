@@ -148,9 +148,10 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
     function findTypeTarget(from: FileNode, id: string) {
       const target = findTarget(from, id)
-      const virtualFile = target && virtualFiles.get(target.path)!
-      const source = virtualFile?.sources.find((item) => item.name === target!.name)
-      if (!target || !virtualFile || !source || getSpace(source) !== 'type') return undefined
+      if (!target) return undefined
+      const virtualFile = virtualFiles.get(target.path)!
+      const source = virtualFile.sources.find((item) => item.name === target.name)
+      if (!source || getSpace(source) !== 'type') return undefined
       return { ...target, key: `${target.path}\0${target.name}`, file: virtualFile, expression: bodyOf(source) }
     }
 
