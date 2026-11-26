@@ -329,6 +329,7 @@ npm has a newer Kubb than the one running. See [Update check](#update-check).
     "counts": { "errors": 1, "warnings": 0, "infos": 0 },
     "filesCreated": 0,
     "filesUnchanged": 0,
+    "filesFromLockfile": 0,
     "dryRun": false,
     "durationMs": 312,
     "output": "/project/src/gen",

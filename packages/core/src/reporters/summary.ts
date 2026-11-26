@@ -3,6 +3,7 @@ import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
 import { host } from '../host.ts'
 import type { FileChanges } from '../createReporter.ts'
+import { LOCKFILE_NAME } from '../lockfile.ts'
 import type { Report } from './report.ts'
 
 /**
@@ -33,13 +34,18 @@ function countChangedFiles({ check, dryRun, filesCreated, filesUnchanged }: Repo
   return { count: Math.max(0, filesCreated - filesUnchanged), verb: dryRun ? 'planned' : 'generated' }
 }
 
-/** `3 files out of date · 70 unchanged`. A clean check has only checked files, so it names no unchanged ones. */
+/**
+ * `3 files out of date · 70 unchanged · 12 from kubb-lock.json`. A clean check has only checked files, so it names
+ * no unchanged ones. The lockfile count works like the "reused" count of a package manager: files that matched
+ * through `kubb-lock.json` instead of by their text.
+ */
 function filesLine(report: Report): string {
   const { count, verb } = countChangedFiles(report)
-  const label = styleText(count ? 'bold' : 'dim', `${count} ${count === 1 ? 'file' : 'files'} ${verb}`)
-  if (!report.filesUnchanged || report.check?.changed === false) return `  ${label}`
+  const parts = [styleText(count ? 'bold' : 'dim', `${count} ${count === 1 ? 'file' : 'files'} ${verb}`)]
+  if (report.filesUnchanged && report.check?.changed !== false) parts.push(styleText('dim', `${report.filesUnchanged} unchanged`))
+  if (report.filesFromLockfile) parts.push(styleText('dim', `${report.filesFromLockfile} from ${LOCKFILE_NAME}`))
 
-  return `  ${label}${separator}${styleText('dim', `${report.filesUnchanged} unchanged`)}`
+  return `  ${parts.join(separator)}`
 }
 
 function changeCounts({ added, modified, deleted }: FileChanges): string {

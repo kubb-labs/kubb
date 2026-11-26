@@ -61,6 +61,11 @@ export type GenerationResult = {
    */
   filesUnchanged?: number
   /**
+   * Number of the unchanged files that match only through `kubb-lock.json`: the text on disk differs
+   * from the generated text, but the lockfile records it as the formatted output of that same text.
+   */
+  filesFromLockfile?: number
+  /**
    * Changes compared with the output before this run, when the host collected them.
    * Line totals include added and deleted files.
    */

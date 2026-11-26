@@ -382,7 +382,8 @@ describe('check', () => {
     const lines = await bootstrap({ configs: [config], check: true })
 
     expect(lines.some((line) => line.startsWith('✓ Generated code is up to date'))).toBe(true)
-    expect(lines.some((line) => line.includes('4 files checked'))).toBe(true)
+    // oxfmt rewrote three of the four files, so only the lockfile recognizes them.
+    expect(lines.some((line) => line.includes('4 files checked · 3 from kubb-lock.json'))).toBe(true)
     expect(lines.some((line) => line.includes('Out-of-date files'))).toBe(false)
     expect(lines.some((line) => line.includes('to update them'))).toBe(false)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
@@ -395,7 +396,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], dryRun: true })
 
-    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged'))).toBe(true)
+    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged · 3 from kubb-lock.json'))).toBe(true)
     expect(snapshot()).toStrictEqual(before)
   })
 
@@ -453,7 +454,7 @@ describe('check', () => {
 
     const lines = await bootstrap({ configs: [config], check: true })
 
-    expect(lines.some((line) => line.includes('No readable kubb-lock.json found. Run `kubb generate` and commit kubb-lock.json'))).toBe(true)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json found, so a file the formatter or linter changed shows as out of date.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
@@ -549,11 +550,33 @@ describe('check', () => {
     const lines = await bootstrap({ configs: [config], check: true, diff: true })
     const patch = lines.find((line) => line.includes('--- a/src/gen/pet.ts'))
 
+    expect(patch).toContain('Diff\n')
+    expect(patch).not.toContain('=====')
+
     expect(patch).toContain('@@ -1,1 +1,1 @@')
     expect(patch).toContain('-export const pet = { name: "dog", tags: [1, 2] };')
     // No formatter runs in a check, so the new side is the code as Kubb generates it.
     expect(patch).toContain('+export const pet = {name:"cat",   tags:[1,2]}')
     expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('points to --diff when --check finds stale files', async () => {
+    const { config, file } = await generated()
+    writeFileSync(file('pet.ts'), 'export const pet = { name: "dog", tags: [1, 2] };\n')
+
+    const lines = await bootstrap({ configs: [config], check: true })
+
+    expect(lines.some((line) => line.includes('Run `kubb generate --diff` to see the changes.'))).toBe(true)
+    expect(lines.some((line) => line.includes('--- a/src/gen/pet.ts'))).toBe(false)
+  })
+
+  it('says there is no diff with --diff when the output is up to date', async () => {
+    const { config } = await generated()
+
+    const lines = await bootstrap({ configs: [config], check: true, diff: true })
+
+    expect(lines.some((line) => line.includes('No diff: the files on disk match the generated output.'))).toBe(true)
+    expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
   it('compares a file a plugin writes outside output.path instead of writing it', async () => {

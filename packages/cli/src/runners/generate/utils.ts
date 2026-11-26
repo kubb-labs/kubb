@@ -221,7 +221,13 @@ export async function readOutputFingerprints(outputPath: string): Promise<Map<st
 }
 
 /**
- * How one generated file differs from its copy before generation: `undefined` when both hold the
+ * A file that came out the same: `'lockfile'` when only `kubb-lock.json` recognized it as the formatted
+ * output of the generated text, `undefined` when both sides hold the same text.
+ */
+export type Unchanged = 'lockfile' | undefined
+
+/**
+ * How one generated file differs from its copy before generation: {@link Unchanged} when both hold the
  * same output, otherwise the change with its line counts. `previous` is the stored text, the
  * {@link FileFingerprint} of a file `output.clean` deleted, or `null` for a new file. The lockfile
  * recognizes output a formatter rewrote.
@@ -236,30 +242,40 @@ export function diffFile({
   next: string
   previous: string | FileFingerprint | null
   lockfile?: Pick<Lockfile, 'matches'>
-}): FileChange | undefined {
+}): FileChange | Unchanged {
   if (previous === null) return { status: 'A', path, added: splitLines(next.trimEnd()).length, removed: 0 }
   if (typeof previous !== 'string') {
     const trimmed = next.trim()
     if (trimmed.length === previous.length && hash('sha1', trimmed) === previous.digest) return undefined
     return { status: 'M', path, ...countLineChanges({ before: previous.lines, after: hashLines(trimmed) }) }
   }
-  if (matchesStored({ stored: previous, source: next }) || lockfile?.matches({ key: path, source: next, disk: previous })) return undefined
+  if (matchesStored({ stored: previous, source: next })) return undefined
+  if (lockfile?.matches({ key: path, source: next, disk: previous })) return 'lockfile'
   return { status: 'M', path, ...countLineChanges({ before: splitLines(previous.trim()), after: splitLines(next.trim()) }) }
 }
 
 /**
- * The totals the summary prints, plus the files that came out the same.
+ * The totals the summary prints, plus the files that came out the same and how many of those only `kubb-lock.json` recognized.
  */
-export type ChangeTally = { added: number; modified: number; deleted: number; linesAdded: number; linesRemoved: number; unchanged: number }
+export type ChangeTally = {
+  added: number
+  modified: number
+  deleted: number
+  linesAdded: number
+  linesRemoved: number
+  unchanged: number
+  fromLockfile: number
+}
 
 export const statusKeys = { A: 'added', M: 'modified', D: 'deleted' } as const
 
 /**
- * Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file.
+ * Adds one file's outcome to the totals: a {@link FileChange}, or {@link Unchanged} for an unchanged file.
  */
-export function tallyChange({ tally, change }: { tally: ChangeTally; change: FileChange | undefined }): void {
-  if (!change) {
+export function tallyChange({ tally, change }: { tally: ChangeTally; change: FileChange | Unchanged }): void {
+  if (change === undefined || change === 'lockfile') {
     tally.unchanged++
+    if (change === 'lockfile') tally.fromLockfile++
     return
   }
   tally[statusKeys[change.status]]++
@@ -268,7 +284,7 @@ export function tallyChange({ tally, change }: { tally: ChangeTally; change: Fil
 }
 
 export function createChangeTally(): ChangeTally {
-  return { added: 0, modified: 0, deleted: 0, linesAdded: 0, linesRemoved: 0, unchanged: 0 }
+  return { added: 0, modified: 0, deleted: 0, linesAdded: 0, linesRemoved: 0, unchanged: 0, fromLockfile: 0 }
 }
 
 /**
@@ -290,16 +306,19 @@ export async function diffOutput({
    * The output captured before a real run, including files removed by cleaning.
    */
   previousFiles: ReadonlyMap<string, string>
-}): Promise<{ files: Array<FileChange>; unchanged: number }> {
+}): Promise<{ files: Array<FileChange>; unchanged: number; fromLockfile: number }> {
   // `null` marks an unchanged file. A path the storage does not hold leaves a hole, which `filter` skips.
   const results: Array<FileChange | null> = []
+  let fromLockfile = 0
   await inParallel({
     items: [...paths],
     limit: 50,
     run: async (filePath, index) => {
       const next = await storage.readItem(filePath)
       if (next === null) return
-      results[index] = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, lockfile }) ?? null
+      const change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, lockfile })
+      if (change === 'lockfile') fromLockfile++
+      results[index] = typeof change === 'object' ? change : null
     },
   })
   const files = results.filter((result) => result !== null)
@@ -310,7 +329,7 @@ export async function diffOutput({
     }
   }
 
-  return { files, unchanged }
+  return { files, unchanged, fromLockfile }
 }
 
 export type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>

@@ -38,9 +38,18 @@ type GenerationRun = {
 }
 
 /** The totals of a check, from the files it found out of date. */
-function tallyCheck({ files, unchanged }: { files: NonNullable<GenerationResult['check']>['files']; unchanged: number }): ChangeTally {
+function tallyCheck({
+  files,
+  unchanged,
+  fromLockfile,
+}: {
+  files: NonNullable<GenerationResult['check']>['files']
+  unchanged: number
+  fromLockfile: number
+}): ChangeTally {
   const tally = createChangeTally()
   tally.unchanged = unchanged
+  tally.fromLockfile = fromLockfile
   for (const file of files) {
     tally[file.status]++
     tally.linesAdded += file.linesAdded
@@ -97,8 +106,15 @@ function withChanges({
   counted: (ChangeTally & { check?: GenerationResult['check'] }) | undefined
 }): GenerationResult {
   if (!counted) return { ...result }
-  const { unchanged, check, ...changes } = counted
-  return { ...result, filesCreated: changes.added + changes.modified + unchanged, filesUnchanged: unchanged, fileChanges: changes, check }
+  const { unchanged, fromLockfile, check, ...changes } = counted
+  return {
+    ...result,
+    filesCreated: changes.added + changes.modified + unchanged,
+    filesUnchanged: unchanged,
+    filesFromLockfile: fromLockfile,
+    fileChanges: changes,
+    check,
+  }
 }
 
 class Reporters {
@@ -236,8 +252,8 @@ class Reporters {
     const { live, paths, previous } = current
     const outputCheck = this.#outputCheck
     if (outputCheck) {
-      const { unchanged, ...check } = await outputCheck.compare({ config, storage, paths })
-      return { ...tallyCheck({ files: check.files, unchanged }), check }
+      const { unchanged, fromLockfile, ...check } = await outputCheck.compare({ config, storage, paths })
+      return { ...tallyCheck({ files: check.files, unchanged, fromLockfile }), check }
     }
     if (live) return tallyLive({ live, paths, storage })
     if (!previous) return undefined
@@ -245,6 +261,7 @@ class Reporters {
     const diff = await diffOutput({ storage, paths, clean: Boolean(config.output.clean), lockfile, previousFiles: previous })
     const changes = createChangeTally()
     changes.unchanged = diff.unchanged
+    changes.fromLockfile = diff.fromLockfile
     for (const file of diff.files) tallyChange({ tally: changes, change: file })
     return changes
   }
