@@ -87,19 +87,21 @@ describe('truncateOutput', () => {
     expect(hint).not.toHaveBeenCalled()
   })
 
-  it('cuts at the last line break before the limit and says how much is shown', () => {
+  it('cuts at a line break, says how much is shown, and stays within the limit', () => {
     const line = 'x'.repeat(99)
     const text = Array.from({ length: 400 }, () => line).join('\n')
 
-    expect(truncateOutput(text, () => 'Ask for less.')).toBe(
-      `${text.slice(0, 29_999)}\n\n[Output cut: showing the first 29999 of ${text.length} characters. Ask for less.]`,
-    )
+    const cut = truncateOutput(text, () => 'Ask for less.')
+
+    expect(cut).toBe(`${text.slice(0, 29_899)}\n\n[Output cut: showing the first 29899 of ${text.length} characters. Ask for less.]`)
+    expect(cut.length).toBeLessThanOrEqual(MAX_OUTPUT_CHARS)
   })
 
-  it('cuts a single long line at the limit', () => {
+  it('cuts a single long line so that the notice still fits', () => {
     const cut = truncateOutput('x'.repeat(MAX_OUTPUT_CHARS + 1))
 
-    expect(cut).toContain(`[Output cut: showing the first ${MAX_OUTPUT_CHARS} of ${MAX_OUTPUT_CHARS + 1} characters.]`)
+    expect(cut).toHaveLength(MAX_OUTPUT_CHARS)
+    expect(cut).toMatch(/\[Output cut: showing the first \d+ of 30001 characters\.\]$/)
   })
 })
 

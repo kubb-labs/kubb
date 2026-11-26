@@ -98,7 +98,7 @@ describe('runKubb', () => {
     const text = textOf(result)
 
     expect(result.isError).toBeFalsy()
-    expect(text.length).toBeLessThan(MAX_OUTPUT_CHARS + 200)
+    expect(text.length).toBeLessThanOrEqual(MAX_OUTPUT_CHARS)
     expect(text).toMatch(/\[Output cut: showing the first \d+ of \d+ characters\. Ask for less\.\]$/)
   })
 

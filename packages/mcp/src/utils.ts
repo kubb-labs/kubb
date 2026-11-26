@@ -72,19 +72,23 @@ export async function checkConfigPath(configPath: string): Promise<{ file: strin
 export const MAX_OUTPUT_CHARS = 30_000
 
 /**
- * Cuts `text` at the last line break before `MAX_OUTPUT_CHARS` and appends a notice with both sizes and
- * the text `hint` returns, so the AI client knows the output is partial and what to call next. `hint` is
- * called only for a text that is cut. A text within the limit comes back as is.
+ * Cuts `text` so that it fits in `MAX_OUTPUT_CHARS` together with a notice that gives both sizes and
+ * the text `hint` returns, so the AI client knows the output is partial and what to call next. The cut
+ * falls on a line break when there is one. `hint` is called only for a text that is cut. A text within
+ * the limit comes back as is.
  *
  * @example
  * `truncateOutput(output, () => 'Call kubb_diff with format "summary" for the full file list.')`
  */
 export function truncateOutput(text: string, hint?: () => string | undefined): string {
   if (text.length <= MAX_OUTPUT_CHARS) return text
-  const lineEnd = text.lastIndexOf('\n', MAX_OUTPUT_CHARS)
-  const kept = text.slice(0, lineEnd > 0 ? lineEnd : MAX_OUTPUT_CHARS)
   const extra = hint?.()
-  return `${kept}\n\n[Output cut: showing the first ${kept.length} of ${text.length} characters.${extra ? ` ${extra}` : ''}]`
+  const notice = (shown: number) => `\n\n[Output cut: showing the first ${shown} of ${text.length} characters.${extra ? ` ${extra}` : ''}]`
+  // The notice is sized with the full length, which has at least as many digits as the shown length.
+  const room = Math.max(0, MAX_OUTPUT_CHARS - notice(text.length).length)
+  const lineEnd = text.lastIndexOf('\n', room)
+  const kept = text.slice(0, lineEnd > 0 ? lineEnd : room)
+  return `${kept}${notice(kept.length)}`
 }
 
 export type DiffFileSummary = {

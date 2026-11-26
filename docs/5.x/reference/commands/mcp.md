@@ -65,10 +65,10 @@ Every tool sets the MCP [tool annotations](https://modelcontextprotocol.io/speci
 
 ### Output size {#output-size}
 
-A tool that runs the CLI returns 30,000 characters of text at most, which stays under the 10,000 tokens at which Claude Code warns about a tool response. Longer output is cut at a line break and ends with a notice:
+A tool that runs the CLI returns 30,000 characters of text at most, which stays under the 10,000 tokens at which Claude Code warns about a tool response. Longer output is cut at a line break and ends with a notice, which counts toward the limit:
 
 ```text
-[Output cut: showing the first 29984 of 412090 characters. The diffs of the later files are missing. The out-of-date files are listed below.
+[Output cut: showing the first 29712 of 412090 characters. The diffs of the later files are missing. The out-of-date files are listed below.
 
 2 generated files are out of date:
 src/gen/types/Pet.ts (+4120 -3980)

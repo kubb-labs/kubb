@@ -86,7 +86,7 @@ describe('diff tool', () => {
     const { isError, text } = await callTool(diffTool, {})
 
     expect(isError).toBe(false)
-    expect(text.length).toBeLessThan(MAX_OUTPUT_CHARS + 500)
+    expect(text.length).toBeLessThanOrEqual(MAX_OUTPUT_CHARS)
     expect(text).toMatch(/\[Output cut: showing the first \d+ of \d+ characters\./)
     expect(text).toContain('2 generated files are out of date:\nsrc/gen/pet.ts (+2000 -1)\nsrc/gen/order.ts (+1 -1)')
   })

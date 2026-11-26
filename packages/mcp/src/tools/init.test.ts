@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
@@ -12,8 +12,9 @@ beforeEach(() => {
   vi.spyOn(process, 'cwd').mockReturnValue(root)
 })
 
-afterEach(() => {
+afterEach(async () => {
   vi.restoreAllMocks()
+  await rm(join(root, 'kubb.config.ts'), { force: true })
 })
 
 afterAll(async () => {
@@ -33,12 +34,13 @@ describe('init tool', () => {
   })
 
   it('returns an error, and keeps the file, when kubb.config.ts exists', async () => {
-    const before = await readFile(join(root, 'kubb.config.ts'), 'utf8')
+    const existing = 'export default {}\n'
+    await writeFile(join(root, 'kubb.config.ts'), existing)
 
     const { isError, text } = await callTool(initTool, {})
 
     expect(isError).toBe(true)
     expect(text).toContain('already exists')
-    expect(await readFile(join(root, 'kubb.config.ts'), 'utf8')).toBe(before)
+    expect(await readFile(join(root, 'kubb.config.ts'), 'utf8')).toBe(existing)
   })
 })
