@@ -291,7 +291,7 @@ export async function connect(
     // animated one. The logger also covers the `studio:*` events and each generation run.
     const hooks = new Hookable<KubbHooks>()
     installReporters({
-      context: hooks,
+      hooks,
       logLevel: logLevelMap[options.logLevel ?? 'info'],
       reporters: [cliReporter],
       ...(context.onState ? { writer: plainWriter } : {}),

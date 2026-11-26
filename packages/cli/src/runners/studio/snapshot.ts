@@ -161,7 +161,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   const hooks = new Hookable<KubbHooks>()
   // The steps below are the CI log; the run's own per-file output only shows when asked for with --log-level verbose.
   installReporters({
-    context: hooks,
+    hooks,
     logLevel: logLevel > logLevelMap.info ? logLevel : logLevelMap.silent,
     reporters: [cliReporter],
     writer: createPlainWriter(write),
