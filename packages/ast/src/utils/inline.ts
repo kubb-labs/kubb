@@ -45,277 +45,297 @@ export type InlineFilesOptions = {
   language: (file: FileNode) => InlineLanguage | undefined
 }
 
+// A name imported from, or declared in, a virtual file. `key` is its module and exported name.
+type Target = { key: string; name: string; path: string; file: FileNode; isType: boolean; expression: string | undefined }
+
 /**
  * Moves what a file imports from a virtual file (one marked `inline`, so it is never written) into that file. A type used more
  * than once becomes one local, non-exported declaration. A type used once, a bare alias, and a value are written at each use.
  * The moved declarations' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
-  const virtualFiles = new Map(files.filter(isInlineFile).map((file) => [file.path, file]))
-  const result: InlineFilesResult = { files: [], virtualPaths: [...virtualFiles.keys()], problems: [] }
-  if (virtualFiles.size === 0) return result
-
-  // `null` marks a definition that is being resolved, so a name that reaches itself is a cycle.
-  const definitions = new Map<string, Definition | null>()
-
-  function define(path: string, name: string, from: string, lang: InlineLanguage): Definition | undefined {
-    const key = `${path}\0${name}`
-    if (definitions.has(key)) {
-      const definition = definitions.get(key)
-      if (definition === null) result.problems.push({ path: from, message: `"${name}" from "${path}" is defined in terms of itself.` })
-      return definition ?? undefined
-    }
-
-    const file = virtualFiles.get(path)!
-    const expression = bodyOf(file.sources.find((source) => source.name === name))
-    if (expression === undefined) {
-      result.problems.push({ path: from, message: `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.` })
-      return undefined
-    }
-
-    definitions.set(key, null)
-    const imports: Array<ImportNode> = []
-    const { text, used } = replaceNames(expression, file, lang, (inner) => {
-      imports.push(...inner.imports)
-      return inner.expression
-    })
-    imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
-
-    const definition = { expression: text, imports }
-    definitions.set(key, definition)
-    return definition
-  }
-
-  // `use` takes each replaced definition's imports and returns its text; `used` holds the names left as they are.
-  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, use: (definition: Definition) => string) {
-    const used = new Set<string>()
-    const text = lang.replaceIdentifiers(input, (local) => {
-      const target = findTarget(file, local)
-      const definition = target && define(target.path, target.name, file.path, lang)
-      if (!definition) {
-        used.add(local)
-        return undefined
-      }
-
-      return lang.wrap(use(definition))
-    })
-
-    return { text, used }
-  }
-
-  function findTarget(file: FileNode, local: string): { path: string; name: string } | undefined {
-    if (virtualFiles.has(file.path) && file.sources.some((source) => source.name === local)) return { path: file.path, name: local }
-
-    for (const imp of file.imports) {
-      const item = virtualFiles.has(imp.path) && getNames(imp).find((item) => (item.alias ?? item.name) === local)
-      if (item) return { path: imp.path, name: item.name }
-    }
-
-    return undefined
-  }
+  const virtual = createVirtualFiles(files.filter(isInlineFile))
+  const result: InlineFilesResult = { files: [], virtualPaths: virtual.paths, problems: virtual.problems }
+  if (virtual.paths.length === 0) return result
 
   for (const file of files) {
-    if (virtualFiles.has(file.path) || !file.imports.some((imp) => virtualFiles.has(imp.path))) continue
+    if (virtual.has(file.path) || !file.imports.some((imp) => virtual.has(imp.path))) continue
 
-    const fileLanguage = language(file)
-    if (!fileLanguage) {
-      result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
+    const lang = language(file)
+    if (!lang) {
+      virtual.report(file.path, `No parser for "${file.extname}" files supports inline sources.`)
       continue
     }
-    const lang = fileLanguage
-
-    const carried: Array<ImportNode> = []
-    const { alias, carry, bind, reserve } = carryImports(file, lang, carried)
-    const declarations: Array<SourceNode> = []
-    const locals = new Map<string, string>()
-    const uses = new Map<string, number>()
-    const writing = new Set<string>()
-
-    // Counts how often the file references each type. A declared type's body is read once; a bare alias is written at each use.
-    function count(from: FileNode, text: string, aliases = new Set<string>()): void {
-      lang.replaceIdentifiers(text, (id) => {
-        const target = findTypeTarget(from, id)
-        if (!target) return undefined
-        const seen = uses.get(target.key) ?? 0
-        uses.set(target.key, seen + 1)
-        if (target.expression === undefined) return undefined
-        // A bare alias is followed at each use, so the aliases already being followed stop a loop between two of them.
-        if (isBareName(target.expression) && !aliases.has(target.key)) count(target.file, target.expression, new Set([...aliases, target.key]))
-        else if (seen === 0) count(target.file, target.expression)
-        return undefined
-      })
-    }
-
-    // Keeps each global in a body the file inlines, type or value, such as the fetch `Response`, free so no local declaration
-    // shadows it. Runs before any local name is chosen.
-    const visited = new Set<string>()
-    function reserveGlobals(from: FileNode, text: string): void {
-      lang.replaceIdentifiers(text, (id) => {
-        const target = findTarget(from, id)
-        if (!target) {
-          if (from !== file && !importsName(from, id)) reserve(id)
-          return undefined
-        }
-        const key = `${target.path}\0${target.name}`
-        if (visited.has(key)) return undefined
-        visited.add(key)
-        const virtualFile = virtualFiles.get(target.path)!
-        const body = bodyOf(virtualFile.sources.find((item) => item.name === target.name))
-        if (body !== undefined) reserveGlobals(virtualFile, body)
-        return undefined
-      })
-    }
-
-    function findTypeTarget(from: FileNode, id: string) {
-      const target = findTarget(from, id)
-      if (!target) return undefined
-      const virtualFile = virtualFiles.get(target.path)!
-      const source = virtualFile.sources.find((item) => item.name === target.name)
-      if (!source || getSpace(source) !== 'type') return undefined
-      return { ...target, key: `${target.path}\0${target.name}`, file: virtualFile, expression: bodyOf(source) }
-    }
-
-    // A type used more than once becomes one local declaration; one used once, or a bare alias, is written where it is used.
-    function writeType(target: NonNullable<ReturnType<typeof findTypeTarget>>): string | undefined {
-      const { expression, key } = target
-      if (expression === undefined)
-        return report(`"${target.name}" is imported from "${target.path}", which never writes it and has no inline definition for it.`)
-      const existing = locals.get(key)
-      if (existing) return existing
-
-      const local = declareName(target, expression)
-      if (!local && writing.has(key)) return report(`"${target.name}" from "${target.path}" is defined in terms of itself.`)
-
-      writing.add(key)
-      const body = writeBody(target.file, expression)
-      writing.delete(key)
-      if (!local) return lang.wrap(body)
-
-      declarations.push(createSource({ name: local, isTypeOnly: true, nodes: [createType({ name: local, nodes: [createText(body)] })] }))
-      return local
-    }
-
-    // Reserves the local name of a type used more than once, before its body is written, so a type that refers to itself, such
-    // as a tree node, can use it. A type used once, or a bare alias, gets none and is written where it is used.
-    function declareName(target: { key: string; name: string }, expression: string): string | undefined {
-      if ((uses.get(target.key) ?? 0) < 2 || isBareName(expression)) return undefined
-      const local = bind(target.key, target.name)
-      locals.set(target.key, local)
-      return local
-    }
-
-    function report(message: string): undefined {
-      result.problems.push({ path: file.path, message })
-      return undefined
-    }
-
-    // A type's body with the names it uses resolved, and the imports it needs carried into the file.
-    // The carried imports are aliased first, so the alias pass never renames a local name the body resolves to.
-    function writeBody(from: FileNode, expression: string): string {
-      const used = new Set<string>()
-      lang.replaceIdentifiers(expression, (id) => {
-        if (!findTarget(from, id)) used.add(id)
-        return undefined
-      })
-      const aliases = alias(from.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
-      return lang.replaceIdentifiers(expression, (id) => resolve(from, id) ?? aliases.get(id))
-    }
-
-    // What `id` in `from` becomes: a type's local name or body, or a value's body. `undefined` keeps it as it is.
-    function resolve(from: FileNode, id: string): string | undefined {
-      const typeTarget = findTypeTarget(from, id)
-      if (typeTarget) {
-        const written = writeType(typeTarget)
-        return written === id ? undefined : written
-      }
-      const target = findTarget(from, id)
-      const definition = target && define(target.path, target.name, from.path, lang)
-      return definition ? lang.wrap(carry(definition)) : undefined
-    }
-
-    for (const source of file.sources) {
-      rewriteNodes(source.nodes, (text) => {
-        reserveGlobals(file, text)
-        count(file, text)
-        return text
-      })
-    }
-    const rewritten = file.sources.map((source) => ({
-      ...source,
-      nodes: rewriteNodes(source.nodes, (text) => lang.replaceIdentifiers(text, (id) => resolve(file, id))),
-    }))
-    const sources = [...declarations, ...rewritten]
-
-    // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
-    const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
-
-    result.files.push(createFile({ ...file, sources, imports }))
+    result.files.push(createFileInliner({ file, lang, virtual }).inline())
   }
 
   return result
 }
 
-// Moves each definition's imports into `carried` and returns the definition's text. A carried name the file already binds to
-// something else, such as a schema `Options` next to the client's own `Options`, gets an alias like `Options2`.
-function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<ImportNode>) {
-  // Each name the file uses, to the import (module and exported name) or declaration behind it. `''` marks a global, such as
-  // the fetch `Response` next to a schema `Response`.
-  const bindings = new Map<string, string>()
-  const reserve = (name: string): void => {
-    if (!bindings.has(name)) bindings.set(name, '')
-  }
-  for (const imp of file.imports) for (const item of getNames(imp)) bindings.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
-  for (const source of file.sources) {
-    if (source.name) bindings.set(source.name, file.path)
-    rewriteNodes(source.nodes, (text) =>
-      lang.replaceIdentifiers(text, (name) => {
-        reserve(name)
-        return undefined
-      }),
-    )
+// The virtual files of one run, and the values defined from them, shared by every importing file.
+class VirtualFiles {
+  readonly problems: InlineFilesResult['problems'] = []
+  readonly #files: Map<string, FileNode>
+  // `null` marks a definition that is being resolved, so a name that reaches itself is a cycle.
+  readonly #definitions = new Map<string, Definition | null>()
+
+  constructor(files: ReadonlyArray<FileNode>) {
+    this.#files = new Map(files.map((file) => [file.path, file]))
   }
 
-  // Reserves a local name for `key` (module and exported name), such as a hoisted type, and returns it.
-  const bind = (key: string, name: string): string => {
-    const local = uniqueName(name, (candidate) => bindings.has(candidate) && bindings.get(candidate) !== key)
-    bindings.set(local, key)
+  get paths(): Array<string> {
+    return [...this.#files.keys()]
+  }
+
+  has(path: string): boolean {
+    return this.#files.has(path)
+  }
+
+  report(path: string, message: string): undefined {
+    this.problems.push({ path, message })
+    return undefined
+  }
+
+  // What `local` in `from` names in a virtual file, or `undefined` when it names nothing virtual.
+  find(from: FileNode, local: string): Target | undefined {
+    const at = this.#locate(from, local)
+    const file = at && this.#files.get(at.path)
+    if (!at || !file) return undefined
+    const source = file.sources.find((item) => item.name === at.name)
+    return { ...at, key: `${at.path}\0${at.name}`, file, isType: !!source && getSpace(source) === 'type', expression: bodyOf(source) }
+  }
+
+  #locate(from: FileNode, local: string): { path: string; name: string } | undefined {
+    if (this.#files.has(from.path) && from.sources.some((source) => source.name === local)) return { path: from.path, name: local }
+    for (const imp of from.imports) {
+      const item = this.#files.has(imp.path) && getNames(imp).find((item) => (item.alias ?? item.name) === local)
+      if (item) return { path: imp.path, name: item.name }
+    }
+    return undefined
+  }
+
+  // The imports from real modules that `file` needs for the names in `used`.
+  importsFor(file: FileNode, used: ReadonlySet<string>): Array<ImportNode> {
+    return file.imports.flatMap((imp) => (this.#files.has(imp.path) ? [] : pickNames(imp, used)))
+  }
+
+  // A value's body with every virtual name it uses replaced by its own body, and the imports that body needs.
+  define(target: Target, from: string, lang: InlineLanguage): Definition | undefined {
+    const { key, name, path, file, expression } = target
+    if (this.#definitions.has(key)) {
+      const definition = this.#definitions.get(key)
+      if (definition === null) this.report(from, `"${name}" from "${path}" is defined in terms of itself.`)
+      return definition ?? undefined
+    }
+    if (expression === undefined) return this.report(from, `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
+
+    this.#definitions.set(key, null)
+    const imports: Array<ImportNode> = []
+    const used = new Set<string>()
+    const text = lang.replaceIdentifiers(expression, (local) => {
+      const inner = this.find(file, local)
+      const definition = inner && this.define(inner, file.path, lang)
+      if (!definition) {
+        used.add(local)
+        return undefined
+      }
+      imports.push(...definition.imports)
+      return lang.wrap(definition.expression)
+    })
+    imports.push(...this.importsFor(file, used))
+
+    const definition = { expression: text, imports }
+    this.#definitions.set(key, definition)
+    return definition
+  }
+}
+
+function createVirtualFiles(files: ReadonlyArray<FileNode>): VirtualFiles {
+  return new VirtualFiles(files)
+}
+
+// The names one file binds, so a carried import or a local declaration never takes a name already in use. A carried name the
+// file already binds to something else, such as a schema `Options` next to the client's own `Options`, gets an alias like
+// `Options2`.
+class Bindings {
+  readonly carried: Array<ImportNode> = []
+  readonly #lang: InlineLanguage
+  // Each name, to the import (module and exported name) or declaration behind it. `''` marks a global, such as the fetch
+  // `Response` next to a schema `Response`.
+  readonly #names = new Map<string, string>()
+
+  constructor({ file, lang }: { file: FileNode; lang: InlineLanguage }) {
+    this.#lang = lang
+    for (const imp of file.imports) for (const item of getNames(imp)) this.#names.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
+    for (const source of file.sources) {
+      if (source.name) this.#names.set(source.name, file.path)
+      rewriteNodes(source.nodes, (text) => lang.replaceIdentifiers(text, (name) => this.reserve(name)))
+    }
+  }
+
+  reserve(name: string): undefined {
+    if (!this.#names.has(name)) this.#names.set(name, '')
+    return undefined
+  }
+
+  // Claims a local name for `key`, such as a declared type, and returns it.
+  bind(key: string, name: string): string {
+    const local = uniqueName(name, (candidate) => this.#names.has(candidate) && this.#names.get(candidate) !== key)
+    this.#names.set(local, key)
     return local
   }
 
   // Carries `imports` into the file and returns the alias of each carried name that clashed.
-  const alias = (imports: Array<ImportNode>): Map<string, string> => {
+  alias(imports: ReadonlyArray<ImportNode>): Map<string, string> {
     const aliases = new Map<string, string>()
     for (const imp of imports) {
       const before = aliases.size
       const names = getNames(imp).map((item) => {
         const local = item.alias ?? item.name
-        const binding = `${imp.path}\0${item.name}`
-        const name = uniqueName(local, (candidate) => bindings.has(candidate) && bindings.get(candidate) !== binding)
-        bindings.set(name, binding)
+        const name = this.bind(`${imp.path}\0${item.name}`, local)
         if (name === local) return item
         aliases.set(local, name)
         return { ...item, alias: name }
       })
-      carried.push(aliases.size > before ? createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names }) : imp)
+      this.carried.push(aliases.size > before ? createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names }) : imp)
     }
     return aliases
   }
 
-  const carry = (definition: Definition): string => {
-    const aliases = alias(definition.imports)
-    return aliases.size ? lang.replaceIdentifiers(definition.expression, (name) => aliases.get(name)) : definition.expression
+  carry({ expression, imports }: Definition): string {
+    const aliases = this.alias(imports)
+    return aliases.size ? this.#lang.replaceIdentifiers(expression, (name) => aliases.get(name)) : expression
+  }
+}
+
+type FileInlinerOptions = { file: FileNode; lang: InlineLanguage; virtual: VirtualFiles }
+
+// Rewrites one file that imports from virtual files.
+class FileInliner {
+  readonly #file: FileNode
+  readonly #lang: InlineLanguage
+  readonly #virtual: VirtualFiles
+  readonly #bindings: Bindings
+  readonly #uses = new Map<string, number>()
+  readonly #locals = new Map<string, string>()
+  readonly #writing = new Set<string>()
+  readonly #declarations: Array<SourceNode> = []
+
+  constructor({ file, lang, virtual }: FileInlinerOptions) {
+    this.#file = file
+    this.#lang = lang
+    this.#virtual = virtual
+    this.#bindings = new Bindings({ file, lang })
   }
 
-  return { alias, carry, bind, reserve }
+  inline(): FileNode {
+    const file = this.#file
+    for (const source of file.sources) {
+      rewriteNodes(source.nodes, (text) => {
+        this.#scan(file, text)
+        return text
+      })
+    }
+    const rewritten = file.sources.map((source) => ({
+      ...source,
+      nodes: rewriteNodes(source.nodes, (text) => this.#lang.replaceIdentifiers(text, (id) => this.#resolve(file, id))),
+    }))
+
+    // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
+    const carried = this.#bindings.carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))
+    const imports = [...file.imports.filter((imp) => !this.#virtual.has(imp.path)), ...carried]
+
+    return createFile({ ...file, sources: [...this.#declarations, ...rewritten], imports })
+  }
+
+  // Runs before any local name is chosen. Counts how often the file uses each name, and reserves each global an inlined body
+  // uses, such as the fetch `Response`, so no local declaration shadows it. A body is read once, but a bare alias is followed
+  // at each use so its target's count stays right; `following` stops a loop between two of them.
+  #scan(from: FileNode, text: string, following = new Set<string>()): void {
+    this.#lang.replaceIdentifiers(text, (id) => {
+      const target = this.#virtual.find(from, id)
+      if (!target) return from === this.#file || importsName(from, id) ? undefined : this.#bindings.reserve(id)
+
+      const seen = this.#uses.get(target.key) ?? 0
+      this.#uses.set(target.key, seen + 1)
+      const { expression, key } = target
+      if (expression === undefined) return undefined
+      if (this.#isBareName(expression) && !following.has(key)) this.#scan(target.file, expression, new Set([...following, key]))
+      else if (seen === 0) this.#scan(target.file, expression)
+      return undefined
+    })
+  }
+
+  // What `id` in `from` becomes: a type's local name or body, or a value's body. `undefined` keeps it as it is.
+  #resolve(from: FileNode, id: string): string | undefined {
+    const target = this.#virtual.find(from, id)
+    if (!target) return undefined
+    if (target.isType) {
+      const written = this.#writeType(target)
+      return written === id ? undefined : written
+    }
+    const definition = this.#virtual.define(target, from.path, this.#lang)
+    return definition ? this.#lang.wrap(this.#bindings.carry(definition)) : undefined
+  }
+
+  // A type used more than once becomes one local declaration; one used once, or a bare alias, is written where it is used.
+  #writeType(target: Target): string | undefined {
+    const { expression, key, name, path } = target
+    if (expression === undefined) return this.#report(`"${name}" is imported from "${path}", which never writes it and has no inline definition for it.`)
+    const existing = this.#locals.get(key)
+    if (existing) return existing
+
+    const local = this.#declareName(target, expression)
+    if (!local && this.#writing.has(key)) return this.#report(`"${name}" from "${path}" is defined in terms of itself.`)
+
+    this.#writing.add(key)
+    const body = this.#writeBody(target.file, expression)
+    this.#writing.delete(key)
+    if (!local) return this.#lang.wrap(body)
+
+    this.#declarations.push(createSource({ name: local, isTypeOnly: true, nodes: [createType({ name: local, nodes: [createText(body)] })] }))
+    return local
+  }
+
+  // Claims the local name of a type used more than once, before its body is written, so a type that refers to itself, such as
+  // a tree node, can use it.
+  #declareName({ key, name }: Target, expression: string): string | undefined {
+    if ((this.#uses.get(key) ?? 0) < 2 || this.#isBareName(expression)) return undefined
+    const local = this.#bindings.bind(key, name)
+    this.#locals.set(key, local)
+    return local
+  }
+
+  // A type's body with the names it uses resolved, and the imports it needs carried into the file. The carried imports are
+  // aliased first, so the alias pass never renames a local name the body resolves to.
+  #writeBody(from: FileNode, expression: string): string {
+    const used = new Set<string>()
+    this.#lang.replaceIdentifiers(expression, (id) => {
+      if (!this.#virtual.find(from, id)) used.add(id)
+      return undefined
+    })
+    const aliases = this.#bindings.alias(this.#virtual.importsFor(from, used))
+    return this.#lang.replaceIdentifiers(expression, (id) => this.#resolve(from, id) ?? aliases.get(id))
+  }
+
+  // A type that only names another, such as `Error` or `ListPetsStatus200Headers`, costs less to repeat than to declare. What
+  // the file's language writes where a name was without wrapping it counts as a name.
+  #isBareName(expression: string): boolean {
+    const trimmed = expression.trim()
+    return this.#lang.wrap(trimmed) === trimmed
+  }
+
+  #report(message: string): undefined {
+    return this.#virtual.report(this.#file.path, message)
+  }
+}
+
+function createFileInliner(options: FileInlinerOptions): FileInliner {
+  return new FileInliner(options)
 }
 
 function importsName(file: FileNode, local: string): boolean {
   return file.imports.some((imp) => getNames(imp).some((item) => (item.alias ?? item.name) === local))
-}
-
-// A type that only names another, such as `Error` or `ListPetsStatus200Headers`, costs less to repeat than to declare.
-function isBareName(expression: string): boolean {
-  return /^[\w$.]+$/.test(expression.trim())
 }
 
 // A file of only deprecated per-source `inline` counts as inline too.
