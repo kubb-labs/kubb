@@ -122,7 +122,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     }
 
     const carried: Array<ImportNode> = []
-    const carry = carryImports(file, virtualFiles, lang, carried)
+    const carry = carryImports(file, lang, carried)
     const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carry).text) }))
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
@@ -136,23 +136,16 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
 // Moves each definition's imports into `carried` and returns the definition's text. A carried name the file already binds to
 // something else, such as a schema `Options` next to the client's own `Options`, gets an alias like `Options2`.
-function carryImports(file: FileNode, virtualFiles: ReadonlyMap<string, FileNode>, lang: InlineLanguage, carried: Array<ImportNode>) {
-  // Each local name in the file, to the declaration or the import (module and exported name) it stands for. `''` marks a global.
+function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<ImportNode>) {
+  // Each name the file uses, to the import (module and exported name) or declaration behind it. `''` marks a global, such as
+  // the fetch `Response` next to a schema `Response`.
   const bindings = new Map<string, string>()
-  for (const source of file.sources) if (source.name) bindings.set(source.name, file.path)
-  const inlined = new Set<string>()
-  for (const imp of file.imports) {
-    for (const item of getNames(imp)) {
-      const local = item.alias ?? item.name
-      if (virtualFiles.has(imp.path)) inlined.add(local)
-      else bindings.set(local, `${imp.path}\0${item.name}`)
-    }
-  }
-  // A name the file's own code uses without importing it is a global, such as the fetch `Response` next to a schema `Response`.
+  for (const imp of file.imports) for (const item of getNames(imp)) bindings.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
   for (const source of file.sources) {
+    if (source.name) bindings.set(source.name, file.path)
     rewriteNodes(source.nodes, (text) =>
       lang.replaceIdentifiers(text, (name) => {
-        if (!bindings.has(name) && !inlined.has(name)) bindings.set(name, '')
+        if (!bindings.has(name)) bindings.set(name, '')
         return undefined
       }),
     )
