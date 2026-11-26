@@ -193,6 +193,51 @@ describe('inlineFiles', () => {
     expect(declaration).toMatchObject({ name: 'AddPetStatus200', nodes: [{ nodes: [{ value: '{ children: AddPetStatus200[] }' }] }] })
   })
 
+  it('keeps a carried import and a local declaration of the same name apart', () => {
+    const inlinePet = createFile({
+      baseName: 'Pet.ts',
+      path: '/gen/models/inline/Pet.ts',
+      sources: [createSource({ name: 'Pet', isTypeOnly: true, inline: { expression: '{ name: string }' }, nodes: [] })],
+    })
+    const operation = createFile({
+      ...operationFile,
+      imports: [
+        createImport({ name: [{ propertyName: 'Pet', name: 'InlinePet' }], path: '/gen/models/inline/Pet.ts', root: '/gen/models/pet/AddPet.ts' }),
+        createImport({ name: ['Pet'], path: '/gen/models/Pet.ts', root: '/gen/models/pet/AddPet.ts', isTypeOnly: true }),
+      ],
+      sources: [
+        createSource({ name: 'AddPetStatus200', isTypeOnly: true, inline: { expression: '{ first: InlinePet; second: InlinePet; pet: Pet }' }, nodes: [] }),
+      ],
+    })
+    const [declaration, addPet] = inlineFiles([inlinePet, operation, clientFile('const pet: AddPetStatus200 = client()')]).files[0]?.sources ?? []
+
+    expect(declaration).toMatchObject({ name: 'Pet2' })
+    expect(addPet?.nodes).toMatchObject([{ value: 'const pet: ({ first: Pet2; second: Pet2; pet: Pet }) = client()' }])
+  })
+
+  it('keeps a local declaration from shadowing a global used in another inlined body', () => {
+    const envelope = createFile({
+      baseName: 'Envelope.ts',
+      path: '/gen/models/Envelope.ts',
+      sources: [createSource({ name: 'Envelope', isTypeOnly: true, inline: { expression: '{ raw: Response }' }, nodes: [] })],
+    })
+    const operation = createFile({
+      ...operationFile,
+      imports: [],
+      sources: [createSource({ name: 'Response', isTypeOnly: true, inline: { expression: '{ id: number }' }, nodes: [] })],
+    })
+    const file = clientFile('let a: PetResponse; let b: PetResponse; let c: Envelope', {
+      imports: [
+        createImport({ name: [{ propertyName: 'Response', name: 'PetResponse' }], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts' }),
+        createImport({ name: ['Envelope'], path: '/gen/models/Envelope.ts', root: '/gen/clients/addPet.ts' }),
+      ],
+    })
+    const [declaration, addPet] = inlineFiles([envelope, operation, file]).files[0]?.sources ?? []
+
+    expect(declaration).toMatchObject({ name: 'Response2' })
+    expect(addPet?.nodes).toMatchObject([{ value: 'let a: Response2; let b: Response2; let c: ({ raw: Response })' }])
+  })
+
   it('rewrites the string fields of code nodes', () => {
     const file = clientFile('', {
       sources: [createSource({ name: 'addPet', nodes: [createFunction({ name: 'addPet', params: 'options: AddPetOptions', returnType: 'AddPetStatus200' })] })],

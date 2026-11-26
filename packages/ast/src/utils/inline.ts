@@ -125,7 +125,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     const lang = fileLanguage
 
     const carried: Array<ImportNode> = []
-    const { carry, bind } = carryImports(file, lang, carried)
+    const { alias, carry, bind, reserve } = carryImports(file, lang, carried)
     const declarations: Array<SourceNode> = []
     const locals = new Map<string, string>()
     const uses = new Map<string, number>()
@@ -135,7 +135,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     function count(from: FileNode, text: string, aliases = new Set<string>()): void {
       lang.replaceIdentifiers(text, (id) => {
         const target = findTypeTarget(from, id)
-        if (!target) return undefined
+        if (!target) return reserveGlobal(from, id)
         const seen = uses.get(target.key) ?? 0
         uses.set(target.key, seen + 1)
         if (target.expression === undefined) return undefined
@@ -144,6 +144,12 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
         else if (seen === 0) count(target.file, target.expression)
         return undefined
       })
+    }
+
+    // A global in an inlined body, such as the fetch `Response`, stays free so no local declaration shadows it.
+    function reserveGlobal(from: FileNode, id: string): undefined {
+      if (from !== file && !findTarget(from, id) && !importsName(from, id)) reserve(id)
+      return undefined
     }
 
     function findTypeTarget(from: FileNode, id: string) {
@@ -190,15 +196,15 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     }
 
     // A type's body with the names it uses resolved, and the imports it needs carried into the file.
+    // The carried imports are aliased first, so the alias pass never renames a local name the body resolves to.
     function writeBody(from: FileNode, expression: string): string {
       const used = new Set<string>()
-      const text = lang.replaceIdentifiers(expression, (id) => {
-        const replaced = resolve(from, id)
-        if (replaced === undefined) used.add(id)
-        return replaced
+      lang.replaceIdentifiers(expression, (id) => {
+        if (!findTarget(from, id)) used.add(id)
+        return undefined
       })
-      const imports = from.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used)))
-      return carry({ expression: text, imports })
+      const aliases = alias(from.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
+      return lang.replaceIdentifiers(expression, (id) => resolve(from, id) ?? aliases.get(id))
     }
 
     // What `id` in `from` becomes: a type's local name or body, or a value's body. `undefined` keeps it as it is.
@@ -240,12 +246,15 @@ function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<Impor
   // Each name the file uses, to the import (module and exported name) or declaration behind it. `''` marks a global, such as
   // the fetch `Response` next to a schema `Response`.
   const bindings = new Map<string, string>()
+  const reserve = (name: string): void => {
+    if (!bindings.has(name)) bindings.set(name, '')
+  }
   for (const imp of file.imports) for (const item of getNames(imp)) bindings.set(item.alias ?? item.name, `${imp.path}\0${item.name}`)
   for (const source of file.sources) {
     if (source.name) bindings.set(source.name, file.path)
     rewriteNodes(source.nodes, (text) =>
       lang.replaceIdentifiers(text, (name) => {
-        if (!bindings.has(name)) bindings.set(name, '')
+        reserve(name)
         return undefined
       }),
     )
@@ -258,9 +267,10 @@ function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<Impor
     return local
   }
 
-  const carry = (definition: Definition): string => {
+  // Carries `imports` into the file and returns the alias of each carried name that clashed.
+  const alias = (imports: Array<ImportNode>): Map<string, string> => {
     const aliases = new Map<string, string>()
-    for (const imp of definition.imports) {
+    for (const imp of imports) {
       const before = aliases.size
       const names = getNames(imp).map((item) => {
         const local = item.alias ?? item.name
@@ -273,11 +283,19 @@ function carryImports(file: FileNode, lang: InlineLanguage, carried: Array<Impor
       })
       carried.push(aliases.size > before ? createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names }) : imp)
     }
+    return aliases
+  }
 
+  const carry = (definition: Definition): string => {
+    const aliases = alias(definition.imports)
     return aliases.size ? lang.replaceIdentifiers(definition.expression, (name) => aliases.get(name)) : definition.expression
   }
 
-  return { carry, bind }
+  return { alias, carry, bind, reserve }
+}
+
+function importsName(file: FileNode, local: string): boolean {
+  return file.imports.some((imp) => getNames(imp).some((item) => (item.alias ?? item.name) === local))
 }
 
 // A type that only names another, such as `Error` or `ListPetsStatus200Headers`, costs less to repeat than to declare.
