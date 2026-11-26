@@ -1,7 +1,7 @@
 import type { FileNode, InlineLanguage } from '@kubb/ast'
 import type { InlineHook, InlineResult } from '@kubb/core'
 import { createDefinitions } from './definitions.ts'
-import { createFileRewriter } from './fileRewriter.ts'
+import { rewriteFile } from './fileRewriter.ts'
 import { replaceIdentifiers, wrap, type Lang } from './inline.ts'
 
 export type InlineOptions = {
@@ -44,7 +44,7 @@ export function inlineFiles({ files, lang, extNames }: InlineOptions & { files: 
   for (const file of files) {
     if (!extNames.includes(file.extname) || virtual.has(file.path) || !file.imports.some((imp) => virtual.has(imp.path))) continue
 
-    const inlined = createFileRewriter({ file, definitions }).rewrite()
+    const inlined = rewriteFile({ file, definitions })
     result.files.push(inlined.file)
     result.problems.push(...inlined.problems)
   }

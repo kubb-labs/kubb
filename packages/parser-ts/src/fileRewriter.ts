@@ -14,16 +14,7 @@ export type FileRewriterOptions = {
 // A definition used in `from`, the file whose text is being written.
 type Use = { from: FileNode; definition: Definition }
 
-/**
- * Rewrites one file that imports from virtual files, in two passes. The first counts how often each definition is used and
- * reserves every name in sight. The second writes each use: a path in place, a value as one local constant, and a type as
- * one local type when it is used more than once, or in place otherwise.
- *
- * @example
- * ```ts
- * const { file, problems } = createFileRewriter({ file: clientFile, definitions }).rewrite()
- * ```
- */
+// The state of one rewrite: use counts, the names given out, and the declarations and imports added so far.
 class FileRewriter {
   readonly #file: FileNode
   readonly #definitions: Definitions
@@ -176,11 +167,16 @@ class FileRewriter {
   }
 }
 
-export type { FileRewriter }
-
 /**
- * Creates the rewriter for one file that imports from the virtual files in `definitions`.
+ * Rewrites one file that imports from virtual files, in two passes. The first counts how often each definition is used and
+ * reserves every name in sight. The second writes each use: a path in place, a value as one local constant, and a type as
+ * one local type when it is used more than once, or in place otherwise.
+ *
+ * @example
+ * ```ts
+ * const { file, problems } = rewriteFile({ file: clientFile, definitions })
+ * ```
  */
-export function createFileRewriter(options: FileRewriterOptions): FileRewriter {
-  return new FileRewriter(options)
+export function rewriteFile(options: FileRewriterOptions): { file: FileNode; problems: InlineResult['problems'] } {
+  return new FileRewriter(options).rewrite()
 }
