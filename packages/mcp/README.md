@@ -26,7 +26,7 @@
 
 `@kubb/mcp` is the MCP server for Kubb. It exposes Kubb code generation as tools over the [Model Context Protocol](https://modelcontextprotocol.io), so AI assistants such as [Claude](https://claude.ai) and [Cursor](https://cursor.sh) can validate a spec and generate TypeScript types and API clients from the chat.
 
-The server has three tools. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build succeeds. A failed build returns its diagnostics instead. `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`.
+The server has a tool for every `kubb` command except `studio` and `mcp`. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build succeeds. A failed build returns its diagnostics instead. `diff` shows what `generate` would change, `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`. `add`, `update`, `remove`, and `list` manage extensions from the Kubb registry.
 
 ## Installation
 
@@ -169,6 +169,18 @@ Parameters:
 - `input` (string, optional): Path to the OpenAPI spec (default: `./openapi.yaml`)
 - `output` (string, optional): Output directory (default: `./src/gen`)
 - `plugins` (string, optional): Comma-separated list of plugins, such as `plugin-ts,plugin-zod`
+
+#### `diff`, `add`, `update`, `remove`, and `list`
+
+These tools run the `kubb` CLI and return its output and exit code. They use the project's own `kubb`, or the one that started the server when the project has none. The standalone `npx @kubb/mcp` server ships no CLI, so install it in the project with `npm install -D kubb`. `add`, `update`, and `remove` pass `--yes`.
+
+- `diff` runs `kubb generate --diff`. Parameters: `config` (string, optional), `lockfile` (boolean, default `true`)
+- `add` runs `kubb add <id> --yes`. Parameters: `id` (string, required), `config` (string, optional), `install` (boolean, default `true`), `dryRun` (boolean, default `false`)
+- `update` runs `kubb update --yes`, which does not regenerate, so call `generate` afterwards. Parameters: `ids` (string array, optional, default every installed extension. A major update is installed only for an extension named here), `dryRun` (boolean, default `false`)
+- `remove` runs `kubb remove <id> --yes`. Parameters: `id` (string, required), `config` (string, optional), `uninstall` (boolean, default `true`), `dryRun` (boolean, default `false`)
+- `list` runs `kubb list`. No parameters
+
+An `id` is `owner/slug`, or a slug such as `plugin-zod` for an official extension. A `config` path must stay inside the working directory.
 
 ## Configuration
 

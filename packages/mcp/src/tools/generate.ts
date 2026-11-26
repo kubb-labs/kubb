@@ -1,53 +1,15 @@
-import { lstat, realpath } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/shared'
-import { isPathInside } from '@internals/utils'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
-import { formatDiagnostics } from '../utils.ts'
-
-/**
- * The path with every symlink resolved. A path that does not exist yet resolves through its nearest existing parent.
- * Returns `undefined`, so the check fails closed, for a dangling symlink or any error other than a missing path.
- */
-async function realPath(target: string): Promise<string | undefined> {
-  const missing: Array<string> = []
-  for (let current = target; ; current = path.dirname(current)) {
-    try {
-      return path.join(await realpath(current), ...missing)
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return undefined
-      // `realpath` also reports ENOENT for a symlink whose target is gone; that link could later point anywhere.
-      const isDanglingLink = await lstat(current).then(
-        (stats) => stats.isSymbolicLink(),
-        () => false,
-      )
-      if (isDanglingLink) return undefined
-      if (path.dirname(current) === current) return undefined
-      missing.unshift(path.basename(current))
-    }
-  }
-}
-
-/** Whether `target`, after resolving symlinks, stays inside `base`. */
-async function isRealPathInside(target: string, base: string): Promise<boolean> {
-  const [real, realBase] = await Promise.all([realPath(target), realPath(base)])
-  return real !== undefined && realBase !== undefined && isPathInside(real, realBase)
-}
+import { checkConfigPath, formatDiagnostics, isRealPathInside } from '../utils.ts'
+import { configSchema } from './shared.ts'
 
 const generateSchema = v.object({
-  config: v.optional(
-    v.pipe(
-      v.string(),
-      v.minLength(1),
-      v.description(
-        `Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* or .kubbrc.* in the current directory, its .config/ and configs/ folders, then each parent directory`,
-      ),
-    ),
-  ),
+  config: configSchema,
   input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI/Swagger spec file (overrides config)'))),
   output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory path (overrides config)'))),
   logLevel: v.optional(v.pipe(v.picklist(['silent', 'info', 'verbose']), v.description('Log level for build output')), 'info'),
@@ -84,25 +46,14 @@ export const generateTool = defineTool(
       hooks.hook('kubb:warn', ({ message }) => notify('WARN', message))
       hooks.hook('kubb:diagnostic', ({ diagnostic }) => notify('DIAGNOSTIC', diagnostic.message, Diagnostics.serialize(diagnostic)))
 
-      // The AI client supplies the path, so it must carry a config extension and stay inside the working directory.
       const base = path.resolve(process.cwd())
-      let file: string | undefined
-      if (configPath) {
-        const ext = path.extname(configPath)
-        if (!CONFIG_EXTENSIONS.some((extension) => extension === ext)) {
-          return tool.error(`Invalid config file extension "${ext}". Allowed: ${CONFIG_EXTENSIONS.join(', ')}`)
-        }
-        file = path.resolve(base, configPath)
-        if (!(await isRealPathInside(file, base))) {
-          return tool.error('Invalid config file path: must be within the current working directory')
-        }
-      } else {
-        file = findConfigFile(base)
-        if (!file) {
-          return tool.error(
-            `No config file found. Please provide a config path or create one of: ${CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`).join(', ')}`,
-          )
-        }
+      const checked = configPath ? await checkConfigPath(configPath) : undefined
+      if (checked && 'error' in checked) return tool.error(checked.error)
+      const file = checked?.file ?? findConfigFile(base)
+      if (!file) {
+        return tool.error(
+          `No config file found. Please provide a config path or create one of: ${CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`).join(', ')}`,
+        )
       }
 
       let userConfig: Config
@@ -122,10 +73,10 @@ export const generateTool = defineTool(
       // The AI client also supplies these, and `output.clean` empties the output folder, so both stay inside the working directory too.
       // Core resolves them against `config.root`, which the loader already made absolute, so the check does as well.
       const root = userConfig.root ?? base
-      if (output && !(await isRealPathInside(path.resolve(root, output), base))) {
+      if (output && !(await isRealPathInside({ target: path.resolve(root, output), base }))) {
         return tool.error('Invalid output path: must be within the current working directory')
       }
-      if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside(path.resolve(root, input), base))) {
+      if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside({ target: path.resolve(root, input), base }))) {
         return tool.error('Invalid input path: must be a URL or within the current working directory')
       }
 

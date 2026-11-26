@@ -237,7 +237,7 @@ npx kubb validate https://petstore3.swagger.io/api/v3/openapi.json
 
 ### `kubb mcp`
 
-Start a Model Context Protocol (MCP) server with three tools for AI assistants: `generate`, `validate`, and `init`. Once your AI client connects, the assistant can validate a spec, scaffold a `kubb.config.ts`, and run generation without leaving the chat.
+Start a Model Context Protocol (MCP) server with a tool for every `kubb` command except `studio` and `mcp`: `generate`, `diff`, `validate`, `init`, `add`, `update`, `remove`, and `list`. Once your AI client connects, the assistant can validate a spec, scaffold a `kubb.config.ts`, manage extensions, preview changes, and run generation without leaving the chat.
 
 The server uses stdio, so the client starts it as a local process. It looks for `kubb.config.*` in the folder the client starts it in.
 
