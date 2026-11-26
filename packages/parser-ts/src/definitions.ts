@@ -36,8 +36,10 @@ export type DefinitionsOptions = {
   lang: Lang
 }
 
-// Where a name a file binds comes from: the virtual module and the name it exports.
-type Binding = { path: string; name: string }
+/**
+ * Where a name a file binds comes from: the virtual module and the name it exports.
+ */
+export type Binding = { path: string; name: string }
 
 /**
  * Every definition of the virtual files in one run, and the fragments that refer to them. Each is read on first use and
@@ -113,28 +115,47 @@ export class Definitions {
     return bindings
   }
 
-  #definitionOf({ path, name }: Binding): Definition {
-    const id = idOf({ path, name })
+  #definitionOf(binding: Binding): Definition {
+    const id = idOf(binding)
     const known = this.#definitions.get(id)
     if (known) return known
 
-    const file = this.#virtual.get(path)!
-    const [source, ...others] = file.sources.filter((item) => item.name === name)
-    const node = declarationOf(source)
-    const body = source?.inline ? source.inline.expression : node ? ast.node.getText(node.nodes) || undefined : undefined
-    const definition: Definition = {
-      id,
-      name,
-      file,
-      space: source ? ast.file.getSpace(source) : 'value',
-      body,
-      isPath: body !== undefined && wrap(body.trim()) === body.trim(),
-      constant: node?.kind === ast.node.kinds.const ? node : undefined,
-      problem: problemOf({ name, path, body, duplicated: others.length > 0 }),
-    }
+    const definition = readDefinition({ ...binding, id, file: this.#virtual.get(binding.path)! })
     this.#definitions.set(id, definition)
     return definition
   }
+}
+
+// What the virtual `file` declares under `name`.
+function readDefinition({ id, name, path, file }: Binding & { id: string; file: FileNode }): Definition {
+  const [source, ...others] = file.sources.filter((item) => item.name === name)
+  const node = declarationOf(source)
+  const body = bodyOf({ source, node })
+  return {
+    id,
+    name,
+    file,
+    space: source ? ast.file.getSpace(source) : 'value',
+    body,
+    isPath: isPath(body),
+    constant: node?.kind === ast.node.kinds.const ? node : undefined,
+    problem: problemOf({ name, path, body, duplicated: others.length > 0 }),
+  }
+}
+
+// The right-hand side of a source: its deprecated `inline` expression, or the text of its `Const` or `Type`. A function
+// body is not an expression, and printed text such as `Code` has none.
+function bodyOf({ source, node }: { source: SourceNode | undefined; node: ReturnType<typeof declarationOf> }): string | undefined {
+  if (source?.inline) return source.inline.expression
+  if (!node) return undefined
+  return ast.node.getText(node.nodes) || undefined
+}
+
+// A body that is only a name or dotted path, such as `Error`.
+function isPath(body: string | undefined): boolean {
+  if (body === undefined) return false
+  const trimmed = body.trim()
+  return wrap(trimmed) === trimmed
 }
 
 /**

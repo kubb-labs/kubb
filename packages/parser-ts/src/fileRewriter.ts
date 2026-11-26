@@ -24,7 +24,7 @@ type Use = { from: FileNode; definition: Definition }
  * const { file, problems } = createFileRewriter({ file: clientFile, definitions }).rewrite()
  * ```
  */
-export class FileRewriter {
+class FileRewriter {
   readonly #file: FileNode
   readonly #definitions: Definitions
   readonly #renamer: Renamer
@@ -99,18 +99,28 @@ export class FileRewriter {
   }
 
   #writeOnce({ from, definition }: Use): string | undefined {
-    const { id, space } = definition
-    const declare = !definition.isPath && (space === 'value' || (this.#uses.get(id) ?? 0) > 1)
+    const declare = this.#declares(definition)
     // A type claims its name before its body is written, so a type that refers to itself can use it. A value cannot.
-    const early = declare && space === 'type' ? this.#claim(definition) : undefined
-    if (!early && this.#writing.has(id)) {
+    const early = declare && definition.space === 'type' ? this.#claim(definition) : undefined
+    if (!early && this.#writing.has(definition.id)) {
       return this.#report({ from, message: `"${definition.name}" from "${definition.file.path}" is defined in terms of itself.` })
     }
 
-    this.#writing.add(id)
-    const body = this.#rewriteFragment(this.#definitions.body(definition))
-    this.#writing.delete(id)
+    const body = this.#writeBody(definition)
     return declare ? this.#declare({ definition, local: early ?? this.#claim(definition), body }) : wrap(body)
+  }
+
+  // A path is written in place. A value is always declared, and a type when it is used more than once.
+  #declares({ id, isPath, space }: Definition): boolean {
+    if (isPath) return false
+    return space === 'value' || (this.#uses.get(id) ?? 0) > 1
+  }
+
+  #writeBody(definition: Definition): string {
+    this.#writing.add(definition.id)
+    const body = this.#rewriteFragment(this.#definitions.body(definition))
+    this.#writing.delete(definition.id)
+    return body
   }
 
   // The imports a fragment needs are carried first, so their aliases never rename a local the fragment resolves to.
@@ -165,6 +175,8 @@ export class FileRewriter {
     return undefined
   }
 }
+
+export type { FileRewriter }
 
 /**
  * Creates the rewriter for one file that imports from the virtual files in `definitions`.
