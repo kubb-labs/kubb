@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -30,6 +30,7 @@ type BootstrapOptions = {
   check?: boolean
   diff?: boolean
   force?: boolean
+  lockfile?: boolean
   dryRun?: boolean
 }
 
@@ -37,7 +38,7 @@ type BootstrapOptions = {
  * Runs the command with no configs to generate, so only the bootstrap Configuration group renders.
  * Non-rich, so the group is plain text an assertion can read.
  */
-async function bootstrap({ fail = false, reporters, configs = [], check, diff, force, dryRun }: BootstrapOptions = {}) {
+async function bootstrap({ fail = false, reporters, configs = [], check, diff, force, lockfile, dryRun }: BootstrapOptions = {}) {
   const lines: Array<string> = []
   // What reached stdout alone, since `json` keeps it for the report.
   const stdout: Array<string> = []
@@ -61,7 +62,7 @@ async function bootstrap({ fail = false, reporters, configs = [], check, diff, f
         : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
-  await run({ logLevel: 'info', watch: false, reporters, check, diff, force, dryRun }).catch((error: Error) => void lines.push(error.message))
+  await run({ logLevel: 'info', watch: false, reporters, check, diff, force, lockfile, dryRun }).catch((error: Error) => void lines.push(error.message))
   // A failed build sets `exitCode` instead of calling `exit()`, so telemetry can finish; record it the same way.
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
@@ -467,6 +468,33 @@ describe('check', () => {
     expect(lines.stdout.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(false)
   })
 
+  it('generates without writing kubb-lock.json with --no-lockfile', async () => {
+    const { config, root, file } = project()
+
+    await bootstrap({ configs: [config], lockfile: false })
+
+    expect(readFileSync(file('pet.ts'), 'utf8')).toContain('name: "cat"')
+    expect(existsSync(join(root, 'kubb-lock.json'))).toBe(false)
+  })
+
+  it('leaves kubb-lock.json unread in a check with --no-lockfile, and says why formatted output is out of date', async () => {
+    const { config } = await generated()
+
+    const lines = await bootstrap({ configs: [config], check: true, lockfile: false })
+
+    expect(lines.some((line) => line.includes('--check cannot recognize formatted output with --no-lockfile'))).toBe(true)
+    expect(lines.some((line) => line.includes('No readable kubb-lock.json found'))).toBe(false)
+    expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('leaves kubb-lock.json unread in a dry run with --no-lockfile', async () => {
+    const { config } = await generated()
+
+    const lines = await bootstrap({ configs: [config], dryRun: true, lockfile: false })
+
+    expect(lines.some((line) => line.includes('0 files planned · 4 unchanged'))).toBe(false)
+  })
+
   describe('reuse', () => {
     const upToDate = (lines: Array<string>) =>
       lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb-lock.json'))
@@ -495,6 +523,7 @@ describe('check', () => {
 
     it.each([
       ['--force is passed', () => ({ force: true })],
+      ['--no-lockfile is passed', () => ({ lockfile: false })],
       [
         'the spec changed',
         ({ spec }: { spec: string }) => void writeFileSync(spec, JSON.stringify({ openapi: '3.0.3', info: { title: 'pets', version: '2' }, paths: {} })),

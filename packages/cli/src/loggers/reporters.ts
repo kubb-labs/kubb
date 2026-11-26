@@ -84,6 +84,12 @@ export type ReportersOptions = {
    * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
    */
   outputCheck?: Pick<OutputCheck, 'compare' | 'original'>
+  /**
+   * Set to `false` to count the changes of a dry run without `kubb-lock.json`.
+   *
+   * @default true
+   */
+  lockfile?: boolean
 }
 
 // The `cli` result shows the counted changes, including files the run left as they were.
@@ -106,11 +112,12 @@ class Reporters {
   readonly #seen = new Set<string>()
   readonly #trackChanges: boolean
   readonly #dryRun: boolean
+  readonly #lockfile: boolean
   readonly #outputCheck: ReportersOptions['outputCheck']
   // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
   #run: GenerationRun | undefined
 
-  constructor({ hooks, logLevel, reporters, writer = defaultWriter(), dryRun = false, fileChanges = false, outputCheck }: ReportersOptions) {
+  constructor({ hooks, logLevel, reporters, writer = defaultWriter(), dryRun = false, fileChanges = false, outputCheck, lockfile = true }: ReportersOptions) {
     const hasJson = reporters.some((reporter) => reporter.name === 'json')
     this.#selected = reporters.flatMap((reporter) => {
       if (reporter.name !== 'cli') return [reporter]
@@ -119,6 +126,7 @@ class Reporters {
     })
     this.#ctx = { logLevel }
     this.#dryRun = dryRun
+    this.#lockfile = lockfile
     this.#outputCheck = outputCheck
     const pluginFiles = this.#selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, Array<string>>() : undefined
     this.#pluginFiles = pluginFiles
@@ -237,7 +245,7 @@ class Reporters {
     }
     if (live) return tallyLive({ live, paths, storage })
     if (!previous) return undefined
-    const lockfile = this.#dryRun ? await createLockfile({ storage, root: config.root }) : undefined
+    const lockfile = this.#dryRun && this.#lockfile ? await createLockfile({ storage, root: config.root }) : undefined
     const diff = await diffOutput({ storage, paths, clean: Boolean(config.output.clean), lockfile, previousFiles: previous })
     const changes = createChangeTally()
     changes.unchanged = diff.unchanged

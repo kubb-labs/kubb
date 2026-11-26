@@ -49,6 +49,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     'kubb generate --dry-run           # preview the run without writing files',
     'kubb generate --check             # exit 1 when the generated files on disk are out of date',
     'kubb generate --check --diff      # also print what would change',
+    'kubb generate --no-lockfile       # generate without reading or writing kubb-lock.json',
     'kubb generate --reporter html     # write an HTML run report',
     'kubb studio                       # connect this project to Kubb Studio and generate from the browser',
     'kubb studio --allow-write         # let Studio write the generated files to disk',
@@ -84,6 +85,12 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       description: 'Generate even when kubb-lock.json says the output is up to date',
       default: false,
     },
+    lockfile: {
+      type: 'boolean',
+      description: 'Read and write kubb-lock.json. Pass --no-lockfile to generate without it',
+      negatable: true,
+      default: true,
+    },
     verbose: {
       type: 'boolean',
       description: 'Override logLevel to verbose',
@@ -118,6 +125,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       check: values.check || values.diff,
       diff: values.diff,
       force: values.force,
+      lockfile: values.lockfile,
     })
   },
 })

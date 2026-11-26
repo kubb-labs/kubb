@@ -139,6 +139,13 @@ export type GenerateOptions = {
    * Runs `output.format` and `output.lint` even when the build left every file as it was.
    */
   force?: boolean
+  /**
+   * Set to `false` to generate without `kubb-lock.json`: the run neither reads nor writes it, and
+   * writes every file whose stored text differs from the generated code.
+   *
+   * @default true
+   */
+  lockfile?: boolean
 }
 
 /**
@@ -224,7 +231,7 @@ export class Kubb {
    */
   static async *generate(
     configs: Array<UserConfig>,
-    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput, force }: GenerateConfigsOptions = {},
+    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only, processOutput, force, lockfile }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
     const sharedByConfig = await detectSharedSchemas({ configs, hooks, fileRefs })
     for (const index of only === undefined ? configs.keys() : [only]) {
@@ -233,7 +240,7 @@ export class Kubb {
       // A config built on its own must not empty the directory the others share.
       kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
       try {
-        yield { ...(await kubb.generate({ processOutput, force })), kubb }
+        yield { ...(await kubb.generate({ processOutput, force, lockfile })), kubb }
       } catch (error) {
         if (signal?.aborted) throw error
         yield { success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error }
@@ -252,15 +259,15 @@ export class Kubb {
   }
 
   /**
-   * Initializes the driver and storage. `build()` calls this automatically.
+   * Initializes the driver and storage. `build()` calls this automatically. `lockfile: false` leaves `kubb-lock.json` unread.
    */
-  async setup(): Promise<void> {
+  async setup({ lockfile: usesLockfile = true }: Pick<GenerateOptions, 'lockfile'> = {}): Promise<void> {
     const signal = this.#signal
     signal?.throwIfAborted()
     // A second setup replaces the driver, so the old one's plugin listeners must go first.
     this.dispose()
     const config = this.config
-    const lockfile = writesOutputDirectory(config.storage) ? await createLockfile({ storage: config.storage, root: config.root }) : undefined
+    const lockfile = usesLockfile && writesOutputDirectory(config.storage) ? await createLockfile({ storage: config.storage, root: config.root }) : undefined
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])
@@ -356,7 +363,7 @@ export class Kubb {
     let output: Pick<BuildOutput, 'files' | 'diagnostics' | 'input'>
     try {
       await hooks.callHook('kubb:setup:start')
-      await this.setup()
+      await this.setup({ lockfile: options.lockfile })
       await hooks.callHook('kubb:setup:end')
 
       output = await this.safeBuild()
