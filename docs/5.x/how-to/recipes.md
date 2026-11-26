@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Configure generation - Common Kubb recipes
-description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check, barrel files, git inputs, watch mode, and several specs in one run.
+description: Configure common Kubb stacks, formatting, linting, post-generate commands, a CI check, reviewable diffs, barrel files, git inputs, watch mode, and several specs in one run.
 outline:
   - 2
   - 3
@@ -197,6 +197,38 @@ kubb-check:
 ::
 
 To see which generated files changed against the base branch, publish a [Studio snapshot](/docs/5.x/integrations/ci) in the same pipeline.
+
+## Keep generated diffs reviewable {#reviewable-diffs}
+
+A small spec change can touch many generated files. When you rename an operation, Kubb renames its files, and git shows each one as deleted and re-added. Review the spec change instead, and let [`--check`](#check-generated-code-in-ci) confirm the output matches it.
+
+Mark the output and the lockfile as generated in `.gitattributes`. GitHub then collapses them in pull requests and leaves them out of the repository's language stats:
+
+```text [.gitattributes]
+src/gen/** linguist-generated=true
+kubb-lock.json linguist-generated=true
+```
+
+Replace `src/gen` with your `output.path`. Keep committing both: `--check` needs `kubb-lock.json` to recognize formatted output.
+
+For a large spec, group the files by tag. A rename then stays inside one folder, and the reviewer sees which part of the API changed:
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginClient } from '@kubb/plugin-client'
+
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen' },
+  plugins: [
+    pluginTs({ group: { type: 'tag' } }), // src/gen/types/pet/, src/gen/types/store/
+    pluginClient({ group: { type: 'tag' } }),
+  ],
+})
+```
+
+To write one file per plugin instead, give `output.path` a file extension, such as `pluginTs({ output: { path: 'types.ts' } })`. See [`output.mode`](/docs/5.x/reference/plugin-options#output-mode) and [`group`](/docs/5.x/reference/plugin-options#group).
 
 ## Add barrel files {#barrel-files}
 

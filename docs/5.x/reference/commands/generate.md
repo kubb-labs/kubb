@@ -208,7 +208,7 @@ A run that still generates, such as one with `--reporter json`, skips `output.fo
 
 ### `kubb-lock.json` {#kubb-lock}
 
-`kubb generate` writes `kubb-lock.json` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files.
+`kubb generate` writes `kubb-lock.json` to `root` on every run that writes files. It lists every generated file. Commit it with the generated files. To collapse it in pull requests, see [Keep generated diffs reviewable](/docs/5.x/how-to/recipes#reviewable-diffs).
 
 `--check` and `--dry-run` read it, so they work on a fresh checkout without running a formatter.
 
