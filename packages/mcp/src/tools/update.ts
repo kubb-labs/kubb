@@ -4,7 +4,13 @@ import { runKubb } from '../cli.ts'
 import { dryRunSchema, registryIdSchema } from './shared.ts'
 
 const updateSchema = v.object({
-  ids: v.optional(v.pipe(v.array(registryIdSchema), v.description('Registry ids to update. Updates every installed extension when omitted')), []),
+  ids: v.optional(
+    v.pipe(
+      v.array(registryIdSchema),
+      v.description('Registry ids to update. Updates every installed extension when omitted, but installs a major update only for an extension named here'),
+    ),
+    [],
+  ),
   dryRun: dryRunSchema,
 })
 

@@ -143,7 +143,7 @@ Runs [`kubb update --yes`](/docs/5.x/reference/commands/update). It updates exte
 ::field-group
 
 :::field{name="ids" type="string[]"}
-Registry ids to update. Default: every installed extension.
+Registry ids to update. Default: every installed extension. A major update is installed only for an extension you name here.
 :::
 
 :::field{name="dryRun" type="boolean"}

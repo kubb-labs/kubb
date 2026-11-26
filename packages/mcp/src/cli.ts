@@ -10,7 +10,9 @@ import { tool } from 'tmcp/utils'
 const CLI_PACKAGES = ['@kubb/cli', 'kubb'] as const
 
 // An install can take minutes, but a hung child must not block the MCP server forever.
-const TIMEOUT_MS = 10 * 60 * 1000
+export const TIMEOUT_MS = 10 * 60 * 1000
+// A child that handles SIGTERM and keeps running gets SIGKILL after this, as `runHook` in @kubb/core does.
+export const KILL_GRACE_MS = 2_000
 
 export type CliResult = {
   /**
@@ -47,9 +49,9 @@ export async function resolveCliBin(): Promise<string | undefined> {
 
 /**
  * Runs the `kubb` bin in the working directory with Node.js and an argument array, never through a
- * shell. stdin is closed,
- * so the CLI cannot wait for an answer. Returns the exit code or signal and the combined stdout and
- * stderr without ANSI styling.
+ * shell. stdin is closed, so the CLI cannot wait for an answer. After `TIMEOUT_MS` the run gets
+ * SIGTERM, then SIGKILL when it is still running `KILL_GRACE_MS` later. Returns the exit code or
+ * signal and the combined stdout and stderr without ANSI styling.
  */
 export function runCli({ bin, args }: { bin: string; args: ReadonlyArray<string> }): Promise<CliResult> {
   return new Promise((resolve, reject) => {
@@ -57,13 +59,19 @@ export function runCli({ bin, args }: { bin: string; args: ReadonlyArray<string>
       cwd: process.cwd(),
       env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' },
       stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: TIMEOUT_MS,
     })
+    let killTimer: NodeJS.Timeout | undefined
+    const timeoutTimer = setTimeout(() => {
+      child.kill('SIGTERM')
+      killTimer = setTimeout(() => child.kill('SIGKILL'), KILL_GRACE_MS)
+    }, TIMEOUT_MS)
     const chunks: Array<Buffer> = []
     child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk))
     child.stderr.on('data', (chunk: Buffer) => chunks.push(chunk))
     child.on('error', reject)
     child.on('close', (exitCode, signal) => {
+      clearTimeout(timeoutTimer)
+      clearTimeout(killTimer)
       resolve({ exitCode, signal, output: stripVTControlCharacters(Buffer.concat(chunks).toString('utf8')).trim() })
     })
   })

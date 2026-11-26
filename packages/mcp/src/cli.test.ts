@@ -1,7 +1,9 @@
+import { existsSync } from 'node:fs'
 import { realpath, rm } from 'node:fs/promises'
+import { join } from 'node:path'
 import process from 'node:process'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resolveCliBin, runCli, runKubb } from './cli.ts'
+import { KILL_GRACE_MS, resolveCliBin, runCli, runKubb, TIMEOUT_MS } from './cli.ts'
 import { createFakeKubbProject, type ToolResult } from './mocks/fakeKubb.ts'
 
 const { root, bin } = await createFakeKubbProject()
@@ -44,6 +46,20 @@ describe('runCli', () => {
 
     expect(result.exitCode).toBeNull()
     expect(result.signal).toBe('SIGTERM')
+  })
+  it('sends SIGTERM after the timeout, then SIGKILL to a run that ignores it', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    vi.stubEnv('FAKE_KUBB_STUCK', '1')
+
+    const running = runCli({ bin, args: [] })
+    await vi.waitFor(() => expect(existsSync(join(root, 'ready'))).toBe(true))
+    vi.advanceTimersByTime(TIMEOUT_MS)
+    await vi.waitFor(() => expect(existsSync(join(root, 'sigterm'))).toBe(true))
+    vi.advanceTimersByTime(KILL_GRACE_MS)
+    const result = await running
+
+    vi.useRealTimers()
+    expect(result.signal).toBe('SIGKILL')
   })
 })
 
