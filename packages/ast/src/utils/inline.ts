@@ -81,7 +81,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   }
 
   // Pushes the imports the replaced definitions need onto `imports`; `used` holds the names left as they are.
-  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>) {
+  // `renames` maps a carried import's name to the alias it takes in the importing file.
+  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>, renames?: ReadonlyMap<string, string>) {
     const used = new Set<string>()
     const text = lang.replaceIdentifiers(input, (local) => {
       const target = findTarget(file, local)
@@ -92,7 +93,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       }
 
       imports.push(...definition.imports)
-      return lang.wrap(definition.expression)
+      const expression = renames?.size ? lang.replaceIdentifiers(definition.expression, (name) => renames.get(name)) : definition.expression
+      return lang.wrap(expression)
     })
 
     return { text, used }
@@ -118,16 +120,74 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       continue
     }
 
-    const carried: Array<ImportNode> = []
-    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carried).text) }))
+    const inline = (renames?: ReadonlyMap<string, string>) => {
+      const carried: Array<ImportNode> = []
+      const sources = file.sources.map((source) => ({
+        ...source,
+        nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carried, renames).text),
+      }))
+      return { sources, carried }
+    }
+    const firstPass = inline()
+    // A carried name the file already uses for something else, such as a schema `Options` next to the client's own `Options`, gets an alias.
+    const renames = findClashes(file, firstPass.carried, virtualFiles)
+    const { sources, carried } = renames.size ? inline(renames) : firstPass
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
-    const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
+    const imports = [
+      ...file.imports.filter((imp) => !virtualFiles.has(imp.path)),
+      ...carried.map((imp) => aliasImport(imp.root ? { ...imp, root: file.path } : imp, renames)),
+    ]
 
     result.files.push(createFile({ ...file, sources, imports }))
   }
 
   return result
+}
+
+// The local names a file declares or imports from a written file, each with the path it comes from.
+function takenNames(file: FileNode, virtualFiles: ReadonlyMap<string, FileNode>): Map<string, string> {
+  const taken = new Map<string, string>()
+  for (const source of file.sources) if (source.name) taken.set(source.name, file.path)
+  for (const imp of file.imports) {
+    if (virtualFiles.has(imp.path)) continue
+    for (const item of getNames(imp)) taken.set(item.alias ?? item.name, imp.path)
+  }
+  return taken
+}
+
+// Picks an alias, such as `Options2`, for each carried name that the file already takes from another module.
+function findClashes(file: FileNode, carried: ReadonlyArray<ImportNode>, virtualFiles: ReadonlyMap<string, FileNode>): Map<string, string> {
+  const taken = takenNames(file, virtualFiles)
+  const renames = new Map<string, string>()
+  for (const imp of carried) {
+    for (const item of getNames(imp)) {
+      const local = item.alias ?? item.name
+      const owner = taken.get(local)
+      if (owner === undefined || owner === imp.path || renames.has(local)) continue
+
+      let index = 2
+      while (taken.has(`${local}${index}`)) index++
+      const alias = `${local}${index}`
+      renames.set(local, alias)
+      taken.set(alias, imp.path)
+    }
+  }
+  return renames
+}
+
+function aliasImport(imp: ImportNode, renames: ReadonlyMap<string, string>): ImportNode {
+  if (!renames.size) return imp
+  const names = getNames(imp)
+  if (!names.some((item) => renames.has(item.alias ?? item.name))) return imp
+  return createImport({
+    path: imp.path,
+    ...(imp.root != null ? { root: imp.root } : {}),
+    names: names.map((item) => {
+      const alias = renames.get(item.alias ?? item.name)
+      return alias ? { ...item, alias } : item
+    }),
+  })
 }
 
 // A file of only deprecated per-source `inline` counts as inline too.
