@@ -64,3 +64,53 @@ export async function checkConfigPath(configPath: string): Promise<{ file: strin
   }
   return { file }
 }
+
+/**
+ * The most characters a tool returns as text. Claude Code warns above 10,000 tokens and cuts a
+ * tool response at 25,000, and 30,000 characters of code or a diff stay under the first number.
+ */
+export const MAX_OUTPUT_CHARS = 30_000
+
+/**
+ * Cuts `text` so that it fits in `MAX_OUTPUT_CHARS` together with a notice that gives both sizes and
+ * the text `hint` returns, so the AI client knows the output is partial and what to call next. The cut
+ * falls on a line break when one is close to the limit, and never inside a surrogate pair. `hint` is
+ * called only for a text that is cut. A text within the limit comes back as is.
+ *
+ * @example
+ * `truncateOutput(output, () => 'Call kubb_diff with format "summary" for the full file list.')`
+ */
+export function truncateOutput(text: string, hint?: () => string | undefined): string {
+  if (text.length <= MAX_OUTPUT_CHARS) return text
+  const extra = hint?.()
+  const notice = (shown: number) => `\n\n[Output cut: showing the first ${shown} of ${text.length} characters.${extra ? ` ${extra}` : ''}]`
+  // The notice is sized with the full length, which has at least as many digits as the shown length.
+  const room = Math.max(0, MAX_OUTPUT_CHARS - notice(text.length).length)
+  // A line break far before the limit, as one very long line leaves, would drop most of the room.
+  const lineEnd = text.lastIndexOf('\n', room)
+  let end = lineEnd >= room * 0.75 ? lineEnd : room
+  const last = text.charCodeAt(end - 1)
+  if (last >= 0xd800 && last <= 0xdbff) end--
+  const kept = text.slice(0, end)
+  return `${kept}${notice(kept.length)}`
+}
+
+/**
+ * Checks a folder Kubb writes to, and may empty with `output.clean`, against the working directory `base`.
+ * `outputPath` resolves from `root`, as core resolves it from the config's `root`. Returns the reason when
+ * the folder is outside `base`, naming `source` as where the path came from.
+ */
+export async function checkOutputPath({
+  outputPath,
+  root,
+  base,
+  source = 'outputPath',
+}: {
+  outputPath: string
+  root: string
+  base: string
+  source?: string
+}): Promise<string | undefined> {
+  if (await isRealPathInside({ target: path.resolve(root, outputPath), base })) return undefined
+  return `Invalid ${source}: must be within the current working directory`
+}

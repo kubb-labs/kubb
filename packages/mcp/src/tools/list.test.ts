@@ -1,23 +1,8 @@
-import { rm } from 'node:fs/promises'
-import process from 'node:process'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { callTool, createFakeKubbProject, echoedArgs } from '../mocks/fakeKubb.ts'
+import { describe, expect, it, vi } from 'vitest'
+import { callTool, useFakeKubbProject, echoedArgs } from '../mocks/fakeKubb.ts'
 import { listTool } from './list.ts'
 
-const { root } = await createFakeKubbProject()
-
-beforeEach(() => {
-  vi.spyOn(process, 'cwd').mockReturnValue(root)
-})
-
-afterEach(() => {
-  vi.restoreAllMocks()
-  vi.unstubAllEnvs()
-})
-
-afterAll(async () => {
-  await rm(root, { recursive: true, force: true })
-})
+await useFakeKubbProject()
 
 describe('list tool', () => {
   it('runs kubb list', async () => {

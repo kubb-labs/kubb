@@ -12,6 +12,12 @@ import { updateTool } from './tools/update.ts'
 import { validateTool } from './tools/validate.ts'
 
 /**
+ * The tools the server registers, one per `kubb` command except `studio` and `mcp`. Each name is
+ * the CLI command with a `kubb_` prefix, so it stays unique next to the tools of other servers.
+ */
+export const tools = [generateTool, diffTool, validateTool, initTool, addTool, updateTool, removeTool, listTool]
+
+/**
  * Builds the Kubb MCP server with a tool for every `kubb` command except `studio` and `mcp`.
  *
  * @example
@@ -19,7 +25,7 @@ import { validateTool } from './tools/validate.ts'
  */
 export function createMcpServer() {
   const server = new McpServer({ name: 'Kubb', version }, { adapter: new ValibotJsonSchemaAdapter(), capabilities: { tools: {} } })
-  server.tools([generateTool, diffTool, validateTool, initTool, addTool, updateTool, removeTool, listTool])
+  server.tools(tools)
   return server
 }
 

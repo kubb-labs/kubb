@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: kubb mcp - Start the Kubb MCP server
-description: The mcp command starts a stdio Model Context Protocol server with a tool for every Kubb command except studio and mcp, such as generate, diff, add, and update, with each tool's parameters.
+description: The mcp command starts a stdio Model Context Protocol server with a tool for every Kubb command except studio and mcp, such as kubb_generate, kubb_diff, kubb_add, and kubb_update, with each tool's parameters.
 outline:
   - 2
   - 3
@@ -31,34 +31,67 @@ The server uses the stdio transport, so the client starts it as a local process.
 
 ## Tools
 
-| Tool | What it does |
-| --- | --- |
-| [`generate`](#generate) | Runs the Kubb pipeline from the project's config. |
-| [`validate`](#validate) | Validates an OpenAPI or Swagger document. |
-| [`diff`](#diff) | Shows what `generate` would change, without writing files. |
-| [`init`](#init) | Writes a `kubb.config.ts` without prompts. |
-| [`add`](#add) | Installs an extension from the registry and adds it to the config. |
-| [`update`](#update) | Updates installed extensions. |
-| [`remove`](#remove) | Removes an extension from the config and uninstalls it. |
-| [`list`](#list) | Lists installed extensions and available updates. |
+Each tool is named after its CLI command with a `kubb_` prefix and underscores, so the names stay unique next to the tools of other servers.
 
-`diff`, `add`, `update`, `remove`, and `list` run the `kubb` CLI and return its output and exit code. They use the project's own `kubb`, or the one that started the server when the project has none. `add`, `update`, and `remove` pass `--yes` and accept `dryRun`. `kubb studio` has no tool, since its login needs a browser.
+| Tool | What it does | Writes |
+| --- | --- | --- |
+| [`kubb_generate`](#kubb-generate) | Runs the Kubb pipeline from the project's config. | Yes, overwrites generated files |
+| [`kubb_validate`](#kubb-validate) | Validates an OpenAPI or Swagger document. | No |
+| [`kubb_diff`](#kubb-diff) | Shows what `kubb_generate` would change, without writing files. | No |
+| [`kubb_init`](#kubb-init) | Writes a `kubb.config.ts` without prompts. | Yes, a new file only |
+| [`kubb_add`](#kubb-add) | Installs an extension from the registry and adds it to the config. | Yes |
+| [`kubb_update`](#kubb-update) | Updates installed extensions. | Yes, replaces installed versions |
+| [`kubb_remove`](#kubb-remove) | Removes an extension from the config and uninstalls it. | Yes, removes |
+| [`kubb_list`](#kubb-list) | Lists installed extensions and available updates. | No |
 
-### `generate` {#generate}
+`kubb_diff`, `kubb_add`, `kubb_update`, `kubb_remove`, and `kubb_list` run the `kubb` CLI and return its output and exit code. They use the project's own `kubb`, or the one that started the server when the project has none. `kubb_add`, `kubb_update`, and `kubb_remove` pass `--yes` and accept `dryRun`. `kubb studio` has no tool, since its login needs a browser.
+
+### Annotations {#annotations}
+
+Every tool sets the MCP [tool annotations](https://modelcontextprotocol.io/specification/2025-11-25/server/tools), so a client can run a read-only tool without asking and confirm a destructive one.
+
+| Tool | `readOnlyHint` | `destructiveHint` | `idempotentHint` | `openWorldHint` |
+| --- | --- | --- | --- | --- |
+| `kubb_generate` | `false` | `true` | `true` | `true` |
+| `kubb_validate` | `true` | | `true` | `true` |
+| `kubb_diff` | `true` | | `true` | `true` |
+| `kubb_init` | `false` | `false` | `true` | `false` |
+| `kubb_add` | `false` | `false` | `true` | `true` |
+| `kubb_update` | `false` | `true` | `true` | `true` |
+| `kubb_remove` | `false` | `true` | `true` | `true` |
+| `kubb_list` | `true` | | `true` | `true` |
+
+`kubb_generate` is destructive because it overwrites generated files and, with `output.clean`, empties the output folder first. `openWorldHint` is `true` for a tool that can fetch a spec URL or reach the registry.
+
+### Output size {#output-size}
+
+A tool that runs the CLI returns 30,000 characters of text at most, which stays under the 10,000 tokens at which Claude Code warns about a tool response. Longer output is cut at a line break and ends with a notice, which counts toward the limit:
+
+```text
+[Output cut: showing the first 29712 of 412090 characters. The diffs of the later files are missing. The out-of-date files are listed below.
+
+2 generated files are out of date:
+src/gen/types/Pet.ts (+4120 -3980)
+src/gen/types/Order.ts (+12 -3)]
+```
+
+For `kubb_diff`, the notice lists the out-of-date files with their line counts, up to 5,000 characters of list. Set `format` to `summary` to get the whole list without the diffs.
+
+### `kubb_generate` {#kubb-generate}
 
 Runs the Kubb pipeline and returns the file count, warnings, and diagnostics. On failure, each diagnostic comes with its code, fix, and docs link. A config that exports an array runs its first entry.
 
 ::field-group
 
-:::field{name="config" type="string"}
+:::field{name="configPath" type="string"}
 Path to a `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, or `.cjs` config file inside the [working directory](#working-directory). Without it, the server searches the way `kubb generate` does.
 :::
 
-:::field{name="input" type="string"}
-Spec path. Overrides the config's `input`.
+:::field{name="inputPath" type="string"}
+Spec path or URL. Overrides the config's `input`.
 :::
 
-:::field{name="output" type="string"}
+:::field{name="outputPath" type="string"}
 Output folder. Overrides the config's `output.path`.
 :::
 
@@ -68,14 +101,18 @@ Passed to a config that exports a function. Default: `info`.
 
 ::
 
-### `diff` {#diff}
+### `kubb_diff` {#kubb-diff}
 
-Runs [`kubb generate --diff`](/docs/5.x/reference/commands/generate) and returns a unified diff for each generated file that is out of date. It writes nothing. Exit code `0` means the files are up to date, and `1` means they are out of date. A failed run returns an error.
+Runs [`kubb generate --diff`](/docs/5.x/reference/commands/generate) with the `json` reporter and returns the run log and the generated-file diff: a unified diff for each generated file that differs from what `kubb_generate` would write. It writes nothing, and it does not compare two versions of a spec. Exit code `0` means the files are up to date, and `1` means they are out of date. A failed run returns an error.
 
 ::field-group
 
-:::field{name="config" type="string"}
+:::field{name="configPath" type="string"}
 Path to a config file inside the [working directory](#working-directory). Without it, the CLI finds the config the way [`kubb generate`](/docs/5.x/reference/commands/generate) does.
+:::
+
+:::field{name="format" type="'full' | 'summary'"}
+`full` returns the unified diffs, cut at the [output limit](#output-size). `summary` runs `kubb generate --check` and returns one line per out-of-date file with its added and removed line counts, such as `src/gen/pet.ts (+12 -3)`, under the run log and its warnings. Default: `full`.
 :::
 
 :::field{name="lockfile" type="boolean"}
@@ -84,45 +121,45 @@ Set to `false` to compare with the generated text alone, as `--no-lockfile` does
 
 ::
 
-### `validate` {#validate}
+### `kubb_validate` {#kubb-validate}
 
-Validates an OpenAPI or Swagger document with the bundled OpenAPI adapter. It does not read the config. A `$ref` may read local files only inside the [working directory](#working-directory), and fetch URLs only on public hosts.
+Validates an OpenAPI or Swagger document with the bundled OpenAPI adapter. It does not read the config, and it writes nothing. A `$ref` may read local files only inside the [working directory](#working-directory), and fetch URLs only on public hosts.
 
 ::field-group
 
-:::field{name="input" type="string" required}
+:::field{name="inputPath" type="string" required}
 Path or URL of the spec.
 :::
 
 ::
 
-### `init` {#init}
+### `kubb_init` {#kubb-init}
 
-Writes a `kubb.config.ts` with an empty `plugins` array to the working directory, and fails when one exists. It installs nothing. Its reply tells the agent to run `kubb add <id> --yes` for each plugin.
+Writes a `kubb.config.ts` with an empty `plugins` array to the working directory, and fails when one exists. It installs nothing. Its reply tells the agent to call `kubb_add` for each plugin.
 
 ::field-group
 
-:::field{name="input" type="string"}
+:::field{name="inputPath" type="string"}
 Spec path written to the config. Default: `./openapi.yaml`.
 :::
 
-:::field{name="output" type="string"}
-Output folder written to the config. Default: `./src/gen`.
+:::field{name="outputPath" type="string"}
+Output folder inside the [working directory](#working-directory), written to the config. Default: `./src/gen`.
 :::
 
 ::
 
-### `add` {#add}
+### `kubb_add` {#kubb-add}
 
 Runs [`kubb add <id> --yes`](/docs/5.x/reference/commands/add). It installs a plugin, adapter, or parser at the version the registry pins. A plugin or parser is added to the config with the plugins it needs, and an adapter comes back as a snippet to add by hand.
 
 ::field-group
 
-:::field{name="id" type="string" required}
+:::field{name="extensionId" type="string" required}
 Registry id: `owner/slug`, or a slug such as `plugin-zod` for an official extension.
 :::
 
-:::field{name="config" type="string"}
+:::field{name="configPath" type="string"}
 Path to a config file inside the [working directory](#working-directory).
 :::
 
@@ -136,13 +173,13 @@ Preview the change without installing or writing. Default: `false`.
 
 ::
 
-### `update` {#update}
+### `kubb_update` {#kubb-update}
 
-Runs [`kubb update --yes`](/docs/5.x/reference/commands/update). It updates extensions to the versions the registry pins and summarizes the install. It does not regenerate, so call [`generate`](#generate) afterwards to update the generated files.
+Runs [`kubb update --yes`](/docs/5.x/reference/commands/update). It updates extensions to the versions the registry pins and summarizes the install. It does not regenerate, so call [`kubb_generate`](#kubb-generate) afterwards to update the generated files.
 
 ::field-group
 
-:::field{name="ids" type="string[]"}
+:::field{name="extensionIds" type="string[]"}
 Registry ids to update. Default: every installed extension. A major update is installed only for an extension you name here.
 :::
 
@@ -152,17 +189,17 @@ Preview the updates without installing or writing. Default: `false`.
 
 ::
 
-### `remove` {#remove}
+### `kubb_remove` {#kubb-remove}
 
-Runs [`kubb remove <id> --yes`](/docs/5.x/reference/commands/remove). It removes a plugin or parser from the config and uninstalls its package.
+Runs [`kubb remove <id> --yes`](/docs/5.x/reference/commands/remove). It removes a plugin or parser from the config and uninstalls its package. It leaves the files the extension generated, so call [`kubb_generate`](#kubb-generate) afterwards.
 
 ::field-group
 
-:::field{name="id" type="string" required}
+:::field{name="extensionId" type="string" required}
 Registry id: `owner/slug`, or a slug such as `plugin-zod` for an official extension.
 :::
 
-:::field{name="config" type="string"}
+:::field{name="configPath" type="string"}
 Path to a config file inside the [working directory](#working-directory).
 :::
 
@@ -176,18 +213,19 @@ Preview the change without uninstalling or writing. Default: `false`.
 
 ::
 
-### `list` {#list}
+### `kubb_list` {#kubb-list}
 
-Runs [`kubb list`](/docs/5.x/reference/commands/list). It takes no parameters.
+Runs [`kubb list`](/docs/5.x/reference/commands/list) and returns the installed extensions, their versions, and the available updates. It takes no parameters and changes nothing.
 
 ## Working directory
 
 The server runs in the folder the client starts it in:
 
-- `generate` looks for the config there, then in each parent folder.
-- `generate` rejects a `config` or `output` path outside that folder, and an `input` path outside it unless `input` is an `http:` or `https:` URL. The check follows symlinks, and resolves `output` and `input` from the config's `root`.
-- `diff`, `add`, and `remove` reject a `config` path outside that folder too.
+- `kubb_generate` looks for the config there, then in each parent folder.
+- `kubb_generate` rejects a `configPath` or `outputPath` outside that folder, and an `inputPath` outside it unless `inputPath` is an `http:` or `https:` URL. The check follows symlinks, and resolves `outputPath` and `inputPath` from the config's `root`.
+- `kubb_generate` also rejects a config whose own `output.path` is outside that folder, since `output.clean` empties it.
+- `kubb_diff`, `kubb_add`, and `kubb_remove` reject a `configPath` outside that folder too.
 - Every tool that runs the CLI runs it there.
-- `init` writes `kubb.config.ts` there.
+- `kubb_init` writes `kubb.config.ts` there, and rejects an `outputPath` outside that folder.
 
 When the server cannot find your config, see [Start it in your project](/docs/5.x/ai/mcp#working-directory).

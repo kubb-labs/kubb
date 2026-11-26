@@ -3,20 +3,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import { afterAll, describe, expect, it } from 'vitest'
+import { callTool } from '../mocks/fakeKubb.ts'
 import { generateTool } from './generate.ts'
 
 // The generate tool only loads a config that lives inside the current working directory,
 // so the fixture dir is created under the package (cwd during the test run).
 const dir = await mkdtemp(join(process.cwd(), 'kubb-mcp-generate-'))
 
-type ToolResult = { isError?: boolean; content: Array<{ type: string; text?: string }> }
-type GenerateInput = { config?: string; input?: string; output?: string; logLevel?: string }
-const execute = (generateTool as unknown as { execute: (input: GenerateInput) => Promise<ToolResult> }).execute
-
-async function run(args: GenerateInput) {
-  const result = await execute({ logLevel: 'silent', ...args })
-  return { isError: Boolean(result.isError), text: result.content.map((part) => part.text ?? '').join('\n') }
-}
+type GenerateInput = { configPath?: string; inputPath?: string; outputPath?: string; logLevel?: string }
+const run = (args: GenerateInput) => callTool(generateTool, { logLevel: 'silent', ...args })
 
 // jiti resolves a fixture's `@kubb/adapter-oas` import to the package `dist`, which exists only after a build.
 // The fixtures read this config from `globalThis` instead, so the adapter comes from source.
@@ -33,7 +28,7 @@ describe('generate tool', () => {
     const configPath = join(dir, 'kubb.config.ts')
     await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
 
-    const { isError, text } = await run({ config: configPath })
+    const { isError, text } = await run({ configPath })
 
     expect(isError).toBe(true)
     expect(text).toContain('KUBB_INPUT_NOT_FOUND')
@@ -50,34 +45,44 @@ describe('generate tool', () => {
     const configPath = join(dir, 'kubb.array.config.ts')
     await writeFile(configPath, `export default [globalThis.__kubbMcpTestConfig]\n`)
 
-    const { isError, text } = await run({ config: configPath })
+    const { isError, text } = await run({ configPath })
 
     expect(isError).toBe(true)
     expect(text).toContain('KUBB_INPUT_NOT_FOUND')
   })
 
   it.each([
-    ['an output outside the working directory', { output: '../../outside-gen' }, 'Invalid output path'],
-    ['an absolute output outside the working directory', { output: '/tmp/kubb-outside-gen' }, 'Invalid output path'],
-    ['an input file outside the working directory', { input: '../../secrets/spec.yaml' }, 'Invalid input path'],
+    ['an output outside the working directory', { outputPath: '../../outside-gen' }, 'Invalid outputPath'],
+    ['an absolute output outside the working directory', { outputPath: '/tmp/kubb-outside-gen' }, 'Invalid outputPath'],
+    ['an input file outside the working directory', { inputPath: '../../secrets/spec.yaml' }, 'Invalid inputPath'],
   ])('refuses %s before generating', async (_label, args, message) => {
     const configPath = join(dir, 'kubb.paths.config.ts')
     await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
 
-    const { isError, text } = await run({ config: configPath, ...args })
+    const { isError, text } = await run({ configPath, ...args })
 
     expect(isError).toBe(true)
     expect(text).toContain(message)
+  })
+
+  it('refuses a config whose own output.path is outside the working directory', async () => {
+    const configPath = join(dir, 'kubb.outside.config.ts')
+    await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, output: { path: '../../outside-gen', clean: true } }\n`)
+
+    const { isError, text } = await run({ configPath })
+
+    expect(isError).toBe(true)
+    expect(text).toContain(`Invalid output.path in ${configPath}`)
   })
 
   it('resolves the output against the config root, as core does', async () => {
     const configPath = join(dir, 'kubb.root.config.ts')
     await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, root: '../..' }\n`)
 
-    const { isError, text } = await run({ config: configPath, output: 'gen' })
+    const { isError, text } = await run({ configPath, outputPath: 'gen' })
 
     expect(isError).toBe(true)
-    expect(text).toContain('Invalid output path')
+    expect(text).toContain('Invalid outputPath')
   })
 
   it('refuses an output that a symlink inside the working directory points outside it', async () => {
@@ -87,10 +92,10 @@ describe('generate tool', () => {
     await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
 
     try {
-      const { isError, text } = await run({ config: configPath, output: 'linked/gen' })
+      const { isError, text } = await run({ configPath, outputPath: 'linked/gen' })
 
       expect(isError).toBe(true)
-      expect(text).toContain('Invalid output path')
+      expect(text).toContain('Invalid outputPath')
     } finally {
       await rm(outside, { recursive: true, force: true })
     }
@@ -101,27 +106,27 @@ describe('generate tool', () => {
     const configPath = join(dir, 'kubb.dangling.config.ts')
     await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
 
-    const { isError, text } = await run({ config: configPath, output: 'dangling/gen' })
+    const { isError, text } = await run({ configPath, outputPath: 'dangling/gen' })
 
     expect(isError).toBe(true)
-    expect(text).toContain('Invalid output path')
+    expect(text).toContain('Invalid outputPath')
   })
 
   it('accepts a URL input and an output inside the working directory', async () => {
     const configPath = join(dir, 'kubb.url.config.ts')
     await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
 
-    const { text } = await run({ config: configPath, input: 'http://127.0.0.1:1/openapi.yaml', output: join(dir, 'gen') })
+    const { text } = await run({ configPath, inputPath: 'http://127.0.0.1:1/openapi.yaml', outputPath: join(dir, 'gen') })
 
-    expect(text).not.toContain('Invalid input path')
-    expect(text).not.toContain('Invalid output path')
+    expect(text).not.toContain('Invalid inputPath')
+    expect(text).not.toContain('Invalid outputPath')
   })
 
   it('keeps the code and the config path when the config fails to load', async () => {
     const configPath = join(dir, 'kubb.broken.config.ts')
     await writeFile(configPath, `throw new Error('boom')\n`)
 
-    const { isError, text } = await run({ config: configPath })
+    const { isError, text } = await run({ configPath })
 
     expect(isError).toBe(true)
     expect(text).toContain(`Failed to load config ${configPath}`)
