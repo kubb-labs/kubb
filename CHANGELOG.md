@@ -1,5 +1,45 @@
 # Changelog
 
+## v5.28.0 — Nov 26, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Restructure the end of every `kubb` run like `oxlint` and `pnpm`: the details first, then one verdict line, then `Finished in`.
+  
+  - `kubb generate` ends with a verdict such as `✓ Generated 18 files · 54 unchanged (12 via kubb-lock.json)`, the kinds of change (`14 added · 3 modified · 1 deleted · +312 −47`), and `Finished in 466ms · ./src/gen · 4 plugins`. The `Plugins`, `Issues`, `Output`, and `File changes` rows are gone.
+  - `--check` lists each out-of-date file once. With `--diff`, the file's hunks follow its row, without the `=====`, `---`, and `+++` lines. The verdict reads `✗ 3 files out of date · 70 up to date (68 via kubb-lock.json)`, then one line on what to run next.
+  - A missing `kubb-lock.json`, or `--no-lockfile`, prints its warning before the verdict and says why formatted files show as out of date.
+  - Files that match through `kubb-lock.json` are counted, like the "reused" count of a package manager. The JSON report has the count as `filesFromLockfile` and the lockfile state as `check.lockfile`.
+  - A run the lockfile skips prints `kubb-lock.json is up to date, generation is skipped`.
+  - `kubb validate`, `add`, `remove`, and `update` print their details first and end with the verdict and `Finished in`.
+  - A missing or unknown argument prints the error and a hint to run `--help`, without a stack trace. ([#4811](https://github.com/kubb-labs/kubb/pull/4811), [`d75fd37`](https://github.com/kubb-labs/kubb/commit/d75fd37ffe7ccb101ed72456ad788abba8c355d2))
+
+### @kubb/core
+
+#### Features
+
+- `Parser.inline` can now be a function, `(files) => InlineResult`, so each parser inlines its own files. Setting `inline` to an `InlineLanguage` object still works. That form, `InlineLanguage` and `ast.file.inline` are deprecated and will be removed in v6. ([#4810](https://github.com/kubb-labs/kubb/pull/4810), [`70051fe`](https://github.com/kubb-labs/kubb/commit/70051fe5505ac6a1a301bcce89316bcbf52c3060))
+
+### @kubb/kit
+
+#### Features
+
+- Add `createRenamer()` to `kubb/kit`. It hands out names that do not clash by adding 2, 3 and so on, and tracks which owner holds each name. The resolver's `resolveName` and `Url.toPath` now use it, with the same names as before. ([#4810](https://github.com/kubb-labs/kubb/pull/4810), [`70051fe`](https://github.com/kubb-labs/kubb/commit/70051fe5505ac6a1a301bcce89316bcbf52c3060))
+
+### @kubb/parser-ts
+
+#### Features
+
+- `parserTs` and `parserTsx` inline sources themselves, through the `inline(files)` hook. The hook also carries `replaceIdentifiers` and `wrap`, so an older `@kubb/core` still inlines these files. A type used more than once, and any value that is not a bare name, becomes one local declaration per file instead of repeating it. A type that refers to itself now inlines too. Only free references are renamed, so parameters, locals and `{ petSchema }` keys stay as they are. ([#4810](https://github.com/kubb-labs/kubb/pull/4810), [`70051fe`](https://github.com/kubb-labs/kubb/commit/70051fe5505ac6a1a301bcce89316bcbf52c3060))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.27.1 — Nov 26, 2026
 
 ### @kubb/ast
