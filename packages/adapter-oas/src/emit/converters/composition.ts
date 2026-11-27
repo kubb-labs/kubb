@@ -13,7 +13,7 @@ import {
   propertyTypeOf,
 } from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
-import { extractExamples } from '../schemaShape.ts'
+import { extractExamples, hasSeveralPatterns } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
 
 /**
@@ -194,13 +194,14 @@ function mergeAnnotations(schema: SchemaObject): SchemaObject {
 }
 
 /**
- * Whether the schema has a `pattern` that none of its inline `allOf` members repeats.
+ * Whether the parent's own keywords become an intersection member: always beside `properties`, and
+ * beside several patterns when the parent holds more than its type and annotations, such as `minLength`.
  */
-function hasOtherPattern(schema: SchemaObject): boolean {
-  if (schema.pattern === undefined) return false
-  const patterns = (schema.allOf as Array<SchemaObject | ReferenceObject>).map((member) => (isReference(member) ? undefined : member.pattern))
+function keepsOwnKeywords(schema: SchemaObject): boolean {
+  if (schema.properties) return true
+  if (!hasSeveralPatterns(schema)) return false
 
-  return patterns.some((pattern) => pattern !== undefined) && !patterns.includes(schema.pattern)
+  return Object.keys(schema).some((key) => key !== 'allOf' && key !== 'type' && key !== 'nullable' && !annotationKeys.has(key))
 }
 
 /**
@@ -212,8 +213,7 @@ function isSingleMemberAllOf(schema: SchemaObject): boolean {
     !schema.properties &&
     !(Array.isArray(schema.required) && schema.required.length) &&
     schema.additionalProperties === undefined &&
-    // A value must match both patterns, so a parent `pattern` beside a different member `pattern` stays an intersection.
-    !hasOtherPattern(schema)
+    !hasSeveralPatterns(schema)
   )
 }
 
@@ -259,9 +259,6 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
 
   const syntheticStart = allOfMembers.length
 
-  // A sibling `pattern` applies next to every member, so it joins the intersection.
-  if (hasOtherPattern(schema) && !schema.properties) allOfMembers.push(parse({ schema: { pattern: schema.pattern } }))
-
   if (Array.isArray(schema.required) && schema.required.length) {
     const outerKeys = schema.properties ? new Set(Object.keys(schema.properties)) : new Set<string>()
     const missingRequired = schema.required.filter((key) => !outerKeys.has(key))
@@ -293,7 +290,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
     }
   }
 
-  if (schema.properties) {
+  if (keepsOwnKeywords(schema)) {
     const { allOf: _allOf, ...schemaWithoutAllOf } = schema
     // Don't pass `name` here, the result must stay anonymous so it can be merged with the
     // adjacent synthetic object in `mergeAdjacentObjectsLazy`. Nested enum qualification

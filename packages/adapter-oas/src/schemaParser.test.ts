@@ -896,6 +896,21 @@ describe('parseSchema allOf', () => {
     expect(members.map((member) => ast.schema.narrow(member, 'string')?.pattern)).toEqual(patterns)
   })
 
+  it.each([
+    {
+      title: 'beside a parent pattern',
+      schema: { type: 'string', pattern: '^a', minLength: 5, allOf: [{ pattern: 'b$' }] },
+      members: [{ pattern: 'b$' }, { pattern: '^a', min: 5 }],
+    },
+    {
+      title: 'beside member patterns only',
+      schema: { type: 'string', minLength: 5, allOf: [{ pattern: '^a' }, { pattern: 'b$' }] },
+      members: [{ pattern: '^a' }, { pattern: 'b$' }, { min: 5 }],
+    },
+  ] satisfies Array<{ title: string; schema: SchemaObject; members: Array<object> }>)('keeps the parent minLength $title', ({ schema, members }) => {
+    expect(parseSchema(emptyCtx, { schema })).toMatchObject({ type: 'intersection', members })
+  })
+
   it('flattens an allOf that repeats the parent pattern', () => {
     const schema = { type: 'string', pattern: '^a', allOf: [{ pattern: '^a' }, { minLength: 2 }] } satisfies SchemaObject
 

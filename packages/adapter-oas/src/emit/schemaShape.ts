@@ -1,6 +1,6 @@
 import { formatMap, specialCasedFormats, structuralKeys } from '../constants.ts'
 import { isReference } from '../oas.ts'
-import type { SchemaObject } from '../types.ts'
+import type { ReferenceObject, SchemaObject } from '../types.ts'
 import type { DateOnlyTypeValue, DateTimeTypeValue, ParserOptions } from '../parserOptions.ts'
 
 /**
@@ -34,6 +34,16 @@ export function extractExamples(schema: SchemaObject): Array<unknown> | undefine
   return schema.example !== undefined ? [schema.example] : undefined
 }
 
+/**
+ * Whether the schema and its inline `allOf` members hold more than one distinct `pattern`. A value must match every one.
+ */
+export function hasSeveralPatterns(schema: SchemaObject): boolean {
+  const members = (schema.allOf ?? []) as Array<SchemaObject | ReferenceObject>
+  const patterns = [schema, ...members].map((item) => (isReference(item) ? undefined : item.pattern)).filter((pattern) => pattern !== undefined)
+
+  return new Set(patterns).size > 1
+}
+
 function hasStructuralKeywords(fragment: SchemaObject): boolean {
   return Object.keys(fragment).some((key) => structuralKeys.has(key as 'properties'))
 }
@@ -59,8 +69,8 @@ export function flattenSchema(schema: SchemaObject): SchemaObject {
   const allOfFragments = schema.allOf as Array<SchemaObject>
   if (allOfFragments.some((item) => isReference(item))) return schema
   if (allOfFragments.some(hasStructuralKeywords)) return schema
-  // A value must match every `pattern`, and a node holds only one, so several patterns stay an intersection.
-  if (new Set([schema, ...allOfFragments].map((item) => item.pattern).filter((pattern) => pattern !== undefined)).size > 1) return schema
+  // A node holds only one `pattern`, so several patterns stay an intersection.
+  if (hasSeveralPatterns(schema)) return schema
 
   // Destructure `allOf` out instead of `delete merged.allOf`: a `delete` transitions the freshly
   // spread object into V8 dictionary (slow) mode, and this runs per `allOf` schema during parsing.
