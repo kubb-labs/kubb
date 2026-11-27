@@ -6,7 +6,16 @@ import * as prompts from '@clack/prompts'
 import { copyToClipboard, isCIEnvironment, openInBrowser } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
+import {
+  connectAgent,
+  defaultStudioUrl,
+  generateAgentKey,
+  InvalidAgentTokenError,
+  PAIRING_CODE_PREFIX,
+  pairAgent,
+  PairingCanceledError,
+  redeemPairingCode,
+} from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
@@ -181,6 +190,73 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
   }
 }
 
+/**
+ * The environment variable an MCP client sets to a one-time pairing code from `kubb_studio_connect`.
+ * It is read from the environment, so the code never shows in the process list.
+ */
+export const PAIRING_CODE_ENV = 'KUBB_STUDIO_PAIRING_CODE'
+
+/**
+ * Takes the pairing code out of the environment, so a background worker, a reconnect, or a child
+ * process never sends a spent code again. Resolves `undefined` when none is set.
+ */
+export function takePairingCode(): string | undefined {
+  const code = process.env[PAIRING_CODE_ENV]?.trim()
+  delete process.env[PAIRING_CODE_ENV]
+  if (!code) return undefined
+  if (!code.startsWith(PAIRING_CODE_PREFIX)) {
+    // The value is not echoed: it may be a secret set in the wrong variable.
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `${PAIRING_CODE_ENV} is not a Kubb Studio pairing code. Codes start with \`${PAIRING_CODE_PREFIX}\`.`,
+      help: 'Ask the MCP client for a new code with the kubb_studio_connect tool.',
+    })
+  }
+  return code
+}
+
+/**
+ * Pairs this machine with a one-time code from an MCP client and stores the token. No person
+ * approves it and no browser opens. Studio answers at once, so a refused code fails the run.
+ */
+export async function redeemPairing(
+  { studioUrl }: Pick<StudioOptions, 'studioUrl'>,
+  { pairingCode, signal }: { pairingCode: string; signal?: AbortSignal },
+): Promise<Credentials> {
+  const privateKey = generateAgentKey()
+  const { token, agent, expiresIn } = await redeemPairingCode({
+    studioUrl,
+    pairingCode,
+    name: path.basename(process.cwd()),
+    machineId: await getMachineId(),
+    privateKey,
+    signal,
+  })
+  const issuedAt = Date.now()
+  const paired: Credentials = {
+    studioUrl,
+    token,
+    issuedAt: new Date(issuedAt).toISOString(),
+    expiresAt: new Date(issuedAt + expiresIn * 1000).toISOString(),
+    pairedWith: 'code',
+    privateKey,
+    agentId: agent.id,
+    agentSlug: agent.slug,
+    ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
+  }
+  // Pairing again from the same client and machine finds the same agent, so its saved permissions carry forward.
+  const credentials = await updateCredentials((stored) => {
+    const keepsIdentity = stored?.studioUrl === studioUrl && stored.agentId === agent.id
+    return { ...paired, ...(keepsIdentity && stored.projects ? { projects: stored.projects } : {}) }
+  })
+
+  logStep(`Paired as ${agent.name}${agent.organizationSlug ? ` · org ${agent.organizationSlug}` : ''} with a pairing code`)
+  console.log(`Credentials stored in ${getCredentialsPath()}`)
+
+  return credentials
+}
+
 /** Time left on a pairing code as `m:ss`, never below `0:00`. */
 function formatCountdown(ms: number): string {
   const seconds = Math.max(0, Math.ceil(ms / 1000))
@@ -217,8 +293,11 @@ export type PreparedConnection = {
 /** Validates the project and resolves pairing and permissions before starting its worker. */
 export async function prepareConnection(options: StudioOptions, signal?: AbortSignal): Promise<PreparedConnection> {
   const { configPath } = await loadConfigs(options)
-  const stored = await readCredentials()
+  const pairingCode = takePairingCode()
+  const stored = pairingCode ? null : await readCredentials()
   const credentials = await (async () => {
+    // A pairing code is a fresh request to pair, so it wins over a stored pairing.
+    if (pairingCode) return redeemPairing(options, { pairingCode, signal })
     if (stored?.studioUrl === options.studioUrl) return stored
     if (isCIEnvironment()) {
       throw new Diagnostics.Error({
@@ -229,8 +308,17 @@ export async function prepareConnection(options: StudioOptions, signal?: AbortSi
     }
     return login(options, { signal })
   })()
-  const permissions = await resolvePermissions(options, credentials, configPath)
+  const permissions = await resolveConnectionPermissions(options, credentials, configPath)
   return { configPath, credentials, permissions }
+}
+
+/**
+ * An agent paired with a code runs with no person to answer, so only the flags grant permissions,
+ * such as `--allow-write` alone for a factory. Any other agent asks once per project.
+ */
+function resolveConnectionPermissions(options: StudioOptions, credentials: Credentials, configPath: string): Promise<StudioOptions['permission']> {
+  if (credentials.pairedWith === 'code') return Promise.resolve({ ...options.permission })
+  return resolvePermissions(options, credentials, configPath)
 }
 
 export type WorkerState = 'starting' | 'connected' | 'reconnecting' | 'authentication required' | 'stopped'
@@ -256,16 +344,7 @@ export async function connect(
   let unwatch: (() => void) | undefined
   let refresher: TokenRefresher | undefined
   try {
-    if (!context.prepared) {
-      const { getWorkerStatus } = await import('./background.ts')
-      const worker = await getWorkerStatus()
-      if (worker.running)
-        throw new Diagnostics.Error({
-          code: Diagnostics.code.unknown,
-          severity: 'error',
-          message: 'This project is running in the background. Run `kubb studio stop` first.',
-        })
-    }
+    if (!context.prepared) await assertNoBackgroundWorker()
     const prepared = context.prepared ?? (await prepareConnection(options, signal))
     let { credentials, permissions } = prepared
     const { configPath } = prepared
@@ -314,11 +393,7 @@ export async function connect(
       }
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
-      logBlock([
-        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
-        styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
-      ])
-      logTip()
+      logConnected({ permissions, listens })
     })
     hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
 
@@ -348,6 +423,8 @@ export async function connect(
         }
         await context.onState?.('authentication required')
         await clearCredentials(credentials.token)
+        // A spent code cannot be redeemed again, and no person is there to approve a browser pairing.
+        if (credentials.pairedWith === 'code') throw new Error(`${error.message} Ask the MCP client for a new pairing code.`)
         if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 
@@ -358,27 +435,51 @@ export async function connect(
         credentials = await login(options, { signal, previousCredentials: credentials })
         context.onCredentials?.(credentials)
         pairedAgain = true
-        permissions = await resolvePermissions(options, credentials, configPath)
+        permissions = await resolveConnectionPermissions(options, credentials, configPath)
       }
     }
     // Stops the "Ready for jobs" spinner, which would otherwise keep drawing under the closing line.
     await hooks.callHook('kubb:lifecycle:end')
     unwatch?.()
-    if (background) {
-      const { startWorker } = await import('./background.ts')
-      await startWorker(options, () => prepareConnection(options))
-      if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
-      return
-    }
+    if (background) return await handOffToWorker(options)
     if (!context.onState && signal.aborted && options.logLevel !== 'silent') logOutro('Disconnected')
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
   } finally {
     refresher?.stop()
+    // A refreshed token is the only one Studio still accepts, so it reaches disk before the run ends.
+    await refresher?.written()
     unwatch?.()
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)
   }
+}
+
+/** Starts the background worker for this project after `b` ends the foreground session. */
+async function handOffToWorker(options: StudioOptions): Promise<void> {
+  const { startWorker } = await import('./background.ts')
+  await startWorker(options, () => prepareConnection(options))
+  if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
+}
+
+/** Refuses a foreground run while the background worker owns this project. */
+async function assertNoBackgroundWorker(): Promise<void> {
+  const { getWorkerStatus } = await import('./background.ts')
+  if (!(await getWorkerStatus()).running) return
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.unknown,
+    severity: 'error',
+    message: 'This project is running in the background. Run `kubb studio stop` first.',
+  })
+}
+
+/** Prints the project and its permissions once, after the first connect. */
+function logConnected({ permissions, listens }: { permissions: StudioOptions['permission']; listens: boolean }): void {
+  logBlock([
+    `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
+    styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
+  ])
+  logTip()
 }
 
 /**

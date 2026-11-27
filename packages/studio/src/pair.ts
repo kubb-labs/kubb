@@ -321,19 +321,25 @@ export type RefreshAgentTokenOptions = {
   timeout?: number
 }
 
+export type RenewedAgentToken = {
+  token: string
+  /** Seconds until `token` expires. Only an `mcp` agent's token has one, an hour. */
+  expiresIn?: number
+}
+
 /**
- * Trades the agent's token for a new one. The old token stops working at once, so store the new
- * one first. Resolves `null` when there is nothing to refresh, and rejects with
- * {@link InvalidAgentTokenError} when the token is refused.
+ * Trades the agent's token for a new one and resolves how long it lasts. The old token stops working
+ * at once, so store the new one first. Resolves `null` when there is nothing to refresh, and rejects
+ * with {@link InvalidAgentTokenError} when the token is refused.
  */
-export async function refreshAgentToken({
+export async function renewAgentToken({
   studioUrl = defaultStudioUrl,
   token,
   machineId,
   privateKey,
   signal,
   timeout = REFRESH_TIMEOUT_MS,
-}: RefreshAgentTokenOptions): Promise<string | null> {
+}: RefreshAgentTokenOptions): Promise<RenewedAgentToken | null> {
   const deadline = AbortSignal.timeout(timeout)
   const signedAt = Date.now()
   const proof: TokenRefreshProof | undefined = privateKey
@@ -343,7 +349,7 @@ export async function refreshAgentToken({
       }
     : undefined
   const { status, _data } = await ofetch
-    .raw<{ token?: unknown }>(secureUrl({ studioUrl, path: '/api/agent/token/refresh' }).href, {
+    .raw<{ token?: unknown; expires_in?: unknown }>(secureUrl({ studioUrl, path: '/api/agent/token/refresh' }).href, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: { machine_id: machineId, ...proof },
@@ -376,5 +382,133 @@ export async function refreshAgentToken({
   if (typeof _data?.token !== 'string' || !_data.token)
     throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'Kubb Studio answered the token refresh without a token' })
 
-  return _data.token
+  return { token: _data.token, expiresIn: toExpiresIn(_data.expires_in) }
+}
+
+// `expires_in` crosses the network, so only a positive, finite number of seconds counts.
+function toExpiresIn(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : undefined
+}
+
+/** Prefix of a one-time pairing code from the `kubb_studio_connect` MCP tool. */
+export const PAIRING_CODE_PREFIX = 'kubb_pair_'
+
+/**
+ * Why Studio refused a pairing code:
+ * - `invalid_grant`: the code is unknown, already used, or its connection was revoked.
+ * - `expired_token`: the code is older than its 5 minutes.
+ * - `access_denied`: the plan's MCP agent limit is reached.
+ */
+export type PairingCodeErrorCode = 'invalid_grant' | 'expired_token' | 'access_denied'
+
+const PAIRING_CODE_MESSAGES: Record<PairingCodeErrorCode, string> = {
+  invalid_grant: 'Kubb Studio did not accept the pairing code. It is unknown, already used, or its connection was revoked. Ask the MCP client for a new code.',
+  expired_token: 'The pairing code expired. Codes last 5 minutes. Ask the MCP client for a new code.',
+  access_denied: 'Kubb Studio refused the pairing: the plan reached its MCP agent limit. Remove an MCP agent in Studio or upgrade the plan.',
+}
+
+/** Thrown when Studio refuses a pairing code. Never send that code again. */
+export class PairingCodeError extends Error {
+  readonly code: PairingCodeErrorCode
+
+  constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
+    const sentence = description?.trim().replace(/(?<![.!?])$/, '.')
+    super(sentence ? (code === 'access_denied' ? sentence : `${sentence} Ask the MCP client for a new code.`) : PAIRING_CODE_MESSAGES[code])
+    this.name = 'PairingCodeError'
+    this.code = code
+  }
+}
+
+export type RedeemedPairing = PairingResult & {
+  /** Seconds until `token` expires: 3600 for an `mcp` agent. */
+  expiresIn: number
+}
+
+export type RedeemPairingCodeOptions = {
+  studioUrl?: string
+  /** The one-time `kubb_pair_` code. Never log it. */
+  pairingCode: string
+  name: string
+  /** A stable machine secret. Only its SHA-256 is sent, so pairing again finds the same agent. */
+  machineId: string
+  /** The agent key from `generateAgentKey`, which signs every handshake and refresh. Only its public half is sent. */
+  privateKey: string
+  signal?: AbortSignal
+}
+
+type RedeemResponse = {
+  token?: unknown
+  expires_in?: unknown
+  agent?: unknown
+  error?: unknown
+  error_description?: unknown
+}
+
+/**
+ * Redeems a one-time pairing code for an agent token, with no person approving it. Studio answers
+ * at once, so nothing polls, and a refused code is never sent again.
+ *
+ * @throws {PairingCodeError} when Studio refuses the code.
+ * @throws {PairingCanceledError} when `signal` aborts.
+ */
+export async function redeemPairingCode({
+  studioUrl = defaultStudioUrl,
+  pairingCode,
+  name,
+  machineId,
+  privateKey,
+  signal,
+}: RedeemPairingCodeOptions): Promise<RedeemedPairing> {
+  const url = secureUrl({ studioUrl, path: '/api/agent/token' }).href
+  const { status, _data } = await ofetch
+    .raw<RedeemResponse>(url, {
+      method: 'POST',
+      body: {
+        pairing_code: pairingCode,
+        machine_token: hash('sha256', machineId),
+        name,
+        public_key: getAgentPublicKey(privateKey),
+      },
+      // A redirect would send the code, and later the token, to wherever it points.
+      redirect: 'error',
+      signal,
+      ignoreResponseError: true,
+      // A second attempt would send a code the first may have spent.
+      retry: 0,
+    })
+    .catch((error: unknown) => {
+      if (signal?.aborted) throw new PairingCanceledError()
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.inputRequestFailed,
+        severity: 'error',
+        message: `Could not reach Kubb Studio to redeem the pairing code: ${toError(error).message.replaceAll(pairingCode, '[redacted]')}`,
+        help: 'The code may still be valid. Check the network and run the command again before it expires.',
+      })
+    })
+
+  const data: RedeemResponse = _data && typeof _data === 'object' ? _data : {}
+  // Studio's own words are passed on, never the code, should an answer ever echo it.
+  const redact = (text: unknown) => (typeof text === 'string' && text ? text.replaceAll(pairingCode, '[redacted]') : undefined)
+  const description = redact(data.error_description)
+  if (typeof data.error === 'string' && Object.hasOwn(PAIRING_CODE_MESSAGES, data.error)) {
+    throw new PairingCodeError({ code: data.error as PairingCodeErrorCode, description })
+  }
+  const expiresIn = toExpiresIn(data.expires_in)
+  if (status < 200 || status >= 300 || typeof data.token !== 'string' || !data.token || !isAgent(data.agent) || expiresIn === undefined) {
+    const reason = redact(data.error)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequestFailed,
+      severity: 'error',
+      message: description ?? `Kubb Studio answered the pairing code with status ${status}${reason ? ` (${reason})` : ''}`,
+      help: 'Ask the MCP client for a new code, then try again.',
+    })
+  }
+
+  return { token: data.token, agent: data.agent, expiresIn }
+}
+
+function isAgent(agent: unknown): agent is PairingResult['agent'] {
+  if (!agent || typeof agent !== 'object') return false
+  const { id, slug, name } = agent as Record<string, unknown>
+  return typeof id === 'string' && typeof slug === 'string' && typeof name === 'string'
 }

@@ -7,7 +7,8 @@ export const command = studioCommand({
   examples: ['kubb studio login', 'kubb studio login --url http://localhost:3000'].join('\n'),
   args: connectCommand.args,
   async action(options) {
-    const { login } = await import('../../runners/studio/run.ts')
-    await login(options)
+    const { login, redeemPairing, takePairingCode } = await import('../../runners/studio/run.ts')
+    const pairingCode = takePairingCode()
+    await (pairingCode ? redeemPairing(options, { pairingCode }) : login(options))
   },
 })

@@ -75,6 +75,7 @@
   "packages/cli/src/runners/studio/run.test.ts": "Studio sync golden path: pairing, permission prompts, token rejection recovery, background handoff.",
   "packages/cli/src/runners/studio/snapshot.test.ts": "Golden path for kubb studio snapshot: CI identity, base selection, JSON and human output.",
   "packages/cli/src/runners/studio/status.test.ts": "Only test of the kubb studio status table: pairing states, worker uptime and the permissions row.",
+  "packages/cli/src/runners/studio/tokenRefresher.test.ts": "Refresh timing: jitter within the expires_in window, retry after a failure, daily fallback and stop.",
   "packages/cli/src/runners/update/run.test.ts": "Golden path for kubb update: dry run, major gating, regenerate summary, compatibility refusal.",
   "packages/cli/src/runners/validate/run.test.ts": "Golden path for kubb validate with and without adapter-oas and with a configured adapter.",
   "packages/cli/src/ui/mascot.test.ts": "Pins that the generate banner jumps to its last frame once the config loads and prints no frames without a rich terminal.",

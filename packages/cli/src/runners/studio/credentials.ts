@@ -42,6 +42,10 @@ export type Credentials = {
    * When `token` was issued, as an ISO date.
    */
   issuedAt?: string
+  /** When `token` expires, as an ISO date. Absent for a token with no expiry, which is refreshed daily. */
+  expiresAt?: string
+  /** `code` when a one-time pairing code from an MCP client paired this machine, absent for a browser approval. */
+  pairedWith?: 'code'
   /**
    * The agent key as a PKCS #8 PEM string, absent for an agent paired without one. Kept in the
    * system keychain where there is one, and in the credential file otherwise.

@@ -41,6 +41,31 @@ sequenceDiagram
 - Each job logs one line: time, command, requester, and result. Steps and diagnostics stay in Studio.
 - Press `b` to move the session to the background worker, like `kubb studio start`.
 
+## Pair with a code {#pair-with-a-code}
+
+An agent that an MCP client starts pairs itself, with no person approving it. The `kubb_studio_connect` MCP tool hands out a one-time code and the command to run:
+
+```shell [Terminal]
+KUBB_STUDIO_PAIRING_CODE=kubb_pair_... npx kubb studio connect --allow-write --no-open --url https://kubb.studio
+```
+
+- When `KUBB_STUDIO_PAIRING_CODE` is set, `connect`, `start`, and `login` redeem the code instead of showing a pairing code. The CLI reads the code from the environment, so it never shows in the process list, and never logs it.
+- A code works once and lasts 5 minutes. The CLI sends it once and never again, even when Studio refuses it.
+- Only the flags grant permissions, and the CLI asks no questions. `--allow-write` alone is enough for a factory.
+- No browser opens, with or without `--no-open`.
+- The token lasts an hour. A connected CLI refreshes it at 70 to 85 percent of its lifetime, picked at random so many agents do not refresh at once.
+- The same person, MCP client, and project folder pairing again gets the same agent and a new token.
+
+When Studio refuses the code, the CLI prints why and exits with code `1`:
+
+| Studio answers | Why | What to do |
+| --- | --- | --- |
+| `invalid_grant` | The code is unknown or used, or its connection was revoked | Ask the MCP client for a new code |
+| `expired_token` | The code is older than 5 minutes | Ask the MCP client for a new code |
+| `access_denied` | The plan reached its MCP agent limit | Remove an MCP agent in Studio, or upgrade the plan |
+
+When Studio later rejects the token of an agent paired with a code, the CLI forgets the token and exits. Ask the MCP client for a new code.
+
 ## Actions
 
 The first argument picks the action, `connect` by default.
@@ -95,7 +120,7 @@ Credentials, worker state, and the worker log live in [`KUBB_HOME`](/docs/5.x/re
 | --- | --- | --- | --- |
 | `--config <path>` | `-c` | | Config file path, such as `./kubb.staging.ts` |
 | `--url <url>` | | `https://kubb.studio` | Studio URL. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`. |
-| `--no-open` | | | Skips opening the approval page |
+| `--no-open` | | | Skips opening the approval page. A [pairing code](#pair-with-a-code) never opens one. |
 | `--log-level <level>` | `-l` | `info` | `silent`, `info`, or `verbose` |
 
 ### Permissions {#permissions}
@@ -130,7 +155,7 @@ See [Studio permissions](#studio-permissions) for what each one changes.
 | `--package-version <version>` | From `package.json` | Tarball package version, from the same `package.json` |
 | `--json` | `false` | Prints the result as one JSON object |
 
-`snapshot` generates like `kubb generate`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. In CI, the CLI refuses to pair and needs stored credentials, so use `snapshot` there.
+`snapshot` generates like `kubb generate`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. In CI, the CLI refuses a browser pairing and needs stored credentials or a [pairing code](#pair-with-a-code), so use `snapshot` there.
 
 > [!IMPORTANT]
 > Install `tsdown` first: `npm i -D tsdown`. `snapshot` builds the package's `dist` files with it.
@@ -229,7 +254,7 @@ Studio also lists [extension registry](/extensions) plugins. A plugin the agent 
 When you pair a machine, the CLI stores the credentials, worker state, and worker log in [`KUBB_HOME`](/docs/5.x/reference/commands#environment-variables), `~/.kubb` by default. `status` prints the log path.
 
 - Approve the pairing code before it expires. The CLI copies it with `pbcopy`, `clip.exe`, `xclip`, or `wl-copy` when one is available.
-- A connected CLI renews its token daily, so it does not pair again.
+- A connected CLI renews its token daily, so it does not pair again. A token from a [pairing code](#pair-with-a-code) lasts an hour and renews before it expires.
 - Pairing also creates a key that never leaves your machine. It goes in the system keychain (macOS Keychain, Windows Credential Manager, or Secret Service on Linux), or next to the token when no keychain allows access, such as in CI or a container.
 - A project paired with an earlier release has no key and keeps working. `kubb studio login` adds one.
 - `stop` waits for a running generation to clean up. An interrupted job does not run again.

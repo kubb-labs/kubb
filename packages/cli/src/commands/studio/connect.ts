@@ -9,6 +9,7 @@ export const command = studioCommand({
     'kubb studio connect --allow-read',
     'kubb studio connect --allow-write --allow-exec',
     'kubb studio connect --url http://localhost:3000',
+    'KUBB_STUDIO_PAIRING_CODE=<code> kubb studio connect --allow-write --no-open',
   ].join('\n'),
   args: {
     ...configArg,
