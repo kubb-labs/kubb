@@ -16,8 +16,6 @@ export type TokenRefresherOptions = {
   signal: AbortSignal
   warn: (message: string) => void
   credentials: { get: () => Credentials; set: (credentials: Credentials) => void }
-  /** Source of the jitter, in `[0, 1)`. Defaults to `Math.random`. */
-  random?: () => number
 }
 
 function getExpiresAt(credentials: Credentials): number | undefined {
@@ -47,7 +45,6 @@ export class TokenRefresher {
 
   /** Schedules the next refresh: within {@link REFRESH_WINDOW} of an expiring token's lifetime, else daily. */
   start(): void {
-    this.#stopped = false
     this.#schedule(this.#nextDelay())
   }
 
@@ -61,8 +58,8 @@ export class TokenRefresher {
     return this.#writes
   }
 
-  /** When the current token is due, in epoch milliseconds. */
-  dueAt(): number {
+  // When the current token is due, in epoch milliseconds.
+  #dueAt(): number {
     const credentials = this.#options.credentials.get()
     const issuedAt = Date.parse(credentials.issuedAt ?? '')
     // A token stored by a release without refresh has no issue date, so it is due now.
@@ -75,15 +72,14 @@ export class TokenRefresher {
 
   #share(token: string): number {
     if (this.#jitter?.token !== token) {
-      const random = this.#options.random ?? Math.random
-      this.#jitter = { token, share: REFRESH_WINDOW.min + (REFRESH_WINDOW.max - REFRESH_WINDOW.min) * random() }
+      this.#jitter = { token, share: REFRESH_WINDOW.min + (REFRESH_WINDOW.max - REFRESH_WINDOW.min) * Math.random() }
     }
     return this.#jitter.share
   }
 
   #nextDelay(): number {
     const now = Date.now()
-    const due = this.dueAt() - now
+    const due = this.#dueAt() - now
     if (due > 0) return due
     // Still due: the last try failed, or Studio had nothing to refresh.
     const expiresAt = getExpiresAt(this.#options.credentials.get())
@@ -124,7 +120,7 @@ export class TokenRefresher {
   // Resolves whether the token changed; a failure keeps the old one.
   async #refreshToken(force: boolean): Promise<boolean> {
     const { studioUrl, signal, warn, credentials } = this.#options
-    if (!force && Date.now() < this.dueAt()) return false
+    if (!force && Date.now() < this.#dueAt()) return false
     const replaced = credentials.get().token
     try {
       const renewed = await renewAgentToken({

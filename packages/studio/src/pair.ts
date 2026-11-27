@@ -327,7 +327,11 @@ export type RenewedAgentToken = {
   expiresIn?: number
 }
 
-/** Like {@link refreshAgentToken}, and also resolves how long the new token lasts. */
+/**
+ * Trades the agent's token for a new one and resolves how long it lasts. The old token stops working
+ * at once, so store the new one first. Resolves `null` when there is nothing to refresh, and rejects
+ * with {@link InvalidAgentTokenError} when the token is refused.
+ */
 export async function renewAgentToken({
   studioUrl = defaultStudioUrl,
   token,
@@ -378,17 +382,7 @@ export async function renewAgentToken({
   if (typeof _data?.token !== 'string' || !_data.token)
     throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'Kubb Studio answered the token refresh without a token' })
 
-  const expiresIn = toExpiresIn(_data.expires_in)
-  return expiresIn === undefined ? { token: _data.token } : { token: _data.token, expiresIn }
-}
-
-/**
- * Trades the agent's token for a new one. The old token stops working at once, so store the new
- * one first. Resolves `null` when there is nothing to refresh, and rejects with
- * {@link InvalidAgentTokenError} when the token is refused.
- */
-export async function refreshAgentToken(options: RefreshAgentTokenOptions): Promise<string | null> {
-  return (await renewAgentToken(options))?.token ?? null
+  return { token: _data.token, expiresIn: toExpiresIn(_data.expires_in) }
 }
 
 // `expires_in` crosses the network, so only a positive, finite number of seconds counts.
@@ -418,15 +412,11 @@ export class PairingCodeError extends Error {
   readonly code: PairingCodeErrorCode
 
   constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
-    super(description ? withNextStep({ description, code }) : PAIRING_CODE_MESSAGES[code])
+    const sentence = description?.trim().replace(/(?<![.!?])$/, '.')
+    super(sentence ? (code === 'access_denied' ? sentence : `${sentence} Ask the MCP client for a new code.`) : PAIRING_CODE_MESSAGES[code])
     this.name = 'PairingCodeError'
     this.code = code
   }
-}
-
-function withNextStep({ description, code }: { description: string; code: PairingCodeErrorCode }): string {
-  const sentence = description.trim().replace(/(?<![.!?])$/, '.')
-  return code === 'access_denied' ? sentence : `${sentence} Ask the MCP client for a new code.`
 }
 
 export type RedeemedPairing = PairingResult & {
@@ -496,15 +486,15 @@ export async function redeemPairingCode({
       })
     })
 
-  return toRedeemedPairing({ status, data: _data && typeof _data === 'object' ? _data : {}, pairingCode })
-}
-
-// Studio's own words are passed on, never the code, should an answer ever echo it.
-function toRedeemedPairing({ status, data, pairingCode }: { status: number; data: RedeemResponse; pairingCode: string }): RedeemedPairing {
+  const data: RedeemResponse = _data && typeof _data === 'object' ? _data : {}
+  // Studio's own words are passed on, never the code, should an answer ever echo it.
   const redact = (text: unknown) => (typeof text === 'string' && text ? text.replaceAll(pairingCode, '[redacted]') : undefined)
   const description = redact(data.error_description)
-  if (isPairingCodeErrorCode(data.error)) throw new PairingCodeError({ code: data.error, description })
-  if (!isRedeemed(status, data)) {
+  if (typeof data.error === 'string' && Object.hasOwn(PAIRING_CODE_MESSAGES, data.error)) {
+    throw new PairingCodeError({ code: data.error as PairingCodeErrorCode, description })
+  }
+  const expiresIn = toExpiresIn(data.expires_in)
+  if (status < 200 || status >= 300 || typeof data.token !== 'string' || !data.token || !isAgent(data.agent) || expiresIn === undefined) {
     const reason = redact(data.error)
     throw new Diagnostics.Error({
       code: Diagnostics.code.inputRequestFailed,
@@ -514,17 +504,7 @@ function toRedeemedPairing({ status, data, pairingCode }: { status: number; data
     })
   }
 
-  return { token: data.token, agent: data.agent, expiresIn: toExpiresIn(data.expires_in) ?? 3600 }
-}
-
-function isPairingCodeErrorCode(error: unknown): error is PairingCodeErrorCode {
-  return typeof error === 'string' && Object.hasOwn(PAIRING_CODE_MESSAGES, error)
-}
-
-type RedeemedResponse = RedeemResponse & { token: string; agent: PairingResult['agent'] }
-
-function isRedeemed(status: number, data: RedeemResponse): data is RedeemedResponse {
-  return status >= 200 && status < 300 && typeof data.token === 'string' && data.token !== '' && isAgent(data.agent)
+  return { token: data.token, agent: data.agent, expiresIn }
 }
 
 function isAgent(agent: unknown): agent is PairingResult['agent'] {

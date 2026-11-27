@@ -8,7 +8,6 @@ export {
   PairingDeniedError,
   PairingExpiredError,
   redeemPairingCode,
-  refreshAgentToken,
   renewAgentToken,
   type PairingCodeErrorCode,
   type PairingResult,

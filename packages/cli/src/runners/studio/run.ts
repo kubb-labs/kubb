@@ -436,7 +436,10 @@ export async function connect(
         }
         await context.onState?.('authentication required')
         await clearCredentials(credentials.token)
-        assertCanPairAgain({ error, credentials, pairedAgain, background: Boolean(context.onState) })
+        // A spent code cannot be redeemed again, and no person is there to approve a browser pairing.
+        if (credentials.pairedWith === 'code') throw new Error(`${error.message} Ask the MCP client for a new pairing code.`)
+        if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
+        if (context.onState || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 
         // The pairing prompts need stdin back.
         unwatch?.()
@@ -468,24 +471,6 @@ export async function connect(
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)
   }
-}
-
-/** Throws when a rejected token cannot be replaced by pairing again in this terminal. */
-function assertCanPairAgain({
-  error,
-  credentials,
-  pairedAgain,
-  background,
-}: {
-  error: Error
-  credentials: Credentials
-  pairedAgain: boolean
-  background: boolean
-}): void {
-  // A spent code cannot be redeemed again, and no person is there to approve a browser pairing.
-  if (credentials.pairedWith === 'code') throw new Error(`${error.message} Ask the MCP client for a new pairing code.`)
-  if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
-  if (background || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 }
 
 /**

@@ -12,7 +12,6 @@ import {
   PairingExpiredError,
   pollForPairingToken,
   redeemPairingCode,
-  refreshAgentToken,
   renewAgentToken,
   startPairing,
   type PairingSession,
@@ -200,13 +199,13 @@ describe('pairAgent', () => {
   })
 })
 
-describe('refreshAgentToken', () => {
+describe('renewAgentToken', () => {
   const options = { studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' }
 
   it('trades the bearer token and the machine secret for a new token', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
 
-    await expect(refreshAgentToken(options)).resolves.toBe('new-token')
+    await expect(renewAgentToken(options)).resolves.toEqual({ token: 'new-token' })
     const [url, init] = fetchMock.mock.calls[0]!
     expect(String(url)).toBe('https://studio.test/api/agent/token/refresh')
     expect(new Headers(init.headers).get('authorization')).toBe('Bearer old-token')
@@ -217,7 +216,7 @@ describe('refreshAgentToken', () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
     const privateKey = generateAgentKey()
 
-    await refreshAgentToken({ ...options, privateKey })
+    await renewAgentToken({ ...options, privateKey })
 
     const body = JSON.parse(String(fetchMock.mock.calls[0]![1].body))
     expect(body).toStrictEqual({ machine_id: 'secret', signed_at: Date.now(), signature: expect.any(String) })
@@ -232,13 +231,13 @@ describe('refreshAgentToken', () => {
   ])('returns null for %s (%i), so the host keeps its token', async (_case, status) => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ statusMessage: 'nope' }, status))
 
-    await expect(refreshAgentToken(options)).resolves.toBeNull()
+    await expect(renewAgentToken(options)).resolves.toBeNull()
   })
 
   it('rejects with InvalidAgentTokenError when Studio refuses the token', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ statusMessage: 'Unauthorized' }, 401))
 
-    await expect(refreshAgentToken(options)).rejects.toBeInstanceOf(InvalidAgentTokenError)
+    await expect(renewAgentToken(options)).rejects.toBeInstanceOf(InvalidAgentTokenError)
   })
 
   it.each([
@@ -247,7 +246,7 @@ describe('refreshAgentToken', () => {
   ])('rejects on %s', async (_case, response, message) => {
     fetchMock.mockResolvedValueOnce(response)
 
-    await expect(refreshAgentToken(options)).rejects.toThrow(message)
+    await expect(renewAgentToken(options)).rejects.toThrow(message)
   })
 
   it('gives up once the timeout passes', async () => {
@@ -256,11 +255,11 @@ describe('refreshAgentToken', () => {
       (_url, init: RequestInit) => new Promise((_resolve, reject) => init.signal?.addEventListener('abort', () => reject(init.signal?.reason))),
     )
 
-    await expect(refreshAgentToken({ ...options, timeout: 20 })).rejects.toThrow('did not answer the token refresh within 20 ms')
+    await expect(renewAgentToken({ ...options, timeout: 20 })).rejects.toThrow('did not answer the token refresh within 20 ms')
   })
 })
 
-describe('renewAgentToken', () => {
+describe('renewAgentToken expires_in', () => {
   const options = { studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' }
 
   it('resolves the lifetime of an expiring token', async () => {
@@ -272,7 +271,7 @@ describe('renewAgentToken', () => {
   it.each([undefined, 0, -5, 'soon'])('leaves out an expires_in of %j', async (expiresIn) => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token', expires_in: expiresIn }))
 
-    await expect(renewAgentToken(options)).resolves.toStrictEqual({ token: 'new-token' })
+    await expect(renewAgentToken(options)).resolves.toEqual({ token: 'new-token' })
   })
 })
 
@@ -301,10 +300,10 @@ describe('redeemPairingCode', () => {
     expect(body.public_key).toMatch(/^[A-Za-z0-9_-]{43}$/)
   })
 
-  it('assumes the one-hour lifetime when Studio sends none', async () => {
+  it('rejects an answer without expires_in', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'agent-token', agent }))
 
-    await expect(redeemPairingCode(options)).resolves.toMatchObject({ expiresIn: 3600 })
+    await expect(redeemPairingCode(options)).rejects.toThrow('status 200')
   })
 
   it.each([
@@ -378,7 +377,7 @@ describe('redirects', () => {
     const poll = pollForPairingToken({ studioUrl: 'https://studio.test', session })
     await vi.runAllTimersAsync()
     await poll
-    await refreshAgentToken({ studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' })
+    await renewAgentToken({ studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' })
 
     expect(fetchMock.mock.calls.map(([, init]) => init.redirect)).toStrictEqual(['error', 'error', 'error'])
   })

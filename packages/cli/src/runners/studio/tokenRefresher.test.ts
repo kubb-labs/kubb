@@ -16,6 +16,7 @@ vi.mock('./credentials.ts', () => ({
 const HOUR_MS = 60 * 60 * 1000
 
 function setup({ credentials: initial, random = () => 0 }: { credentials: Partial<Credentials>; random?: () => number }) {
+  vi.spyOn(Math, 'random').mockImplementation(random)
   let credentials: Credentials = { studioUrl: 'https://studio.test', token: 'token-0', agentId: 'id', agentSlug: 'slug', ...initial }
   const warn = vi.fn()
   const controller = new AbortController()
@@ -23,7 +24,6 @@ function setup({ credentials: initial, random = () => 0 }: { credentials: Partia
     studioUrl: 'https://studio.test',
     signal: controller.signal,
     warn,
-    random,
     credentials: {
       get: () => credentials,
       set: (next) => {
@@ -42,6 +42,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.restoreAllMocks()
   vi.resetAllMocks()
 })
 
@@ -88,7 +89,11 @@ describe('TokenRefresher', () => {
 
     await vi.advanceTimersByTimeAsync(HOUR_MS * REFRESH_WINDOW.min)
     expect(renewAgentToken).toHaveBeenCalledOnce()
-    expect(refresher.dueAt() - Date.now()).toBe(HOUR_MS * REFRESH_WINDOW.max)
+    // The new token drew the top of the window, so it waits 85 percent of its hour.
+    await vi.advanceTimersByTimeAsync(HOUR_MS * REFRESH_WINDOW.max - 1_000)
+    expect(renewAgentToken).toHaveBeenCalledOnce()
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(renewAgentToken).toHaveBeenCalledTimes(2)
     refresher.stop()
   })
 
