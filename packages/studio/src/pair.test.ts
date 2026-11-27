@@ -308,7 +308,8 @@ describe('redeemPairingCode', () => {
 
   it.each([
     ['invalid_grant', 400, undefined, 'unknown, already used, or its connection was revoked'],
-    ['invalid_grant', 400, 'The connection was revoked', 'The connection was revoked. Ask the MCP client for a new code.'],
+    ['invalid_grant', 400, 'The connection was revoked', 'The connection was revoked.'],
+    ['invalid_grant', 400, 'The pairing code is unknown, expired, or already used. Ask the MCP client for a new one.', 'or already used.'],
     ['expired_token', 400, undefined, 'The pairing code expired'],
     ['access_denied', 403, 'The Free plan allows 5 MCP agents.', 'The Free plan allows 5 MCP agents.'],
     ['access_denied', 403, undefined, 'MCP agent limit'],
@@ -320,6 +321,8 @@ describe('redeemPairingCode', () => {
     await expect(promise).rejects.toBeInstanceOf(PairingCodeError)
     await expect(promise).rejects.toMatchObject({ code: error })
     await expect(promise).rejects.toThrow(message)
+    await expect(promise).rejects.not.toThrow(/Ask the MCP client/)
+    await expect(promise).rejects.toMatchObject({ diagnostic: { code: 'KUBB_STUDIO_REFUSED', help: expect.any(String) } })
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 

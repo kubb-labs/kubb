@@ -55,8 +55,9 @@ KUBB_STUDIO_PAIRING_CODE=kubb_pair_... npx kubb studio connect --allow-write --n
 - No browser opens, with or without `--no-open`.
 - The token lasts an hour. A connected CLI refreshes it at 70 to 85 percent of its lifetime, picked at random so many agents do not refresh at once.
 - The same person, MCP client, and project folder pairing again gets the same agent and a new token.
+- Once connected, the CLI prints the agent ID. The MCP client passes that ID to `kubb_studio_generate`.
 
-When Studio refuses the code, the CLI prints why and exits with code `1`:
+When Studio refuses the code, the CLI prints why as [`KUBB_STUDIO_REFUSED`](/docs/5.x/reference/diagnostics#kubb-studio-refused) and exits with code `1`:
 
 | Studio answers | Why | What to do |
 | --- | --- | --- |
@@ -64,7 +65,7 @@ When Studio refuses the code, the CLI prints why and exits with code `1`:
 | `expired_token` | The code is older than 5 minutes | Ask the MCP client for a new code |
 | `access_denied` | The plan reached its MCP agent limit | Remove an MCP agent in Studio, or upgrade the plan |
 
-When Studio later rejects the token of an agent paired with a code, the CLI forgets the token and exits. Ask the MCP client for a new code.
+When Studio later rejects the token of an agent paired with a code, the CLI forgets the token and exits with `KUBB_STUDIO_REFUSED`. Ask the MCP client for a new code.
 
 ## Actions
 
@@ -119,7 +120,7 @@ Credentials, worker state, and the worker log live in [`KUBB_HOME`](/docs/5.x/re
 | Flag | Alias | Default | What it does |
 | --- | --- | --- | --- |
 | `--config <path>` | `-c` | | Config file path, such as `./kubb.staging.ts` |
-| `--url <url>` | | `https://kubb.studio` | Studio URL. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`. |
+| `--url <url>` | | The Studio the project paired with, else `https://kubb.studio` | Studio URL. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`. |
 | `--no-open` | | | Skips opening the approval page. A [pairing code](#pair-with-a-code) never opens one. |
 | `--log-level <level>` | `-l` | `info` | `silent`, `info`, or `verbose` |
 

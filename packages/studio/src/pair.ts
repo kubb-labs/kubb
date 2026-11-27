@@ -402,18 +402,27 @@ export const PAIRING_CODE_PREFIX = 'kubb_pair_'
 export type PairingCodeErrorCode = 'invalid_grant' | 'expired_token' | 'access_denied'
 
 const PAIRING_CODE_MESSAGES: Record<PairingCodeErrorCode, string> = {
-  invalid_grant: 'Kubb Studio did not accept the pairing code. It is unknown, already used, or its connection was revoked. Ask the MCP client for a new code.',
-  expired_token: 'The pairing code expired. Codes last 5 minutes. Ask the MCP client for a new code.',
-  access_denied: 'Kubb Studio refused the pairing: the plan reached its MCP agent limit. Remove an MCP agent in Studio or upgrade the plan.',
+  invalid_grant: 'Kubb Studio did not accept the pairing code. It is unknown, already used, or its connection was revoked.',
+  expired_token: 'The pairing code expired. Codes last 5 minutes.',
+  access_denied: 'Kubb Studio refused the pairing: the plan reached its MCP agent limit.',
 }
 
 /** Thrown when Studio refuses a pairing code. Never send that code again. */
-export class PairingCodeError extends Error {
+export class PairingCodeError extends Diagnostics.Error {
   readonly code: PairingCodeErrorCode
 
   constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
-    const sentence = description?.trim().replace(/(?<![.!?])$/, '.')
-    super(sentence ? (code === 'access_denied' ? sentence : `${sentence} Ask the MCP client for a new code.`) : PAIRING_CODE_MESSAGES[code])
+    // Studio's own words may already ask for a new code, which `help` says once.
+    const sentence = description
+      ?.trim()
+      .replace(/(?<![.!?])$/, '.')
+      .replace(/\s*Ask the MCP client for a new (?:one|code)\.$/i, '')
+    super({
+      code: Diagnostics.code.studioRefused,
+      severity: 'error',
+      message: sentence || PAIRING_CODE_MESSAGES[code],
+      help: code === 'access_denied' ? 'Remove an MCP agent in Studio, or upgrade the plan.' : 'Ask the MCP client for a new code.',
+    })
     this.name = 'PairingCodeError'
     this.code = code
   }
