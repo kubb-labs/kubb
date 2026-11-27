@@ -312,6 +312,7 @@ describe('redeemPairingCode', () => {
   it.each([
     ['invalid_grant', 400, undefined, 'unknown, already used, or its connection was revoked', newCode],
     ['invalid_grant', 400, 'The connection was revoked', 'The connection was revoked.', newCode],
+    ['invalid_grant', 400, '   ', 'unknown, already used, or its connection was revoked', newCode],
     ['expired_token', 400, undefined, 'The pairing code expired', newCode],
     ['access_denied', 403, 'The Free plan allows 5 MCP agents.', 'The Free plan allows 5 MCP agents.', limit],
     ['access_denied', 403, undefined, 'MCP agent limit', limit],

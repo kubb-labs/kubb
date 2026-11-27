@@ -412,7 +412,8 @@ export class PairingCodeError extends Diagnostics.Error {
   readonly code: PairingCodeErrorCode
 
   constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
-    const sentence = description?.trim().replace(/(?<![.!?])$/, '.')
+    const trimmed = description?.trim()
+    const sentence = trimmed ? trimmed.replace(/(?<![.!?])$/, '.') : undefined
     super({
       code: Diagnostics.code.studioRefused,
       severity: 'error',

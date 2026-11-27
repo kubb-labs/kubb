@@ -368,8 +368,18 @@ describe('connect', () => {
     using project = stubProject({ stored: credentials, ci: true })
     mockConnection('rejected')
 
-    await expect(connect(options)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_STUDIO_REFUSED', help: 'Run `kubb studio login` to pair again.' } })
+    await expect(connect(options)).rejects.toMatchObject({
+      diagnostic: { code: 'KUBB_STUDIO_REFUSED', help: 'Run `kubb studio login --url http://localhost:3000` to pair again.' },
+    })
     expect(project.clear).toHaveBeenCalled()
+  })
+
+  it('leaves --url out of the pairing hint for the hosted Studio', async () => {
+    const hosted = { ...options, studioUrl: 'https://kubb.studio' }
+    using _project = stubProject({ stored: { ...credentials, studioUrl: hosted.studioUrl }, ci: true })
+    mockConnection('rejected')
+
+    await expect(connect(hosted)).rejects.toMatchObject({ diagnostic: { help: 'Run `kubb studio login` to pair again.' } })
   })
 
   it('pairs again interactively and carries saved permissions forward for the same agent identity', async () => {
