@@ -31,21 +31,11 @@ export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: stri
   return url
 }
 
-/**
- * How long the settings lookup in {@link publicApiUrl} may take before it falls back to `/api`.
- */
 const SETTINGS_TIMEOUT_MS = 10_000
 
 /**
- * Resolves where an organization API key request goes. A Studio that serves the public API reports its
- * origin as `apiUrl` in `GET /api/settings`, and the request goes to `{apiUrl}/v1{path}`. Without one, or
- * when the lookup fails, it goes to `{studioUrl}/api{path}`, which takes the same keys.
- *
- * @example
- * ```ts
- * const url = await publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })
- * url.href // 'https://api.kubb.studio/v1/snapshots'
- * ```
+ * Where an organization API key request goes: `{apiUrl}/v1{path}` when Studio reports a public API in
+ * `GET /api/settings`, else `{studioUrl}/api{path}`, also when that lookup fails.
  */
 export async function publicApiUrl({ studioUrl, path, signal }: { studioUrl: string; path: string; signal?: AbortSignal }): Promise<URL> {
   const fallback = secureUrl({ studioUrl, path: `/api${path}` })
@@ -57,6 +47,6 @@ export async function publicApiUrl({ studioUrl, path, signal }: { studioUrl: str
   const apiUrl = settings?.apiUrl
   if (typeof apiUrl !== 'string' || !URL.canParse(apiUrl)) return fallback
 
-  // The origin comes from the network, so it gets the same check as `studioUrl` before an API key goes there.
+  // `apiUrl` comes from the network, so it gets the same check as `studioUrl` before the key goes there.
   return secureUrl({ studioUrl: new URL(apiUrl).origin, path: `/v1${path}` })
 }

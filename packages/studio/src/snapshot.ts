@@ -171,8 +171,7 @@ export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'pee
 }
 
 /**
- * Generates the project, packs it as an npm tarball, and publishes it to Studio in one `POST /v1/snapshots` request, or
- * `POST /api/snapshots` on a Studio without a public API.
+ * Generates the project, packs it as an npm tarball, and publishes it to Studio's snapshots route in one request.
  *
  * @example
  * ```ts
