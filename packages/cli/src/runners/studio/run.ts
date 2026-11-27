@@ -425,8 +425,7 @@ export async function connect(
         await clearCredentials(credentials.token)
         // A spent code cannot be redeemed again, and no person is there to approve a browser pairing.
         if (credentials.pairedWith === 'code') throw refused(error.message, 'Ask the MCP client for a new pairing code.')
-        // The cleared credentials took the paired URL with them, so a self-hosted Studio is named in the hint.
-        const loginCommand = `kubb studio login${options.studioUrl === defaultStudioUrl ? '' : ` --url ${options.studioUrl}`}`
+        const loginCommand = loginCommandFor(options.studioUrl)
         if (pairedAgain) throw refused(`${error.message} Studio rejected the newly approved token too.`, `Run \`${loginCommand}\` and try again.`)
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw refused(error.message, `Run \`${loginCommand}\` to pair again.`)
 
@@ -473,6 +472,11 @@ async function assertNoBackgroundWorker(): Promise<void> {
     severity: 'error',
     message: 'This project is running in the background. Run `kubb studio stop` first.',
   })
+}
+
+/** The cleared credentials take the paired URL with them, so a hint names a self-hosted Studio. */
+function loginCommandFor(studioUrl: string): string {
+  return studioUrl === defaultStudioUrl ? 'kubb studio login' : `kubb studio login --url ${studioUrl}`
 }
 
 function refused(message: string, help: string): Error {
