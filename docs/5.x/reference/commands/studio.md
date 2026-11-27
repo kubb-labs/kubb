@@ -155,7 +155,7 @@ See [Studio permissions](#studio-permissions) for what each one changes.
 | `--package-version <version>` | From `package.json` | Tarball package version, from the same `package.json` |
 | `--json` | `false` | Prints the result as one JSON object |
 
-`snapshot` generates like `kubb generate`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. In CI, the CLI refuses to pair and needs stored credentials, so use `snapshot` there.
+`snapshot` generates like `kubb generate`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. In CI, the CLI refuses a browser pairing and needs stored credentials or a [pairing code](#pair-with-a-code), so use `snapshot` there.
 
 > [!IMPORTANT]
 > Install `tsdown` first: `npm i -D tsdown`. `snapshot` builds the package's `dist` files with it.

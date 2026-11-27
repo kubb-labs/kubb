@@ -2,20 +2,12 @@ import { toError } from '@internals/utils'
 import { InvalidAgentTokenError, renewAgentToken } from '@kubb/studio'
 import { type Credentials, getMachineId, updateCredentials } from './credentials.ts'
 
-/**
- * How often a token without an expiry is traded in.
- */
 const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
 
-/**
- * The share of an expiring token's lifetime after which it is refreshed. The point is picked at
- * random in this range for each token, so many agents paired at once do not refresh at once.
- */
+/** Share of an expiring token's lifetime after which it is refreshed, picked at random per token so agents spread out. */
 export const REFRESH_WINDOW = { min: 0.7, max: 0.85 } as const
 
-/**
- * Bounds for the wait before another try, after a refresh of an expiring token failed.
- */
+/** Bounds for the wait before another try after a failed refresh of an expiring token. */
 const RETRY_MIN_MS = 5_000
 const RETRY_MAX_MS = 60_000
 
@@ -24,17 +16,10 @@ export type TokenRefresherOptions = {
   signal: AbortSignal
   warn: (message: string) => void
   credentials: { get: () => Credentials; set: (credentials: Credentials) => void }
-  /**
-   * Source of the jitter, a number in `[0, 1)`.
-   *
-   * @default Math.random
-   */
+  /** Source of the jitter, in `[0, 1)`. Defaults to `Math.random`. */
   random?: () => number
 }
 
-/**
- * When `credentials` expires, in epoch milliseconds, or `undefined` for a token with no expiry.
- */
 function getExpiresAt(credentials: Credentials): number | undefined {
   const expiresAt = Date.parse(credentials.expiresAt ?? '')
   return Number.isFinite(expiresAt) ? expiresAt : undefined
@@ -46,7 +31,6 @@ export class TokenRefresher {
   #refreshing: Promise<boolean> | undefined
   #timer: NodeJS.Timeout | undefined
   #stopped = false
-  // The point in its lifetime at which the current token is refreshed, picked once per token.
   #jitter: { token: string; share: number } | undefined
 
   constructor(options: TokenRefresherOptions) {
@@ -59,10 +43,7 @@ export class TokenRefresher {
     }))
   }
 
-  /**
-   * Schedules the next refresh. A token with an expiry is refreshed at 70 to 85 percent of its
-   * lifetime, and a token without one once a day.
-   */
+  /** Schedules the next refresh: within {@link REFRESH_WINDOW} of an expiring token's lifetime, else daily. */
   start(): void {
     this.#stopped = false
     this.#schedule(this.#nextDelay())
@@ -73,9 +54,7 @@ export class TokenRefresher {
     clearTimeout(this.#timer)
   }
 
-  /**
-   * When the current token is due, in epoch milliseconds.
-   */
+  /** When the current token is due, in epoch milliseconds. */
   dueAt(): number {
     const credentials = this.#options.credentials.get()
     const issuedAt = Date.parse(credentials.issuedAt ?? '')
@@ -137,11 +116,12 @@ export class TokenRefresher {
         expiresAt: renewed.expiresIn === undefined ? undefined : new Date(issuedAt + renewed.expiresIn * 1000).toISOString(),
       }
       credentials.set({ ...credentials.get(), ...refreshed })
+      // Armed before the write, which a keychain prompt can hold past the new token's expiry.
+      if (this.#timer) this.#schedule(this.#nextDelay())
       // Only the token changes on disk, so permissions saved since this run read the file are kept.
       await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
         warn(`Could not store the refreshed token: ${toError(error).message}`),
       )
-      if (this.#timer) this.#schedule(this.#nextDelay())
       return true
     } catch (error) {
       if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)
@@ -150,10 +130,7 @@ export class TokenRefresher {
   }
 }
 
-/**
- * Refreshes the token now when it is due, then again each time it comes due until `stop`.
- * `credentials` reads and replaces the connection's credentials.
- */
+/** Refreshes the token now when it is due, then each time it comes due until `stop`. */
 export async function startTokenRefresher(options: TokenRefresherOptions): Promise<TokenRefresher> {
   const refresher = new TokenRefresher(options)
   await refresher.refresh()

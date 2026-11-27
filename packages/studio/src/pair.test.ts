@@ -335,6 +335,17 @@ describe('redeemPairingCode', () => {
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
+  it('keeps the code out of an error_description that echoes it', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'invalid_grant', error_description: `Unknown code ${pairingCode}` }, 400))
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'server_error', error_description: `Could not redeem ${pairingCode}` }, 500))
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const error = (await redeemPairingCode(options).catch((error: unknown) => error)) as Error
+      expect(error.message).toContain('[redacted]')
+      expect(error.message).not.toContain(pairingCode)
+    }
+  })
+
   it('keeps the code out of the error when Studio cannot be reached', async () => {
     fetchMock.mockRejectedValue(new TypeError(`fetch failed for ${pairingCode}`))
 

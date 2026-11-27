@@ -321,22 +321,13 @@ export type RefreshAgentTokenOptions = {
   timeout?: number
 }
 
-/**
- * A token from {@link renewAgentToken}.
- */
 export type RenewedAgentToken = {
   token: string
-  /**
-   * Seconds until `token` expires, when Studio says. An `mcp` agent's token lasts an hour, and
-   * other agents' tokens carry no expiry.
-   */
+  /** Seconds until `token` expires. Only an `mcp` agent's token has one, an hour. */
   expiresIn?: number
 }
 
-/**
- * Trades the agent's token for a new one, like {@link refreshAgentToken}, and also resolves how
- * long the new token lasts, so the host can schedule the next refresh.
- */
+/** Like {@link refreshAgentToken}, and also resolves how long the new token lasts. */
 export async function renewAgentToken({
   studioUrl = defaultStudioUrl,
   token,
@@ -405,9 +396,7 @@ function toExpiresIn(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : undefined
 }
 
-/**
- * Prefix of a one-time pairing code that the `kubb_studio_connect` MCP tool hands out.
- */
+/** Prefix of a one-time pairing code from the `kubb_studio_connect` MCP tool. */
 export const PAIRING_CODE_PREFIX = 'kubb_pair_'
 
 /**
@@ -424,15 +413,11 @@ const PAIRING_CODE_MESSAGES: Record<PairingCodeErrorCode, string> = {
   access_denied: 'Kubb Studio refused the pairing: the plan reached its MCP agent limit. Remove an MCP agent in Studio or upgrade the plan.',
 }
 
-/**
- * Thrown when Studio refuses a pairing code. A code is spent or dead once this is thrown, so do
- * not send it again.
- */
+/** Thrown when Studio refuses a pairing code. Never send that code again. */
 export class PairingCodeError extends Error {
   readonly code: PairingCodeErrorCode
 
   constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
-    // Studio's own reason, such as a revoked connection or the limit spelled out, says more than the generic message.
     super(description ? withNextStep({ description, code }) : PAIRING_CODE_MESSAGES[code])
     this.name = 'PairingCodeError'
     this.code = code
@@ -444,35 +429,19 @@ function withNextStep({ description, code }: { description: string; code: Pairin
   return code === 'access_denied' ? sentence : `${sentence} Ask the MCP client for a new code.`
 }
 
-/**
- * What Studio answers a redeemed pairing code with.
- */
 export type RedeemedPairing = PairingResult & {
-  /**
-   * Seconds until `token` expires: 3600 for an `mcp` agent. Refresh it before then.
-   */
+  /** Seconds until `token` expires: 3600 for an `mcp` agent. */
   expiresIn: number
 }
 
 export type RedeemPairingCodeOptions = {
   studioUrl?: string
-  /**
-   * The one-time `kubb_pair_` code from `kubb_studio_connect`. Never log it.
-   */
+  /** The one-time `kubb_pair_` code. Never log it. */
   pairingCode: string
-  /**
-   * Display name for the agent, usually the project name.
-   */
   name: string
-  /**
-   * A stable secret the host keeps for this machine. Only its SHA-256 is sent, so the same person,
-   * client, and machine pairing again gets the same agent and a new token.
-   */
+  /** A stable machine secret. Only its SHA-256 is sent, so pairing again finds the same agent. */
   machineId: string
-  /**
-   * The agent key from `generateAgentKey`. Only its public half is sent. Studio then expects every
-   * socket handshake and token refresh to be signed by it.
-   */
+  /** The agent key from `generateAgentKey`, which signs every handshake and refresh. Only its public half is sent. */
   privateKey: string
   signal?: AbortSignal
 }
@@ -521,7 +490,6 @@ export async function redeemPairingCode({
     })
     .catch((error: unknown) => {
       if (signal?.aborted) throw new PairingCanceledError()
-      // The request body holds the code. The error names only the URL, but the code is redacted anyway.
       throw new Diagnostics.Error({
         code: Diagnostics.code.inputRequestFailed,
         severity: 'error',
@@ -530,26 +498,35 @@ export async function redeemPairingCode({
       })
     })
 
-  const data: RedeemResponse = _data && typeof _data === 'object' ? _data : {}
-  if (typeof data.error === 'string' && PAIRING_CODE_ERRORS.has(data.error)) {
-    throw new PairingCodeError({
-      code: data.error as PairingCodeErrorCode,
-      description: typeof data.error_description === 'string' && data.error_description ? data.error_description : undefined,
-    })
-  }
-  if (status < 200 || status >= 300 || typeof data.token !== 'string' || !data.token || !isAgent(data.agent)) {
+  return toRedeemedPairing({ status, data: _data && typeof _data === 'object' ? _data : {}, pairingCode })
+}
+
+// Studio's own words are passed on, never the code, should an answer ever echo it.
+function toRedeemedPairing({ status, data, pairingCode }: { status: number; data: RedeemResponse; pairingCode: string }): RedeemedPairing {
+  const redact = (text: unknown) => (typeof text === 'string' && text ? text.replaceAll(pairingCode, '[redacted]') : undefined)
+  const description = redact(data.error_description)
+  if (isPairingCodeErrorCode(data.error)) throw new PairingCodeError({ code: data.error, description })
+  if (!isRedeemed(status, data)) {
+    const reason = redact(data.error)
     throw new Diagnostics.Error({
       code: Diagnostics.code.inputRequestFailed,
       severity: 'error',
-      message:
-        typeof data.error_description === 'string' && data.error_description
-          ? data.error_description
-          : `Kubb Studio answered the pairing code with status ${status}${typeof data.error === 'string' ? ` (${data.error})` : ''}`,
+      message: description ?? `Kubb Studio answered the pairing code with status ${status}${reason ? ` (${reason})` : ''}`,
       help: 'Ask the MCP client for a new code, then try again.',
     })
   }
 
   return { token: data.token, agent: data.agent, expiresIn: toExpiresIn(data.expires_in) ?? 3600 }
+}
+
+function isPairingCodeErrorCode(error: unknown): error is PairingCodeErrorCode {
+  return typeof error === 'string' && PAIRING_CODE_ERRORS.has(error)
+}
+
+type RedeemedResponse = RedeemResponse & { token: string; agent: PairingResult['agent'] }
+
+function isRedeemed(status: number, data: RedeemResponse): data is RedeemedResponse {
+  return status >= 200 && status < 300 && typeof data.token === 'string' && data.token !== '' && isAgent(data.agent)
 }
 
 function isAgent(agent: unknown): agent is PairingResult['agent'] {
