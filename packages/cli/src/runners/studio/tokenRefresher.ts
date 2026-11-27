@@ -32,9 +32,12 @@ export class TokenRefresher {
   #jitter: { token: string; share: number } | undefined
   // Writes run one after another, so a later token never lands under an earlier one.
   #writes: Promise<void> = Promise.resolve()
+  // The last token known to be on disk. A write whose predecessor failed to land replaces this one instead.
+  #onDisk: string
 
   constructor(options: TokenRefresherOptions) {
     this.#options = options
+    this.#onDisk = options.credentials.get().token
   }
 
   refresh({ force = false } = {}): Promise<boolean> {
@@ -110,8 +113,10 @@ export class TokenRefresher {
     // Not awaited: a keychain prompt can hold the write past the new token's expiry, and renewal must go on meanwhile.
     // Only the token changes on disk, so permissions saved since this run read the file are kept.
     this.#writes = this.#writes.then(() =>
-      updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).then(
-        () => undefined,
+      updateCredentials((stored) => (stored && [replaced, this.#onDisk].includes(stored.token) ? { ...stored, ...refreshed } : undefined)).then(
+        (written) => {
+          if (written) this.#onDisk = refreshed.token
+        },
         (error: unknown) => warn(`Could not store the refreshed token: ${toError(error).message}`),
       ),
     )

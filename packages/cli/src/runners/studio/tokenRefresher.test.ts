@@ -167,6 +167,31 @@ describe('TokenRefresher', () => {
     refresher.stop()
   })
 
+  it('stores the next token when the write before it failed', async () => {
+    const { options, warn } = setup({ credentials: mcpToken() })
+    // Disk keeps token-0 until a write succeeds.
+    let stored: Credentials = { studioUrl: 'https://studio.test', token: 'token-0', agentId: 'id', agentSlug: 'slug' }
+    vi.mocked(updateCredentials)
+      .mockRejectedValueOnce(new Error('keychain locked'))
+      .mockImplementationOnce(async (update) => {
+        const next = update(stored)
+        if (next) stored = next
+        return next
+      })
+    vi.mocked(renewAgentToken).mockResolvedValueOnce({ token: 'token-1', expiresIn: 600 }).mockResolvedValueOnce({ token: 'token-2', expiresIn: 600 })
+    const refresher = await startTokenRefresher(options)
+
+    await vi.advanceTimersByTimeAsync(HOUR_MS * REFRESH_WINDOW.min)
+    await refresher.written()
+    expect(warn).toHaveBeenCalledWith('Could not store the refreshed token: keychain locked')
+    expect(stored.token).toBe('token-0')
+
+    await vi.advanceTimersByTimeAsync(600_000 * REFRESH_WINDOW.min)
+    await refresher.written()
+    expect(stored.token).toBe('token-2')
+    refresher.stop()
+  })
+
   it('starts without waiting for the first write', async () => {
     const { options } = setup({ credentials: mcpToken(Date.now() - 0.9 * HOUR_MS) })
     vi.mocked(updateCredentials).mockImplementationOnce(() => new Promise(() => {}))
