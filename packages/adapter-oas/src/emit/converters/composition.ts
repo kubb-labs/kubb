@@ -204,19 +204,26 @@ function hasOtherPattern(schema: SchemaObject): boolean {
 }
 
 /**
- * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
+ * Whether a one-member `allOf` adds nothing but annotations, so it parses as that member.
  */
-export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
-  const schema = mergeAnnotations(original)
-
-  if (
+function isSingleMemberAllOf(schema: SchemaObject): boolean {
+  return (
     schema.allOf!.length === 1 &&
     !schema.properties &&
     !(Array.isArray(schema.required) && schema.required.length) &&
     schema.additionalProperties === undefined &&
     // A value must match both patterns, so a parent `pattern` beside a different member `pattern` stays an intersection.
     !hasOtherPattern(schema)
-  ) {
+  )
+}
+
+/**
+ * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
+ */
+export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
+  const schema = mergeAnnotations(original)
+
+  if (isSingleMemberAllOf(schema)) {
     const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
     const memberNode = parse({ schema: memberSchema! as SchemaObject, name })
     const { kind: _kind, ...memberNodeProps } = memberNode
