@@ -344,16 +344,7 @@ export async function connect(
   let unwatch: (() => void) | undefined
   let refresher: TokenRefresher | undefined
   try {
-    if (!context.prepared) {
-      const { getWorkerStatus } = await import('./background.ts')
-      const worker = await getWorkerStatus()
-      if (worker.running)
-        throw new Diagnostics.Error({
-          code: Diagnostics.code.unknown,
-          severity: 'error',
-          message: 'This project is running in the background. Run `kubb studio stop` first.',
-        })
-    }
+    if (!context.prepared) await assertNoBackgroundWorker()
     const prepared = context.prepared ?? (await prepareConnection(options, signal))
     let { credentials, permissions } = prepared
     const { configPath } = prepared
@@ -402,11 +393,7 @@ export async function connect(
       }
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
-      logBlock([
-        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
-        styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
-      ])
-      logTip()
+      logConnected({ permissions, listens })
     })
     hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
 
@@ -454,12 +441,7 @@ export async function connect(
     // Stops the "Ready for jobs" spinner, which would otherwise keep drawing under the closing line.
     await hooks.callHook('kubb:lifecycle:end')
     unwatch?.()
-    if (background) {
-      const { startWorker } = await import('./background.ts')
-      await startWorker(options, () => prepareConnection(options))
-      if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
-      return
-    }
+    if (background) return await handOffToWorker(options)
     if (!context.onState && signal.aborted && options.logLevel !== 'silent') logOutro('Disconnected')
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
@@ -471,6 +453,33 @@ export async function connect(
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)
   }
+}
+
+/** Starts the background worker for this project after `b` ends the foreground session. */
+async function handOffToWorker(options: StudioOptions): Promise<void> {
+  const { startWorker } = await import('./background.ts')
+  await startWorker(options, () => prepareConnection(options))
+  if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
+}
+
+/** Refuses a foreground run while the background worker owns this project. */
+async function assertNoBackgroundWorker(): Promise<void> {
+  const { getWorkerStatus } = await import('./background.ts')
+  if (!(await getWorkerStatus()).running) return
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.unknown,
+    severity: 'error',
+    message: 'This project is running in the background. Run `kubb studio stop` first.',
+  })
+}
+
+/** Prints the project and its permissions once, after the first connect. */
+function logConnected({ permissions, listens }: { permissions: StudioOptions['permission']; listens: boolean }): void {
+  logBlock([
+    `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
+    styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
+  ])
+  logTip()
 }
 
 /**
