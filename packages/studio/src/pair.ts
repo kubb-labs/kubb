@@ -425,7 +425,7 @@ export class PairingCodeError extends Error {
 }
 
 function withNextStep({ description, code }: { description: string; code: PairingCodeErrorCode }): string {
-  const sentence = /[.!?]$/.test(description.trim()) ? description.trim() : `${description.trim()}.`
+  const sentence = description.trim().replace(/(?<![.!?])$/, '.')
   return code === 'access_denied' ? sentence : `${sentence} Ask the MCP client for a new code.`
 }
 
@@ -449,12 +449,10 @@ export type RedeemPairingCodeOptions = {
 type RedeemResponse = {
   token?: unknown
   expires_in?: unknown
-  agent?: PairingResult['agent']
+  agent?: unknown
   error?: unknown
   error_description?: unknown
 }
-
-const PAIRING_CODE_ERRORS = new Set<string>(['invalid_grant', 'expired_token', 'access_denied'])
 
 /**
  * Redeems a one-time pairing code for an agent token, with no person approving it. Studio answers
@@ -520,7 +518,7 @@ function toRedeemedPairing({ status, data, pairingCode }: { status: number; data
 }
 
 function isPairingCodeErrorCode(error: unknown): error is PairingCodeErrorCode {
-  return typeof error === 'string' && PAIRING_CODE_ERRORS.has(error)
+  return typeof error === 'string' && Object.hasOwn(PAIRING_CODE_MESSAGES, error)
 }
 
 type RedeemedResponse = RedeemResponse & { token: string; agent: PairingResult['agent'] }

@@ -8,7 +8,6 @@ export const command = studioCommand({
   args: connectCommand.args,
   async action(options) {
     const { login, redeemPairing, takePairingCode } = await import('../../runners/studio/run.ts')
-    // An MCP client hands over a one-time code in KUBB_STUDIO_PAIRING_CODE, which pairs without a browser.
     const pairingCode = takePairingCode()
     await (pairingCode ? redeemPairing(options, { pairingCode }) : login(options))
   },
