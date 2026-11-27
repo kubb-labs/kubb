@@ -614,7 +614,7 @@ export const AgentPermission = {
 export type AgentPermission = ValueOf<typeof AgentPermission>
 
 /**
- * Metadata part of `POST /api/snapshots`. The `tarball` part carries the packed package.
+ * Metadata part of `POST /v1/snapshots` (or `POST /api/snapshots`). The `tarball` part carries the packed package.
  */
 export type SnapshotUploadMetadata = {
   /**
@@ -659,7 +659,7 @@ export type SnapshotChanges = {
 export type BranchSnapshotChanges = SnapshotChanges & { baseFound: boolean }
 
 /**
- * Response body of `POST /api/snapshots`: `{ snapshot: PublishedSnapshot }`.
+ * Response body of `POST /v1/snapshots` (or `POST /api/snapshots`): `{ snapshot: PublishedSnapshot }`.
  */
 export type PublishedSnapshot = {
   id: string
