@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renewAgentToken } from '@kubb/studio'
+import { updateCredentials } from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import { REFRESH_WINDOW, startTokenRefresher, type TokenRefresherOptions } from './tokenRefresher.ts'
 
@@ -126,6 +127,49 @@ describe('TokenRefresher', () => {
     await vi.advanceTimersByTimeAsync(1_000)
     expect(renewAgentToken).toHaveBeenCalledOnce()
     expect(current().expiresAt).toBeUndefined()
+    refresher.stop()
+  })
+
+  it('keeps renewing while a credential write is pending, and writes the tokens in order', async () => {
+    const { options, current } = setup({ credentials: mcpToken() })
+    let finishFirstWrite: () => void = () => {}
+    const writes: Array<string> = []
+    vi.mocked(updateCredentials)
+      .mockImplementationOnce(async (update) => {
+        await new Promise<void>((resolve) => {
+          finishFirstWrite = resolve
+        })
+        writes.push(update({ ...current(), token: 'token-0' })?.token ?? 'skipped')
+        return undefined
+      })
+      .mockImplementationOnce(async (update) => {
+        writes.push(update({ ...current(), token: 'token-1' })?.token ?? 'skipped')
+        return undefined
+      })
+    vi.mocked(renewAgentToken).mockResolvedValueOnce({ token: 'token-1', expiresIn: 600 }).mockResolvedValueOnce({ token: 'token-2', expiresIn: 600 })
+    const refresher = await startTokenRefresher(options)
+
+    await vi.advanceTimersByTimeAsync(HOUR_MS * REFRESH_WINDOW.min)
+    // The first write is still waiting, as on a keychain prompt, yet the next renewal runs on time.
+    await vi.advanceTimersByTimeAsync(600_000 * REFRESH_WINDOW.min)
+    expect(renewAgentToken).toHaveBeenCalledTimes(2)
+    expect(current().token).toBe('token-2')
+    expect(writes).toStrictEqual([])
+
+    finishFirstWrite()
+    await refresher.written()
+    expect(writes).toStrictEqual(['token-1', 'token-2'])
+    refresher.stop()
+  })
+
+  it('starts without waiting for the first write', async () => {
+    const { options } = setup({ credentials: mcpToken(Date.now() - 0.9 * HOUR_MS) })
+    vi.mocked(updateCredentials).mockImplementationOnce(() => new Promise(() => {}))
+    vi.mocked(renewAgentToken).mockResolvedValue({ token: 'token-1', expiresIn: 3600 })
+
+    const refresher = await startTokenRefresher(options)
+
+    expect(renewAgentToken).toHaveBeenCalledOnce()
     refresher.stop()
   })
 

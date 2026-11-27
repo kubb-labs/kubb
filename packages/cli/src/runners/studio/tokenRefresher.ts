@@ -32,6 +32,8 @@ export class TokenRefresher {
   #timer: NodeJS.Timeout | undefined
   #stopped = false
   #jitter: { token: string; share: number } | undefined
+  // Writes run one after another, so a later token never lands under an earlier one.
+  #writes: Promise<void> = Promise.resolve()
 
   constructor(options: TokenRefresherOptions) {
     this.#options = options
@@ -52,6 +54,11 @@ export class TokenRefresher {
   stop(): void {
     this.#stopped = true
     clearTimeout(this.#timer)
+  }
+
+  /** Resolves once every refreshed token so far is on disk. */
+  written(): Promise<void> {
+    return this.#writes
   }
 
   /** When the current token is due, in epoch milliseconds. */
@@ -94,7 +101,7 @@ export class TokenRefresher {
     this.#timer.unref()
   }
 
-  async #store({ replaced, renewed }: { replaced: string; renewed: RenewedAgentToken }): Promise<void> {
+  #store({ replaced, renewed }: { replaced: string; renewed: RenewedAgentToken }): void {
     const { warn, credentials } = this.#options
     const issuedAt = Date.now()
     const refreshed = {
@@ -103,11 +110,14 @@ export class TokenRefresher {
       expiresAt: renewed.expiresIn === undefined ? undefined : new Date(issuedAt + renewed.expiresIn * 1000).toISOString(),
     }
     credentials.set({ ...credentials.get(), ...refreshed })
-    // Armed before the write, which a keychain prompt can hold past the new token's expiry.
     if (this.#timer) this.#schedule(this.#nextDelay())
+    // Not awaited: a keychain prompt can hold the write past the new token's expiry, and renewal must go on meanwhile.
     // Only the token changes on disk, so permissions saved since this run read the file are kept.
-    await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
-      warn(`Could not store the refreshed token: ${toError(error).message}`),
+    this.#writes = this.#writes.then(() =>
+      updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).then(
+        () => undefined,
+        (error: unknown) => warn(`Could not store the refreshed token: ${toError(error).message}`),
+      ),
     )
   }
 
@@ -126,7 +136,7 @@ export class TokenRefresher {
       })
       // A pairing that finished meanwhile owns the credentials now.
       if (!renewed || credentials.get().token !== replaced) return false
-      await this.#store({ replaced, renewed })
+      this.#store({ replaced, renewed })
       return true
     } catch (error) {
       if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)

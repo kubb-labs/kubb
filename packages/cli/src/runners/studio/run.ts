@@ -462,6 +462,8 @@ export async function connect(
     if (!(error instanceof PairingCanceledError)) throw error
   } finally {
     refresher?.stop()
+    // A refreshed token is the only one Studio still accepts, so it reaches disk before the run ends.
+    await refresher?.written()
     unwatch?.()
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)
