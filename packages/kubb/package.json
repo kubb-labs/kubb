@@ -185,8 +185,8 @@
   "devDependencies": {
     "@farmfe/core": "^2.0.1",
     "@internals/utils": "workspace:*",
-    "@nuxt/kit": "^4.6.4",
-    "@nuxt/schema": "^4.6.4",
+    "@nuxt/kit": "^4.7.0",
+    "@nuxt/schema": "^4.7.0",
     "esbuild": "^0.28.2",
     "rolldown": "^1.3.3",
     "rollup": "^4.68.8",
