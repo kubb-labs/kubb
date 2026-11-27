@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.28.1 — Nov 27, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Keep every `pattern` of an `allOf`, so the value must match all of them.
+  
+  ```diff
+  - value: z.string().regex(/^[a-z]*$/)
+  + value: z.string().regex(/^[a-z]*$/).regex(/^[^q]*$/)
+  ``` ([#4813](https://github.com/kubb-labs/kubb/pull/4813), [`bcb6a29`](https://github.com/kubb-labs/kubb/commit/bcb6a29b365bb53d6950e5317698a46dd9fc60ee))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@kubb-bot](https://github.com/kubb-bot)
+
 ## v5.28.0 — Nov 26, 2026
 
 ### @kubb/cli
