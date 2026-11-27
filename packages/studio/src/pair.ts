@@ -413,11 +413,10 @@ export class PairingCodeError extends Diagnostics.Error {
 
   constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
     const trimmed = description?.trim()
-    const sentence = trimmed ? trimmed.replace(/(?<![.!?])$/, '.') : undefined
     super({
       code: Diagnostics.code.studioRefused,
       severity: 'error',
-      message: sentence || PAIRING_CODE_MESSAGES[code],
+      message: trimmed ? trimmed.replace(/(?<![.!?])$/, '.') : PAIRING_CODE_MESSAGES[code],
       help: code === 'access_denied' ? 'Remove an MCP agent in Studio, or upgrade the plan.' : 'Ask the MCP client for a new code.',
     })
     this.name = 'PairingCodeError'

@@ -474,7 +474,7 @@ async function assertNoBackgroundWorker(): Promise<void> {
   })
 }
 
-/** The cleared credentials take the paired URL with them, so a hint names a self-hosted Studio. */
+/** The `kubb studio login` command for a hint, with `--url` for a self-hosted Studio, since clearing the credentials drops the paired URL. */
 function loginCommandFor(studioUrl: string): string {
   return studioUrl === defaultStudioUrl ? 'kubb studio login' : `kubb studio login --url ${studioUrl}`
 }
