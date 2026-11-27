@@ -6,14 +6,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
 import { type Config, Diagnostics } from '@kubb/core'
-import { type ConnectAgentOptions, connectAgent, InvalidAgentTokenError, PairingCanceledError, pairAgent, refreshAgentToken } from '@kubb/studio'
+import {
+  type ConnectAgentOptions,
+  connectAgent,
+  InvalidAgentTokenError,
+  PairingCanceledError,
+  PairingCodeError,
+  pairAgent,
+  redeemPairingCode,
+  renewAgentToken,
+} from '@kubb/studio'
 import * as env from '../../utils/env.ts'
 import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import * as background from './background.ts'
 import { resolvePermissions } from './permissions.ts'
-import { connect, login, runStudio, type StudioOptions } from './run.ts'
+import { connect, login, PAIRING_CODE_ENV, prepareConnection, runStudio, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   multiselect: vi.fn(),
@@ -29,7 +38,8 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   connectAgent: vi.fn(),
   pairAgent: vi.fn(),
-  refreshAgentToken: vi.fn(),
+  redeemPairingCode: vi.fn(),
+  renewAgentToken: vi.fn(),
 }))
 
 const multiselect = vi.mocked(prompts.multiselect)
@@ -86,7 +96,7 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   const copy = vi.spyOn(utils, 'copyToClipboard').mockResolvedValue(true)
   multiselect.mockResolvedValue([])
   // A Studio without the refresh route, unless a test says otherwise.
-  vi.mocked(refreshAgentToken).mockResolvedValue(null)
+  vi.mocked(renewAgentToken).mockResolvedValue(null)
 
   return {
     write,
@@ -303,35 +313,35 @@ function fakeTty() {
   }
 }
 
+const connected = {
+  url: options.studioUrl,
+  versions: { studio: '1.0.0', kubb: '5.0.0', agent: '0.0.0' },
+  sandbox: false,
+  agentSlug: 'slug',
+  studioVersion: '1.0.0',
+}
+
+/**
+ * A `connectAgent` stand-in. Each call runs the next queued attempt: `rejected` throws what the
+ * runtime throws when Studio turns the token down, `connected then rejected` announces the
+ * session before it throws, and a call past the queue returns like a shutdown.
+ */
+function mockConnection(...attempts: Array<'rejected' | 'connected then rejected'>) {
+  const calls: Array<ConnectAgentOptions> = []
+
+  vi.mocked(connectAgent).mockImplementation(async (connectOptions) => {
+    // The token as the socket would read it when it opens.
+    calls.push({ ...connectOptions, token: typeof connectOptions.token === 'function' ? await connectOptions.token() : connectOptions.token })
+    const attempt = attempts[calls.length - 1]
+    if (!attempt) return
+    if (attempt === 'connected then rejected') await connectOptions.hooks?.callHook('studio:connected', connected)
+    throw new InvalidAgentTokenError(options.studioUrl)
+  })
+
+  return calls
+}
+
 describe('connect', () => {
-  const connected = {
-    url: options.studioUrl,
-    versions: { studio: '1.0.0', kubb: '5.0.0', agent: '0.0.0' },
-    sandbox: false,
-    agentSlug: 'slug',
-    studioVersion: '1.0.0',
-  }
-
-  /**
-   * A `connectAgent` stand-in. Each call runs the next queued attempt: `rejected` throws what the
-   * runtime throws when Studio turns the token down, `connected then rejected` announces the
-   * session before it throws, and a call past the queue returns like a shutdown.
-   */
-  function mockConnection(...attempts: Array<'rejected' | 'connected then rejected'>) {
-    const calls: Array<ConnectAgentOptions> = []
-
-    vi.mocked(connectAgent).mockImplementation(async (connectOptions) => {
-      // The token as the socket would read it when it opens.
-      calls.push({ ...connectOptions, token: typeof connectOptions.token === 'function' ? await connectOptions.token() : connectOptions.token })
-      const attempt = attempts[calls.length - 1]
-      if (!attempt) return
-      if (attempt === 'connected then rejected') await connectOptions.hooks?.callHook('studio:connected', connected)
-      throw new InvalidAgentTokenError(options.studioUrl)
-    })
-
-    return calls
-  }
-
   it('forgets a rejected token on a run that cannot pair again, and says how to pair', async () => {
     using project = stubProject({ stored: credentials, ci: true })
     mockConnection('rejected')
@@ -403,13 +413,13 @@ describe('connect', () => {
     ['stored by a release without token refresh', { issuedAt: undefined }],
   ])('refreshes a token %s before it connects, and stores the new one', async (_case, issued) => {
     using project = stubProject({ stored: { ...credentials, ...issued } })
-    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    vi.mocked(renewAgentToken).mockResolvedValueOnce({ token: 'refreshed-token' })
     const calls = mockConnection()
     const onCredentials = vi.fn()
 
     await connect(options, { onCredentials })
 
-    expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: options.studioUrl, token: 'token', machineId: 'machine-secret' }))
+    expect(renewAgentToken).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: options.studioUrl, token: 'token', machineId: 'machine-secret' }))
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token', issuedAt: expect.any(String) }))
     expect(calls.map(({ token }) => token)).toStrictEqual(['refreshed-token'])
     expect(onCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
@@ -421,7 +431,7 @@ describe('connect', () => {
     vi.mocked(credentialsStore.readCredentials)
       .mockResolvedValueOnce(stale)
       .mockResolvedValue({ ...stale, token: 'paired-elsewhere' })
-    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    vi.mocked(renewAgentToken).mockResolvedValueOnce({ token: 'refreshed-token' })
     mockConnection()
 
     await connect(options)
@@ -436,7 +446,7 @@ describe('connect', () => {
     await connect(options)
 
     expect(calls[0]?.privateKey).toBe('pem')
-    expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ privateKey: 'pem' }))
+    expect(renewAgentToken).toHaveBeenCalledWith(expect.objectContaining({ privateKey: 'pem' }))
 
     using _old = stubProject({ stored: credentials })
     const old = mockConnection()
@@ -446,12 +456,12 @@ describe('connect', () => {
 
   it('keeps a token issued within the day, and refreshes it once a day while connected', async () => {
     using project = stubProject({ stored: credentials })
-    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
-    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
+    vi.mocked(renewAgentToken).mockResolvedValueOnce({ token: 'refreshed-token' })
     let readToken: (() => string | Promise<string>) | undefined
     vi.mocked(connectAgent).mockImplementation(async ({ token }) => {
       readToken = token as () => string
-      expect(refreshAgentToken).not.toHaveBeenCalled()
+      expect(renewAgentToken).not.toHaveBeenCalled()
       await vi.advanceTimersByTimeAsync(24 * 60 * 60 * 1000)
     })
 
@@ -461,7 +471,7 @@ describe('connect', () => {
       vi.useRealTimers()
     }
 
-    expect(refreshAgentToken).toHaveBeenCalledOnce()
+    expect(renewAgentToken).toHaveBeenCalledOnce()
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
     // The next socket opens with the refreshed token.
     expect(await readToken?.()).toBe('refreshed-token')
@@ -469,12 +479,12 @@ describe('connect', () => {
 
   it('trades a rejected token in once before it asks for a new pairing', async () => {
     using project = stubProject({ stored: credentials })
-    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    vi.mocked(renewAgentToken).mockResolvedValueOnce({ token: 'refreshed-token' })
     const calls = mockConnection('rejected')
 
     await connect(options)
 
-    expect(refreshAgentToken).toHaveBeenCalledOnce()
+    expect(renewAgentToken).toHaveBeenCalledOnce()
     expect(pairAgent).not.toHaveBeenCalled()
     expect(project.clear).not.toHaveBeenCalled()
     expect(calls.map(({ token }) => token)).toStrictEqual(['token', 'refreshed-token'])
@@ -528,5 +538,122 @@ describe('connect', () => {
     await connect(options)
 
     expect(startWorker).toHaveBeenCalledWith(options, expect.any(Function))
+  })
+})
+
+describe('pairing code', () => {
+  const pairingCode = `kubb_pair_${'x'.repeat(43)}`
+  const writeOnly = { ...options, permission: { ...options.permission, allowWrite: true } }
+  const agent = { id: 'mcp-agent', slug: 'brave-otter', name: 'demo' }
+
+  function captureOutput() {
+    const lines: Array<string> = []
+    const capture = (...args: Array<unknown>) => void lines.push(args.map(String).join(' '))
+    const log = vi.spyOn(console, 'log').mockImplementation(capture)
+    const error = vi.spyOn(console, 'error').mockImplementation(capture)
+    const stdout = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
+      capture(chunk)
+      return true
+    })
+    return {
+      text: () => lines.join('\n'),
+      [Symbol.dispose]() {
+        for (const spy of [log, error, stdout]) spy.mockRestore()
+      },
+    }
+  }
+
+  it('redeems the code instead of a browser pairing, stores the token, and connects with the flags alone', async () => {
+    vi.stubEnv(PAIRING_CODE_ENV, pairingCode)
+    using project = stubProject({ stored: credentials, tty: true })
+    using output = captureOutput()
+    using open = vi.spyOn(utils, 'openInBrowser').mockImplementation(() => {})
+    vi.mocked(redeemPairingCode).mockResolvedValueOnce({ token: 'mcp-token', expiresIn: 3600, agent })
+    const calls = mockConnection()
+
+    await connect({ ...writeOnly, autoOpen: true })
+
+    expect(redeemPairingCode).toHaveBeenCalledWith(
+      expect.objectContaining({ studioUrl: options.studioUrl, pairingCode, machineId: 'machine-secret', privateKey: expect.stringMatching(/PRIVATE KEY/) }),
+    )
+    expect(pairAgent).not.toHaveBeenCalled()
+    expect(open).not.toHaveBeenCalled()
+    // No person is there to answer, so the permission list is never shown.
+    expect(multiselect).not.toHaveBeenCalled()
+    expect(project.write).toHaveBeenCalledWith(
+      expect.objectContaining({ token: 'mcp-token', agentId: 'mcp-agent', pairedWith: 'code', issuedAt: expect.any(String), expiresAt: expect.any(String) }),
+    )
+    const stored = vi.mocked(project.write).mock.calls[0]![0]
+    expect(Date.parse(stored.expiresAt!) - Date.parse(stored.issuedAt!)).toBe(3600 * 1000)
+    expect(calls).toHaveLength(1)
+    expect(calls[0]).toMatchObject({ token: 'mcp-token', privateKey: stored.privateKey })
+    expect(calls[0]?.permissions).toStrictEqual(writeOnly.permission)
+    expect(process.env[PAIRING_CODE_ENV]).toBeUndefined()
+    expect(output.text()).not.toContain(pairingCode)
+  })
+
+  it('takes the code out of the environment, so a second preparation does not send it again', async () => {
+    vi.stubEnv(PAIRING_CODE_ENV, pairingCode)
+    using _project = stubProject()
+    using _output = captureOutput()
+    vi.mocked(redeemPairingCode).mockResolvedValueOnce({ token: 'mcp-token', expiresIn: 3600, agent })
+
+    await prepareConnection(writeOnly)
+    vi.mocked(credentialsStore.readCredentials).mockResolvedValue({ ...credentials, token: 'mcp-token', pairedWith: 'code' })
+    await prepareConnection(writeOnly)
+
+    expect(redeemPairingCode).toHaveBeenCalledOnce()
+  })
+
+  it('redeems the code in CI, where a browser pairing is refused', async () => {
+    vi.stubEnv(PAIRING_CODE_ENV, pairingCode)
+    using _project = stubProject({ ci: true, tty: false })
+    using _output = captureOutput()
+    vi.mocked(redeemPairingCode).mockResolvedValueOnce({ token: 'mcp-token', expiresIn: 3600, agent })
+
+    await expect(prepareConnection(writeOnly)).resolves.toMatchObject({ credentials: { token: 'mcp-token' } })
+  })
+
+  it.each([
+    ['invalid_grant', 'already used'],
+    ['expired_token', 'expired'],
+    ['access_denied', 'MCP agent limit'],
+  ] as const)('prints a clear message for %s, exits non-zero, and keeps the code out of the output', async (code, message) => {
+    vi.stubEnv(PAIRING_CODE_ENV, pairingCode)
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
+    using project = stubProject()
+    using output = captureOutput()
+    vi.mocked(redeemPairingCode).mockRejectedValueOnce(new PairingCodeError({ code }))
+
+    await runStudio({ ...writeOnly.permission, logLevel: 'silent' }, (resolved) => connect(resolved))
+
+    expect(process.exitCode).toBe(1)
+    process.exitCode = undefined
+    expect(output.text()).toContain(message)
+    expect(output.text()).not.toContain(pairingCode)
+    expect(redeemPairingCode).toHaveBeenCalledOnce()
+    expect(pairAgent).not.toHaveBeenCalled()
+    expect(project.write).not.toHaveBeenCalled()
+  })
+
+  it('refuses a value that is not a pairing code without echoing it', async () => {
+    vi.stubEnv(PAIRING_CODE_ENV, 'ghp_not-a-pairing-code')
+    using _project = stubProject()
+
+    const error = (await prepareConnection(writeOnly).catch((error: unknown) => error)) as Error
+
+    expect(error.message).toContain('is not a Kubb Studio pairing code')
+    expect(error.message).not.toContain('ghp_not-a-pairing-code')
+    expect(redeemPairingCode).not.toHaveBeenCalled()
+  })
+
+  it('asks for a new code instead of a browser pairing when the token of a code pairing is rejected', async () => {
+    using project = stubProject({ stored: { ...credentials, pairedWith: 'code' } })
+    using _output = captureOutput()
+    mockConnection('rejected', 'rejected')
+
+    await expect(connect(writeOnly)).rejects.toThrow('Ask the MCP client for a new pairing code.')
+    expect(pairAgent).not.toHaveBeenCalled()
+    expect(project.clear).toHaveBeenCalledWith('token')
   })
 })

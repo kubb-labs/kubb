@@ -8,9 +8,12 @@ import {
   pairAgent,
   PairingCanceledError,
   PairingDeniedError,
+  PairingCodeError,
   PairingExpiredError,
   pollForPairingToken,
+  redeemPairingCode,
   refreshAgentToken,
+  renewAgentToken,
   startPairing,
   type PairingSession,
 } from './pair.ts'
@@ -254,6 +257,102 @@ describe('refreshAgentToken', () => {
     )
 
     await expect(refreshAgentToken({ ...options, timeout: 20 })).rejects.toThrow('did not answer the token refresh within 20 ms')
+  })
+})
+
+describe('renewAgentToken', () => {
+  const options = { studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' }
+
+  it('resolves the lifetime of an expiring token', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token', expires_in: 3600 }))
+
+    await expect(renewAgentToken(options)).resolves.toStrictEqual({ token: 'new-token', expiresIn: 3600 })
+  })
+
+  it.each([undefined, 0, -5, 'soon'])('leaves out an expires_in of %j', async (expiresIn) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token', expires_in: expiresIn }))
+
+    await expect(renewAgentToken(options)).resolves.toStrictEqual({ token: 'new-token' })
+  })
+})
+
+describe('redeemPairingCode', () => {
+  const pairingCode = `kubb_pair_${'a'.repeat(43)}`
+  const privateKey = generateAgentKey()
+  const options = { studioUrl: 'https://studio.test', pairingCode, name: 'my-project', machineId: 'secret', privateKey }
+  const agent = { id: 'agent-1', slug: 'brave-otter', name: 'my-project' }
+
+  it('sends the code, the hashed machine secret, the name and the raw public key, and resolves the token at once', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'agent-token', expires_in: 3600, agent }))
+
+    await expect(redeemPairingCode(options)).resolves.toStrictEqual({ token: 'agent-token', expiresIn: 3600, agent })
+    expect(fetchMock).toHaveBeenCalledOnce()
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(String(url)).toBe('https://studio.test/api/agent/token')
+    expect(init.method).toBe('POST')
+    expect(init.redirect).toBe('error')
+    const body = JSON.parse(String(init.body))
+    expect(body).toStrictEqual({
+      pairing_code: pairingCode,
+      machine_token: hash('sha256', 'secret'),
+      name: 'my-project',
+      public_key: getAgentPublicKey(privateKey),
+    })
+    expect(body.public_key).toMatch(/^[A-Za-z0-9_-]{43}$/)
+  })
+
+  it('assumes the one-hour lifetime when Studio sends none', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'agent-token', agent }))
+
+    await expect(redeemPairingCode(options)).resolves.toMatchObject({ expiresIn: 3600 })
+  })
+
+  it.each([
+    ['invalid_grant', 400, undefined, 'unknown, already used, or its connection was revoked'],
+    ['invalid_grant', 400, 'The connection was revoked', 'The connection was revoked. Ask the MCP client for a new code.'],
+    ['expired_token', 400, undefined, 'The pairing code expired'],
+    ['access_denied', 403, 'The Free plan allows 5 MCP agents.', 'The Free plan allows 5 MCP agents.'],
+    ['access_denied', 403, undefined, 'MCP agent limit'],
+  ])('throws PairingCodeError on %s (%i, %j) and does not send the code again', async (error, status, description, message) => {
+    fetchMock.mockResolvedValue(createMockResponse({ error, error_description: description }, status))
+
+    const promise = redeemPairingCode(options)
+
+    await expect(promise).rejects.toBeInstanceOf(PairingCodeError)
+    await expect(promise).rejects.toMatchObject({ code: error })
+    await expect(promise).rejects.toThrow(message)
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['a server error', createMockResponse({}, 502), 'status 502'],
+    ['an answer without a token', createMockResponse({ agent }), 'status 200'],
+    ['an answer without an agent', createMockResponse({ token: 'agent-token' }), 'status 200'],
+  ])('rejects on %s without retrying', async (_case, response, message) => {
+    fetchMock.mockResolvedValue(response)
+
+    await expect(redeemPairingCode(options)).rejects.toThrow(message)
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('keeps the code out of the error when Studio cannot be reached', async () => {
+    fetchMock.mockRejectedValue(new TypeError(`fetch failed for ${pairingCode}`))
+
+    const error = (await redeemPairingCode(options).catch((error: unknown) => error)) as Error
+
+    expect(error.message).toContain('Could not reach Kubb Studio')
+    expect(error.message).not.toContain(pairingCode)
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('rejects with PairingCanceledError when the signal aborts', async () => {
+    const controller = new AbortController()
+    fetchMock.mockImplementationOnce(async () => {
+      controller.abort()
+      throw new DOMException('aborted', 'AbortError')
+    })
+
+    await expect(redeemPairingCode({ ...options, signal: controller.signal })).rejects.toBeInstanceOf(PairingCanceledError)
   })
 })
 
