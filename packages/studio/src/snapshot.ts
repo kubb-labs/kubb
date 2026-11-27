@@ -7,7 +7,7 @@ import { ofetch } from 'ofetch'
 import { generationFailure, hashOf, relativeStoragePath } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
 import { toPackageName } from './resolveConfig.ts'
-import { defaultStudioUrl, secureUrl } from './url.ts'
+import { defaultStudioUrl, publicApiUrl, secureUrl } from './url.ts'
 
 const UPLOAD_TIMEOUT_MS = 120_000
 
@@ -171,7 +171,8 @@ export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'pee
 }
 
 /**
- * Generates the project, packs it as an npm tarball, and publishes it to Studio in one `POST /api/snapshots` request.
+ * Generates the project, packs it as an npm tarball, and publishes it to Studio in one `POST /v1/snapshots` request, or
+ * `POST /api/snapshots` on a Studio without a public API.
  *
  * @example
  * ```ts
@@ -186,7 +187,8 @@ export async function createSnapshot({
   signal,
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
-  const url = secureUrl({ studioUrl, path: '/api/snapshots' })
+  // Refuse a plaintext Studio URL before generating anything.
+  secureUrl({ studioUrl, path: '/api/snapshots' })
   const buildConfigs = configs.map((config) => ({ ...config, storage: fsStorage() }))
   const failures: Array<unknown> = []
   // Each package path with the file on disk it comes from.
@@ -265,6 +267,7 @@ export async function createSnapshot({
   body.set('metadata', JSON.stringify({ ...metadata, hashes, peerDependencies } satisfies SnapshotUploadMetadata))
   body.set('tarball', new Blob([new Uint8Array(bytes)], { type: 'application/gzip' }), 'snapshot.tgz')
 
+  const url = await publicApiUrl({ studioUrl, path: '/snapshots', signal })
   const timeout = AbortSignal.timeout(UPLOAD_TIMEOUT_MS)
   // A redirect would forward the CI key and tarball to wherever it points.
   const { ok, status, _data } = await ofetch.raw<{ snapshot?: PublishedSnapshot; message?: string; data?: { upgradeUrl?: string } }>(url.href, {

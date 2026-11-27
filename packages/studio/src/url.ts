@@ -1,4 +1,5 @@
 import { isSecureUrl } from '@internals/utils'
+import { ofetch } from 'ofetch'
 import { Diagnostics } from '@kubb/core'
 
 /**
@@ -28,4 +29,34 @@ export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: stri
   if (socket) url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
 
   return url
+}
+
+/**
+ * How long the settings lookup in {@link publicApiUrl} may take before it falls back to `/api`.
+ */
+const SETTINGS_TIMEOUT_MS = 10_000
+
+/**
+ * Resolves where an organization API key request goes. A Studio that serves the public API reports its
+ * origin as `apiUrl` in `GET /api/settings`, and the request goes to `{apiUrl}/v1{path}`. Without one, or
+ * when the lookup fails, it goes to `{studioUrl}/api{path}`, which takes the same keys.
+ *
+ * @example
+ * ```ts
+ * const url = await publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })
+ * url.href // 'https://api.kubb.studio/v1/snapshots'
+ * ```
+ */
+export async function publicApiUrl({ studioUrl, path, signal }: { studioUrl: string; path: string; signal?: AbortSignal }): Promise<URL> {
+  const fallback = secureUrl({ studioUrl, path: `/api${path}` })
+  const timeout = AbortSignal.timeout(SETTINGS_TIMEOUT_MS)
+  const settings = await ofetch<{ apiUrl?: unknown }>(secureUrl({ studioUrl, path: '/api/settings' }).href, {
+    redirect: 'error',
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+  }).catch(() => undefined)
+  const apiUrl = settings?.apiUrl
+  if (typeof apiUrl !== 'string' || !URL.canParse(apiUrl)) return fallback
+
+  // The origin comes from the network, so it gets the same check as `studioUrl` before an API key goes there.
+  return secureUrl({ studioUrl: new URL(apiUrl).origin, path: `/v1${path}` })
 }
