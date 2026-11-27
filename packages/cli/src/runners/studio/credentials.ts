@@ -84,6 +84,16 @@ export async function readCredentials(): Promise<Credentials | null> {
 }
 
 /**
+ * The Studio this project paired with, read without the keychain, so a command can default to it.
+ */
+export async function readPairedStudioUrl(): Promise<string | undefined> {
+  const stored = await projectStorage()
+    .getItem<Partial<Credentials>>(CREDENTIALS_FILENAME)
+    .catch(() => null)
+  return typeof stored?.studioUrl === 'string' && stored.studioUrl ? stored.studioUrl : undefined
+}
+
+/**
  * Writes the credential into the project folder, which only its owner can open. The agent key goes
  * to the system keychain instead when one accepts it, so a copy of the folder does not carry it.
  */

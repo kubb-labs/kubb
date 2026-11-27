@@ -257,6 +257,13 @@ const diagnosticCatalog = {
     cause: 'Kubb hit a state it does not expect. This is a bug in Kubb, not in your config.',
     fix: 'Rerun with `--reporter json` or `--verbose` to get the stack. Then report it at https://github.com/kubb-labs/kubb/issues with the spec and config that trigger it.',
   },
+  studioRefused: {
+    code: 'KUBB_STUDIO_REFUSED',
+    title: 'Kubb Studio refused the agent',
+    cause:
+      'Kubb Studio did not accept the pairing code or the agent token. A code works once and for 5 minutes, and a token stops working once it expires or is revoked.',
+    fix: 'An agent an MCP client paired needs a new code from the `kubb_studio_connect` tool. Any other agent pairs again with `kubb studio login`.',
+  },
   performance: {
     code: 'KUBB_PERFORMANCE',
     title: 'Performance',

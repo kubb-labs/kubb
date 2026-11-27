@@ -40,7 +40,7 @@ export const logLevelArg = {
 export const studioConnectionArgs = {
   url: {
     type: 'string',
-    description: 'Base URL of the Kubb Studio instance',
+    description: 'Base URL of the Kubb Studio instance. Defaults to the one this project paired with, else https://kubb.studio',
   },
   token: {
     type: 'string',

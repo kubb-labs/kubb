@@ -228,6 +228,12 @@ A `$ref` points at a missing definition, or a file or URL Kubb cannot read.
 
 **Fix:** Add the definition or file, or fix the `$ref`, then run [`kubb validate`](/docs/5.x/reference/commands/validate).
 
+### KUBB_STUDIO_REFUSED {#kubb-studio-refused}
+
+Kubb Studio refused a pairing code or an agent token. A code works once, for 5 minutes. A token stops working once it expires or is revoked.
+
+**Fix:** For an agent an MCP client paired, get a new code from the client's `kubb_studio_connect` tool. For any other agent, pair again with [`kubb studio login`](/docs/5.x/reference/commands/studio).
+
 ### KUBB_UNKNOWN {#kubb-unknown}
 
 An error without a Kubb code, such as a missing or failing config file.

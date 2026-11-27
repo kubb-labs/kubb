@@ -146,6 +146,28 @@ function mockPairing(agentId: string = credentials.agentId, organizationSlug?: s
 }
 
 describe('runStudio', () => {
+  it.each([
+    ['the paired Studio without --url', undefined, 'http://localhost:4002'],
+    ['--url over the paired Studio', 'https://studio.example.com', 'https://studio.example.com'],
+  ])('uses %s', async (_case, url, expected) => {
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
+    using _paired = vi.spyOn(credentialsStore, 'readPairedStudioUrl').mockResolvedValue('http://localhost:4002')
+    const action = vi.fn(async () => {})
+
+    await runStudio({ url, logLevel: 'silent' }, action)
+
+    expect(action).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: expected }))
+  })
+
+  it('uses the hosted Studio when the project is not paired', async () => {
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
+    const action = vi.fn(async () => {})
+
+    await runStudio({ logLevel: 'silent' }, action)
+
+    expect(action).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: 'https://kubb.studio' }))
+  })
+
   it('prints the help of a failure and sets the exit code', async () => {
     vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
     const printed = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -346,8 +368,18 @@ describe('connect', () => {
     using project = stubProject({ stored: credentials, ci: true })
     mockConnection('rejected')
 
-    await expect(connect(options)).rejects.toThrow(/kubb studio login/)
+    await expect(connect(options)).rejects.toMatchObject({
+      diagnostic: { code: 'KUBB_STUDIO_REFUSED', help: 'Run `kubb studio login --url http://localhost:3000` to pair again.' },
+    })
     expect(project.clear).toHaveBeenCalled()
+  })
+
+  it('leaves --url out of the pairing hint for the hosted Studio', async () => {
+    const hosted = { ...options, studioUrl: 'https://kubb.studio' }
+    using _project = stubProject({ stored: { ...credentials, studioUrl: hosted.studioUrl }, ci: true })
+    mockConnection('rejected')
+
+    await expect(connect(hosted)).rejects.toMatchObject({ diagnostic: { help: 'Run `kubb studio login` to pair again.' } })
   })
 
   it('pairs again interactively and carries saved permissions forward for the same agent identity', async () => {
@@ -511,7 +543,7 @@ describe('connect', () => {
     expect(output).toContain('1 plugin, in memory')
   })
 
-  it('prints the project and its permissions once connected', async () => {
+  it('prints the agent ID, the project, and its permissions once connected', async () => {
     using _project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowRead: true, allowReadAst: true } } } })
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
@@ -521,7 +553,9 @@ describe('connect', () => {
 
     await connect(options)
 
-    expect(lines.map((line) => stripVTControlCharacters(line)).join('\n')).toContain(`Project  ${path.basename(process.cwd())}   read source · read spec`)
+    const printed = lines.map((line) => stripVTControlCharacters(line)).join('\n')
+    expect(printed).toContain(`Agent ID  ${credentials.agentId}`)
+    expect(printed).toContain(`Project  ${path.basename(process.cwd())}   read source · read spec`)
   })
 
   it('hands the session to the background worker when b is pressed', async () => {
@@ -652,7 +686,9 @@ describe('pairing code', () => {
     using _output = captureOutput()
     mockConnection('rejected', 'rejected')
 
-    await expect(connect(writeOnly)).rejects.toThrow('Ask the MCP client for a new pairing code.')
+    await expect(connect(writeOnly)).rejects.toMatchObject({
+      diagnostic: { code: 'KUBB_STUDIO_REFUSED', help: 'Ask the MCP client for a new pairing code.' },
+    })
     expect(pairAgent).not.toHaveBeenCalled()
     expect(project.clear).toHaveBeenCalledWith('token')
   })

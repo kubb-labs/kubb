@@ -50,7 +50,7 @@ describe('formatStatus', () => {
       now: 1_000 + 90 * 60_000,
     })
 
-    expect(lines[0]).toMatch(/✓ laptop · org acme +kubb studio logout$/)
+    expect(lines[0]).toMatch(/✓ agent agent-1 · org acme +kubb studio logout$/)
     expect(lines[1]).toMatch(/● connected · PID 42 · up 1h 30m +kubb studio stop$/)
     expect(lines[3]).toMatch(/^ {2}Permissions {2}✓ .+kubb studio permissions$/)
   })

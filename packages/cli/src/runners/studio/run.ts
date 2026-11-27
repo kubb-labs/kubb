@@ -25,7 +25,7 @@ import { logBlock, logStep } from '../../ui/log.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { canUseTTY, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
-import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, updateCredentials } from './credentials.ts'
+import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, readPairedStudioUrl, updateCredentials } from './credentials.ts'
 import { formatPermissionSummary, resolvePermissions } from './permissions.ts'
 import { startTokenRefresher, type TokenRefresher } from './tokenRefresher.ts'
 import { version } from '../../../package.json'
@@ -393,7 +393,7 @@ export async function connect(
       }
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
-      logConnected({ permissions, listens })
+      logConnected({ agentId: credentials.agentId, permissions, listens })
     })
     hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
 
@@ -424,9 +424,10 @@ export async function connect(
         await context.onState?.('authentication required')
         await clearCredentials(credentials.token)
         // A spent code cannot be redeemed again, and no person is there to approve a browser pairing.
-        if (credentials.pairedWith === 'code') throw new Error(`${error.message} Ask the MCP client for a new pairing code.`)
-        if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
-        if (context.onState || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
+        if (credentials.pairedWith === 'code') throw refused(error.message, 'Ask the MCP client for a new pairing code.')
+        const loginCommand = loginCommandFor(options.studioUrl)
+        if (pairedAgain) throw refused(`${error.message} Studio rejected the newly approved token too.`, `Run \`${loginCommand}\` and try again.`)
+        if (context.onState || isCIEnvironment() || !canUseTTY()) throw refused(error.message, `Run \`${loginCommand}\` to pair again.`)
 
         // The pairing prompts need stdin back.
         unwatch?.()
@@ -473,9 +474,20 @@ async function assertNoBackgroundWorker(): Promise<void> {
   })
 }
 
-/** Prints the project and its permissions once, after the first connect. */
-function logConnected({ permissions, listens }: { permissions: StudioOptions['permission']; listens: boolean }): void {
+/** The `kubb studio login` command for a hint, with `--url` for a self-hosted Studio, since clearing the credentials drops the paired URL. */
+function loginCommandFor(studioUrl: string): string {
+  return studioUrl === defaultStudioUrl ? 'kubb studio login' : `kubb studio login --url ${studioUrl}`
+}
+
+function refused(message: string, help: string): Error {
+  return new Diagnostics.Error({ code: Diagnostics.code.studioRefused, severity: 'error', message, help })
+}
+
+/** Prints the agent ID, the project, and its permissions once, after the first connect. */
+function logConnected({ agentId, permissions, listens }: { agentId: string; permissions: StudioOptions['permission']; listens: boolean }): void {
   logBlock([
+    // An MCP client passes this ID to `kubb_studio_generate`.
+    `${styleText('dim', 'Agent ID')}  ${agentId}`,
     `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
     styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
   ])
@@ -524,7 +536,8 @@ export async function runStudio(
   const options: StudioOptions = {
     version,
     configPath: values.config,
-    studioUrl: values.url ?? defaultStudioUrl,
+    // Without `--url`, a project keeps talking to the Studio it paired with.
+    studioUrl: values.url ?? (await readPairedStudioUrl()) ?? defaultStudioUrl,
     permission: Object.fromEntries(Object.values(AgentPermission).map((key) => [key, values[key] ?? false])) as Record<AgentPermission, boolean>,
     autoOpen: values.open ?? true,
     logLevel: values.logLevel,
