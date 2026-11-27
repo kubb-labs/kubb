@@ -1,5 +1,4 @@
 import { isSecureUrl } from '@internals/utils'
-import { ofetch } from 'ofetch'
 import { Diagnostics } from '@kubb/core'
 
 /**
@@ -31,22 +30,32 @@ export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: stri
   return url
 }
 
-const SETTINGS_TIMEOUT_MS = 10_000
+/**
+ * Hosted Kubb Studio's public API.
+ */
+const defaultApiUrl = 'https://api.kubb.studio'
 
 /**
- * Where an organization API key request goes: `{apiUrl}/v1{path}` when Studio reports a public API in
- * `GET /api/settings`, else `{studioUrl}/api{path}`, also when that lookup fails.
+ * Where an organization API key request goes: `{apiUrl}/v1{path}`, with `KUBB_STUDIO_API_URL` as `apiUrl`, or
+ * `https://api.kubb.studio` for the hosted Studio. Any other Studio takes the key at `{studioUrl}/api{path}`.
+ *
+ * @example
+ * ```ts
+ * publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' }).href // 'https://api.kubb.studio/v1/snapshots'
+ * ```
  */
-export async function publicApiUrl({ studioUrl, path, signal }: { studioUrl: string; path: string; signal?: AbortSignal }): Promise<URL> {
-  const fallback = secureUrl({ studioUrl, path: `/api${path}` })
-  const timeout = AbortSignal.timeout(SETTINGS_TIMEOUT_MS)
-  const settings = await ofetch<{ apiUrl?: unknown }>(secureUrl({ studioUrl, path: '/api/settings' }).href, {
-    redirect: 'error',
-    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-  }).catch(() => undefined)
-  const apiUrl = settings?.apiUrl
-  if (typeof apiUrl !== 'string' || !URL.canParse(apiUrl)) return fallback
+export function publicApiUrl({ studioUrl, path }: { studioUrl: string; path: string }): URL {
+  const hosted = new URL(studioUrl).origin === new URL(defaultStudioUrl).origin
+  const apiUrl = process.env.KUBB_STUDIO_API_URL || (hosted ? defaultApiUrl : undefined)
+  if (!apiUrl) return secureUrl({ studioUrl, path: `/api${path}` })
+  if (!URL.canParse(apiUrl)) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `KUBB_STUDIO_API_URL is not a URL: ${apiUrl}`,
+      help: 'Set it to an origin such as https://api.kubb.studio, or unset it.',
+    })
+  }
 
-  // `apiUrl` comes from the network, so it gets the same check as `studioUrl` before the key goes there.
   return secureUrl({ studioUrl: new URL(apiUrl).origin, path: `/v1${path}` })
 }

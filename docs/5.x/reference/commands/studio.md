@@ -191,7 +191,7 @@ See [Studio agent](#studio-agent) for where the agent finds extensions.
 
 In CI, `kubb studio snapshot` identifies the CI agent and compares the new snapshot with earlier ones.
 
-It uploads to the Studio's public API, `POST /v1/snapshots` on `api.kubb.studio` for the hosted Studio. It reads that hostname from `GET /api/settings` on the `--url` Studio, and uploads to `POST /api/snapshots` there when the Studio reports none.
+For the hosted Studio it uploads to the public API, `POST https://api.kubb.studio/v1/snapshots`. With any other `--url`, it uploads to `POST /api/snapshots` there. Set `KUBB_STUDIO_API_URL` to upload to `/v1/snapshots` on another public API hostname instead.
 
 #### JSON output
 

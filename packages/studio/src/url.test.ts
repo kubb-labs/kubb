@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { publicApiUrl, secureUrl } from './url.ts'
 
 describe('secureUrl', () => {
@@ -19,37 +19,31 @@ describe('secureUrl', () => {
 })
 
 describe('publicApiUrl', () => {
-  const settings = (response: Response | Promise<Response>) => vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(response))
-
-  it('uses the public API origin Studio reports', async () => {
-    using fetchMock = settings(Response.json({ apiUrl: 'https://api.kubb.studio' }))
-
-    await expect(publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).resolves.toHaveProperty('href', 'https://api.kubb.studio/v1/snapshots')
-    expect(String(fetchMock.mock.calls[0]![0])).toBe('https://kubb.studio/api/settings')
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it.each([
-    ['no public API', Response.json({ apiUrl: null })],
-    ['an older Studio without the field', Response.json({ mcpUrl: null })],
-    ['a failed lookup', new Response('down', { status: 503 })],
-    ['a value that is not a URL', Response.json({ apiUrl: 'api' })],
-  ])('falls back to /api with %s', async (_label, response) => {
-    using _ = settings(response)
+    ['the hosted Studio', 'https://kubb.studio', '', 'https://api.kubb.studio/v1/snapshots'],
+    ['the hosted Studio with a trailing slash', 'https://kubb.studio/', '', 'https://api.kubb.studio/v1/snapshots'],
+    ['another Studio', 'https://studio.acme.dev', '', 'https://studio.acme.dev/api/snapshots'],
+    ['KUBB_STUDIO_API_URL', 'https://studio.acme.dev', 'https://api.acme.dev/ignored-path', 'https://api.acme.dev/v1/snapshots'],
+    ['a local Studio', 'http://localhost:3000', '', 'http://localhost:3000/api/snapshots'],
+  ])('resolves %s', (_label, studioUrl, apiUrl, expected) => {
+    vi.stubEnv('KUBB_STUDIO_API_URL', apiUrl)
 
-    await expect(publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).resolves.toHaveProperty('href', 'https://kubb.studio/api/snapshots')
+    expect(publicApiUrl({ studioUrl, path: '/snapshots' }).href).toBe(expected)
   })
 
-  it('falls back to /api when Studio cannot be reached', async () => {
-    using _ = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('fetch failed'))
+  it('names KUBB_STUDIO_API_URL when it is not a URL', () => {
+    vi.stubEnv('KUBB_STUDIO_API_URL', 'api.acme.dev')
 
-    await expect(publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/agents' })).resolves.toHaveProperty('href', 'https://kubb.studio/api/agents')
+    expect(() => publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).toThrow('KUBB_STUDIO_API_URL is not a URL: api.acme.dev')
   })
 
-  it('refuses a plaintext public API origin, so the key never crosses the network unencrypted', async () => {
-    using _ = settings(Response.json({ apiUrl: 'http://api.example.com' }))
+  it('refuses a plaintext KUBB_STUDIO_API_URL', () => {
+    vi.stubEnv('KUBB_STUDIO_API_URL', 'http://api.acme.dev')
 
-    await expect(publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).rejects.toThrow(
-      'Refusing to reach Kubb Studio at http://api.example.com',
-    )
+    expect(() => publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).toThrow('Refusing to reach Kubb Studio at http://api.acme.dev')
   })
 })
