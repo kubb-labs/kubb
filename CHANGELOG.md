@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.28.3 — Nov 27, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb studio` prints the agent ID once connected, and `kubb studio status` shows it, so an MCP client can pass it to `kubb_studio_generate` without reading the credentials file. A refused pairing code or a rejected agent token is reported as `KUBB_STUDIO_REFUSED` with what to do next, instead of `KUBB_UNKNOWN` with a stack trace. Without `--url`, `kubb studio` uses the Studio the project paired with. ([#4817](https://github.com/kubb-labs/kubb/pull/4817), [`1f90bcf`](https://github.com/kubb-labs/kubb/commit/1f90bcf6838e04e31eb9b6d5f9d8b4ca1cac60a3))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.28.2 — Nov 27, 2026
 
 ### @kubb/cli
