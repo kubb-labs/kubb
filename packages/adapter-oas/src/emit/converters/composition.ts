@@ -13,7 +13,7 @@ import {
   propertyTypeOf,
 } from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
-import { extractExamples } from '../schemaShape.ts'
+import { extractExamples, hasSeveralPatterns } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
 
 /**
@@ -194,17 +194,36 @@ function mergeAnnotations(schema: SchemaObject): SchemaObject {
 }
 
 /**
+ * Whether the parent's own keywords become an intersection member: always beside `properties`, and
+ * beside several patterns when the parent holds more than its type and annotations, such as `minLength`.
+ */
+function keepsOwnKeywords(schema: SchemaObject): boolean {
+  if (schema.properties) return true
+  if (!hasSeveralPatterns(schema)) return false
+
+  return Object.keys(schema).some((key) => key !== 'allOf' && key !== 'type' && key !== 'nullable' && !annotationKeys.has(key))
+}
+
+/**
+ * Whether a one-member `allOf` adds nothing but annotations, so it parses as that member.
+ */
+function isSingleMemberAllOf(schema: SchemaObject): boolean {
+  return (
+    schema.allOf!.length === 1 &&
+    !schema.properties &&
+    !(Array.isArray(schema.required) && schema.required.length) &&
+    schema.additionalProperties === undefined &&
+    !hasSeveralPatterns(schema)
+  )
+}
+
+/**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
 export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
   const schema = mergeAnnotations(original)
 
-  if (
-    schema.allOf!.length === 1 &&
-    !schema.properties &&
-    !(Array.isArray(schema.required) && schema.required.length) &&
-    schema.additionalProperties === undefined
-  ) {
+  if (isSingleMemberAllOf(schema)) {
     const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
     const memberNode = parse({ schema: memberSchema! as SchemaObject, name })
     const { kind: _kind, ...memberNodeProps } = memberNode
@@ -271,7 +290,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
     }
   }
 
-  if (schema.properties) {
+  if (keepsOwnKeywords(schema)) {
     const { allOf: _allOf, ...schemaWithoutAllOf } = schema
     // Don't pass `name` here, the result must stay anonymous so it can be merged with the
     // adjacent synthetic object in `mergeAdjacentObjectsLazy`. Nested enum qualification
