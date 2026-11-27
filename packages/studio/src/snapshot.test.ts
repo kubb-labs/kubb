@@ -132,21 +132,15 @@ describe('createSnapshotPackage', () => {
 })
 
 describe('createSnapshot', () => {
-  /** Studio as `fetch` sees it: `settings` from `GET /api/settings`, and `upload` for the snapshot request. */
-  const studio =
-    (upload: Response, settings: { apiUrl: string | null } = { apiUrl: null }) =>
-    async (input: string | URL | Request) =>
-      String(input).endsWith('/api/settings') ? Response.json(settings) : upload
-
   const options = { apiKey: 'kubb_key', id: 'gh:1:pr-2', name: 'acme/api#2', packageName: '@acme/api', version: '1.0.0', commit: 'abc' }
 
   it('sends one multipart request with the metadata, the agent-compatible hashes and the tarball', async () => {
     const snapshot = { id: 'snap-1', url: '/packages/ci/acme-api.tgz' }
-    using fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(studio(Response.json({ snapshot }, { status: 201 })))
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot }, { status: 201 }))
 
     await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [projectConfig()] })).resolves.toStrictEqual(snapshot)
 
-    const [url, init] = fetchMock.mock.calls[1] as [string, RequestInit]
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe('https://studio.test/api/snapshots')
     expect(new Headers(init.headers).get('x-api-key')).toBe('kubb_key')
     expect(init.redirect).toBe('error')
@@ -175,7 +169,7 @@ describe('createSnapshot', () => {
     )
     const config = projectConfig({ projectRoot })
     const pluginX = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
-    using fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(studio(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 })))
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
 
     try {
       await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [{ ...config, plugins: [...config.plugins, pluginX] }] })
@@ -183,7 +177,7 @@ describe('createSnapshot', () => {
       await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
     }
 
-    const body = fetchMock.mock.calls[1]![1]!.body as FormData
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
     expect((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).peerDependencies).toStrictEqual({
       '@kubb/plugin-barrel': expect.any(String),
       '@acme/kubb-plugin-x': '1.2.3',
@@ -194,7 +188,7 @@ describe('createSnapshot', () => {
     const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-project-'))
     const rewrite = `node -e "require('fs').writeFileSync('src/gen/pet.ts', 'export const pet = 2')"`
     const config = projectConfig({ projectRoot })
-    using fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(studio(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 })))
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
 
     try {
       await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [{ ...config, output: { ...config.output, postGenerate: [rewrite] } }] })
@@ -202,14 +196,14 @@ describe('createSnapshot', () => {
       await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
     }
 
-    const body = fetchMock.mock.calls[1]![1]!.body as FormData
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
     expect((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).hashes).toStrictEqual({ 'src/gen/pet.ts': hashOf('export const pet = 2') })
   })
 
   it('packs the output of every config entry into the one package', async () => {
     const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-test-'))
     const configs = [projectConfig({ projectRoot }), projectConfig({ projectRoot, fileName: 'order.ts', content: 'export const order = 1' })]
-    using fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(studio(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 })))
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
 
     try {
       await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs })
@@ -217,7 +211,7 @@ describe('createSnapshot', () => {
       await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
     }
 
-    const body = fetchMock.mock.calls[1]![1]!.body as FormData
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
     expect(Object.keys((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).hashes).sort()).toStrictEqual([
       'src/gen/order.ts',
       'src/gen/pet.ts',
@@ -243,20 +237,10 @@ describe('createSnapshot', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('publishes to the public API when Studio reports one', async () => {
-    using fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockImplementation(studio(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }), { apiUrl: 'https://api.studio.test' }))
-
-    await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [projectConfig()] })
-
-    expect(fetchMock.mock.calls.map(([url]) => String(url))).toStrictEqual(['https://studio.test/api/settings', 'https://api.studio.test/v1/snapshots'])
-  })
-
   it('names the upgrade page when Studio refuses the snapshot over a limit', async () => {
     using _ = vi
       .spyOn(globalThis, 'fetch')
-      .mockImplementation(studio(Response.json({ message: 'Snapshot limit reached', data: { upgradeUrl: 'https://kubb.studio/billing' } }, { status: 402 })))
+      .mockResolvedValue(Response.json({ message: 'Snapshot limit reached', data: { upgradeUrl: 'https://kubb.studio/billing' } }, { status: 402 }))
 
     await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [projectConfig()] })).rejects.toThrow(
       'Kubb Studio refused the snapshot (status 402): Snapshot limit reached. Upgrade at https://kubb.studio/billing.',
