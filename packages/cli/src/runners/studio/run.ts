@@ -473,11 +473,11 @@ async function assertNoBackgroundWorker(): Promise<void> {
   })
 }
 
-/** Prints the project and its permissions once, after the first connect. */
 function refused(message: string, help: string): Error {
   return new Diagnostics.Error({ code: Diagnostics.code.studioRefused, severity: 'error', message, help })
 }
 
+/** Prints the agent ID, the project, and its permissions once, after the first connect. */
 function logConnected({ agentId, permissions, listens }: { agentId: string; permissions: StudioOptions['permission']; listens: boolean }): void {
   logBlock([
     // An MCP client passes this ID to `kubb_studio_generate`.

@@ -306,14 +306,16 @@ describe('redeemPairingCode', () => {
     await expect(redeemPairingCode(options)).rejects.toThrow('status 200')
   })
 
+  const newCode = 'Ask the MCP client for a new code.'
+  const limit = 'Remove an MCP agent in Studio, or upgrade the plan.'
+
   it.each([
-    ['invalid_grant', 400, undefined, 'unknown, already used, or its connection was revoked'],
-    ['invalid_grant', 400, 'The connection was revoked', 'The connection was revoked.'],
-    ['invalid_grant', 400, 'The pairing code is unknown, expired, or already used. Ask the MCP client for a new one.', 'or already used.'],
-    ['expired_token', 400, undefined, 'The pairing code expired'],
-    ['access_denied', 403, 'The Free plan allows 5 MCP agents.', 'The Free plan allows 5 MCP agents.'],
-    ['access_denied', 403, undefined, 'MCP agent limit'],
-  ])('throws PairingCodeError on %s (%i, %j) and does not send the code again', async (error, status, description, message) => {
+    ['invalid_grant', 400, undefined, 'unknown, already used, or its connection was revoked', newCode],
+    ['invalid_grant', 400, 'The connection was revoked', 'The connection was revoked.', newCode],
+    ['expired_token', 400, undefined, 'The pairing code expired', newCode],
+    ['access_denied', 403, 'The Free plan allows 5 MCP agents.', 'The Free plan allows 5 MCP agents.', limit],
+    ['access_denied', 403, undefined, 'MCP agent limit', limit],
+  ])('throws PairingCodeError on %s (%i, %j) and does not send the code again', async (error, status, description, message, help) => {
     fetchMock.mockResolvedValue(createMockResponse({ error, error_description: description }, status))
 
     const promise = redeemPairingCode(options)
@@ -321,8 +323,7 @@ describe('redeemPairingCode', () => {
     await expect(promise).rejects.toBeInstanceOf(PairingCodeError)
     await expect(promise).rejects.toMatchObject({ code: error })
     await expect(promise).rejects.toThrow(message)
-    await expect(promise).rejects.not.toThrow(/Ask the MCP client/)
-    await expect(promise).rejects.toMatchObject({ diagnostic: { code: 'KUBB_STUDIO_REFUSED', help: expect.any(String) } })
+    await expect(promise).rejects.toMatchObject({ diagnostic: { code: 'KUBB_STUDIO_REFUSED', help } })
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 

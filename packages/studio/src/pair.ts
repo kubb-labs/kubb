@@ -412,11 +412,7 @@ export class PairingCodeError extends Diagnostics.Error {
   readonly code: PairingCodeErrorCode
 
   constructor({ code, description }: { code: PairingCodeErrorCode; description?: string }) {
-    // Studio's own words may already ask for a new code, which `help` says once.
-    const sentence = description
-      ?.trim()
-      .replace(/(?<![.!?])$/, '.')
-      .replace(/\s*Ask the MCP client for a new (?:one|code)\.$/i, '')
+    const sentence = description?.trim().replace(/(?<![.!?])$/, '.')
     super({
       code: Diagnostics.code.studioRefused,
       severity: 'error',
