@@ -887,6 +887,21 @@ describe('parseSchema allOf', () => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe('intersection')
   })
 
+  it.each([
+    { title: 'in every member', schema: { type: 'string', allOf: [{ pattern: '^[a-z]*$' }, { pattern: '^[^q]*$' }] }, patterns: ['^[a-z]*$', '^[^q]*$'] },
+    { title: 'on the parent and the member', schema: { type: 'string', pattern: '^a', allOf: [{ pattern: '^[a-z]*$' }] }, patterns: ['^[a-z]*$', '^a'] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; patterns: Array<string> }>)('keeps every allOf pattern $title', ({ schema, patterns }) => {
+    const members = ast.schema.narrow(parseSchema(emptyCtx, { schema }), 'intersection')?.members ?? []
+
+    expect(members.map((member) => ast.schema.narrow(member, 'string')?.pattern)).toEqual(patterns)
+  })
+
+  it('flattens an allOf that repeats the parent pattern', () => {
+    const schema = { type: 'string', pattern: '^a', allOf: [{ pattern: '^a' }, { minLength: 2 }] } satisfies SchemaObject
+
+    expect(parseSchema(emptyCtx, { schema })).toMatchObject({ type: 'string', pattern: '^a', min: 2 })
+  })
+
   it('reads the properties of an allOf $ref that is itself an alias of another schema', () => {
     const doc = {
       openapi: '3.0.0',

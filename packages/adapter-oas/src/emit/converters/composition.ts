@@ -194,6 +194,16 @@ function mergeAnnotations(schema: SchemaObject): SchemaObject {
 }
 
 /**
+ * Whether the schema has a `pattern` that none of its inline `allOf` members repeats.
+ */
+function hasOtherPattern(schema: SchemaObject): boolean {
+  if (schema.pattern === undefined) return false
+  const patterns = (schema.allOf as Array<SchemaObject | ReferenceObject>).map((member) => (isReference(member) ? undefined : member.pattern))
+
+  return patterns.some((pattern) => pattern !== undefined) && !patterns.includes(schema.pattern)
+}
+
+/**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
 export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
@@ -203,7 +213,9 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
     schema.allOf!.length === 1 &&
     !schema.properties &&
     !(Array.isArray(schema.required) && schema.required.length) &&
-    schema.additionalProperties === undefined
+    schema.additionalProperties === undefined &&
+    // A value must match both patterns, so a parent `pattern` beside a different member `pattern` stays an intersection.
+    !hasOtherPattern(schema)
   ) {
     const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
     const memberNode = parse({ schema: memberSchema! as SchemaObject, name })
@@ -239,6 +251,9 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
   const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }))
 
   const syntheticStart = allOfMembers.length
+
+  // A sibling `pattern` applies next to every member, so it joins the intersection.
+  if (hasOtherPattern(schema) && !schema.properties) allOfMembers.push(parse({ schema: { pattern: schema.pattern } }))
 
   if (Array.isArray(schema.required) && schema.required.length) {
     const outerKeys = schema.properties ? new Set(Object.keys(schema.properties)) : new Set<string>()

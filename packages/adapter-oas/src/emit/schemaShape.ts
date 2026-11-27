@@ -59,6 +59,8 @@ export function flattenSchema(schema: SchemaObject): SchemaObject {
   const allOfFragments = schema.allOf as Array<SchemaObject>
   if (allOfFragments.some((item) => isReference(item))) return schema
   if (allOfFragments.some(hasStructuralKeywords)) return schema
+  // A value must match every `pattern`, and a node holds only one, so several patterns stay an intersection.
+  if (new Set([schema, ...allOfFragments].map((item) => item.pattern).filter((pattern) => pattern !== undefined)).size > 1) return schema
 
   // Destructure `allOf` out instead of `delete merged.allOf`: a `delete` transitions the freshly
   // spread object into V8 dictionary (slow) mode, and this runs per `allOf` schema during parsing.
