@@ -35,6 +35,12 @@ describe('publicApiUrl', () => {
     expect(publicApiUrl({ studioUrl, path: '/snapshots' }).href).toBe(expected)
   })
 
+  it('names KUBB_STUDIO_API_URL when it is not a URL', () => {
+    vi.stubEnv('KUBB_STUDIO_API_URL', 'api.acme.dev')
+
+    expect(() => publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).toThrow('KUBB_STUDIO_API_URL is not a URL: api.acme.dev')
+  })
+
   it('refuses a plaintext KUBB_STUDIO_API_URL', () => {
     vi.stubEnv('KUBB_STUDIO_API_URL', 'http://api.acme.dev')
 

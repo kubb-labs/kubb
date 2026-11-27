@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { defineExtension, resolveCacheDir } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
 import { createSnapshot, createSnapshotPackage, loadTsdown } from './snapshot.ts'
@@ -133,6 +133,14 @@ describe('createSnapshotPackage', () => {
 
 describe('createSnapshot', () => {
   const options = { apiKey: 'kubb_key', id: 'gh:1:pr-2', name: 'acme/api#2', packageName: '@acme/api', version: '1.0.0', commit: 'abc' }
+
+  // `publicApiUrl` reads the override from the environment, so a machine that sets it would change every upload URL.
+  beforeEach(() => {
+    vi.stubEnv('KUBB_STUDIO_API_URL', '')
+  })
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
 
   it('sends one multipart request with the metadata, the agent-compatible hashes and the tarball', async () => {
     const snapshot = { id: 'snap-1', url: '/packages/ci/acme-api.tgz' }
