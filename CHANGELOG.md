@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.28.2 — Nov 27, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Pair an agent that an MCP client starts with Kubb Studio, with no person approving it. Set `KUBB_STUDIO_PAIRING_CODE` to the one-time code from the `kubb_studio_connect` MCP tool, and `kubb studio connect` redeems it instead of showing a pairing code. The CLI never logs the code.
+  
+  ```shell
+  KUBB_STUDIO_PAIRING_CODE=kubb_pair_... npx kubb studio connect --allow-write --no-open --url https://kubb.studio
+  ```
+  
+  `@kubb/studio` adds `redeemPairingCode`, `PairingCodeError`, and `renewAgentToken`, which also returns how long the new token lasts. `renewAgentToken` replaces `refreshAgentToken`, which is removed: call `renewAgentToken(options)` and read `.token` from the result. A token with an expiry refreshes at 70 to 85 percent of its lifetime instead of once a day. ([#4815](https://github.com/kubb-labs/kubb/pull/4815), [`b594cea`](https://github.com/kubb-labs/kubb/commit/b594cea808bd375da0973e336586899544956317))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.28.1 — Nov 27, 2026
 
 ### @kubb/adapter-oas
