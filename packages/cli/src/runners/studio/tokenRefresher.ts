@@ -1,5 +1,5 @@
 import { toError } from '@internals/utils'
-import { InvalidAgentTokenError, renewAgentToken } from '@kubb/studio'
+import { InvalidAgentTokenError, renewAgentToken, type RenewedAgentToken } from '@kubb/studio'
 import { type Credentials, getMachineId, updateCredentials } from './credentials.ts'
 
 const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
@@ -94,6 +94,23 @@ export class TokenRefresher {
     this.#timer.unref()
   }
 
+  async #store({ replaced, renewed }: { replaced: string; renewed: RenewedAgentToken }): Promise<void> {
+    const { warn, credentials } = this.#options
+    const issuedAt = Date.now()
+    const refreshed = {
+      token: renewed.token,
+      issuedAt: new Date(issuedAt).toISOString(),
+      expiresAt: renewed.expiresIn === undefined ? undefined : new Date(issuedAt + renewed.expiresIn * 1000).toISOString(),
+    }
+    credentials.set({ ...credentials.get(), ...refreshed })
+    // Armed before the write, which a keychain prompt can hold past the new token's expiry.
+    if (this.#timer) this.#schedule(this.#nextDelay())
+    // Only the token changes on disk, so permissions saved since this run read the file are kept.
+    await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
+      warn(`Could not store the refreshed token: ${toError(error).message}`),
+    )
+  }
+
   // Resolves whether the token changed; a failure keeps the old one.
   async #refreshToken(force: boolean): Promise<boolean> {
     const { studioUrl, signal, warn, credentials } = this.#options
@@ -109,19 +126,7 @@ export class TokenRefresher {
       })
       // A pairing that finished meanwhile owns the credentials now.
       if (!renewed || credentials.get().token !== replaced) return false
-      const issuedAt = Date.now()
-      const refreshed = {
-        token: renewed.token,
-        issuedAt: new Date(issuedAt).toISOString(),
-        expiresAt: renewed.expiresIn === undefined ? undefined : new Date(issuedAt + renewed.expiresIn * 1000).toISOString(),
-      }
-      credentials.set({ ...credentials.get(), ...refreshed })
-      // Armed before the write, which a keychain prompt can hold past the new token's expiry.
-      if (this.#timer) this.#schedule(this.#nextDelay())
-      // Only the token changes on disk, so permissions saved since this run read the file are kept.
-      await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
-        warn(`Could not store the refreshed token: ${toError(error).message}`),
-      )
+      await this.#store({ replaced, renewed })
       return true
     } catch (error) {
       if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)
