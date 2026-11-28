@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.28.4 — Nov 28, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio snapshot` finds the public API from `--url`: the same host with `api.` in front, so `https://kubb.studio` uploads to `https://api.kubb.studio/v1/snapshots` and `https://dev.kubb.studio` to `https://api.dev.kubb.studio/v1/snapshots`. A Studio on `localhost` takes the upload on its own origin. `KUBB_STUDIO_API_URL` and the `/api/snapshots` fallback are gone. ([#4823](https://github.com/kubb-labs/kubb/pull/4823), [`d080b6b`](https://github.com/kubb-labs/kubb/commit/d080b6bb7d1a4152b1388f7ab368d314f9793499))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.28.3 — Nov 27, 2026
 
 ### @kubb/cli
