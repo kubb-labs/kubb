@@ -29,6 +29,10 @@ describe('publicApiUrl', () => {
     expect(publicApiUrl({ studioUrl, path: '/snapshots' }).href).toBe(expected)
   })
 
+  it.each(['https://10.0.0.5', 'https://[2001:db8::10]'])('refuses %s, which has no api. hostname', (studioUrl) => {
+    expect(() => publicApiUrl({ studioUrl, path: '/snapshots' })).toThrow('has no api. hostname for its public API')
+  })
+
   it('refuses a plaintext Studio URL', () => {
     expect(() => publicApiUrl({ studioUrl: 'http://studio.acme.dev', path: '/snapshots' })).toThrow(
       'Refusing to reach Kubb Studio at http://api.studio.acme.dev',
