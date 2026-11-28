@@ -1,4 +1,4 @@
-import { isSecureUrl } from '@internals/utils'
+import { isLoopbackHost, isSecureUrl } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 
 /**
@@ -30,14 +30,12 @@ export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: stri
   return url
 }
 
-/**
- * Hosted Kubb Studio's public API.
- */
-const defaultApiUrl = 'https://api.kubb.studio'
+const IP_HOST = /^(\d{1,3}\.){3}\d{1,3}$|^\[[\da-f:.]+\]$/i
 
 /**
- * Where an organization API key request goes: `{apiUrl}/v1{path}`, with `KUBB_STUDIO_API_URL` as `apiUrl`, or
- * `https://api.kubb.studio` for the hosted Studio. Any other Studio takes the key at `{studioUrl}/api{path}`.
+ * Where an organization API key request goes: `/v1{path}` on the Studio's public API, the Studio host with `api.` in
+ * front, such as `https://api.dev.kubb.studio` for `https://dev.kubb.studio`. A Studio on this machine serves `/v1`
+ * on its own origin.
  *
  * @example
  * ```ts
@@ -45,17 +43,19 @@ const defaultApiUrl = 'https://api.kubb.studio'
  * ```
  */
 export function publicApiUrl({ studioUrl, path }: { studioUrl: string; path: string }): URL {
-  const hosted = new URL(studioUrl).origin === new URL(defaultStudioUrl).origin
-  const apiUrl = process.env.KUBB_STUDIO_API_URL || (hosted ? defaultApiUrl : undefined)
-  if (!apiUrl) return secureUrl({ studioUrl, path: `/api${path}` })
-  if (!URL.canParse(apiUrl)) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.unknown,
-      severity: 'error',
-      message: `KUBB_STUDIO_API_URL is not a URL: ${apiUrl}`,
-      help: 'Set it to an origin such as https://api.kubb.studio, or unset it.',
-    })
+  const url = new URL(studioUrl)
+  if (!isLoopbackHost(url.hostname)) {
+    // An IP address has no `api.` name to put in front of it, and the URL setter would keep the Studio origin.
+    if (IP_HOST.test(url.hostname)) {
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: `Kubb Studio at ${url.origin} has no api. hostname for its public API`,
+        help: 'Pass the Studio hostname as --url, such as https://kubb.studio, not an IP address.',
+      })
+    }
+    url.hostname = `api.${url.hostname}`
   }
 
-  return secureUrl({ studioUrl: new URL(apiUrl).origin, path: `/v1${path}` })
+  return secureUrl({ studioUrl: url.origin, path: `/v1${path}` })
 }
