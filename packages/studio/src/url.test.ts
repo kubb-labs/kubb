@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { publicApiUrl, secureUrl } from './url.ts'
 
 describe('secureUrl', () => {
@@ -19,31 +19,19 @@ describe('secureUrl', () => {
 })
 
 describe('publicApiUrl', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs()
-  })
-
   it.each([
-    ['the hosted Studio', 'https://kubb.studio', '', 'https://api.kubb.studio/v1/snapshots'],
-    ['the hosted Studio with a trailing slash', 'https://kubb.studio/', '', 'https://api.kubb.studio/v1/snapshots'],
-    ['another Studio', 'https://studio.acme.dev', '', 'https://studio.acme.dev/api/snapshots'],
-    ['KUBB_STUDIO_API_URL', 'https://studio.acme.dev', 'https://api.acme.dev/ignored-path', 'https://api.acme.dev/v1/snapshots'],
-    ['a local Studio', 'http://localhost:3000', '', 'http://localhost:3000/api/snapshots'],
-  ])('resolves %s', (_label, studioUrl, apiUrl, expected) => {
-    vi.stubEnv('KUBB_STUDIO_API_URL', apiUrl)
-
+    ['the hosted Studio', 'https://kubb.studio', 'https://api.kubb.studio/v1/snapshots'],
+    ['the hosted Studio with a trailing slash', 'https://kubb.studio/', 'https://api.kubb.studio/v1/snapshots'],
+    ['the dev Studio', 'https://dev.kubb.studio', 'https://api.dev.kubb.studio/v1/snapshots'],
+    ['a self-hosted Studio under a path', 'https://studio.acme.dev/studio/', 'https://api.studio.acme.dev/v1/snapshots'],
+    ['a Studio on this machine', 'http://localhost:3000', 'http://localhost:3000/v1/snapshots'],
+  ])('resolves %s', (_label, studioUrl, expected) => {
     expect(publicApiUrl({ studioUrl, path: '/snapshots' }).href).toBe(expected)
   })
 
-  it('names KUBB_STUDIO_API_URL when it is not a URL', () => {
-    vi.stubEnv('KUBB_STUDIO_API_URL', 'api.acme.dev')
-
-    expect(() => publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).toThrow('KUBB_STUDIO_API_URL is not a URL: api.acme.dev')
-  })
-
-  it('refuses a plaintext KUBB_STUDIO_API_URL', () => {
-    vi.stubEnv('KUBB_STUDIO_API_URL', 'http://api.acme.dev')
-
-    expect(() => publicApiUrl({ studioUrl: 'https://kubb.studio', path: '/snapshots' })).toThrow('Refusing to reach Kubb Studio at http://api.acme.dev')
+  it('refuses a plaintext Studio URL', () => {
+    expect(() => publicApiUrl({ studioUrl: 'http://studio.acme.dev', path: '/snapshots' })).toThrow(
+      'Refusing to reach Kubb Studio at http://api.studio.acme.dev',
+    )
   })
 })
